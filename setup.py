@@ -21,12 +21,12 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='python-project',
     version='0.0.1',
-    license='MIT',
-    description='An example package. Generated with cookiecutter-pylibrary.',
+    license='AGPL-3.0',
+    description='Genetic Therapy Generator Toolkit',
     long_description=long_description,
     author='Redmar van den Berg',
     author_email='RedmarvandenBerg@lumc.nl',
-    url='https://github.com/redmar-van-den-berg/python-project',
+    url='https://github.com/DCRT-LUMC/GTGT',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -52,8 +52,8 @@ setup(
         'Topic :: Utilities',
     ],
     project_urls={
-        'Changelog': 'https://github.com/redmar-van-den-berg/python-project/blob/master/CHANGELOG.md',
-        'Issue Tracker': 'https://github.com/redmar-van-den-berg/python-project/issues',
+        'Changelog': 'https://github.com/DCRT-LUMC/GTGT/blob/main/CHANGELOG.rst',
+        'Issue Tracker': 'https://github.com/DCRT-LUMC/GTGT/issues',
     },
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
