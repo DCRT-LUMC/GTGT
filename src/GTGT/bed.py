@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union, Iterator, List, Tuple, cast
+from typing import Optional, Iterator, List, Tuple
 
 
 class Bed:
@@ -42,31 +42,28 @@ class Bed:
         self.blockStarts = blockStarts if blockStarts else [self.chromStart]
 
     def blocks(self) -> Iterator[Tuple[int, int]]:
-        assert self.blockSizes is not None
-        assert self.blockStarts is not None
         for size, start in zip(self.blockSizes, self.blockStarts):
             block_start = self.chromStart + start
             block_end = block_start + size
             yield (block_start, block_end)
 
-    def __str__(s) -> str:
-        assert s.name is not None
-        assert s.strand is not None
+    def __str__(self) -> str:
         return "\t".join(
             map(
                 str,
                 (
-                    s.chrom,
-                    s.chromStart,
-                    s.chromEnd,
-                    s.name,
-                    s.score,
-                    s.strand,
-                    s.thickStart,
-                    s.thickEnd,
-                    ','.join(map(str, s.itemRgb)),
-                    s.blockCount,
-                    ','.join(map(str, s.blockSizes)),
+                    self.chrom,
+                    self.chromStart,
+                    self.chromEnd,
+                    self.name,
+                    self.score,
+                    self.strand,
+                    self.thickStart,
+                    self.thickEnd,
+                    ",".join(map(str, self.itemRgb)),
+                    self.blockCount,
+                    ",".join(map(str, self.blockSizes)),
+                    ",".join(map(str, self.blockStarts)),
                 ),
             )
         )

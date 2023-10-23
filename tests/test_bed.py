@@ -41,7 +41,10 @@ def test_blocks_interface(bed: Bed) -> None:
 
 # Bed records, and their corresponding representation in Bed format
 bed_records = [
-    (Bed("chr1", 0, 11), ["chr1", "0", "11", ".", "0", ".", "0", "11", "0,0,0", "1", "11"]),
+    (
+        Bed("chr1", 0, 11),
+        ["chr1", "0", "11", ".", "0", ".", "0", "11", "0,0,0", "1", "11", "0"],
+    ),
     (
         Bed(
             chrom="chr1",
@@ -52,11 +55,12 @@ bed_records = [
             strand="+",
             thickStart=8,
             thickEnd=10,
-            itemRgb=(42,42,42),
+            itemRgb=(42, 42, 42),
             blockCount=2,
-            blockSizes=[3,4],
+            blockSizes=[3, 4],
+            blockStarts=[2, 7],
         ),
-        ["chr1", "0", "11", "name", "5", "+", "8", "10", "42,42,42", "2", "3,4"],
+        ["chr1", "0", "11", "name", "5", "+", "8", "10", "42,42,42", "2", "3,4", "2,7"],
     ),
 ]
 
