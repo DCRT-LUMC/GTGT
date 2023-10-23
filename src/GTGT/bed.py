@@ -13,7 +13,7 @@ class Bed:
         strand: str = ".",
         thickStart: Optional[int] = None,
         thickEnd: Optional[int] = None,
-        itemRgb: Optional[str] = None,
+        itemRgb: Tuple[int, int, int] = (0, 0, 0),
         blockCount: Optional[int] = None,
         blockSizes: Optional[List[int]] = None,
         blockStarts: Optional[List[int]] = None,
@@ -31,18 +31,14 @@ class Bed:
         self.thickStart = thickStart if thickStart else self.chromStart
         self.thickEnd = thickEnd if thickEnd else self.chromEnd
 
-        # Set the default colour to black.
-        # According to the Bed standard, 0 is an alias for (0, 0, 0)
-        if itemRgb is None or itemRgb == "0":
-            self.itemRgb = (0, 0, 0)
-        else:
-            self.itemRgb = tuple(map(int,itemRgb.split(',')))
+        self.itemRgb = itemRgb
 
         # Set the blocks
         self.blockCount = blockCount if blockCount else 1
-        self.blockSizes = (
-            blockSizes if blockSizes else [self.chromEnd - self.chromStart]
-        )
+        if blockSizes is None:
+            self.blockSizes = [self.chromEnd - self.chromStart]
+        else:
+            self.blockSizes = blockSizes
         self.blockStarts = blockStarts if blockStarts else [self.chromStart]
 
     def blocks(self) -> Iterator[Tuple[int, int]]:
@@ -70,6 +66,7 @@ class Bed:
                     s.thickEnd,
                     ','.join(map(str, s.itemRgb)),
                     s.blockCount,
+                    ','.join(map(str, s.blockSizes)),
                 ),
             )
         )

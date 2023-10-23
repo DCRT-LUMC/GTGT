@@ -27,13 +27,6 @@ def test_default_values_display_attributes(bed: Bed) -> None:
     assert bed.itemRgb == (0, 0, 0)
 
 
-def test_rgb_zero() -> None:
-    """itemRgb of zero is a special case, and an alias for (0, 0, 0)"""
-    bed = Bed("chr1", 0, 11, "name", 1000, "+", 0, 11, itemRgb="0")
-
-    assert bed.itemRgb == (0, 0, 0)
-
-
 def test_default_values_blocks(bed: Bed) -> None:
     assert bed.blockCount == 1
     assert bed.blockSizes == [11]
@@ -48,7 +41,7 @@ def test_blocks_interface(bed: Bed) -> None:
 
 # Bed records, and their corresponding representation in Bed format
 bed_records = [
-    (Bed("chr1", 0, 11), ["chr1", "0", "11", ".", "0", ".", "0", "11", "0,0,0", "1"]),
+    (Bed("chr1", 0, 11), ["chr1", "0", "11", ".", "0", ".", "0", "11", "0,0,0", "1", "11"]),
     (
         Bed(
             chrom="chr1",
@@ -59,10 +52,11 @@ bed_records = [
             strand="+",
             thickStart=8,
             thickEnd=10,
-            itemRgb="42,42,42",
+            itemRgb=(42,42,42),
             blockCount=2,
+            blockSizes=[3,4],
         ),
-        ["chr1", "0", "11", "name", "5", "+", "8", "10", "42,42,42", "2"],
+        ["chr1", "0", "11", "name", "5", "+", "8", "10", "42,42,42", "2", "3,4"],
     ),
 ]
 
