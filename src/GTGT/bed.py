@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Optional, Iterator, List, Tuple
 
 
@@ -42,6 +41,7 @@ class Bed:
         self.blockStarts = blockStarts if blockStarts else [self.chromStart]
 
     def blocks(self) -> Iterator[Tuple[int, int]]:
+        """Iterate over all blocks in the Bed record"""
         for size, start in zip(self.blockSizes, self.blockStarts):
             block_start = self.chromStart + start
             block_end = block_start + size
