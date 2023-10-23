@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union, Iterator, List, Tuple
+from typing import Optional, Union, Iterator, List, Tuple, cast
 
 
 @dataclass
@@ -14,7 +14,7 @@ class Bed:
     # Display attributes
     thickStart: Optional[int] = None
     thickEnd: Optional[int] = None
-    itemRgb: Optional[Union[Tuple[int, int, int], int]] = None
+    itemRgb: Optional[str] = None
     # Blocks
     blockCount: Optional[int] = None
     blockSizes: Optional[List[int]] = None
@@ -29,8 +29,8 @@ class Bed:
 
         # Set the default colour to black.
         # According to the Bed standard, 0 is an alias for (0, 0, 0)
-        if self.itemRgb is None or self.itemRgb == 0:
-            self.itemRgb = (0, 0, 0)
+        if self.itemRgb is None or self.itemRgb == "0":
+            self.itemRgb = "0,0,0"
 
         # Set the blocks
         if self.blockCount is None:
@@ -47,3 +47,26 @@ class Bed:
             block_start = self.chromStart + start
             block_end = block_start + size
             yield (block_start, block_end)
+
+    def __str__(s) -> str:
+        assert s.name is not None
+        assert s.strand is not None
+        cast(Tuple[int, int, int], s.itemRgb)
+        assert s.itemRgb is not None
+        return "\t".join(
+            map(
+                str,
+                (
+                    s.chrom,
+                    s.chromStart,
+                    s.chromEnd,
+                    s.name,
+                    s.score,
+                    s.strand,
+                    s.thickStart,
+                    s.thickEnd,
+                    s.itemRgb,
+                    s.blockCount,
+                ),
+            )
+        )
