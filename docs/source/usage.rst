@@ -6,11 +6,11 @@ Usage
 Installation
 ------------
 
-Python-project can be installed using pip:
+GTGT can be installed using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install Python-project
+   (.venv) $ pip install GTGT
 
 Default usage
 ----------------
@@ -30,6 +30,6 @@ You can also specify the person to greeting
 
 Python functions
 ----------------
-There are also some functions that are not exposed directly
+To work with Bed files, GTGT comes with a Bed dataclass that will expand to BED12.
 
-To add two numbers together, you can use the :py:func:`python_project.addition` function.
+See :py:func:`GTGT.Bed`.

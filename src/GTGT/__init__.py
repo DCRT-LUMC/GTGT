@@ -1,3 +1,3 @@
-from .maths import addition
+from .bed import Bed
 
-__all__ = ["addition"]
+__all__ = ["Bed"]
