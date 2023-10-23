@@ -1,4 +1,4 @@
-from python_project import maths
+from GTGT import maths
 
 
 def test_addition() -> None:
