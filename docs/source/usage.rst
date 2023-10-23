@@ -30,6 +30,6 @@ You can also specify the person to greeting
 
 Python functions
 ----------------
-To work with Bed files, GTGT comes with a Bed dataclass that will expand to BED12.
+To work with Bed files, GTGT comes with a Bed class that will expand to BED12.
 
 See :py:func:`GTGT.Bed`.

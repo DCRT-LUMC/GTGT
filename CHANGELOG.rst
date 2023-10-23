@@ -8,5 +8,5 @@ Changelog
 
 v0.0.1-dev
 ----------
-+ Add Bed dataclass for Bed format
++ Add class for Bed format
 + Initial commit

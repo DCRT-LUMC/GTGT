@@ -2,43 +2,48 @@ from dataclasses import dataclass
 from typing import Optional, Union, Iterator, List, Tuple, cast
 
 
-@dataclass
 class Bed:
-    chrom: str
-    chromStart: int
-    chromEnd: int
-    # Simple attributes
-    name: Optional[str] = "."
-    score: Optional[int] = 0
-    strand: Optional[str] = "."
-    # Display attributes
-    thickStart: Optional[int] = None
-    thickEnd: Optional[int] = None
-    itemRgb: Optional[str] = None
-    # Blocks
-    blockCount: Optional[int] = None
-    blockSizes: Optional[List[int]] = None
-    blockStarts: Optional[List[int]] = None
+    def __init__(
+        self,
+        chrom: str,
+        chromStart: int,
+        chromEnd: int,
+        name: str = ".",
+        score: int = 0,
+        strand: str = ".",
+        thickStart: Optional[int] = None,
+        thickEnd: Optional[int] = None,
+        itemRgb: Optional[str] = None,
+        blockCount: Optional[int] = None,
+        blockSizes: Optional[List[int]] = None,
+        blockStarts: Optional[List[int]] = None,
+    ) -> None:
+        # Required attributes
+        self.chrom = chrom
+        self.chromStart = chromStart
+        self.chromEnd = chromEnd
 
-    def __post_init__(self) -> None:
-        # Set thick start/end to chrom start/end
-        if self.thickStart is None:
-            self.thickStart = self.chromStart
-        if self.thickEnd is None:
-            self.thickEnd = self.chromEnd
+        # Simple attributes
+        self.name = name
+        self.score = score
+        self.strand = strand
+
+        self.thickStart = thickStart if thickStart else self.chromStart
+        self.thickEnd = thickEnd if thickEnd else self.chromEnd
 
         # Set the default colour to black.
         # According to the Bed standard, 0 is an alias for (0, 0, 0)
-        if self.itemRgb is None or self.itemRgb == "0":
+        if itemRgb is None or itemRgb == "0":
             self.itemRgb = "0,0,0"
+        else:
+            self.itemRgb = itemRgb
 
         # Set the blocks
-        if self.blockCount is None:
-            self.blockCount = 1
-        if self.blockSizes is None:
-            self.blockSizes = [self.chromEnd - self.chromStart]
-        if self.blockStarts is None:
-            self.blockStarts = [self.chromStart]
+        self.blockCount = blockCount if blockCount else 1
+        self.blockSizes = (
+            blockSizes if blockSizes else [self.chromEnd - self.chromStart]
+        )
+        self.blockStarts = blockStarts if blockStarts else [self.chromStart]
 
     def blocks(self) -> Iterator[Tuple[int, int]]:
         assert self.blockSizes is not None
@@ -51,8 +56,6 @@ class Bed:
     def __str__(s) -> str:
         assert s.name is not None
         assert s.strand is not None
-        cast(Tuple[int, int, int], s.itemRgb)
-        assert s.itemRgb is not None
         return "\t".join(
             map(
                 str,
