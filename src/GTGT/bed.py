@@ -34,9 +34,9 @@ class Bed:
         # Set the default colour to black.
         # According to the Bed standard, 0 is an alias for (0, 0, 0)
         if itemRgb is None or itemRgb == "0":
-            self.itemRgb = "0,0,0"
+            self.itemRgb = (0, 0, 0)
         else:
-            self.itemRgb = itemRgb
+            self.itemRgb = tuple(map(int,itemRgb.split(',')))
 
         # Set the blocks
         self.blockCount = blockCount if blockCount else 1
@@ -68,7 +68,7 @@ class Bed:
                     s.strand,
                     s.thickStart,
                     s.thickEnd,
-                    s.itemRgb,
+                    ','.join(map(str, s.itemRgb)),
                     s.blockCount,
                 ),
             )

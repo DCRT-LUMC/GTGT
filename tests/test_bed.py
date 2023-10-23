@@ -24,14 +24,14 @@ def test_default_values_simple_attributes(bed: Bed) -> None:
 def test_default_values_display_attributes(bed: Bed) -> None:
     assert bed.thickStart == 0
     assert bed.thickEnd == 11
-    assert bed.itemRgb == "0,0,0"
+    assert bed.itemRgb == (0, 0, 0)
 
 
 def test_rgb_zero() -> None:
     """itemRgb of zero is a special case, and an alias for (0, 0, 0)"""
     bed = Bed("chr1", 0, 11, "name", 1000, "+", 0, 11, itemRgb="0")
 
-    assert bed.itemRgb == "0,0,0"
+    assert bed.itemRgb == (0, 0, 0)
 
 
 def test_default_values_blocks(bed: Bed) -> None:
