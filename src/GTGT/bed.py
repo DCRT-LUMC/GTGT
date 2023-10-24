@@ -1,44 +1,76 @@
-from typing import Optional, Iterator, List, Tuple
+from typing import Optional, Iterator, List, Tuple, Union
+
+# Int, or a string we can cast to int
+castable_int = Union[int, str]
+
+# colorRgb field from Bed
+color = Union[str, Tuple[int, int, int]]
+
+# Either [1, 2, 3] or "1,2,3"
+castable_list = Union[List[int], str]
 
 
 class Bed:
     def __init__(
         self,
         chrom: str,
-        chromStart: int,
-        chromEnd: int,
+        chromStart: castable_int,
+        chromEnd: castable_int,
         name: str = ".",
-        score: int = 0,
+        score: castable_int = 0,
         strand: str = ".",
-        thickStart: Optional[int] = None,
-        thickEnd: Optional[int] = None,
-        itemRgb: Tuple[int, int, int] = (0, 0, 0),
-        blockCount: Optional[int] = None,
-        blockSizes: Optional[List[int]] = None,
-        blockStarts: Optional[List[int]] = None,
+        thickStart: Optional[castable_int] = None,
+        thickEnd: Optional[castable_int] = None,
+        itemRgb: color = (0, 0, 0),
+        blockCount: castable_int = 1,
+        blockSizes: Optional[castable_list] = None,
+        blockStarts: Optional[castable_list] = None,
     ) -> None:
         # Required attributes
         self.chrom = chrom
-        self.chromStart = chromStart
-        self.chromEnd = chromEnd
+        self.chromStart = int(chromStart)
+        self.chromEnd = int(chromEnd)
 
         # Simple attributes
         self.name = name
-        self.score = score
+        self.score = int(score)
         self.strand = strand
 
-        self.thickStart = thickStart if thickStart else self.chromStart
-        self.thickEnd = thickEnd if thickEnd else self.chromEnd
+        if thickStart is None:
+            self.thickStart = self.chromStart
+        elif isinstance(thickStart, str):
+            self.thickStart = int(thickStart)
+        else:
+            self.thickStart = thickStart
 
-        self.itemRgb = itemRgb
+        if thickEnd is None:
+            self.thickEnd = self.chromEnd
+        elif isinstance(thickEnd, str):
+            self.thickEnd = int(thickEnd)
+        else:
+            self.thickEnd = thickEnd
+
+        if isinstance(itemRgb, str):
+            self.itemRgb = tuple(map(int, itemRgb.split(",")))
+        else:
+            self.itemRgb = itemRgb
 
         # Set the blocks
-        self.blockCount = blockCount if blockCount else 1
+        self.blockCount = int(blockCount)
+
         if blockSizes is None:
             self.blockSizes = [self.chromEnd - self.chromStart]
+        elif isinstance(blockSizes, str):
+            self.blockSizes = list(map(int, (x for x in blockSizes.split(",") if x)))
         else:
             self.blockSizes = blockSizes
-        self.blockStarts = blockStarts if blockStarts else [self.chromStart]
+
+        if blockStarts is None:
+            self.blockStarts = [self.chromStart]
+        elif isinstance(blockStarts, str):
+            self.blockStarts = list(map(int, (x for x in blockStarts.split(",") if x)))
+        else:
+            self.blockStarts = blockStarts
 
     def blocks(self) -> Iterator[Tuple[int, int]]:
         """Iterate over all blocks in the Bed record"""
@@ -67,18 +99,23 @@ class Bed:
                 ),
             )
         )
-    def __eq__(self, other):
-        return all((
-            self.chrom == other.chrom,
-            self.chromStart == other.chromStart,
-            self.chromEnd == other.chromEnd,
-            self.name == other.name,
-            self.score == other.score,
-            self.strand == other.strand,
-            self.thickStart == other.thickStart,
-            self.thickEnd == other.thickEnd,
-            self.itemRgb == other.itemRgb,
-            self.blockCount == other.blockCount,
-            self.blockSizes == other.blockSizes,
-            self.blockStarts == other.blockStarts
-        ))
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Bed):
+            raise NotImplemented
+        return all(
+            (
+                self.chrom == other.chrom,
+                self.chromStart == other.chromStart,
+                self.chromEnd == other.chromEnd,
+                self.name == other.name,
+                self.score == other.score,
+                self.strand == other.strand,
+                self.thickStart == other.thickStart,
+                self.thickEnd == other.thickEnd,
+                self.itemRgb == other.itemRgb,
+                self.blockCount == other.blockCount,
+                self.blockSizes == other.blockSizes,
+                self.blockStarts == other.blockStarts,
+            )
+        )

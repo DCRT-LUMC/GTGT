@@ -9,7 +9,7 @@ def bed() -> Bed:
     return Bed("chr1", 0, 11)
 
 
-def test_make_bed(bed: Bed) -> None:
+def test_bed_properties(bed: Bed) -> None:
     assert bed.chrom == "chr1"
     assert bed.chromStart == 0
     assert bed.chromEnd == 11
@@ -27,6 +27,54 @@ def test_default_values_display_attributes(bed: Bed) -> None:
     assert bed.itemRgb == (0, 0, 0)
 
 
+def test_bed_init_method() -> None:
+    """Test various values for the init methods
+
+    We allow people to pass both python values as well as their BED format
+    string representation
+    """
+    # Pass Integers for positions
+    assert Bed("chr1", 0, 10) == Bed("chr1", "0", "10")
+
+    # Pass integer for score
+    assert Bed("chr1", 0, 10, score=1000) == Bed("chr1", "0", "10", score="1000")
+
+    # Pass integer for thickStart, thickEnd
+    bed1 = Bed("chr1", 0, 10, thickStart=0, thickEnd=10)
+    bed2 = Bed("chr1", "0", "10", thickStart="0", thickEnd="10")
+    assert bed1 == bed2
+
+    # Pass itemRgb as a tuple[int] and a string
+    bed1 = Bed("chr1", 0, 10, itemRgb=(0, 0, 0))
+    bed2 = Bed("chr1", "0", "10", itemRgb="0,0,0")
+    assert bed1 == bed2
+
+    # Pass an integer for blockCount
+    bed1 = Bed("chr1", 0, 10, blockCount=10)
+    bed2 = Bed("chr1", "0", "10", blockCount="10")
+    assert bed1 == bed2
+
+    # Pass a list of integers for blockSizes
+    bed1 = Bed("chr1", 0, 10, blockSizes=[1, 4, 10])
+    bed2 = Bed("chr1", "0", "10", blockSizes="1,4,10")
+    assert bed1 == bed2
+
+    # Pass a list of integers for blockStarts
+    bed1 = Bed("chr1", 0, 10, blockStarts=[1, 4, 10])
+    bed2 = Bed("chr1", "0", "10", blockStarts="1,4,10")
+    assert bed1 == bed2
+
+    # Trailing comma's are allowed for blockSizes and blockStarts, according
+    # to the Bed standard
+    bed1 = Bed("chr1", 0, 10, blockSizes=[1, 4, 10])
+    bed2 = Bed("chr1", "0", "10", blockSizes="1,4,10,")
+    assert bed1 == bed2
+
+    bed1 = Bed("chr1", 0, 10, blockStarts=[1, 4, 10])
+    bed2 = Bed("chr1", "0", "10", blockStarts="1,4,10,")
+    assert bed1 == bed2
+
+
 def test_default_values_blocks(bed: Bed) -> None:
     assert bed.blockCount == 1
     assert bed.blockSizes == [11]
@@ -42,8 +90,9 @@ def test_blocks_interface(bed: Bed) -> None:
 # Bed records, and their corresponding representation in Bed format
 bed_records = [
     (
-        Bed("chr1", 0, 11),
-        ["chr1", "0", "11", ".", "0", ".", "0", "11", "0,0,0", "1", "11", "0"],
+        # Default values
+        Bed("chr1", 0, 11, ".", 0),
+        "chr1	0	11	.	0	.	0	11	0,0,0	1	11	0",
     ),
     (
         Bed(
@@ -60,12 +109,20 @@ bed_records = [
             blockSizes=[3, 4],
             blockStarts=[2, 7],
         ),
-        ["chr1", "0", "11", "name", "5", "+", "8", "10", "42,42,42", "2", "3,4", "2,7"],
+        "chr1	0	11	name	5	+	8	10	42,42,42	2	3,4	2,7",
     ),
 ]
 
 
-@pytest.mark.parametrize("bed, expected", bed_records)
-def test_str_bed(bed: Bed, expected: List[str]) -> None:
+@pytest.mark.parametrize("bed, line", bed_records)
+def test_bed_roundtrip(bed: Bed, line: str) -> None:
     """Test writing a bed to string format"""
-    assert str(bed) == "\t".join(expected)
+    # Convert bed record to line
+    from_bed = str(bed)
+    # Convert line to Bed record
+    from_line = Bed(*line.split("\t"))
+
+    # Check that the line from Bed is as expected
+    assert from_bed == line
+    # Check that the Bed record from line is as expected
+    assert from_line == bed
