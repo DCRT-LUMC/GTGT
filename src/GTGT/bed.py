@@ -67,3 +67,18 @@ class Bed:
                 ),
             )
         )
+    def __eq__(self, other):
+        return all((
+            self.chrom == other.chrom,
+            self.chromStart == other.chromStart,
+            self.chromEnd == other.chromEnd,
+            self.name == other.name,
+            self.score == other.score,
+            self.strand == other.strand,
+            self.thickStart == other.thickStart,
+            self.thickEnd == other.thickEnd,
+            self.itemRgb == other.itemRgb,
+            self.blockCount == other.blockCount,
+            self.blockSizes == other.blockSizes,
+            self.blockStarts == other.blockStarts
+        ))

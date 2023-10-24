@@ -67,4 +67,5 @@ bed_records = [
 
 @pytest.mark.parametrize("bed, expected", bed_records)
 def test_str_bed(bed: Bed, expected: List[str]) -> None:
+    """Test writing a bed to string format"""
     assert str(bed) == "\t".join(expected)
