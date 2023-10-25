@@ -1,7 +1,8 @@
 import pytest
-from typing import List
+from typing import List, Tuple
 
 from GTGT import Bed
+from GTGT.bed import _to_range
 
 
 @pytest.fixture
@@ -126,3 +127,31 @@ def test_bed_roundtrip(bed: Bed, line: str) -> None:
     assert from_bed == line
     # Check that the Bed record from line is as expected
     assert from_line == bed
+
+
+intersect = [
+    ((0, 10), (10, 20), None),
+    #((0, 10), (0, 10), (0, 10)),
+]
+
+Range = Tuple[int, int]
+@pytest.mark.parametrize("a, b, intersection", intersect)
+def test_intersect_ranges(a: Range, b: Range, intersection: Range) -> None:
+    assert Bed._intersect(a, b) == intersection
+
+to_range = [
+    ([], []),
+    ([0], [(0, 1)]),
+    ([0, 1], [(0, 2)]),
+    ([0, 1, 2, 4, 5], [(0, 3), (4, 6)])
+]
+@pytest.mark.parametrize("numbers, expected", to_range)
+def test_to_range(numbers: List[int], expected: List[Range]) -> None:
+    # Test from numbers to ranges
+    assert _to_range(numbers) == expected
+
+    # Test from returned ranges to numbers
+    nums = list()
+    for r in expected:
+        nums+=list(range(*r))
+    assert nums == numbers
