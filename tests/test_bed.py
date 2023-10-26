@@ -130,9 +130,26 @@ def test_bed_roundtrip(bed: Bed, line: str) -> None:
 
 
 intersect = [
-    # Range a, range b, intersection
+    # Range A, range A, intersection
     ((0, 10), (10, 20), list()),
     ((0, 10), (0, 10), [(0, 10)]),
+    # Test cases where A is of size 1, and B of size 3
+    # In each test case, we shift A one further to the right
+    ((0, 1), (1, 4), list()),
+    ((1, 2), (1, 4), [(1, 2)]),
+    ((2, 3), (1, 4), [(2, 3)]),
+    ((3, 4), (1, 4), [(3, 4)]),
+    ((4, 5), (1, 4), list()),
+    # Test cases where A and B are both of size 3
+    # In each test case, we shift A one further to the right
+    ((0, 3), (3, 6), list()),
+    ((1, 4), (3, 6), [(3, 4)]),
+    ((2, 5), (3, 6), [(3, 5)]),
+    ((3, 6), (3, 6), [(3, 6)]),
+    ((4, 7), (3, 6), [(4, 6)]),
+    ((5, 8), (3, 6), [(5, 6)]),
+    ((6, 9), (3, 6), list()),
+    ((7, 10), (3, 6), list()),
 ]
 
 Range = Tuple[int, int]
