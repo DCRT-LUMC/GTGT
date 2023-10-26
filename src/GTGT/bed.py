@@ -121,6 +121,7 @@ class Bed:
         )
 
     Range = Tuple[int, int]
+
     @staticmethod
     def _intersect(a: Range, b: Range) -> List[Range]:
         """Determine the intersection between two ranges
@@ -132,7 +133,10 @@ class Bed:
         intersect = set(range(*a)).intersection(set(range(*b)))
         return _to_range(intersect)
 
+
 Range = Tuple[int, int]
+
+
 def _to_range(numbers: Set[int]) -> List[Range]:
     """Convert a range of numbers to [start, end)"""
     # Make sure the numbers are sorted
@@ -145,7 +149,7 @@ def _to_range(numbers: Set[int]) -> List[Range]:
     # If there is only a single number
     if len(_numbers) == 1:
         i = _numbers[0]
-        return [(i, i+1)]
+        return [(i, i + 1)]
 
     # Initialise the start and previous number
     start = prev = _numbers[0]
