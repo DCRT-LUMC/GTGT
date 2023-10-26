@@ -1,4 +1,4 @@
-from typing import Optional, Iterator, List, Tuple, Union
+from typing import Optional, Iterator, List, Tuple, Union, Set
 
 # Int, or a string we can cast to int
 castable_int = Union[int, str]
@@ -122,31 +122,39 @@ class Bed:
 
     Range = Tuple[int, int]
     @staticmethod
-    def _intersect(a: Range, b: Range) -> Optional[Range]:
-        """Determine the intersection between two ranges"""
+    def _intersect(a: Range, b: Range) -> List[Range]:
+        """Determine the intersection between two ranges
+
+        This is lazy implementation, where we create all numbers in a range,
+        and use python sets to find the intersections.
+
+        """
         intersect = set(range(*a)).intersection(set(range(*b)))
         return _to_range(intersect)
 
 Range = Tuple[int, int]
-def _to_range(numbers: List[int]) -> List[Range]:
+def _to_range(numbers: Set[int]) -> List[Range]:
     """Convert a range of numbers to [start, end)"""
-    # If there are no numbers
-    if not numbers:
+    # Make sure the numbers are sorted
+    _numbers = sorted(numbers)
+
+    # If there are no _numbers
+    if not _numbers:
         return list()
 
     # If there is only a single number
-    if len(numbers) == 1:
-        i = numbers[0]
+    if len(_numbers) == 1:
+        i = _numbers[0]
         return [(i, i+1)]
 
     # Initialise the start and previous number
-    start = prev = numbers[0]
+    start = prev = _numbers[0]
 
     # Store the ranges we found
     ranges = list()
 
-    # Process all numbers
-    for i in numbers[1:]:
+    # Process all _numbers
+    for i in _numbers[1:]:
         if i == prev + 1:
             prev = i
         else:

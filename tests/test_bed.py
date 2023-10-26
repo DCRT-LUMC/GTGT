@@ -130,28 +130,30 @@ def test_bed_roundtrip(bed: Bed, line: str) -> None:
 
 
 intersect = [
-    ((0, 10), (10, 20), None),
-    #((0, 10), (0, 10), (0, 10)),
+    # Range a, range b, intersection
+    ((0, 10), (10, 20), list()),
+    ((0, 10), (0, 10), [(0, 10)]),
 ]
 
 Range = Tuple[int, int]
 @pytest.mark.parametrize("a, b, intersection", intersect)
-def test_intersect_ranges(a: Range, b: Range, intersection: Range) -> None:
+def test_intersect_ranges(a: Range, b: Range, intersection: List[Range]) -> None:
     assert Bed._intersect(a, b) == intersection
 
 to_range = [
     ([], []),
     ([0], [(0, 1)]),
     ([0, 1], [(0, 2)]),
-    ([0, 1, 2, 4, 5], [(0, 3), (4, 6)])
+    ([0, 1, 2, 4, 5], [(0, 3), (4, 6)]),
+    ([3, 2, 1, 0], [(0, 4)])
 ]
 @pytest.mark.parametrize("numbers, expected", to_range)
 def test_to_range(numbers: List[int], expected: List[Range]) -> None:
     # Test from numbers to ranges
-    assert _to_range(numbers) == expected
+    assert _to_range(set(numbers)) == expected
 
     # Test from returned ranges to numbers
     nums = list()
     for r in expected:
         nums+=list(range(*r))
-    assert nums == numbers
+    assert set(nums) == set(numbers)
