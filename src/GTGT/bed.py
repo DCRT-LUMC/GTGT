@@ -167,3 +167,14 @@ def _to_range(numbers: Set[int]) -> List[Range]:
     ranges.append((start, prev + 1))
 
     return ranges
+
+
+def _range_to_start_size(range: Range, offset: int) -> Tuple[int, int]:
+    """Convert a range to start, size
+
+    BED format uses, blockSizes and blockStarts to represent ranges
+    """
+
+    size = range[1] - range[0]
+    start = range[0] - offset
+    return start, size

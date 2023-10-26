@@ -2,7 +2,7 @@ import pytest
 from typing import List, Tuple
 
 from GTGT import Bed
-from GTGT.bed import _to_range
+from GTGT.bed import _to_range, _range_to_start_size
 
 
 @pytest.fixture
@@ -179,3 +179,16 @@ def test_to_range(numbers: List[int], expected: List[Range]) -> None:
     for r in expected:
         nums += list(range(*r))
     assert set(nums) == set(numbers)
+
+
+range_start_size = [
+    # Range, offset, start, size
+    ((0, 10), 0, 0, 10),
+    ((10, 20), 10, 0, 10),
+    ((10, 20), 5, 5, 10),
+]
+
+
+@pytest.mark.parametrize("range_, offset, start, size", range_start_size)
+def test_range_to_blocks(range_: Range, offset: int, start: int, size: int) -> None:
+    assert _range_to_start_size(range_, offset) == (start, size)
