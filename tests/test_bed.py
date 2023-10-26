@@ -1,5 +1,5 @@
 import pytest
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from GTGT import Bed
 from GTGT.bed import _to_range, _range_to_start_size
@@ -182,13 +182,58 @@ def test_to_range(numbers: List[int], expected: List[Range]) -> None:
 
 
 range_start_size = [
-    # Range, offset, start, size
-    ((0, 10), 0, 0, 10),
-    ((10, 20), 10, 0, 10),
-    ((10, 20), 5, 5, 10),
+    # Range, offset, size, start
+    ((0, 10), 0, 10, 0),
+    ((10, 20), 10, 10, 0),
+    ((10, 20), 5, 10, 5),
 ]
 
 
-@pytest.mark.parametrize("range_, offset, start, size", range_start_size)
-def test_range_to_blocks(range_: Range, offset: int, start: int, size: int) -> None:
-    assert _range_to_start_size(range_, offset) == (start, size)
+@pytest.mark.parametrize("range_, offset, size, start", range_start_size)
+def test_range_to_blocks(range_: Range, offset: int, size: int, start: int) -> None:
+    assert _range_to_start_size(range_, offset) == (size, start)
+
+
+# Things that cannot be used to intersect a Bed record
+not_intersectable = [
+    (1, NotImplementedError),
+    (Bed("chr1", 0, 10, strand="+"), ValueError),
+]
+
+
+@pytest.mark.parametrize("intersector, error", not_intersectable)
+def test_non_intersectable_for_bed(intersector: Any, error: Any, bed: Bed) -> None:
+    """Test that we raise an error"""
+    with pytest.raises(error):
+        bed.intersect(intersector)
+
+
+# fmt: off
+intersect_bed = [
+    # Bed before, Bed to intersect with, Bed after
+    # If the intersector is on another chromosome, there is no overlap
+    (Bed("chr1", 0, 10), Bed("chr2", 0, 10), Bed("chr1", 0, 0)),
+    # If the intersector is the same, we should get the same record back
+    (Bed("chr1", 0, 10,), Bed("chr1", 0, 10), Bed("chr1", 0, 10)),
+    # If the intersector does not overlap at all, we should get an empty record back
+    #(Bed("chr1", 5, 10), Bed("chr1", 20, 30), Bed("chr1", 5, 5)),
+    # TODO: add test case where the strands are different
+]
+# fmt: on
+
+
+@pytest.mark.parametrize("before, intersector, after", intersect_bed)
+def test_intersect_bed(before: Bed, intersector: Bed, after: Bed) -> None:
+    before.intersect(intersector)
+    assert before == after
+
+
+def test_zero_bed_object() -> None:
+    bed = Bed("chr1", 5, 10)
+    bed._zero_out()
+    assert bed.chromEnd == 5
+    assert bed.thickStart == 5
+    assert bed.thickEnd == 5
+    assert bed.blockCount == 1
+    assert bed.blockSizes == [0]
+    assert bed.blockStarts == [0]

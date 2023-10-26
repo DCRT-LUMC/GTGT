@@ -100,6 +100,16 @@ class Bed:
             )
         )
 
+    def __repr__(self) -> str:
+        return (
+            f"Bed({self.chrom},"
+            f"{self.chromStart},{self.chromEnd},"
+            f"name='{self.name}',"
+            f"score={self.score},"
+            f"strand='{self.strand}',"
+            ")"
+        )
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Bed):
             raise NotImplementedError
@@ -120,7 +130,26 @@ class Bed:
             )
         )
 
+    def _zero_out(self) -> None:
+        """Zero out the Bed object, by setting all ranges to the start"""
+        self.chromEnd = self.thickStart = self.thickEnd = self.chromStart
+
+        self.blockCount = 1
+        self.blockSizes = self.blockStarts = [0]
+
     Range = Tuple[int, int]
+
+    def intersect(self, other: object) -> None:
+        if not isinstance(other, Bed):
+            raise NotImplementedError
+
+        if self.strand != other.strand:
+            raise ValueError("Conflicting strands, intersection not possible")
+
+        # If other is on a different chromosome, we zero out self since there is no overlap
+        if self.chrom != other.chrom:
+            self._zero_out()
+            return
 
     @staticmethod
     def _intersect(a: Range, b: Range) -> List[Range]:
@@ -177,4 +206,4 @@ def _range_to_start_size(range: Range, offset: int) -> Tuple[int, int]:
 
     size = range[1] - range[0]
     start = range[0] - offset
-    return start, size
+    return size, start
