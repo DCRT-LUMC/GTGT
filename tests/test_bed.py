@@ -2,7 +2,7 @@ import pytest
 from typing import List, Tuple, Any
 
 from GTGT import Bed
-from GTGT.bed import _to_range, _range_to_start_size, intersect
+from GTGT.bed import _to_range, _range_to_size_start, intersect
 
 
 @pytest.fixture
@@ -199,7 +199,7 @@ range_start_size = [
 
 @pytest.mark.parametrize("range_, offset, size, start", range_start_size)
 def test_range_to_blocks(range_: Range, offset: int, size: int, start: int) -> None:
-    assert _range_to_start_size(range_, offset) == (size, start)
+    assert _range_to_size_start(range_, offset) == (size, start)
 
 
 # Things that cannot be used to intersect a Bed record
@@ -273,16 +273,21 @@ def test_update_bed_empty_ranges(bed: Bed) -> None:
     When we update a Bed record with the empty list
     The Bed record should be zeroed out
     """
-    ranges = list()
+    ranges: List[Range] = list()
     bed.update(ranges)
 
     # Test that the Bed record has been zeroed out
     assert bed.chromStart == 0
     assert bed.chromEnd == 0
 
+
 def test_update_bed_with_ranges(bed: Bed) -> None:
     """Test updating a Bed record by providing a list of ranges"""
-    ranges: List[Range] = [(1,4), (5,6), (7, 9)]
+    ranges: List[Range] = [(1, 4), (5, 6), (7, 9)]
     bed.update(ranges)
 
-    #assert bed.chromStart == 1
+    assert bed.chromStart == 1
+    assert bed.chromEnd == 9
+    assert bed.blockCount == 3
+    assert bed.blockSizes == [3, 1, 2]
+    assert bed.blockStarts == [0, 4, 6]

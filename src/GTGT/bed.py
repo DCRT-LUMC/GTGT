@@ -11,6 +11,7 @@ castable_list = Union[List[int], str]
 
 Range = Tuple[int, int]
 
+
 class Bed:
     def __init__(
         self,
@@ -164,14 +165,29 @@ class Bed:
             for intersector in other.blocks():
                 intersected += intersect(range1, intersector)
 
-        # If there is no overlap
-        if not intersected:
-            self._zero_out()
+        self.update(intersected)
 
     def update(self, ranges: List[Range]) -> None:
         """Update a Bed object with a list of ranges"""
         if not ranges:
             self._zero_out()
+            return
+
+        # The ranges are sorted
+        self.chromStart = ranges[0][0]
+        self.chromEnd = ranges[-1][-1]
+
+        # Set the number of blocks
+        self.blockCount = len(ranges)
+
+        # Set the block starts and sizes
+        self.blockSizes = list()
+        self.blockStarts = list()
+
+        for r in ranges:
+            size, start = _range_to_size_start(range=r, offset=self.chromStart)
+            self.blockSizes.append(size)
+            self.blockStarts.append(start)
 
 
 def intersect(a: Range, b: Range) -> List[Range]:
@@ -217,8 +233,8 @@ def _to_range(numbers: Set[int]) -> List[Range]:
     return ranges
 
 
-def _range_to_start_size(range: Range, offset: int) -> Tuple[int, int]:
-    """Convert a range to start, size
+def _range_to_size_start(range: Range, offset: int) -> Tuple[int, int]:
+    """Convert a range to size, start
 
     BED format uses, blockSizes and blockStarts to represent ranges
     """
