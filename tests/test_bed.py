@@ -58,30 +58,16 @@ def test_bed_init_method() -> None:
     bed2 = Bed("chr1", "0", "10", itemRgb="0,0,0")
     assert bed1 == bed2
 
-    # Pass an integer for blockCount
-    bed1 = Bed("chr1", 0, 10, blockCount=10)
-    bed2 = Bed("chr1", "0", "10", blockCount="10")
+    # Test setting the blocks. Note the trailing comma in the input of bed2
+    bed1 = Bed("chr1", 0, 10, blockCount=3, blockStarts=[0, 3, 6], blockSizes=[1, 1, 4])
+    bed2 = Bed(
+        "chr1", "0", "10", blockCount="3", blockStarts="0,3,6,", blockSizes="1,1,4,"
+    )
     assert bed1 == bed2
 
-    # Pass a list of integers for blockSizes
-    bed1 = Bed("chr1", 0, 10, blockSizes=[1, 4, 10])
-    bed2 = Bed("chr1", "0", "10", blockSizes="1,4,10")
-    assert bed1 == bed2
-
-    # Pass a list of integers for blockStarts
-    bed1 = Bed("chr1", 0, 10, blockStarts=[1, 4, 10])
-    bed2 = Bed("chr1", "0", "10", blockStarts="1,4,10")
-    assert bed1 == bed2
-
-    # Trailing comma's are allowed for blockSizes and blockStarts, according
-    # to the Bed standard
-    bed1 = Bed("chr1", 0, 10, blockSizes=[1, 4, 10])
-    bed2 = Bed("chr1", "0", "10", blockSizes="1,4,10,")
-    assert bed1 == bed2
-
-    bed1 = Bed("chr1", 0, 10, blockStarts=[1, 4, 10])
-    bed2 = Bed("chr1", "0", "10", blockStarts="1,4,10,")
-    assert bed1 == bed2
+    # Automatically set blockCount based on the number of blocks
+    bed1 = Bed("chr1", 0, 10, blockSizes=[1, 7], blockStarts=[0, 3])
+    assert bed1.blockCount == 2
 
 
 def test_default_values_blocks(bed: Bed) -> None:
@@ -116,9 +102,9 @@ bed_records = [
             itemRgb=(42, 42, 42),
             blockCount=2,
             blockSizes=[3, 4],
-            blockStarts=[2, 7],
+            blockStarts=[0, 7],
         ),
-        "chr1	0	11	name	5	+	8	10	42,42,42	2	3,4	2,7",
+        "chr1	0	11	name	5	+	8	10	42,42,42	2	3,4	0,7",
     ),
 ]
 
@@ -291,3 +277,75 @@ def test_update_bed_with_ranges(bed: Bed) -> None:
     assert bed.blockCount == 3
     assert bed.blockSizes == [3, 1, 2]
     assert bed.blockStarts == [0, 4, 6]
+
+
+# fmt: off
+invalid_bed = [
+    # ThickStart before chromStart
+    (
+        ("chr1", 10, 20, ".", 0, "+", 1),
+        "thickStart outside of record"
+    ),
+    # ThickStart after chromEnd
+    (
+        ("chr1", 10, 20, ".", 0, "+", 21),
+        "thickStart outside of record"
+    ),
+    # ThickEnd before chromStart
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 0),
+        "thickEnd outside of record"
+    ),
+    # ThickEnd after chromEnd
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 21),
+        "thickEnd outside of record"
+    ),
+    # ThickEnd before thickStart
+    (
+        ("chr1", 10, 20, ".", 0, "+", 15, 10),
+        "thickEnd before thickStart"
+    ),
+    # incorrect blockCount
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2),
+        "blockCount does not match the number of blocks",
+    ),
+    # Mismatch in number of fields between blockSizes and blockStarts
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2, "2,3", "1,"),
+        "number of values differs between blockSizes and blockStarts",
+    ),
+    # Blocks must not overlap
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2, "2,3", "0,1"),
+        "Blocks must not overlap",
+    ),
+    # Block extends over the end of the Bed region
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 1, "11", "0"),
+        "Last block must end at self.chromEnd",
+    ),
+    # The first block must start at chromStart(=0, since this field is relative)
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 1, "1", "9"),
+        "The first block must start at chromStart",
+    ),
+    # The last block must end at chromEnd
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 1, "8", "0"),
+        "Last block must end at self.chromEnd",
+    ),
+    # Blocks must be in ascending order
+    (
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2, "1,1", "19,1"),
+        "Blocks must be in ascending order",
+    ),
+]
+# fmt: on
+
+
+@pytest.mark.parametrize("bed, msg", invalid_bed)
+def test_value_error(bed: str, msg: str) -> None:
+    with pytest.raises(ValueError, match=msg):
+        Bed(*bed)

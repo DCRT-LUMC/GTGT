@@ -24,7 +24,7 @@ class Bed:
         thickStart: Optional[castable_int] = None,
         thickEnd: Optional[castable_int] = None,
         itemRgb: color = (0, 0, 0),
-        blockCount: castable_int = 1,
+        blockCount: Optional[castable_int] = None,
         blockSizes: Optional[castable_list] = None,
         blockStarts: Optional[castable_list] = None,
     ) -> None:
@@ -58,8 +58,6 @@ class Bed:
             self.itemRgb = itemRgb
 
         # Set the blocks
-        self.blockCount = int(blockCount)
-
         if blockSizes is None:
             self.blockSizes = [self.chromEnd - self.chromStart]
         elif isinstance(blockSizes, str):
@@ -75,6 +73,48 @@ class Bed:
             self.blockStarts = list(map(int, (x for x in blockStarts.split(",") if x)))
         else:
             self.blockStarts = blockStarts
+
+        self.blockCount = int(blockCount) if blockCount else len(self.blockSizes)
+
+        self.validate()
+
+    def validate(self) -> None:
+        """Validate the internal constistence of the Bed record"""
+        if self.thickStart < self.chromStart or self.thickStart > self.chromEnd:
+            raise ValueError("thickStart outside of record")
+        if self.thickEnd < self.chromStart or self.thickEnd > self.chromEnd:
+            raise ValueError("thickEnd outside of record")
+        if self.thickEnd < self.thickStart:
+            raise ValueError("thickEnd before thickStart")
+        if len(self.blockSizes) != self.blockCount:
+            raise ValueError("blockCount does not match the number of blocks")
+        if len(self.blockSizes) != len(self.blockStarts):
+            raise ValueError(
+                "number of values differs between blockSizes and blockStarts"
+            )
+
+        if self.blockCount > 1:
+            # Initialise with the end of the first block
+            prev_end = self.chromStart + self.blockStarts[0] + self.blockSizes[0]
+            prev_start = self.blockStarts[0]
+            blocks = list(self.blocks())[1:]
+            for start, end in blocks:
+                if start < prev_start:
+                    raise ValueError("Blocks must be in ascending order")
+                elif start < prev_end:
+                    raise ValueError("Blocks must not overlap")
+                else:
+                    prev_end = end
+                    prev_start = start
+
+        # The first block must start at chromStart
+        if self.blockStarts[0] != 0:
+            raise ValueError("The first block must start at chromStart")
+
+        # The last block must end at chromEnd
+        block_end = self.blockStarts[-1] + self.blockSizes[-1] + self.chromStart
+        if block_end != self.chromEnd:
+            raise ValueError("Last block must end at self.chromEnd")
 
     def blocks(self) -> Iterator[Tuple[int, int]]:
         """Iterate over all blocks in the Bed record"""
