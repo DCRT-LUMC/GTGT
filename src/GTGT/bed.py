@@ -9,6 +9,7 @@ color = Union[str, Tuple[int, int, int]]
 # Either [1, 2, 3] or "1,2,3"
 castable_list = Union[List[int], str]
 
+Range = Tuple[int, int]
 
 class Bed:
     def __init__(
@@ -157,17 +158,20 @@ class Bed:
             return
 
         # Determine all intersected ranges
-        intersected = list()
+        intersected: List[Range] = list()
+
         for range1 in self.blocks():
             for intersector in other.blocks():
                 intersected += intersect(range1, intersector)
+
         # If there is no overlap
         if not intersected:
             self._zero_out()
-        print(intersected)
 
-
-Range = Tuple[int, int]
+    def update(self, ranges: List[Range]) -> None:
+        """Update a Bed object with a list of ranges"""
+        if not ranges:
+            self._zero_out()
 
 
 def intersect(a: Range, b: Range) -> List[Range]:

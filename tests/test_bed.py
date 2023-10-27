@@ -226,7 +226,26 @@ intersect_bed = [
     (Bed("chr1", 0, 10,), Bed("chr1", 0, 10), Bed("chr1", 0, 10)),
     # If the intersector does not overlap at all, we should get an empty record back
     (Bed("chr1", 5, 10), Bed("chr1", 20, 30), Bed("chr1", 5, 5)),
-    # TODO: add test case where the strands are different
+    # The intersector does not overlap, and the record has multiple blocks
+    (
+        Bed("chr1", 5, 10, blockCount=2, blockSizes=[2, 2], blockStarts=[0, 3]),
+        Bed("chr1", 20, 30),
+        Bed("chr1", 5, 5)
+    ),
+    # The intersector with multiple blocks does not overlap
+    (
+        Bed("chr1", 20, 30),
+        Bed("chr1", 5, 10, blockCount=2, blockSizes=[2, 2], blockStarts=[0, 3]),
+        Bed("chr1", 20, 20)
+    ),
+    # Both have multiple blocks, and do not overlap
+    # Both have multiple blocks, and one block overlaps
+    # Both have multiple blocks, and each block partially overlaps
+    #(
+    #    Bed("chr1", 0, 10, blockCount=3, blockSizes=[4, 2, 1], blockStarts=[0, 5, 7]),
+    #    Bed("chr1", 0, 10, blockCount=3, blockSizes=[3, 2, 2], blockStarts=[1, 5, 7]),
+    #    Bed("chr1", 1, 9, blockCount=3, blockSizes=[3, 2, 1], blockStarts=[0, 4, 6])
+    #)
 ]
 # fmt: on
 
@@ -246,3 +265,24 @@ def test_zero_bed_object() -> None:
     assert bed.blockCount == 1
     assert bed.blockSizes == [0]
     assert bed.blockStarts == [0]
+
+
+def test_update_bed_empty_ranges(bed: Bed) -> None:
+    """
+    Given an emtpy rangelist
+    When we update a Bed record with the empty list
+    The Bed record should be zeroed out
+    """
+    ranges = list()
+    bed.update(ranges)
+
+    # Test that the Bed record has been zeroed out
+    assert bed.chromStart == 0
+    assert bed.chromEnd == 0
+
+def test_update_bed_with_ranges(bed: Bed) -> None:
+    """Test updating a Bed record by providing a list of ranges"""
+    ranges: List[Range] = [(1,4), (5,6), (7, 9)]
+    bed.update(ranges)
+
+    #assert bed.chromStart == 1
