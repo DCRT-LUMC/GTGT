@@ -2,7 +2,7 @@ import pytest
 from typing import List, Tuple, Any
 
 from GTGT import Bed
-from GTGT.bed import _to_range, _range_to_start_size
+from GTGT.bed import _to_range, _range_to_start_size, intersect
 
 
 @pytest.fixture
@@ -26,6 +26,14 @@ def test_default_values_display_attributes(bed: Bed) -> None:
     assert bed.thickStart == 0
     assert bed.thickEnd == 11
     assert bed.itemRgb == (0, 0, 0)
+
+
+def test_defaul_values_blocks() -> None:
+    bed = Bed("chr1", 5, 10)
+    # Block positions are relative to chromStart, so the first block should
+    # start at 0, not 5
+    assert bed.blockStarts == [0]
+    assert bed.blockSizes == [5]
 
 
 def test_bed_init_method() -> None:
@@ -129,7 +137,7 @@ def test_bed_roundtrip(bed: Bed, line: str) -> None:
     assert from_line == bed
 
 
-intersect = [
+intersections = [
     # Range A, range A, intersection
     ((0, 10), (10, 20), list()),
     ((0, 10), (0, 10), [(0, 10)]),
@@ -155,9 +163,9 @@ intersect = [
 Range = Tuple[int, int]
 
 
-@pytest.mark.parametrize("a, b, intersection", intersect)
+@pytest.mark.parametrize("a, b, intersection", intersections)
 def test_intersect_ranges(a: Range, b: Range, intersection: List[Range]) -> None:
-    assert Bed._intersect(a, b) == intersection
+    assert intersect(a, b) == intersection
 
 
 to_range = [
@@ -197,6 +205,7 @@ def test_range_to_blocks(range_: Range, offset: int, size: int, start: int) -> N
 # Things that cannot be used to intersect a Bed record
 not_intersectable = [
     (1, NotImplementedError),
+    # If the strand is different, throw a value error
     (Bed("chr1", 0, 10, strand="+"), ValueError),
 ]
 
@@ -216,7 +225,7 @@ intersect_bed = [
     # If the intersector is the same, we should get the same record back
     (Bed("chr1", 0, 10,), Bed("chr1", 0, 10), Bed("chr1", 0, 10)),
     # If the intersector does not overlap at all, we should get an empty record back
-    #(Bed("chr1", 5, 10), Bed("chr1", 20, 30), Bed("chr1", 5, 5)),
+    (Bed("chr1", 5, 10), Bed("chr1", 20, 30), Bed("chr1", 5, 5)),
     # TODO: add test case where the strands are different
 ]
 # fmt: on

@@ -66,7 +66,9 @@ class Bed:
             self.blockSizes = blockSizes
 
         if blockStarts is None:
-            self.blockStarts = [self.chromStart]
+            # blockStarts are relative to chromStart, and the first block must
+            # start at 0
+            self.blockStarts = [0]
         elif isinstance(blockStarts, str):
             self.blockStarts = list(map(int, (x for x in blockStarts.split(",") if x)))
         else:
@@ -102,11 +104,16 @@ class Bed:
 
     def __repr__(self) -> str:
         return (
-            f"Bed({self.chrom},"
-            f"{self.chromStart},{self.chromEnd},"
-            f"name='{self.name}',"
-            f"score={self.score},"
-            f"strand='{self.strand}',"
+            f"Bed({self.chrom}, "
+            f"{self.chromStart}, {self.chromEnd}, "
+            f"name='{self.name}', "
+            f"score={self.score}, "
+            f"strand='{self.strand}', "
+            f"thickStart='{self.thickStart}', "
+            f"thickEnd='{self.thickEnd}', "
+            f"blockCount='{self.blockCount}', "
+            f"blockSizes='{self.blockSizes}', "
+            f"blockStarts='{self.blockStarts}', "
             ")"
         )
 
@@ -137,8 +144,6 @@ class Bed:
         self.blockCount = 1
         self.blockSizes = self.blockStarts = [0]
 
-    Range = Tuple[int, int]
-
     def intersect(self, other: object) -> None:
         if not isinstance(other, Bed):
             raise NotImplementedError
@@ -151,19 +156,29 @@ class Bed:
             self._zero_out()
             return
 
-    @staticmethod
-    def _intersect(a: Range, b: Range) -> List[Range]:
-        """Determine the intersection between two ranges
-
-        This is lazy implementation, where we create all numbers in a range,
-        and use python sets to find the intersections.
-
-        """
-        intersect = set(range(*a)).intersection(set(range(*b)))
-        return _to_range(intersect)
+        # Determine all intersected ranges
+        intersected = list()
+        for range1 in self.blocks():
+            for intersector in other.blocks():
+                intersected += intersect(range1, intersector)
+        # If there is no overlap
+        if not intersected:
+            self._zero_out()
+        print(intersected)
 
 
 Range = Tuple[int, int]
+
+
+def intersect(a: Range, b: Range) -> List[Range]:
+    """Determine the intersection between two ranges
+
+    This is lazy implementation, where we create all numbers in a range,
+    and use python sets to find the intersections.
+
+    """
+    intersect = set(range(*a)).intersection(set(range(*b)))
+    return _to_range(intersect)
 
 
 def _to_range(numbers: Set[int]) -> List[Range]:
