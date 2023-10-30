@@ -283,6 +283,23 @@ def intersect(a: Range, b: Range) -> List[Range]:
         return [(start, end)]
 
 
+def subtract(a: List[Range], b: List[Range]) -> List[Range]:
+    """
+    Subtract the regions in B from A
+
+    Lazy implementation by just putting all numbers into two sets
+    """
+    A: Set[int] = set()
+    for start, end in a:
+        A.update(range(start, end))
+
+    B: Set[int] = set()
+    for start, end in b:
+        B.update(range(start, end))
+
+    return _to_range(A - B)
+
+
 def _to_range(numbers: Set[int]) -> List[Range]:
     """Convert a range of numbers to [start, end)"""
     # Make sure the numbers are sorted
@@ -318,7 +335,7 @@ def _to_range(numbers: Set[int]) -> List[Range]:
 def _range_to_size_start(range: Range, offset: int) -> Tuple[int, int]:
     """Convert a range to size, start
 
-    BED format uses, blockSizes and blockStarts to represent ranges
+    BED format uses blockSizes and blockStarts to represent ranges
     """
 
     size = range[1] - range[0]

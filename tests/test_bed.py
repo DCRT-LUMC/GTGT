@@ -2,7 +2,8 @@ import pytest
 from typing import List, Tuple, Any
 
 from GTGT import Bed
-from GTGT.bed import _to_range, _range_to_size_start, intersect, overlap
+from GTGT.bed import _to_range, _range_to_size_start
+from GTGT.bed import intersect, overlap, subtract
 
 
 @pytest.fixture
@@ -432,3 +433,61 @@ range_overlap = [
 def test_range_overlap(a: Range, b: Range, expected: bool) -> None:
     assert overlap(a, b) == expected
     assert overlap(b, a) == expected
+
+
+# fmt: off
+range_subtract = [
+    # The selector is before A
+    (
+        # A
+        [(10, 20)],
+        # Selector
+        [(0, 10)],
+        # Result
+        [(10, 20)]
+    ),
+    # The selector overlaps the start of A
+    (
+        [(10, 20)],
+        [(5, 15)],
+        [(15, 20)],
+    ),
+    # The selector is contained in A
+    (
+        [(10, 20)],
+        [(12, 15)],
+        [(10, 12), (15, 20)],
+    ),
+    # The selector overlaps the end of A
+    (
+        [(10, 20)],
+        [(15, 25)],
+        [(10, 15)],
+    ),
+    # The selector is after A
+    (
+        [(10, 20)],
+        [(25, 35)],
+        [(10, 20)],
+    ),
+    # Both A and the selector consist of multiple ranges
+    # The first region in A has partial overlap with the first two selector regions
+    # The second selector region (partially) overlaps the first two regions in A
+    #
+    #    0 1 2 3 4 5 6 7 8 9
+    # A  - - - -   - -     -
+    # S  - -   - - -       - - - - - -
+    # R      -       -
+    (
+        [(0, 4), (5, 7), (9, 10)],
+        [(0, 2), (3, 6), (9, 15)],
+        [(2, 3), (6, 7)],
+    ),
+]
+# fmt: on
+
+
+@pytest.mark.parametrize("a, b, expected", range_subtract)
+def test_subtract_ranges(a: List[Range], b: List[Range], expected: List[Range]) -> None:
+    assert subtract(a, b) == expected
+    pass
