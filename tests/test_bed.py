@@ -443,7 +443,7 @@ range_subtract = [
         [(10, 20)],
         # Selector
         [(0, 10)],
-        # Result
+        # Expected
         [(10, 20)]
     ),
     # The selector overlaps the start of A
@@ -477,7 +477,7 @@ range_subtract = [
     #    0 1 2 3 4 5 6 7 8 9
     # A  - - - -   - -     -
     # S  - -   - - -       - - - - - -
-    # R      -       -
+    # E      -       -
     (
         [(0, 4), (5, 7), (9, 10)],
         [(0, 2), (3, 6), (9, 15)],
@@ -490,4 +490,26 @@ range_subtract = [
 @pytest.mark.parametrize("a, b, expected", range_subtract)
 def test_subtract_ranges(a: List[Range], b: List[Range], expected: List[Range]) -> None:
     assert subtract(a, b) == expected
-    pass
+
+
+bed_subtract = [
+    # Both A and the selector consist of multiple ranges
+    # The first region in A has partial overlap with the first two selector regions
+    # The second selector region (partially) overlaps the first two regions in A
+    #
+    #    0 1 2 3 4 5 6 7 8 9
+    # A  - - - -   - -     -
+    # S  - -   - - -       - - - - - -
+    # E      -       -
+    (
+        Bed("chr1", 0, 10, blockSizes=[4, 2, 1], blockStarts=[0, 5, 9]),
+        Bed("chr1", 0, 15, blockSizes=[2, 3, 6], blockStarts=[0, 3, 9]),
+        Bed("chr1", 2, 7, blockSizes=[1, 1], blockStarts=[0, 4]),
+    ),
+]
+
+
+@pytest.mark.parametrize("a, selector, expected", bed_subtract)
+def test_subtract_bed(a: Bed, selector: Bed, expected: Bed) -> None:
+    a.subtract(selector)
+    assert a == expected

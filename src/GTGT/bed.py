@@ -232,6 +232,14 @@ class Bed:
                     break  # Go to the next block once we find overlap
         self.update(blocks_to_keep)
 
+    def subtract(self, other: object) -> None:
+        """Subtract the blocks in other from blocks in self"""
+        if not isinstance(other, Bed):
+            raise NotImplementedError
+
+        subtracted_blocks = subtract(list(self.blocks()), list(other.blocks()))
+        self.update(subtracted_blocks)
+
     def update(self, ranges: List[Range]) -> None:
         """Update a Bed object with a list of ranges"""
         # Check that thickStart/thickEnd have not been set
