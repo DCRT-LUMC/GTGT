@@ -2,7 +2,7 @@ import pytest
 from typing import List, Tuple, Any
 
 from GTGT import Bed
-from GTGT.bed import _to_range, _range_to_size_start, intersect
+from GTGT.bed import _to_range, _range_to_size_start, intersect, overlap
 
 
 @pytest.fixture
@@ -124,7 +124,7 @@ def test_bed_roundtrip(bed: Bed, line: str) -> None:
 
 
 intersections = [
-    # Range A, range A, intersection
+    # Range A, range B, intersection
     ((0, 10), (10, 20), list()),
     ((0, 10), (0, 10), [(0, 10)]),
     # Test cases where A is of size 1, and B of size 3
@@ -152,6 +152,7 @@ Range = Tuple[int, int]
 @pytest.mark.parametrize("a, b, intersection", intersections)
 def test_intersect_ranges(a: Range, b: Range, intersection: List[Range]) -> None:
     assert intersect(a, b) == intersection
+    assert intersect(b, a) == intersection
 
 
 to_range = [
@@ -267,6 +268,18 @@ def test_update_bed_empty_ranges(bed: Bed) -> None:
     assert bed.chromEnd == 0
 
 
+def test_update_bed_with_ranges_thick() -> None:
+    """
+    If a record has thickStart or thickEnd set (not default)
+    When we try to update the record with ranges
+    Then we raise a NotImplementedError
+    """
+    record = Bed("chr1", 0, 10, thickStart=2, thickEnd=9)
+    ranges: List[Range] = [(4, 8)]
+    with pytest.raises(NotImplementedError):
+        record.update(ranges)
+
+
 def test_update_bed_with_ranges(bed: Bed) -> None:
     """Test updating a Bed record by providing a list of ranges"""
     ranges: List[Range] = [(1, 4), (5, 6), (7, 9)]
@@ -349,3 +362,73 @@ invalid_bed = [
 def test_value_error(bed: str, msg: str) -> None:
     with pytest.raises(ValueError, match=msg):
         Bed(*bed)
+
+
+def test_overlap_invalid_records() -> None:
+    """Overlap is not supported for Bed records on different strands"""
+    before = Bed("chr1", 0, 10, strand="+")
+    selector = Bed("chr1", 0, 10, strand=".")
+    with pytest.raises(ValueError):
+        before.overlap(selector)
+
+
+# fmt: off
+bed_overlap = [
+    # before, selector, after
+    # Selector on different chromosome
+    (Bed('chr1', 0, 10), Bed('chr2', 0, 10), Bed('chr1', 0, 0)),
+    # Selector is after the record
+    (Bed('chr1', 0, 10), Bed('chr1', 10, 20), Bed('chr1', 0, 0)),
+    # Selector overlaps the start of the record by 1 bp
+    (Bed('chr1', 10, 20), Bed('chr1', 0, 11), Bed('chr1', 10, 20)),
+    # Selector overlaps the end of the record by 1 bp
+    (Bed('chr1', 0, 10), Bed('chr1', 9, 20), Bed('chr1', 0, 10)),
+    # Both the Record and Selector consist of multiple blocks
+    (
+        # Record
+        Bed('chr1', 0, 10, blockSizes=[4, 2, 1], blockStarts=[0, 5, 9]),
+        # Selector overlaps every block in Record, the first block twice
+        Bed('chr1', 0, 15, blockSizes=[2, 3, 6], blockStarts=[0, 3, 9]),
+        # Unchanged
+        Bed('chr1', 0, 10, blockSizes=[4, 2, 1], blockStarts=[0, 5, 9]),
+    )
+]
+# fmt: on
+
+
+@pytest.mark.parametrize("before, selector, after", bed_overlap)
+def test_bed_overlap(before: Bed, selector: Bed, after: Bed) -> None:
+    before.overlap(selector)
+    assert before == after
+
+
+# fmt: off
+range_overlap = [
+    # A before B
+    ((0, 3), (3, 6), False),
+    # B before A
+    ((3, 6), (0, 3), False),
+    # A is the same as B
+    ((0, 3), (0, 3), True),
+    # A overlaps start B
+    ((0, 3), (2, 6), True),
+    # A is within B, start position is the same
+    ((0, 3), (0, 6), True),
+    # A is within B, end position is the same
+    ((3, 6), (0, 6), True),
+    # A is fully within B, end position is the same
+    ((1, 3), (0, 6), True),
+    # A overlaps the end of B
+    ((4, 7), (0, 6), True),
+    # B is within A
+    ((0, 6), (1, 3), True),
+    # B overlaps the start of A
+    ((0, 6), (0, 3), True)
+]
+# fmt: on
+
+
+@pytest.mark.parametrize("a, b, expected", range_overlap)
+def test_range_overlap(a: Range, b: Range, expected: bool) -> None:
+    assert overlap(a, b) == expected
+    assert overlap(b, a) == expected

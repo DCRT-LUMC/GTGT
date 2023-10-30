@@ -8,5 +8,6 @@ Changelog
 
 v0.0.1-dev
 ----------
++ Validate that the input is valid Bed format
 + Add class for Bed format
 + Initial commit

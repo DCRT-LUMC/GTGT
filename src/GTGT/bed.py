@@ -93,19 +93,18 @@ class Bed:
                 "number of values differs between blockSizes and blockStarts"
             )
 
-        if self.blockCount > 1:
-            # Initialise with the end of the first block
-            prev_end = self.chromStart + self.blockStarts[0] + self.blockSizes[0]
-            prev_start = self.blockStarts[0]
-            blocks = list(self.blocks())[1:]
-            for start, end in blocks:
-                if start < prev_start:
-                    raise ValueError("Blocks must be in ascending order")
-                elif start < prev_end:
-                    raise ValueError("Blocks must not overlap")
-                else:
-                    prev_end = end
-                    prev_start = start
+        # Initialise with the end of the first block
+        prev_end = self.chromStart + self.blockStarts[0] + self.blockSizes[0]
+        prev_start = self.blockStarts[0]
+        blocks = list(self.blocks())[1:]
+        for start, end in blocks:
+            if start < prev_start:
+                raise ValueError("Blocks must be in ascending order")
+            elif start < prev_end:
+                raise ValueError("Blocks must not overlap")
+            else:
+                prev_end = end
+                prev_start = start
 
         # The first block must start at chromStart
         if self.blockStarts[0] != 0:
@@ -161,7 +160,8 @@ class Bed:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Bed):
-            raise NotImplementedError
+            msg = f"Unsupported comparison between Bed and {type(other)}"
+            raise NotImplementedError(msg)
         return all(
             (
                 self.chrom == other.chrom,
@@ -187,13 +187,15 @@ class Bed:
         self.blockSizes = self.blockStarts = [0]
 
     def intersect(self, other: object) -> None:
+        """Update record to only contain features that overlap other"""
         if not isinstance(other, Bed):
             raise NotImplementedError
 
         if self.strand != other.strand:
             raise ValueError("Conflicting strands, intersection not possible")
 
-        # If other is on a different chromosome, we zero out self since there is no overlap
+        # If other is on a different chromosome, we zero out self since there
+        # is no overlap
         if self.chrom != other.chrom:
             self._zero_out()
             return
@@ -207,8 +209,35 @@ class Bed:
 
         self.update(intersected)
 
+    def overlap(self, other: object) -> None:
+        """All blocks from self that (partially) overlap blocks from other"""
+        if not isinstance(other, Bed):
+            raise NotImplementedError
+
+        # If other is on a different chromosome, there can be no overlap
+        if self.chrom != other.chrom:
+            self._zero_out()
+
+        # Calculating overlap on different strands is not supported
+        if self.strand != other.strand:
+            raise ValueError(
+                "Calculating overlap on different strands is not supported"
+            )
+
+        blocks_to_keep = list()
+        for block in self.blocks():
+            for other_block in other.blocks():
+                if overlap(block, other_block):
+                    blocks_to_keep.append(block)
+                    break  # Go to the next block once we find overlap
+        self.update(blocks_to_keep)
+
     def update(self, ranges: List[Range]) -> None:
         """Update a Bed object with a list of ranges"""
+        # Check that thickStart/thickEnd have not been set
+        if self.thickStart != self.chromStart or self.thickEnd != self.chromEnd:
+            raise NotImplementedError
+
         if not ranges:
             self._zero_out()
             return
@@ -216,6 +245,10 @@ class Bed:
         # The ranges are sorted
         self.chromStart = ranges[0][0]
         self.chromEnd = ranges[-1][-1]
+
+        # Set to the new start/end of the record
+        self.thickStart = self.chromStart
+        self.thickEnd = self.chromEnd
 
         # Set the number of blocks
         self.blockCount = len(ranges)
@@ -228,17 +261,26 @@ class Bed:
             size, start = _range_to_size_start(range=r, offset=self.chromStart)
             self.blockSizes.append(size)
             self.blockStarts.append(start)
+        self.validate()
+
+
+def overlap(a: Range, b: Range) -> bool:
+    """Determine of ranges a and b overlap"""
+    # A and B overlap if the intersection is not empty
+    if intersect(a, b):
+        return True
+    return False
 
 
 def intersect(a: Range, b: Range) -> List[Range]:
-    """Determine the intersection between two ranges
+    """Determine the intersection between two ranges"""
+    start = max(a[0], b[0])
+    end = min(a[1], b[1])
 
-    This is lazy implementation, where we create all numbers in a range,
-    and use python sets to find the intersections.
-
-    """
-    intersect = set(range(*a)).intersection(set(range(*b)))
-    return _to_range(intersect)
+    if start + 1 > end:
+        return list()
+    else:
+        return [(start, end)]
 
 
 def _to_range(numbers: Set[int]) -> List[Range]:
