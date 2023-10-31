@@ -1,4 +1,5 @@
 from typing import Optional, Iterator, List, Tuple, Union, Set
+from .range import Range, overlap, intersect, subtract
 
 # Int, or a string we can cast to int
 castable_int = Union[int, str]
@@ -8,8 +9,6 @@ color = Union[str, Tuple[int, int, int]]
 
 # Either [1, 2, 3] or "1,2,3"
 castable_list = Union[List[int], str]
-
-Range = Tuple[int, int]
 
 
 class Bed:
@@ -270,42 +269,6 @@ class Bed:
             self.blockSizes.append(size)
             self.blockStarts.append(start)
         self.validate()
-
-
-def overlap(a: Range, b: Range) -> bool:
-    """Determine of ranges a and b overlap"""
-    # A and B overlap if the intersection is not empty
-    if intersect(a, b):
-        return True
-    return False
-
-
-def intersect(a: Range, b: Range) -> List[Range]:
-    """Determine the intersection between two ranges"""
-    start = max(a[0], b[0])
-    end = min(a[1], b[1])
-
-    if start + 1 > end:
-        return list()
-    else:
-        return [(start, end)]
-
-
-def subtract(a: List[Range], b: List[Range]) -> List[Range]:
-    """
-    Subtract the regions in B from A
-
-    Lazy implementation by just putting all numbers into two sets
-    """
-    A: Set[int] = set()
-    for start, end in a:
-        A.update(range(start, end))
-
-    B: Set[int] = set()
-    for start, end in b:
-        B.update(range(start, end))
-
-    return _to_range(A - B)
 
 
 def _to_range(numbers: Set[int]) -> List[Range]:
