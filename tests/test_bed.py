@@ -176,13 +176,28 @@ intersect_bed = [
         Bed("chr1", 20, 20)
     ),
     # Both have multiple blocks, and do not overlap
-    # Both have multiple blocks, and one block overlaps
+    (
+        Bed("chr1", 20, 30, blockCount=2, blockSizes=[5, 5], blockStarts=[0, 5]),
+        Bed("chr1", 5, 10, blockCount=2, blockSizes=[2, 2], blockStarts=[0, 3]),
+        Bed("chr1", 20, 20)
+    ),
+    # Both have multiple blocks, and the first block overlaps
+    (
+        Bed("chr1", 20, 30, blockCount=2, blockSizes=[5, 5], blockStarts=[0, 5]),
+        Bed("chr1", 5, 25, blockCount=2, blockSizes=[2, 2], blockStarts=[0, 18]),
+        Bed("chr1", 23, 25)
+    ),
     # Both have multiple blocks, and each block partially overlaps
-    #(
-    #    Bed("chr1", 0, 10, blockCount=3, blockSizes=[4, 2, 1], blockStarts=[0, 5, 7]),
-    #    Bed("chr1", 0, 10, blockCount=3, blockSizes=[3, 2, 2], blockStarts=[1, 5, 7]),
-    #    Bed("chr1", 1, 9, blockCount=3, blockSizes=[3, 2, 1], blockStarts=[0, 4, 6])
-    #)
+    #
+    #    0 1 2 3 4 5 6 7 8 9
+    # A  - - - -   - -     -
+    # S  - -   - - -       - - - - - -
+    # E  - -   -   -       -
+    (
+        Bed("chr1", 0, 10, blockSizes=[4, 2, 1], blockStarts=[0, 5, 9]),
+        Bed("chr1", 0, 15, blockSizes=[2, 3, 6], blockStarts=[0, 3, 9]),
+        Bed("chr1", 0, 10, blockSizes=[2, 1, 1, 1], blockStarts=[0, 3, 5, 9]),
+    ),
 ]
 # fmt: on
 
