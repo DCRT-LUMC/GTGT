@@ -271,38 +271,6 @@ class Bed:
         self.validate()
 
 
-def _to_range(numbers: Set[int]) -> List[Range]:
-    """Convert a range of numbers to [start, end)"""
-    # Make sure the numbers are sorted
-    _numbers = sorted(numbers)
-
-    # If there are no _numbers
-    if not _numbers:
-        return list()
-
-    # If there is only a single number
-    if len(_numbers) == 1:
-        i = _numbers[0]
-        return [(i, i + 1)]
-
-    # Initialise the start and previous number
-    start = prev = _numbers[0]
-
-    # Store the ranges we found
-    ranges = list()
-
-    # Process all _numbers
-    for i in _numbers[1:]:
-        if i == prev + 1:
-            prev = i
-        else:
-            ranges.append((start, prev + 1))
-            start = prev = i
-    ranges.append((start, prev + 1))
-
-    return ranges
-
-
 def _range_to_size_start(range: Range, offset: int) -> Tuple[int, int]:
     """Convert a range to size, start
 
