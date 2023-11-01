@@ -25,7 +25,8 @@ class Transcript:
             record.intersect(selector)
 
     def overlap(self, selector: Bed) -> None:
-        pass
+        for record in self.records():
+            record.overlap(selector)
 
     def subtract(self, selector: Bed) -> None:
         pass

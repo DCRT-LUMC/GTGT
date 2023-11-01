@@ -64,7 +64,7 @@ intersect_selectors = [
     # Selector on a different chromosome
     (Bed("chr2", 0, 100), Bed("chr1", 0, 0)),
     # Selector intersect the first exon
-    (Bed("chr1", 0, 15), Bed("chr1", 0, 10)),
+    (Bed("chr1", 5, 15), Bed("chr1", 5, 10)),
     # Selector intersects the last base of the first exon,
     # and the first base of the second exon
     (Bed("chr1", 9, 21), Bed("chr1", 9, 21, blockSizes=[1, 1], blockStarts=[0, 11])),
@@ -77,6 +77,29 @@ def test_intersect_transcript(
 ) -> None:
     """Test if intersecting the Transcript updates the exons"""
     transcript.intersect(selector)
+
+    # Ensure the name matches, it's less typing to do that here
+    exons.name = "exons"
+    assert transcript.exons == exons
+
+
+overlap_selectors = [
+    # Selector spans all exons
+    (Bed("chr1", 0, 100), exons),
+    # Selector on a different chromosome
+    (Bed("chr2", 0, 100), Bed("chr1", 0, 0)),
+    # Selector intersect the first exon
+    (Bed("chr1", 5, 15), Bed("chr1", 0, 10)),
+    # Selector intersects the last base of the first exon,
+    # and the first base of the second exon
+    (Bed("chr1", 9, 21), Bed("chr1", 0, 40, blockSizes=[10, 20], blockStarts=[0, 20])),
+]
+
+
+@pytest.mark.parametrize("selector, exons", overlap_selectors)
+def test_overlap_transcript(selector: Bed, exons: Bed, transcript: Transcript) -> None:
+    """Test if overlapping the Transcript updates the exons"""
+    transcript.overlap(selector)
 
     # Ensure the name matches, it's less typing to do that here
     exons.name = "exons"
