@@ -381,6 +381,12 @@ bed_subtract = [
         Bed("chr1", 0, 15, blockSizes=[2, 3, 6], blockStarts=[0, 3, 9]),
         Bed("chr1", 2, 7, blockSizes=[1, 1], blockStarts=[0, 4]),
     ),
+    # Subtracting a record on a different chromosome shouldn't change anything
+    (
+        Bed("chr1", 0, 10, blockSizes=[4, 2, 1], blockStarts=[0, 5, 9]),
+        Bed("chr2", 0, 10, blockSizes=[4, 2, 1], blockStarts=[0, 5, 9]),
+        Bed("chr1", 0, 10, blockSizes=[4, 2, 1], blockStarts=[0, 5, 9]),
+    ),
 ]
 
 

@@ -104,3 +104,32 @@ def test_overlap_transcript(selector: Bed, exons: Bed, transcript: Transcript) -
     # Ensure the name matches, it's less typing to do that here
     exons.name = "exons"
     assert transcript.exons == exons
+
+
+subtract_selectors = [
+    # Selector spans all exons
+    (Bed("chr1", 0, 100), Bed("chr1", 0, 0)),
+    # Selector on a different chromosome
+    (Bed("chr2", 0, 100), deepcopy(exons)),
+    # Selector intersect the first exon
+    (
+        Bed("chr1", 5, 15),
+        Bed("chr1", 0, 100, blockSizes=[5, 20, 10, 30], blockStarts=[0, 20, 50, 70]),
+    ),
+    # Selector intersects the last base of the first exon,
+    # and the first base of the second exon
+    (
+        Bed("chr1", 9, 21),
+        Bed("chr1", 0, 100, blockSizes=[9, 19, 10, 30], blockStarts=[0, 21, 50, 70]),
+    ),
+]
+
+
+@pytest.mark.parametrize("selector, exons", subtract_selectors)
+def test_subtract_transcript(selector: Bed, exons: Bed, transcript: Transcript) -> None:
+    """Test if subtracting the Transcript updates the exons"""
+    transcript.subtract(selector)
+
+    # Ensure the name matches, it's less typing to do that here
+    exons.name = "exons"
+    assert transcript.exons == exons

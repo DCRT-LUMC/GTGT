@@ -236,6 +236,9 @@ class Bed:
         if not isinstance(other, Bed):
             raise NotImplementedError
 
+        if self.chrom != other.chrom:
+            return
+
         subtracted_blocks = subtract(list(self.blocks()), list(other.blocks()))
         self.update(subtracted_blocks)
 

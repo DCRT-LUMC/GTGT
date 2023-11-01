@@ -29,4 +29,5 @@ class Transcript:
             record.overlap(selector)
 
     def subtract(self, selector: Bed) -> None:
-        pass
+        for record in self.records():
+            record.subtract(selector)
