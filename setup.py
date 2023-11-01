@@ -72,7 +72,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'python-project=python_project.cli:main',
+            'gtgt=GTGT.cli:main',
         ]
     },
 )

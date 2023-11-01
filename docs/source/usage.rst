@@ -14,18 +14,19 @@ GTGT can be installed using pip:
 
 Default usage
 ----------------
-By default, Python-project will just print a greeting
+Currently, the command line interface for GTGT is just
+a placeholder.
 
 .. code-block:: console
 
-   python-project
+   gtgt
    Hello, world
 
 You can also specify the person to greeting
 
 .. code-block:: console
 
-   python-project --name John
+   gtgt --name John
    Hello, John
 
 Python functions

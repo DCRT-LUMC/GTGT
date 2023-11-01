@@ -1,4 +1,4 @@
-Welcome to the documentation for Python-project!
+Welcome to the documentation for GTGT
 ================================================
 
 Describe your project here.
@@ -8,7 +8,7 @@ how to :ref:`install<installation>` the project.
 
 .. note::
 
-   This project is under active development. Python-project has its documentation hosted on Read the Docs.
+   This project is under active development. GTGT has its documentation hosted on Read the Docs.
 
 Contents
 --------
