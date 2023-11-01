@@ -11,10 +11,12 @@ def records() -> List[Bed]:
     """
     Bed records that make up a transcript
     Each positions shown here is 10x
+    (i) means inferred by the init method
 
               0 1 2 3 4 5 6 7 8 9
     exons     -   - -   -   - - -
     cds           - - - - - -
+    coding(i)     - -   -   -
 
 
     """
