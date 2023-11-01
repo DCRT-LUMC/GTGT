@@ -35,3 +35,18 @@ def test_transcript_init(records: List[Bed]) -> None:
     t = Transcript(records)
     assert t.exons.name == "exons"
     assert t.cds.name == "cds"
+
+
+def test_coding(records: List[Bed]) -> None:
+    t = Transcript(records)
+
+    # The coding region is the intersection of the exons and the CDS
+    coding = Bed(
+        "chr1", 23, 72, name="coding", blockSizes=[17, 10, 2], blockStarts=[0, 27, 47]
+    )
+    # Test that we did not change the cds or exons
+    assert t.exons == records[0]
+    assert t.cds == records[1]
+
+    # Test that coding was set
+    assert t.coding == coding
