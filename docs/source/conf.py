@@ -2,12 +2,12 @@
 
 # -- Project information
 
-project = 'Python-project'
+project = 'GTGT'
 copyright = '2023, Redmar van den Berg'
 author = 'Redmar van den Berg'
 
-release = '0.1'
-version = '0.1.0'
+release = '0.0.1'
+version = '0.0.1'
 
 # -- General configuration
 

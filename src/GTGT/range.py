@@ -4,15 +4,15 @@ Range = Tuple[int, int]
 
 
 def overlap(a: Range, b: Range) -> bool:
-    """Determine of ranges a and b overlap"""
-    # A and B overlap if the intersection is not empty
+    """Determine if ranges a and b overlap"""
+    # A and B overlap wether the intersection is not empty
     if intersect(a, b):
         return True
     return False
 
 
 def intersect(a: Range, b: Range) -> List[Range]:
-    """Determine the intersection between two ranges"""
+    """Determine the intersection between ranges a and b"""
     start = max(a[0], b[0])
     end = min(a[1], b[1])
 
@@ -24,7 +24,7 @@ def intersect(a: Range, b: Range) -> List[Range]:
 
 def subtract(a: List[Range], b: List[Range]) -> List[Range]:
     """
-    Subtract the regions in B from A
+    Subtract the regions in b from a
 
     Lazy implementation by just putting all numbers into two sets
     """
