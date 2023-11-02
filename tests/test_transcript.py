@@ -3,25 +3,26 @@ import pytest
 from GTGT import Bed
 from GTGT.transcript import Transcript
 
-from copy import deepcopy
 
-from typing import List, Any
-
-
-exons = Bed(
-    "chr1",
-    0,
-    100,
-    name="exons",
-    blockSizes=[10, 20, 10, 30],
-    blockStarts=[0, 20, 50, 70],
-)
-
-# The CDS is from (23, 72]
-cds = Bed("chr1", 23, 72, name="cds", blockSizes=[49], blockStarts=[0])
+@pytest.fixture
+def exons() -> Bed:
+    return Bed(
+        "chr1",
+        0,
+        100,
+        name="exons",
+        blockSizes=[10, 20, 10, 30],
+        blockStarts=[0, 20, 50, 70],
+    )
 
 
-def make_transcript() -> Transcript:
+@pytest.fixture
+def cds() -> Bed:
+    return Bed("chr1", 23, 72, name="cds", blockSizes=[49], blockStarts=[0])
+
+
+@pytest.fixture
+def transcript(exons: Bed, cds: Bed) -> Transcript:
     """
     Bed records that make up a transcript
     Each positions shown here is 10x
@@ -32,12 +33,7 @@ def make_transcript() -> Transcript:
     cds           - - - - - -
     coding(i)     - -   -   -
     """
-    return Transcript(exons=deepcopy(exons), cds=deepcopy(cds))
-
-
-@pytest.fixture
-def transcript() -> Transcript:
-    return make_transcript()
+    return Transcript(exons=exons, cds=cds)
 
 
 def test_transcript_init(transcript: Transcript) -> None:
@@ -45,7 +41,7 @@ def test_transcript_init(transcript: Transcript) -> None:
     assert transcript.cds.name == "cds"
 
 
-def test_coding(transcript: Transcript) -> None:
+def test_coding(transcript: Transcript, exons: Bed, cds: Bed) -> None:
     # The coding region is the intersection of the exons and the CDS
     coding = Bed(
         "chr1", 23, 72, name="coding", blockSizes=[17, 10, 2], blockStarts=[0, 27, 47]
@@ -60,7 +56,17 @@ def test_coding(transcript: Transcript) -> None:
 
 intersect_selectors = [
     # Selector spans all exons
-    (Bed("chr1", 0, 100), exons),
+    (
+        Bed("chr1", 0, 100),
+        Bed(
+            "chr1",
+            0,
+            100,
+            name="exons",
+            blockSizes=[10, 20, 10, 30],
+            blockStarts=[0, 20, 50, 70],
+        ),
+    ),
     # Selector on a different chromosome
     (Bed("chr2", 0, 100), Bed("chr1", 0, 0)),
     # Selector intersect the first exon
@@ -85,7 +91,17 @@ def test_intersect_transcript(
 
 overlap_selectors = [
     # Selector spans all exons
-    (Bed("chr1", 0, 100), exons),
+    (
+        Bed("chr1", 0, 100),
+        Bed(
+            "chr1",
+            0,
+            100,
+            name="exons",
+            blockSizes=[10, 20, 10, 30],
+            blockStarts=[0, 20, 50, 70],
+        ),
+    ),
     # Selector on a different chromosome
     (Bed("chr2", 0, 100), Bed("chr1", 0, 0)),
     # Selector intersect the first exon
@@ -110,7 +126,17 @@ subtract_selectors = [
     # Selector spans all exons
     (Bed("chr1", 0, 100), Bed("chr1", 0, 0)),
     # Selector on a different chromosome
-    (Bed("chr2", 0, 100), deepcopy(exons)),
+    (
+        Bed("chr2", 0, 100),
+        Bed(
+            "chr1",
+            0,
+            100,
+            name="exons",
+            blockSizes=[10, 20, 10, 30],
+            blockStarts=[0, 20, 50, 70],
+        ),
+    ),
     # Selector intersect the first exon
     (
         Bed("chr1", 5, 15),
