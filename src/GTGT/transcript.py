@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from .bed import Bed
 
-from typing import List
+from typing import List, Dict
 
 
 class Transcript:
@@ -40,3 +40,16 @@ class Transcript:
         exons_to_skip = deepcopy(self.exons)
         exons_to_skip.overlap(selector)
         self.subtract(exons_to_skip)
+
+    def compare(self, other: object) -> Dict[str, float]:
+        """Compare the size of each record in the transcripts"""
+        if not isinstance(other, Transcript):
+            raise NotImplementedError
+
+        # Compare each record that makes up self and other
+        # The comparison will fail if the record.name does not match
+        cmp = dict()
+        for record1, record2 in zip(self.records(), other.records()):
+            cmp[record1.name] = record1.compare(record2)
+
+        return cmp

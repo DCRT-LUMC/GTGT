@@ -3,22 +3,21 @@ import pytest
 from GTGT import Bed
 from GTGT.transcript import Transcript
 
+from GTGT.bed import make_bed
+
 
 @pytest.fixture
 def Exons() -> Bed:
-    return Bed(
-        "chr1",
-        0,
-        100,
-        name="exons",
-        blockSizes=[10, 20, 10, 30],
-        blockStarts=[0, 20, 50, 70],
-    )
+    exons = [(0, 10), (20, 40), (50, 60), (70, 100)]
+    bed = make_bed("chr1", *exons)
+    bed.name = "exons"
+
+    return bed
 
 
 @pytest.fixture
 def cds() -> Bed:
-    return Bed("chr1", 23, 72, name="cds", blockSizes=[49], blockStarts=[0])
+    return Bed("chr1", 23, 72, name="cds")
 
 
 @pytest.fixture
@@ -195,3 +194,21 @@ def test_exon_skip_transcript(
     # Ensure the name matches, it's less typing to do that here
     exons.name = "exons"
     assert transcript.exons == exons
+
+
+def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
+    exon_blocks = [
+        (0, 10),
+        # (20, 40),  # Missing the second exon
+        (50, 60),
+        (70, 100),
+    ]
+    exons = make_bed("chr1", *exon_blocks)
+    exons.name = "exons"
+    smaller = Transcript(exons, cds)
+
+    cmp = smaller.compare(transcript)
+
+    assert cmp["exons"] == pytest.approx(0.71, abs=0.01)
+    assert cmp["cds"] == 1
+    assert cmp["coding"] == pytest.approx(0.41, abs=0.01)
