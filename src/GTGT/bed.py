@@ -273,6 +273,11 @@ class Bed:
             self.blockStarts.append(start)
         self.validate()
 
+    @property
+    def size(self) -> int:
+        """The size of a Bed record is the sum of its blocks"""
+        return sum(self.blockSizes)
+
 
 def _range_to_size_start(range: Range, offset: int) -> Tuple[int, int]:
     """Convert a range to size, start

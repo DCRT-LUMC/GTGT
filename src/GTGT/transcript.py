@@ -36,7 +36,7 @@ class Transcript:
             record.subtract(selector)
 
     def exon_skip(self, selector: Bed) -> None:
-        """Remove the exon(s) that overlaps the selector from the transcript"""
+        """Remove the exon(s) that overlap the selector from the transcript"""
         exons_to_skip = deepcopy(self.exons)
         exons_to_skip.overlap(selector)
         self.subtract(exons_to_skip)

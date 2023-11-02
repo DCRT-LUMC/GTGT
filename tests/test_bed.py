@@ -417,3 +417,12 @@ bed_subtract = [
 def test_subtract_bed(a: Bed, selector: Bed, expected: Bed) -> None:
     a.subtract(selector)
     assert a == expected
+
+
+def test_bed_size() -> None:
+    """Test the size of a Bed record
+
+    The size is the sum of all blocks
+    """
+    bed = make_bed("chr1", (0, 5), (10, 15))
+    assert bed.size == 10
