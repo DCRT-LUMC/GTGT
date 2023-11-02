@@ -2,7 +2,7 @@ import pytest
 from typing import List, Any
 
 from GTGT import Bed
-from GTGT.bed import _range_to_size_start
+from GTGT.bed import _range_to_size_start, make_bed
 
 # This is just a type alias
 from GTGT.range import Range
@@ -71,6 +71,29 @@ def test_bed_init_method() -> None:
     # Automatically set blockCount based on the number of blocks
     bed1 = Bed("chr1", 0, 10, blockSizes=[1, 7], blockStarts=[0, 3])
     assert bed1.blockCount == 2
+
+
+def test_make_bed_one() -> None:
+    """
+    Test making a Bed record from a single Range
+    """
+    bed = make_bed("chr1", (0, 10))
+    assert bed.chromStart == 0
+    assert bed.chromEnd == 10
+
+
+def test_make_bed_multiple() -> None:
+    """
+    Test making a Bed record from a bunch of ranges
+
+    0 1 2 3 4 5 6 7 8 9 10
+        - -   -   - - - -
+    """
+    bed = make_bed("chr1", (2, 4), (5, 6), (7, 11))
+    assert bed.chromStart == 2
+    assert bed.chromEnd == 11
+    assert bed.blockStarts == [0, 3, 5]
+    assert bed.blockSizes == [2, 1, 4]
 
 
 def test_default_values_blocks(bed: Bed) -> None:

@@ -283,3 +283,10 @@ def _range_to_size_start(range: Range, offset: int) -> Tuple[int, int]:
     size = range[1] - range[0]
     start = range[0] - offset
     return size, start
+
+
+def make_bed(chrom: str, *blocks: Range) -> Bed:
+    """Create a Bed record from multiple Ranges"""
+    bed = Bed(chrom, 0, 0)
+    bed.update(list(blocks))
+    return bed
