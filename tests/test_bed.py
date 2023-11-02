@@ -426,3 +426,36 @@ def test_bed_size() -> None:
     """
     bed = make_bed("chr1", (0, 5), (10, 15))
     assert bed.size == 10
+
+
+not_comparable = [
+    # Different chromosomes
+    (Bed("chr1", 0, 0), Bed("chr2", 0, 0)),
+    # Different names
+    (Bed("chr1", 0, 0, name="a"), Bed("chr1", 0, 0, name="b")),
+    # Different strands
+    (Bed("chr1", 0, 0, strand="+"), Bed("chr1", 0, 0)),
+]
+
+
+@pytest.mark.parametrize("a, b", not_comparable)
+def test_non_comparable_bed(a: Bed, b: Bed) -> None:
+    """Test that we raise an error"""
+    with pytest.raises(ValueError):
+        a.compare(b)
+
+
+compare = [
+    # A, B, A/B
+    (Bed("chr1", 5, 10), Bed("chr1", 0, 10), 0.5),
+    # A consists of 2 blocks
+    (make_bed("chr1", (0, 10), (15, 20)), Bed("chr1", 0, 100), 0.15),
+    # A > B
+    (Bed("chr1", 0, 100), Bed("chr1", 0, 10), 10),
+]
+
+
+@pytest.mark.parametrize("a, b, expected", compare)
+def test_compare_bed(a: Bed, b: Bed, expected: float) -> None:
+    assert a.compare(b) == expected
+    assert b.compare(a) == 1 / expected

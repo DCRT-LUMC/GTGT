@@ -242,6 +242,30 @@ class Bed:
         subtracted_blocks = subtract(list(self.blocks()), list(other.blocks()))
         self.update(subtracted_blocks)
 
+    def compare(self, other: object) -> float:
+        """
+        Compare the size of Bed objects
+
+        Raises a ValueError if chrom, name or strand are not identical
+        """
+
+        def get_properties(bed: Bed) -> Tuple[str, ...]:
+            """Return a tuple of the properties that must match"""
+            return (bed.chrom, bed.name, bed.strand)
+
+        if not isinstance(other, Bed):
+            raise NotImplementedError
+
+        # We only compare Bed objects if their properties match
+        prop_self = get_properties(self)
+        prop_other = get_properties(other)
+
+        if prop_self != prop_other:
+            msg = "Comparison failed, properties mismatch: {prop_self} != {prop_other}"
+            raise ValueError(msg)
+
+        return self.size / other.size
+
     def update(self, ranges: List[Range]) -> None:
         """Update a Bed object with a list of ranges"""
         # Check that thickStart/thickEnd have not been set
