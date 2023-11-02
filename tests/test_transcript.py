@@ -5,7 +5,7 @@ from GTGT.transcript import Transcript
 
 
 @pytest.fixture
-def exons() -> Bed:
+def Exons() -> Bed:
     return Bed(
         "chr1",
         0,
@@ -22,7 +22,7 @@ def cds() -> Bed:
 
 
 @pytest.fixture
-def transcript(exons: Bed, cds: Bed) -> Transcript:
+def transcript(Exons: Bed, cds: Bed) -> Transcript:
     """
     Bed records that make up a transcript
     Each positions shown here is 10x
@@ -33,7 +33,7 @@ def transcript(exons: Bed, cds: Bed) -> Transcript:
     cds           - - - - - -
     coding(i)     - -   -   -
     """
-    return Transcript(exons=exons, cds=cds)
+    return Transcript(exons=Exons, cds=cds)
 
 
 def test_transcript_init(transcript: Transcript) -> None:
@@ -41,13 +41,13 @@ def test_transcript_init(transcript: Transcript) -> None:
     assert transcript.cds.name == "cds"
 
 
-def test_coding(transcript: Transcript, exons: Bed, cds: Bed) -> None:
+def test_coding(transcript: Transcript, Exons: Bed, cds: Bed) -> None:
     # The coding region is the intersection of the exons and the CDS
     coding = Bed(
         "chr1", 23, 72, name="coding", blockSizes=[17, 10, 2], blockStarts=[0, 27, 47]
     )
     # Test that we did not change the cds or exons
-    assert transcript.exons == exons
+    assert transcript.exons == Exons
     assert transcript.cds == cds
 
     # Test that coding was set
@@ -155,6 +155,42 @@ subtract_selectors = [
 def test_subtract_transcript(selector: Bed, exons: Bed, transcript: Transcript) -> None:
     """Test if subtracting the Transcript updates the exons"""
     transcript.subtract(selector)
+
+    # Ensure the name matches, it's less typing to do that here
+    exons.name = "exons"
+    assert transcript.exons == exons
+
+
+exon_skip_selectors = [
+    # A selector on a different chromosome does nothing
+    (
+        Bed("chr2", 0, 100),
+        Bed("chr1", 0, 100, blockSizes=[10, 20, 10, 30], blockStarts=[0, 20, 50, 70]),
+    ),
+    # Remove the first exon
+    (
+        Bed("chr1", 0, 1),
+        Bed("chr1", 20, 100, blockSizes=[20, 10, 30], blockStarts=[0, 30, 50]),
+    ),
+    # Selector spans two exons
+    (
+        Bed("chr1", 9, 21),
+        Bed("chr1", 50, 100, blockSizes=[10, 30], blockStarts=[0, 20]),
+    ),
+    # Remove the last exon
+    (
+        Bed("chr1", 99, 100),
+        Bed("chr1", 0, 60, blockSizes=[10, 20, 10], blockStarts=[0, 20, 50]),
+    ),
+]
+
+
+@pytest.mark.parametrize("selector, exons", exon_skip_selectors)
+def test_exon_skip_transcript(
+    selector: Bed, exons: Bed, transcript: Transcript
+) -> None:
+    """Test if exon skipping updates the Transcript exons"""
+    transcript.exon_skip(selector)
 
     # Ensure the name matches, it's less typing to do that here
     exons.name = "exons"
