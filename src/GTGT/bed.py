@@ -256,6 +256,11 @@ class Bed:
         if not isinstance(other, Bed):
             raise NotImplementedError
 
+        # Other can not have size zero
+        if other.size == 0:
+            msg = "Comparison not allowed with zero-size Bed record"
+            raise ValueError(msg)
+
         # We only compare Bed objects if their properties match
         prop_self = get_properties(self)
         prop_other = get_properties(other)

@@ -1,4 +1,5 @@
 import pytest
+
 from typing import List, Any
 
 from GTGT import Bed
@@ -435,6 +436,8 @@ not_comparable = [
     (Bed("chr1", 0, 0, name="a"), Bed("chr1", 0, 0, name="b")),
     # Different strands
     (Bed("chr1", 0, 0, strand="+"), Bed("chr1", 0, 0)),
+    # The selector is zero
+    (Bed("chr1", 0, 10), Bed("chr1", 0, 0)),
 ]
 
 
@@ -452,10 +455,11 @@ compare = [
     (make_bed("chr1", (0, 10), (15, 20)), Bed("chr1", 0, 100), 0.15),
     # A > B
     (Bed("chr1", 0, 100), Bed("chr1", 0, 10), 10),
+    # A has zero size
+    (Bed("chr1", 0, 0), Bed("chr1", 0, 10), 0),
 ]
 
 
 @pytest.mark.parametrize("a, b, expected", compare)
 def test_compare_bed(a: Bed, b: Bed, expected: float) -> None:
     assert a.compare(b) == expected
-    assert b.compare(a) == 1 / expected
