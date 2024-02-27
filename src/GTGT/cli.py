@@ -8,8 +8,10 @@ import argparse
 
 import json
 
+
 def logger_setup() -> None:
     import logging
+
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
@@ -24,16 +26,20 @@ def main() -> None:
     subparsers = parser.add_subparsers()
     parser.add_argument("--name", default="world", required=False)
 
-    transcript_parser = subparsers.add_parser('transcript', help="Transcript Information")
+    transcript_parser = subparsers.add_parser(
+        "transcript", help="Transcript Information"
+    )
 
-    transcript_parser.add_argument("transcript_id", type=str, help="Transcript of interest")
+    transcript_parser.add_argument(
+        "transcript_id", type=str, help="Transcript of interest"
+    )
     args = parser.parse_args()
 
     logger_setup()
 
     if args.transcript_id:
-        print(json.dumps(lookup_transcript(args.transcript_id), indent=True))
-
+        r = lookup_transcript(args.transcript_id)
+        print(r.json())
 
 
 if __name__ == "__main__":
