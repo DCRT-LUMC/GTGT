@@ -20,20 +20,22 @@ def test_invalid_payload(
 def test_payload_to_EnsembleTranscript() -> None:
     # Fake ensembl payload
     p = {
-        "assembly_name": Assembly.GRCH38,
+        "assembly_name": Assembly.HUMAN,
         "seq_region_name": "17",
         "start": 0,
         "end": 10,
         "version": 99,
         "id": "transcript",
+        "display_name": "Gene name",
     }
     expected = EnsemblTranscript(
-        assembly_name=Assembly.GRCH38,
-        chrom="chr17",
+        assembly_name=Assembly.HUMAN,
+        seq_region_name="17",
         start=0,
         end=10,
         version=99,
         id="transcript",
+        display_name="Gene name"
     )
 
     assert payload_to_ensemble_transcript(p) == expected

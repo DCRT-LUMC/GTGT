@@ -8,3 +8,9 @@
 
 ## Documentation
 The documentation is available on [http://gtgt.readthedocs.io/](http://gtgt.readthedocs.io/).
+
+## Human
+gtgt transcript ENST00000241453.12 | jq .
+
+## Rat
+gtgt transcript ENSRNOT00000088957.2 | jq .

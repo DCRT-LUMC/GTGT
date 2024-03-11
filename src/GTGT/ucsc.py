@@ -12,16 +12,18 @@ logger = logging.getLogger(__name__)
 
 
 class Assembly(Enum):
-    GRCH38 = "GRCh38"
+    HUMAN = "GRCh38"
+    RAT = "mRatBN7.2"
 
 
 class EnsemblTranscript(BaseModel):
     assembly_name: Assembly
-    chrom: str = Field(pattern=r"chr\d+")
+    seq_region_name: str
     start: int
     end: int
     id: str
     version: int
+    display_name: str
 
 
 def lookup_transcript(transcript_id: str) -> EnsemblTranscript:
@@ -34,19 +36,7 @@ def lookup_transcript(transcript_id: str) -> EnsemblTranscript:
 
 
 def payload_to_ensemble_transcript(payload: Dict[str, Any]) -> EnsemblTranscript:
-    ts = payload
-
-    # Gather the fields we need
-    fields = {
-        "assembly_name": ts.get("assembly_name"),
-        "chrom": f"chr{ts.get('seq_region_name')}",
-        "start": ts.get("start"),
-        "end": ts.get("end"),
-        "id": ts.get("id"),
-        "version": ts.get("version"),
-    }
-
-    return EnsemblTranscript(**fields)  # type: ignore[arg-type]
+    return EnsemblTranscript(**payload)
 
 
 def _check_transcript(payload: Dict[str, Any], version: int) -> None:
