@@ -3,13 +3,14 @@ Module that contains the command line app, so we can still import __main__
 without executing side effects
 """
 
-from .ensembl import lookup_transcript
+from .ensembl import lookup_transcript, Assembly
+from .ucsc import lookup_knownGene
 import argparse
-
 import json
+import logging
 
 
-def logger_setup() -> None:
+def logger_setup() -> logging.Logger:
     import logging
 
     logger = logging.getLogger()
@@ -19,6 +20,8 @@ def logger_setup() -> None:
     ch.setLevel(logging.DEBUG)
 
     logger.addHandler(ch)
+
+    return logger
 
 
 def main() -> None:
@@ -35,11 +38,14 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    logger_setup()
+    logger = logger_setup()
 
     if args.transcript_id:
         r = lookup_transcript(args.transcript_id)
+        logger.debug(r)
+        track = lookup_knownGene(r)
         print(r.json())
+        print(json.dumps(track))
 
 
 if __name__ == "__main__":

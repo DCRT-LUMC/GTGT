@@ -8,6 +8,9 @@ Changelog
 
 v0.0.2-dev
 ----------
++ Fetch knownGene track from UCSC
++ Fetch transcript information from Ensembl
+
 v0.0.1
 ----------
 + Add class for Transcripts
