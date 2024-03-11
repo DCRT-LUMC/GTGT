@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict, Any
-from GTGT.ucsc import EnsemblTranscript, Assembly
-from GTGT.ucsc import _check_transcript, payload_to_ensemble_transcript
+from GTGT.ensembl import EnsemblTranscript, Assembly
+from GTGT.ensembl import _check_transcript, payload_to_ensemble_transcript
 
 
 INVALID = [
@@ -35,7 +35,7 @@ def test_payload_to_EnsembleTranscript() -> None:
         end=10,
         version=99,
         id="transcript",
-        display_name="Gene name"
+        display_name="Gene name",
     )
 
     assert payload_to_ensemble_transcript(p) == expected

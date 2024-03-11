@@ -3,7 +3,7 @@ import urllib.request
 from urllib.error import HTTPError
 import json
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from enum import Enum
 
 from typing import Any, Dict

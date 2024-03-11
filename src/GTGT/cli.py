@@ -3,7 +3,7 @@ Module that contains the command line app, so we can still import __main__
 without executing side effects
 """
 
-from .ucsc import lookup_transcript
+from .ensembl import lookup_transcript
 import argparse
 
 import json
