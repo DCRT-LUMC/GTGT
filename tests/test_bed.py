@@ -1,6 +1,6 @@
 import pytest
 
-from typing import List, Any, Tuple
+from typing import Any, Dict, List, Tuple
 
 from GTGT import Bed
 from GTGT.bed import _range_to_size_start, make_bed
@@ -141,6 +141,44 @@ bedfile_lines = [
 @pytest.mark.parametrize("columns", bedfile_lines)
 def test_from_bedfile(columns: Tuple[Any, ...]) -> None:
     Bed.from_bedfile("\t".join(map(str, columns)))
+
+
+ucsc_payload = [
+    ({"chrom": "chr13", "chromStart": 0, "chromEnd": "10"}, Bed("chr13", 0, 10)),
+    (
+        {
+            "chrom": "chr13",
+            "chromStart": 0,
+            "chromEnd": "10",
+            "name": "Test",
+            "score": 0,
+            "strand": "+",
+            "thickStart": 0,
+            "thickEnd": 10,
+            "blockCount": 2,
+            "blockSizes": "5,2",
+            "blockStarts": "0,8",
+        },
+        Bed(
+            chrom="chr13",
+            chromStart=0,
+            chromEnd=10,
+            name="Test",
+            score=0,
+            strand="+",
+            thickStart=0,
+            thickEnd=10,
+            blockCount=2,
+            blockSizes=[5, 2],
+            blockStarts=[0, 8],
+        ),
+    ),
+]
+
+
+@pytest.mark.parametrize("payload, bed", ucsc_payload)
+def test_from_ucsc(payload: Dict[str, Any], bed: Bed) -> None:
+    assert Bed.from_ucsc(payload) == bed
 
 
 range_start_size = [
@@ -304,12 +342,12 @@ invalid_bed = [
     # incorrect blockCount
     (
         ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 2),
-        "blockCount does not match the number of blocks",
+        "blockCount(.*) does not match the number of blocks(.*)",
     ),
     # Mismatch in number of fields between blockSizes and blockStarts
     (
         ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 2, [2,3], [1]),
-        "number of values differs between blockSizes and blockStarts",
+        "number of values differs between blockSizes(.*) and blockStarts(.*)",
     ),
     # Blocks must not overlap
     (

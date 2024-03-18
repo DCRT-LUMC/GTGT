@@ -1,4 +1,4 @@
-from typing import Optional, Iterator, List, Tuple
+from typing import Any, Dict, Optional, Iterator, List, Tuple
 from .range import Range, overlap, intersect, subtract
 
 # colorRgb field from Bed
@@ -69,13 +69,11 @@ class Bed:
         if self.thickEnd < self.thickStart:
             raise ValueError("thickEnd before thickStart")
         if len(self.blockSizes) != self.blockCount:
-            raise ValueError("blockCount does not match the number of blocks")
+            msg = f"blockCount({self.blockCount=}) does not match the number of blocks({self.blockSizes=})"
+            raise ValueError(msg)
         if len(self.blockSizes) != len(self.blockStarts):
-            print(self.blockSizes)
-            print(self.blockStarts)
-            raise ValueError(
-                "number of values differs between blockSizes and blockStarts"
-            )
+            msg = f"number of values differs between blockSizes({self.blockSizes}) and blockStarts({self.blockStarts})"
+            raise ValueError(msg)
 
         # Initialise with the end of the first block
         prev_end = self.chromStart + self.blockStarts[0] + self.blockSizes[0]
@@ -209,6 +207,21 @@ class Bed:
             blockSizes=csv_to_int(d["blockSizes"]) if "blockSizes" in d else None,
             blockStarts=csv_to_int(d["blockStarts"]) if "blockStarts" in d else None,
         )
+
+    @classmethod
+    def from_ucsc(cls, payload: Dict[str, Any]) -> "Bed":
+        """Create a BED record from the payload of the UCSC API"""
+
+        def csv_to_int(csv: str) -> List[int]:
+            """Convert a csv list to a list of integers"""
+            return list(map(int, csv.split(",")))
+
+        d = payload.copy()
+
+        d["blockSizes"] = csv_to_int(d["blockSizes"]) if "blockSizes" in d else None
+        d["blockStarts"] = csv_to_int(d["blockStarts"]) if "blockStarts" in d else None
+
+        return Bed(**d)
 
     def intersect(self, other: object) -> None:
         """Update record to only contain features that overlap other"""
