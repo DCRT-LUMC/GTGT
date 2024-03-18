@@ -1,6 +1,6 @@
 import pytest
 
-from typing import List, Any
+from typing import List, Any, Tuple
 
 from GTGT import Bed
 from GTGT.bed import _range_to_size_start, make_bed
@@ -114,6 +114,33 @@ def test_bed_roundtrip(bed: Bed, line: str) -> None:
     assert from_bed == line
     # Check that the Bed record from line is as expected
     assert from_line == bed
+
+
+bedfile_lines = [
+    # Minimum BED record, with only 3 columns
+    ("chr1", 0, 10),
+    # With name column
+    ("chr1", 0, 10, "Name"),
+    # With score column
+    ("chr1", 0, 10, "Name", 9999),
+    # With strand column
+    ("chr1", 0, 10, "Name", 9999, "+"),
+    # With thickStart column
+    ("chr1", 0, 10, "Name", 9999, "strand", 0),
+    # With thickEnd column
+    ("chr1", 0, 10, "Name", 9999, "strand", 0, 10),
+    # With itemRgb column
+    ("chr1", 0, 10, "Name", 9999, "strand", 0, 10, "255,255,255"),
+    # With blockCount column
+    ("chr1", 0, 10, "Name", 9999, "strand", 0, 10, "255,255,255", 1),
+    # With blockSizes(5,2) and blockStarts(0,8) columns
+    ("chr1", 0, 10, "Name", 9999, "strand", 0, 10, "255,255,255", 2, "5,2", "0,8"),
+]
+
+
+@pytest.mark.parametrize("columns", bedfile_lines)
+def test_from_bedfile(columns: Tuple[Any, ...]) -> None:
+    Bed.from_bedfile("\t".join(map(str, columns)))
 
 
 range_start_size = [
