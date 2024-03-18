@@ -20,6 +20,7 @@ class Bed:
         blockCount: Optional[int] = None,
         blockSizes: Optional[List[int]] = None,
         blockStarts: Optional[List[int]] = None,
+        **ignored: Any,
     ) -> None:
         # Required attributes
         self.chrom = chrom
@@ -207,10 +208,14 @@ class Bed:
             strand=d.get("strand", "."),
             thickStart=int(d["thickStart"]) if "thickStart" in d else None,
             thickEnd=int(d["thickEnd"]) if "thickEnd" in d else None,
-            itemRgb=tuple(cls._csv_to_int(d["itemRgb"])) if "itemRgb" in d else (0, 0, 0),
+            itemRgb=(
+                tuple(cls._csv_to_int(d["itemRgb"])) if "itemRgb" in d else (0, 0, 0)
+            ),
             blockCount=int(d["blockCount"]) if "blockCount" in d else None,
             blockSizes=cls._csv_to_int(d["blockSizes"]) if "blockSizes" in d else None,
-            blockStarts=cls._csv_to_int(d["blockStarts"]) if "blockStarts" in d else None,
+            blockStarts=(
+                cls._csv_to_int(d["blockStarts"]) if "blockStarts" in d else None
+            ),
         )
 
     @classmethod
@@ -219,8 +224,18 @@ class Bed:
 
         d = payload.copy()
 
-        d["blockSizes"] = cls._csv_to_int(d["blockSizes"]) if "blockSizes" in d else None
-        d["blockStarts"] = cls._csv_to_int(d["blockStarts"]) if "blockStarts" in d else None
+        # UCSC uses "chromStarts" instead of "blockStarts"
+        try:
+            d["blockStarts"] = d.pop("chromStarts")
+        except KeyError:
+            pass
+
+        d["blockSizes"] = (
+            cls._csv_to_int(d["blockSizes"]) if "blockSizes" in d else None
+        )
+        d["blockStarts"] = (
+            cls._csv_to_int(d["blockStarts"]) if "blockStarts" in d else None
+        )
 
         return Bed(**d)
 

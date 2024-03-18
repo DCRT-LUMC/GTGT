@@ -47,7 +47,7 @@ def main() -> None:
         track = lookup_knownGene(r)
         print(r.json())
         knownGene = track["knownGene"][0]
-        bed = Bed(**knownGene)
+        bed = Bed.from_ucsc(knownGene)
         print(bed)
         exit()
 
