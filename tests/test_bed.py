@@ -40,40 +40,6 @@ def test_defaul_values_blocks() -> None:
     assert bed.blockSizes == [5]
 
 
-def test_bed_init_method() -> None:
-    """Test various values for the init methods
-
-    We allow people to pass both python values as well as their BED format
-    string representation
-    """
-    # Pass Integers for positions
-    assert Bed("chr1", 0, 10) == Bed("chr1", "0", "10")
-
-    # Pass integer for score
-    assert Bed("chr1", 0, 10, score=1000) == Bed("chr1", "0", "10", score="1000")
-
-    # Pass integer for thickStart, thickEnd
-    bed1 = Bed("chr1", 0, 10, thickStart=0, thickEnd=10)
-    bed2 = Bed("chr1", "0", "10", thickStart="0", thickEnd="10")
-    assert bed1 == bed2
-
-    # Pass itemRgb as a tuple[int] and a string
-    bed1 = Bed("chr1", 0, 10, itemRgb=(0, 0, 0))
-    bed2 = Bed("chr1", "0", "10", itemRgb="0,0,0")
-    assert bed1 == bed2
-
-    # Test setting the blocks. Note the trailing comma in the input of bed2
-    bed1 = Bed("chr1", 0, 10, blockCount=3, blockStarts=[0, 3, 6], blockSizes=[1, 1, 4])
-    bed2 = Bed(
-        "chr1", "0", "10", blockCount="3", blockStarts="0,3,6,", blockSizes="1,1,4,"
-    )
-    assert bed1 == bed2
-
-    # Automatically set blockCount based on the number of blocks
-    bed1 = Bed("chr1", 0, 10, blockSizes=[1, 7], blockStarts=[0, 3])
-    assert bed1.blockCount == 2
-
-
 def test_make_bed_one() -> None:
     """
     Test making a Bed record from a single Range
@@ -142,7 +108,7 @@ def test_bed_roundtrip(bed: Bed, line: str) -> None:
     # Convert bed record to line
     from_bed = str(bed)
     # Convert line to Bed record
-    from_line = Bed(*line.split("\t"))
+    from_line = Bed.from_bedfile(line)
 
     # Check that the line from Bed is as expected
     assert from_bed == line
@@ -310,37 +276,37 @@ invalid_bed = [
     ),
     # incorrect blockCount
     (
-        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2),
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 2),
         "blockCount does not match the number of blocks",
     ),
     # Mismatch in number of fields between blockSizes and blockStarts
     (
-        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2, "2,3", "1,"),
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 2, [2,3], [1]),
         "number of values differs between blockSizes and blockStarts",
     ),
     # Blocks must not overlap
     (
-        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2, "2,3", "0,1"),
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 2, [2,3], [0,1]),
         "Blocks must not overlap",
     ),
     # Block extends over the end of the Bed region
     (
-        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 1, "11", "0"),
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 1, [11], [0]),
         "Last block must end at self.chromEnd",
     ),
     # The first block must start at chromStart(=0, since this field is relative)
     (
-        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 1, "1", "9"),
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 1, [1], [9]),
         "The first block must start at chromStart",
     ),
     # The last block must end at chromEnd
     (
-        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 1, "8", "0"),
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 1, [8], [0]),
         "Last block must end at self.chromEnd",
     ),
     # Blocks must be in ascending order
     (
-        ("chr1", 10, 20, ".", 0, "+", 10, 20, "0,0,0", 2, "1,1", "19,1"),
+        ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 2, [1,1], [19,1]),
         "Blocks must be in ascending order",
     ),
 ]

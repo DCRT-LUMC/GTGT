@@ -1,31 +1,25 @@
-from typing import Optional, Iterator, List, Tuple, Union, Set
+from typing import Optional, Iterator, List, Tuple
 from .range import Range, overlap, intersect, subtract
 
-# Int, or a string we can cast to int
-castable_int = Union[int, str]
-
 # colorRgb field from Bed
-color = Union[str, Tuple[int, int, int]]
-
-# Either [1, 2, 3] or "1,2,3"
-castable_list = Union[List[int], str]
+color = Tuple[int, ...]
 
 
 class Bed:
     def __init__(
         self,
         chrom: str,
-        chromStart: castable_int,
-        chromEnd: castable_int,
+        chromStart: int,
+        chromEnd: int,
         name: str = ".",
-        score: castable_int = 0,
+        score: int = 0,
         strand: str = ".",
-        thickStart: Optional[castable_int] = None,
-        thickEnd: Optional[castable_int] = None,
+        thickStart: Optional[int] = None,
+        thickEnd: Optional[int] = None,
         itemRgb: color = (0, 0, 0),
-        blockCount: Optional[castable_int] = None,
-        blockSizes: Optional[castable_list] = None,
-        blockStarts: Optional[castable_list] = None,
+        blockCount: Optional[int] = None,
+        blockSizes: Optional[List[int]] = None,
+        blockStarts: Optional[List[int]] = None,
     ) -> None:
         # Required attributes
         self.chrom = chrom
@@ -39,28 +33,19 @@ class Bed:
 
         if thickStart is None:
             self.thickStart = self.chromStart
-        elif isinstance(thickStart, str):
-            self.thickStart = int(thickStart)
         else:
             self.thickStart = thickStart
 
         if thickEnd is None:
             self.thickEnd = self.chromEnd
-        elif isinstance(thickEnd, str):
-            self.thickEnd = int(thickEnd)
         else:
             self.thickEnd = thickEnd
 
-        if isinstance(itemRgb, str):
-            self.itemRgb = tuple(map(int, itemRgb.split(",")))
-        else:
-            self.itemRgb = itemRgb
+        self.itemRgb = itemRgb
 
         # Set the blocks
         if blockSizes is None:
             self.blockSizes = [self.chromEnd - self.chromStart]
-        elif isinstance(blockSizes, str):
-            self.blockSizes = list(map(int, (x for x in blockSizes.split(",") if x)))
         else:
             self.blockSizes = blockSizes
 
@@ -68,8 +53,6 @@ class Bed:
             # blockStarts are relative to chromStart, and the first block must
             # start at 0
             self.blockStarts = [0]
-        elif isinstance(blockStarts, str):
-            self.blockStarts = list(map(int, (x for x in blockStarts.split(",") if x)))
         else:
             self.blockStarts = blockStarts
 
@@ -88,6 +71,8 @@ class Bed:
         if len(self.blockSizes) != self.blockCount:
             raise ValueError("blockCount does not match the number of blocks")
         if len(self.blockSizes) != len(self.blockStarts):
+            print(self.blockSizes)
+            print(self.blockStarts)
             raise ValueError(
                 "number of values differs between blockSizes and blockStarts"
             )
@@ -184,6 +169,46 @@ class Bed:
 
         self.blockCount = 1
         self.blockSizes = self.blockStarts = [0]
+
+    @classmethod
+    def from_bedfile(cls, line: str) -> "Bed":
+        """Create a BED record from a line from a Bed file"""
+        header = [
+            "chrom",
+            "chromStart",
+            "chromEnd",
+            "name",
+            "score",
+            "strand",
+            "thickStart",
+            "thickEnd",
+            "itemRgb",
+            "blockCount",
+            "blockSizes",
+            "blockStarts",
+        ]
+
+        def csv_to_int(csv: str) -> List[int]:
+            """Convert a csv list to a list of integers"""
+            return list(map(int, csv.split(",")))
+
+        # Parse the bed fields into a dict
+        d = {k: v for k, v in zip(header, line.split("\t"))}
+
+        return cls(
+            chrom=d["chrom"],
+            chromStart=int(d["chromStart"]),
+            chromEnd=int(d["chromEnd"]),
+            name=d["name"],
+            score=int(d["score"]),
+            strand=d["strand"],
+            thickStart=int(d["thickStart"]),
+            thickEnd=int(d["thickEnd"]),
+            itemRgb=tuple(csv_to_int(d["itemRgb"])),
+            blockCount=int(d["blockCount"]),
+            blockSizes=csv_to_int(d["blockSizes"]),
+            blockStarts=csv_to_int(d["blockStarts"]),
+        )
 
     def intersect(self, other: object) -> None:
         """Update record to only contain features that overlap other"""

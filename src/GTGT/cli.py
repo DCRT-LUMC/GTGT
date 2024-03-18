@@ -5,6 +5,7 @@ without executing side effects
 
 from .ensembl import lookup_transcript, Assembly
 from .ucsc import lookup_knownGene
+from .bed import Bed
 import argparse
 import json
 import logging
@@ -45,6 +46,11 @@ def main() -> None:
         logger.debug(r)
         track = lookup_knownGene(r)
         print(r.json())
+        knownGene = track["knownGene"][0]
+        bed = Bed(**knownGene)
+        print(bed)
+        exit()
+
         print(json.dumps(track))
 
 
