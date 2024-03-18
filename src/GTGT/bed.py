@@ -168,6 +168,15 @@ class Bed:
         self.blockCount = 1
         self.blockSizes = self.blockStarts = [0]
 
+    @staticmethod
+    def _csv_to_int(csv: str) -> List[int]:
+        """Convert a csv list to a list of integers"""
+        integers = list()
+        for num in csv.split(","):
+            if num != "":
+                integers.append(int(num))
+        return integers
+
     @classmethod
     def from_bedfile(cls, line: str) -> "Bed":
         """Create a BED record from a line from a Bed file"""
@@ -186,10 +195,6 @@ class Bed:
             "blockStarts",
         ]
 
-        def csv_to_int(csv: str) -> List[int]:
-            """Convert a csv list to a list of integers"""
-            return list(map(int, csv.split(",")))
-
         # Parse the bed fields into a dict
         d = {k: v for k, v in zip(header, line.split("\t"))}
 
@@ -202,24 +207,20 @@ class Bed:
             strand=d.get("strand", "."),
             thickStart=int(d["thickStart"]) if "thickStart" in d else None,
             thickEnd=int(d["thickEnd"]) if "thickEnd" in d else None,
-            itemRgb=tuple(csv_to_int(d["itemRgb"])) if "itemRgb" in d else (0, 0, 0),
+            itemRgb=tuple(cls._csv_to_int(d["itemRgb"])) if "itemRgb" in d else (0, 0, 0),
             blockCount=int(d["blockCount"]) if "blockCount" in d else None,
-            blockSizes=csv_to_int(d["blockSizes"]) if "blockSizes" in d else None,
-            blockStarts=csv_to_int(d["blockStarts"]) if "blockStarts" in d else None,
+            blockSizes=cls._csv_to_int(d["blockSizes"]) if "blockSizes" in d else None,
+            blockStarts=cls._csv_to_int(d["blockStarts"]) if "blockStarts" in d else None,
         )
 
     @classmethod
     def from_ucsc(cls, payload: Dict[str, Any]) -> "Bed":
         """Create a BED record from the payload of the UCSC API"""
 
-        def csv_to_int(csv: str) -> List[int]:
-            """Convert a csv list to a list of integers"""
-            return list(map(int, csv.split(",")))
-
         d = payload.copy()
 
-        d["blockSizes"] = csv_to_int(d["blockSizes"]) if "blockSizes" in d else None
-        d["blockStarts"] = csv_to_int(d["blockStarts"]) if "blockStarts" in d else None
+        d["blockSizes"] = cls._csv_to_int(d["blockSizes"]) if "blockSizes" in d else None
+        d["blockStarts"] = cls._csv_to_int(d["blockStarts"]) if "blockStarts" in d else None
 
         return Bed(**d)
 

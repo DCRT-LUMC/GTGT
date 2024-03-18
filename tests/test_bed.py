@@ -494,3 +494,13 @@ compare = [
 @pytest.mark.parametrize("a, b, expected", compare)
 def test_compare_bed(a: Bed, b: Bed, expected: float) -> None:
     assert a.compare(b) == expected
+
+csv = [
+    ("5", [5]),
+    # Test handling trailing commas
+    ("5,", [5]),
+    ("1,2,", [1,2])
+]
+@pytest.mark.parametrize("csv, numbers", csv)
+def test_csv_to_int(csv: str, numbers:List[int]) -> None:
+    assert Bed._csv_to_int(csv) == numbers
