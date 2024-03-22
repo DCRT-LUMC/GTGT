@@ -96,7 +96,7 @@ class Bed:
         # The last block must end at chromEnd
         block_end = self.blockStarts[-1] + self.blockSizes[-1] + self.chromStart
         if block_end != self.chromEnd:
-            raise ValueError("Last block must end at self.chromEnd")
+            raise ValueError(f"Last block({block_end=}) must end at {self.chromEnd=}")
 
     def blocks(self) -> Iterator[Tuple[int, int]]:
         """Iterate over all blocks in the Bed record"""

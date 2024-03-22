@@ -42,3 +42,6 @@ class BedModel(BaseModel):
         fields["blockStarts"] = Bed._csv_to_int(fields["chromStarts"])
         fields["blockSizes"] = Bed._csv_to_int(fields["blockSizes"])
         return cls(**fields)
+
+    def to_bed(self) -> Bed:
+        return Bed(**self.model_dump())

@@ -357,7 +357,7 @@ invalid_bed = [
     # Block extends over the end of the Bed region
     (
         ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 1, [11], [0]),
-        "Last block must end at self.chromEnd",
+        "Last block(.*) must end at self.chromEnd",
     ),
     # The first block must start at chromStart(=0, since this field is relative)
     (
@@ -367,7 +367,7 @@ invalid_bed = [
     # The last block must end at chromEnd
     (
         ("chr1", 10, 20, ".", 0, "+", 10, 20, (0,0,0), 1, [8], [0]),
-        "Last block must end at self.chromEnd",
+        "Last block(.*) must end at self.chromEnd",
     ),
     # Blocks must be in ascending order
     (
