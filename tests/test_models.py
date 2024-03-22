@@ -1,4 +1,5 @@
 from GTGT.models import BedModel
+from GTGT.bed import Bed
 import pytest
 from typing import Dict, Union
 
@@ -48,3 +49,11 @@ def test_Bed_validation(ucsc: payload) -> None:
     ucsc["chromStarts"] = "10,300"
     with pytest.raises(ValueError):
         BedModel.from_ucsc(ucsc)
+
+
+def test_BedModel_from_bed() -> None:
+    bed = Bed("chr1", 0, 10)
+    bm = BedModel.from_bed(bed)
+    assert bm.chrom == "chr1"
+    assert bm.itemRgb == (0, 0, 0)
+    assert bm.blockStarts == [0]

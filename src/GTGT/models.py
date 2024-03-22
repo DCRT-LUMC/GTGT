@@ -30,7 +30,7 @@ class BedModel(BaseModel):
     strand: str
     thickStart: int
     thickEnd: int
-    itemRgb: Tuple[int, int, int] = (0, 0, 0)
+    itemRgb: Tuple[int, ...] = (0, 0, 0)
     blockCount: int
     blockSizes: List[int]
     blockStarts: List[int]
@@ -52,5 +52,23 @@ class BedModel(BaseModel):
         fields["blockSizes"] = Bed._csv_to_int(fields["blockSizes"])
         return cls(**fields)
 
+    @classmethod
+    def from_bed(cls, bed: Bed) -> "BedModel":
+        return cls(
+            chrom=bed.chrom,
+            chromStart=bed.chromStart,
+            chromEnd=bed.chromEnd,
+            name=bed.name,
+            score=bed.score,
+            strand=bed.strand,
+            thickStart=bed.thickStart,
+            thickEnd=bed.thickEnd,
+            itemRgb=bed.itemRgb,
+            blockCount=bed.blockCount,
+            blockSizes=bed.blockSizes,
+            blockStarts=bed.blockStarts,
+        )
+
     def to_bed(self) -> Bed:
+        """Convert BedModel to Bed"""
         return Bed(**self.model_dump())
