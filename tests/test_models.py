@@ -41,3 +41,10 @@ def test_Bed_from_model(ucsc: payload) -> None:
     assert bed.chrom == "chr1"
     assert bed.itemRgb == (0, 0, 0)
     assert bed.blockStarts == [0, 300]
+
+
+def test_Bed_validation(ucsc: payload) -> None:
+    # The first block must start at position 0
+    ucsc["chromStarts"] = "10,300"
+    with pytest.raises(ValueError):
+        BedModel.from_ucsc(ucsc)

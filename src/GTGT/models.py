@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from enum import Enum
 from typing import Any, Dict, List, Tuple, Union
 from .bed import Bed
@@ -34,6 +34,15 @@ class BedModel(BaseModel):
     blockCount: int
     blockSizes: List[int]
     blockStarts: List[int]
+
+    @model_validator(mode="after")
+    def valid_Bed(self) -> "BedModel":
+        """Validate that the data is consistent with Bed requirements"""
+        try:
+            self.to_bed()
+        except ValueError as e:
+            raise (e)
+        return self
 
     @classmethod
     def from_ucsc(cls, ucsc: Dict[str, Union[str, int]]) -> "BedModel":
