@@ -3,7 +3,7 @@ Module that contains the command line app, so we can still import __main__
 without executing side effects
 """
 
-from .ensembl import lookup_transcript, Assembly
+from .ensembl import lookup_transcript
 from .ucsc import lookup_knownGene
 from .bed import Bed
 import argparse

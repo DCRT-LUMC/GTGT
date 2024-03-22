@@ -3,27 +3,11 @@ import urllib.request
 from urllib.error import HTTPError
 import json
 
-from pydantic import BaseModel
-from enum import Enum
+from .models import Assembly, EnsemblTranscript
 
 from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
-
-
-class Assembly(Enum):
-    HUMAN = "GRCh38"
-    RAT = "mRatBN7.2"
-
-
-class EnsemblTranscript(BaseModel):
-    assembly_name: Assembly
-    seq_region_name: str
-    start: int
-    end: int
-    id: str
-    version: int
-    display_name: str
 
 
 def lookup_transcript(transcript_id: str) -> EnsemblTranscript:

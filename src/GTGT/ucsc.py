@@ -1,4 +1,4 @@
-from .ensembl import Assembly, EnsemblTranscript
+from .models import Assembly, EnsemblTranscript
 import logging
 import urllib.request
 from urllib.error import HTTPError
