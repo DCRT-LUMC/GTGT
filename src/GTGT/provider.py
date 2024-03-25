@@ -3,7 +3,7 @@ import json
 import urllib.request
 from urllib.error import HTTPError
 from urllib.parse import urlparse
-
+import os
 import logging
 
 payload = Dict[str, Any]
@@ -16,6 +16,12 @@ class Provider:
         self.cache_dir = cache_dir
 
     def get(self, url: str) -> payload:
+        if self.cache_dir is None:
+            return self._fetch_url(url)
+        else:
+            return self._fetch_cache(url)
+
+    def _fetch_url(self, url: str) -> payload:
         logger.debug(f"Fetching {url=}")
         try:
             response = urllib.request.urlopen(url)
@@ -25,6 +31,29 @@ class Provider:
             js: Dict[str, Any] = json.loads(response.read())
 
         return js
+
+    def _fetch_cache(self, url: str) -> payload:
+        """Fetch cache based on the provided url
+
+        If no cache exists, use self._fetch_url to get and store the data
+        """
+        fname = f"{self.cache_dir}/{self.url_to_filename(url)}"
+
+        # Try to open the cache file
+        if os.path.exists(fname):
+            with open(fname) as fin:
+                data = json.load(fin)
+                logger.debug(f"Retrieved cache for {url=}")
+        else:
+            data = self._fetch_url(url)
+
+            # Ensure the folder exists
+            os.makedirs(self.cache_dir, exist_ok=True)  # type: ignore
+
+            with open(fname, "w") as fout:
+                logger.debug(f"Writing cache for {url=}")
+                print(json.dumps(data, indent=True), file=fout)
+        return data
 
     def url_to_filename(self, url: str) -> str:
         fname = ""
