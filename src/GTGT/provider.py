@@ -38,6 +38,7 @@ class Provider:
         If no cache exists, use self._fetch_url to get and store the data
         """
         fname = f"{self.cache_dir}/{self.url_to_filename(url)}"
+        data: payload = dict()
 
         # Try to open the cache file
         if os.path.exists(fname):
