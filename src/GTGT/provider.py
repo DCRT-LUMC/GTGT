@@ -2,6 +2,7 @@ from typing import Any, Dict, Optional
 import json
 import urllib.request
 from urllib.error import HTTPError
+from urllib.parse import urlparse
 
 import logging
 
@@ -24,3 +25,15 @@ class Provider:
             js: Dict[str, Any] = json.loads(response.read())
 
         return js
+
+    def url_to_filename(self, url: str) -> str:
+        fname = ""
+        parsed = urlparse(url)
+        fname += parsed.netloc
+        if len(parsed.path) > 1:
+            fname += parsed.path.replace("/", "_")
+
+        if parsed.query:
+            fname += "_" + parsed.query.replace("/", "_")
+
+        return fname
