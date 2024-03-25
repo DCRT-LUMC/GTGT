@@ -7,11 +7,12 @@ from .ensembl import lookup_transcript
 from .ucsc import lookup_knownGene
 from .bed import Bed
 from .provider import Provider
+from .models import BedModel
 
 import argparse
 import json
 import logging
-from .models import BedModel
+import os
 
 
 def logger_setup() -> logging.Logger:
@@ -29,9 +30,12 @@ def logger_setup() -> logging.Logger:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Description of command.")
+    parser = argparse.ArgumentParser(
+        description="Description of command.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     subparsers = parser.add_subparsers()
-    parser.add_argument("--name", default="world", required=False)
+    parser.add_argument("--cachedir", type=str, default=os.environ.get("GTGT_CACHE"))
 
     transcript_parser = subparsers.add_parser(
         "transcript", help="Transcript Information"
@@ -44,8 +48,9 @@ def main() -> None:
 
     logger = logger_setup()
 
+    provider = Provider(args.cachedir)
+
     if args.transcript_id:
-        provider = Provider()
         r = lookup_transcript(provider, args.transcript_id)
         logger.debug(r)
         track = lookup_knownGene(provider, r)
@@ -54,9 +59,8 @@ def main() -> None:
         print(json.dumps(knownGene))
         bm = BedModel.from_ucsc(knownGene)
         print(bm.model_dump_json())
-        exit()
-        # bed = Bed.from_ucsc(knownGene)
-        # print(bed)
+        bed = Bed.from_ucsc(knownGene)
+        print(bed)
         exit()
 
         print(json.dumps(track))
