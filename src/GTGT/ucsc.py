@@ -1,4 +1,5 @@
 from .models import Assembly, EnsemblTranscript
+from .provider import Provider
 import logging
 import urllib.request
 from urllib.error import HTTPError
@@ -41,14 +42,23 @@ def fetch_transcript(
         response = urllib.request.urlopen(url)
     except HTTPError as e:
         raise RuntimeError(e)
-    else:
-        js: Dict[str, Any] = json.loads(response.read())
+
+    payload = response.read()
+    try:
+        js: Dict[str, Any] = json.loads(payload)
+    except Exception as e:
+        print(payload)
+        raise e
 
     return js
 
 
-def lookup_knownGene(transcript: EnsemblTranscript) -> Dict[str, Any]:
-    track = fetch_transcript(transcript, "knownGene")
+def lookup_knownGene(
+    provider: Provider, transcript: EnsemblTranscript
+) -> Dict[str, Any]:
+    track_name = "knownGene"
+    url = ucsc_url(transcript, track_name)
+    track = provider.get(url)
     ts = f"{transcript.id}.{transcript.version}"
     track["knownGene"] = [
         entry for entry in track["knownGene"] if entry.get("name") == ts

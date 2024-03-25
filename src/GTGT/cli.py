@@ -6,9 +6,12 @@ without executing side effects
 from .ensembl import lookup_transcript
 from .ucsc import lookup_knownGene
 from .bed import Bed
+from .provider import Provider
+
 import argparse
 import json
 import logging
+from .models import BedModel
 
 
 def logger_setup() -> logging.Logger:
@@ -42,13 +45,18 @@ def main() -> None:
     logger = logger_setup()
 
     if args.transcript_id:
-        r = lookup_transcript(args.transcript_id)
+        provider = Provider()
+        r = lookup_transcript(provider, args.transcript_id)
         logger.debug(r)
-        track = lookup_knownGene(r)
+        track = lookup_knownGene(provider, r)
         print(r.json())
         knownGene = track["knownGene"][0]
-        bed = Bed.from_ucsc(knownGene)
-        print(bed)
+        print(json.dumps(knownGene))
+        bm = BedModel.from_ucsc(knownGene)
+        print(bm.model_dump_json())
+        exit()
+        # bed = Bed.from_ucsc(knownGene)
+        # print(bed)
         exit()
 
         print(json.dumps(track))
