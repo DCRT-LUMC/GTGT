@@ -7,7 +7,7 @@ from .ensembl import lookup_transcript
 from .ucsc import lookup_knownGene
 from .bed import Bed
 from .provider import Provider
-from .models import BedModel
+from .models import BedModel, TranscriptModel
 
 import argparse
 import json
@@ -54,16 +54,13 @@ def main() -> None:
         r = lookup_transcript(provider, args.transcript_id)
         logger.debug(r)
         track = lookup_knownGene(provider, r)
-        print(r.json())
         knownGene = track["knownGene"][0]
-        print(json.dumps(knownGene))
         bm = BedModel.from_ucsc(knownGene)
-        print(bm.model_dump_json())
-        bed = bm.to_bed()
-        print(bed)
-        exit()
 
-        print(json.dumps(track))
+        exons = bm.copy()
+        cds = BedModel.from_bed(Bed(bm.chrom, bm.thickStart, bm.thickEnd))
+        ts = TranscriptModel(exons=exons, cds=cds)
+        print(ts.model_dump_json())
 
 
 if __name__ == "__main__":
