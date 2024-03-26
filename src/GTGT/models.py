@@ -2,6 +2,7 @@ from pydantic import BaseModel, model_validator
 from enum import Enum
 from typing import Any, Dict, List, Tuple, Union
 from .bed import Bed
+from .transcript import Transcript
 
 
 class Assembly(Enum):
@@ -72,3 +73,13 @@ class BedModel(BaseModel):
     def to_bed(self) -> Bed:
         """Convert BedModel to Bed"""
         return Bed(**self.model_dump())
+
+
+class TranscriptModel(BaseModel):
+    exons: BedModel
+    cds: BedModel
+
+    def to_transcript(self) -> Transcript:
+        exons = self.exons.to_bed()
+        cds = self.cds.to_bed()
+        return Transcript(exons=exons, cds=cds)
