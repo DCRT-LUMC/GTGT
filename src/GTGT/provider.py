@@ -27,8 +27,14 @@ class Provider:
             response = urllib.request.urlopen(url)
         except HTTPError as e:
             raise RuntimeError(e)
-        else:
-            js: Dict[str, Any] = json.loads(response.read())
+
+        data = response.read()
+
+        try:
+            js: Dict[str, Any] = json.loads(data)
+        except Exception as e:
+            logger.error(data)
+            raise e
 
         return js
 

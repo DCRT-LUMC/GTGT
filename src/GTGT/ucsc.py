@@ -1,10 +1,7 @@
 from .models import Assembly, EnsemblTranscript
 from .provider import Provider
 import logging
-import urllib.request
-from urllib.error import HTTPError
 from typing import Any, Dict
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -31,26 +28,6 @@ def ucsc_url(transcript: EnsemblTranscript, track: str = "knownGene") -> str:
     )
 
     return url
-
-
-def fetch_transcript(
-    transcript: EnsemblTranscript, track: str = "knownGene"
-) -> Dict[str, Any]:
-    url = ucsc_url(transcript, track)
-    try:
-        logger.debug(f"Fetching {track}: {url=}")
-        response = urllib.request.urlopen(url)
-    except HTTPError as e:
-        raise RuntimeError(e)
-
-    payload = response.read()
-    try:
-        js: Dict[str, Any] = json.loads(payload)
-    except Exception as e:
-        print(payload)
-        raise e
-
-    return js
 
 
 def lookup_knownGene(
