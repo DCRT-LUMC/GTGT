@@ -59,7 +59,7 @@ def main() -> None:
         print(json.dumps(knownGene))
         bm = BedModel.from_ucsc(knownGene)
         print(bm.model_dump_json())
-        bed = Bed.from_ucsc(knownGene)
+        bed = bm.to_bed()
         print(bed)
         exit()
 

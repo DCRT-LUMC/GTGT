@@ -27,11 +27,23 @@ def ucsc() -> payload:
 def test_model_from_ucsc(ucsc: payload) -> None:
     """Test creating a BedModel from UCSC payload"""
     bm = BedModel.from_ucsc(ucsc)
-    assert bm.chrom == "chr1"
-    # Test default value
-    assert bm.itemRgb == (0, 0, 0)
-    # Test that we rename "chromStart" in the payload to "blockStarts"
-    assert bm.blockStarts == [0, 300]
+
+    expected = Bed(
+        "chr1",
+        1000,
+        2000,
+        "ENST00000.12",
+        0,
+        "-",
+        thickStart=1000,
+        thickEnd=2000,
+        blockCount=2,
+        blockSizes=[200, 700],
+        blockStarts=[0, 300],
+    )
+    new_bed = bm.to_bed()
+
+    assert new_bed == expected
 
 
 def test_Bed_from_model(ucsc: payload) -> None:

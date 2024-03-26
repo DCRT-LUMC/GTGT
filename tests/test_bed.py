@@ -143,44 +143,6 @@ def test_from_bedfile(columns: Tuple[Any, ...]) -> None:
     Bed.from_bedfile("\t".join(map(str, columns)))
 
 
-ucsc_payload = [
-    ({"chrom": "chr13", "chromStart": 0, "chromEnd": "10"}, Bed("chr13", 0, 10)),
-    (
-        {
-            "chrom": "chr13",
-            "chromStart": 0,
-            "chromEnd": "10",
-            "name": "Test",
-            "score": 0,
-            "strand": "+",
-            "thickStart": 0,
-            "thickEnd": 10,
-            "blockCount": 2,
-            "blockSizes": "5,2",
-            "chromStarts": "0,8",
-        },
-        Bed(
-            chrom="chr13",
-            chromStart=0,
-            chromEnd=10,
-            name="Test",
-            score=0,
-            strand="+",
-            thickStart=0,
-            thickEnd=10,
-            blockCount=2,
-            blockSizes=[5, 2],
-            blockStarts=[0, 8],
-        ),
-    ),
-]
-
-
-@pytest.mark.parametrize("payload, bed", ucsc_payload)
-def test_from_ucsc(payload: Dict[str, Any], bed: Bed) -> None:
-    assert Bed.from_ucsc(payload) == bed
-
-
 range_start_size = [
     # Range, offset, size, start
     ((0, 10), 0, 10, 0),

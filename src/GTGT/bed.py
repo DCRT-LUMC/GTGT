@@ -218,27 +218,6 @@ class Bed:
             ),
         )
 
-    @classmethod
-    def from_ucsc(cls, payload: Dict[str, Any]) -> "Bed":
-        """Create a BED record from the payload of the UCSC API"""
-
-        d = payload.copy()
-
-        # UCSC uses "chromStarts" instead of "blockStarts"
-        try:
-            d["blockStarts"] = d.pop("chromStarts")
-        except KeyError:
-            pass
-
-        d["blockSizes"] = (
-            cls._csv_to_int(d["blockSizes"]) if "blockSizes" in d else None
-        )
-        d["blockStarts"] = (
-            cls._csv_to_int(d["blockStarts"]) if "blockStarts" in d else None
-        )
-
-        return Bed(**d)
-
     def intersect(self, other: object) -> None:
         """Update record to only contain features that overlap other"""
         if not isinstance(other, Bed):
