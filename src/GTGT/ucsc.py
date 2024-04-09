@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 ENSEMBL_TO_UCSC = {
     Assembly.HUMAN: "hg38",
-    Assembly.RAT: "rn7",
+    Assembly.RAT: "rn6",
 }
 
 
@@ -31,13 +31,12 @@ def ucsc_url(transcript: EnsemblTranscript, track: str = "knownGene") -> str:
 
 
 def lookup_knownGene(
-    provider: Provider, transcript: EnsemblTranscript
+    provider: Provider, transcript: EnsemblTranscript, track_name: str
 ) -> Dict[str, Any]:
-    track_name = "knownGene"
     url = ucsc_url(transcript, track_name)
     track = provider.get(url)
     ts = f"{transcript.id}.{transcript.version}"
-    track["knownGene"] = [
-        entry for entry in track["knownGene"] if entry.get("name") == ts
+    track[track_name] = [
+        entry for entry in track[track_name] if entry.get("name") == ts
     ]
     return track

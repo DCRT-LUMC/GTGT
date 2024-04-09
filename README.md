@@ -19,6 +19,9 @@ gtgt --cachedir cache transcript ENST00000241453.12 | jq .
 gtgt --cachedir cache transcript ENSRNOT00000088957.2 | jq .
 
 
+## Variant Information
+gtgt links "NM_000094.4:c.5299G>C"
+
 # Disclaimer
 Copyright© 2023 LUMC (https://www.lumc.nl)
 
