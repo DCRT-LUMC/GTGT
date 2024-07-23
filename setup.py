@@ -63,9 +63,7 @@ setup(
         "pydantic",
     ],
     extras_require={
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
+        "server": ["uvicorn", "fastapi"]
     },
     setup_requires=[
         'pytest-runner',

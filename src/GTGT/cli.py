@@ -47,8 +47,13 @@ def main() -> None:
     )
 
     link_parser = subparsers.add_parser("links", help="Links to external resources")
-
     link_parser.add_argument("hgvs_variant", type=str, help="Variant of interest")
+
+    server_parser = subparsers.add_parser("server", help="Run the GTGT server")
+    server_parser.add_argument(
+        "--host", default="0.0.0.0", help="Hostname to listen on"
+    )
+
     args = parser.parse_args()
 
     logger = logger_setup()
@@ -80,6 +85,15 @@ def main() -> None:
         print("ClinVar", links.url("clinvar"))
         print("HGNC", links.url("hgnc"))
         print("UCSC", links.url("ucsc"))
+    elif "host" in args:
+        try:
+            from .app import app, uvicorn
+        except ModuleNotFoundError:
+            print("Missing modules, please install with 'pip install gtgt[server]'")
+            exit(-1)
+        uvicorn.run(app, host=args.host)
+    else:
+        raise NotImplementedError
 
 
 if __name__ == "__main__":
