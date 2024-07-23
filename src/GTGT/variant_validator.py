@@ -25,6 +25,7 @@ class Links(BaseModel):
         "hgnc",
         "ucsc",
         "gnomad",
+        "stringdb",
     ]
 
     def url(self, field: str) -> Union[str, List[str]]:
@@ -50,6 +51,8 @@ class Links(BaseModel):
             return f"https://genome.cse.ucsc.edu/cgi-bin/hgGene?hgg_gene={self.ucsc}"
         elif field == "gnomad":
             return f"https://gnomad.broadinstitute.org/variant/{self.decipher}?dataset=gnomad_r4"
+        elif field == "stringdb":
+            return f"https://string-db.org/cgi/network?identifiers={self.gene_symbol}"
         else:
             raise NotImplementedError(f"Unknown field: '{field}'")
 
