@@ -8,6 +8,8 @@ Changelog
 
 v0.0.2-dev
 ----------
++ Add link to gnomAD
++ Add API endpoint /links/ to fetch URL's for external references
 + Fetch knownGene track from UCSC
 + Fetch transcript information from Ensembl
 

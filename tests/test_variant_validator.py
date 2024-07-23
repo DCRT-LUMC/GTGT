@@ -17,6 +17,7 @@ def ids() -> Links:
 FIELDS = [
     ("lovd", "https://databases.lovd.nl/shared/genes/COL7A1"),
     ("omim", [f"https://www.omim.org/entry/{id}" for id in [1,2]]),
+    ("gnomad", "https://gnomad.broadinstitute.org/variant/3-4000000-C-G?dataset=gnomad_r4")
 ]
 @pytest.mark.parametrize("field, url", FIELDS)
 def test_url(ids: Links, field: str, url: str) -> None:

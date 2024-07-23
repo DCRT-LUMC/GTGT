@@ -23,7 +23,8 @@ class Links(BaseModel):
         "decipher",
         "clinvar",
         "hgnc",
-        "ucsc"
+        "ucsc",
+        "gnomad",
     ]
 
     def url(self, field: str) -> Union[str, List[str]]:
@@ -47,6 +48,8 @@ class Links(BaseModel):
             return f"https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/{self.hgnc}"
         elif field == "ucsc":
             return f"https://genome.cse.ucsc.edu/cgi-bin/hgGene?hgg_gene={self.ucsc}"
+        elif field == "gnomad":
+            return f"https://gnomad.broadinstitute.org/variant/{self.decipher}?dataset=gnomad_r4"
         else:
             raise NotImplementedError(f"Unknown field: '{field}'")
 
