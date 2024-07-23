@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, cast
 from .provider import Provider
 from pydantic import BaseModel
 
@@ -14,6 +14,17 @@ class Links(BaseModel):
     variant: str
     hgnc: str
     ucsc: str
+
+    databases: List[str] = [
+        "omim",
+        "lovd",
+        "gtex",
+        "uniprot",
+        "decipher",
+        "clinvar",
+        "hgnc",
+        "ucsc"
+    ]
 
     def url(self, field: str) -> Union[str, List[str]]:
         if field == "omim":
@@ -37,7 +48,21 @@ class Links(BaseModel):
         elif field == "ucsc":
             return f"https://genome.cse.ucsc.edu/cgi-bin/hgGene?hgg_gene={self.ucsc}"
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f"Unknown field: '{field}'")
+
+    def url_dict(self) -> Dict[str, str]:
+        """Create a flat dict with urls to all databases"""
+        d = dict()
+
+        for field in self.databases:
+            # omim can contain a list of IDs
+            if field == "omim":
+                for i, url in enumerate(self.url(field),1):
+                    d[f"{field}_{i}"] = url
+            else:
+                d[field] = cast(str, self.url(field))
+
+        return d
 
 
 def lookup_variant(provider: Provider, variant: str, assembly: str = "hg38") -> Links:
