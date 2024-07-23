@@ -63,7 +63,7 @@ class Links(BaseModel):
         for field in self.databases:
             # omim can contain a list of IDs
             if field == "omim":
-                for i, url in enumerate(self.url(field),1):
+                for i, url in enumerate(self.url(field), 1):
                     d[f"{field}_{i}"] = url
             else:
                 d[field] = cast(str, self.url(field))
