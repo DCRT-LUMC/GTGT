@@ -20,7 +20,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='GTGT',
-    version='0.0.2-dev',
+    version='0.0.2',
     license='AGPL-3.0',
     description='Genetic Therapy Generator Toolkit',
     long_description=long_description,
