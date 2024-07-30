@@ -3,12 +3,9 @@ Module that contains the command line app, so we can still import __main__
 without executing side effects
 """
 
-from .ensembl import lookup_transcript
-from .ucsc import lookup_knownGene
-from .bed import Bed
+from .wrappers import lookup_transcript
 from .variant_validator import lookup_variant
 from .provider import Provider
-from .models import BedModel, TranscriptModel
 
 import argparse
 import json
@@ -61,30 +58,13 @@ def main() -> None:
     provider = Provider(args.cachedir)
 
     if "transcript_id" in args:
-        r = lookup_transcript(provider, args.transcript_id)
-        logger.debug(r)
-        track_name = "ncbiRefSeq"
-        track_name = "ensGene"
-        track = lookup_knownGene(provider, r, track_name)
-        knownGene = track[track_name][0]
-        bm = BedModel.from_ucsc(knownGene)
-
-        exons = bm.copy()
-        cds = BedModel.from_bed(Bed(bm.chrom, bm.thickStart, bm.thickEnd))
-        ts = TranscriptModel(exons=exons, cds=cds)
+        ts = lookup_transcript(provider, args.transcript_id)
         print(ts.model_dump_json())
     elif "hgvs_variant" in args:
         logger.debug(args)
-        links = lookup_variant(provider, args.hgvs_variant)
-        for url in links.url("omim"):
-            print("OMIM:", url)
-        print("LOVD:", links.url("lovd"))
-        print("GTEx:", links.url("gtex"))
-        print("UniProt", links.url("uniprot"))
-        print("DECIPHER", links.url("decipher"))
-        print("ClinVar", links.url("clinvar"))
-        print("HGNC", links.url("hgnc"))
-        print("UCSC", links.url("ucsc"))
+        links = lookup_variant(provider, args.hgvs_variant).url_dict()
+        for website, url in links.items():
+            print(f"{website}: {url}")
     elif "host" in args:
         try:
             from .app import app, uvicorn
