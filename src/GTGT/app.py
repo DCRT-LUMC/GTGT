@@ -3,8 +3,7 @@ from fastapi import FastAPI
 
 from .variant_validator import lookup_variant
 from .provider import Provider
-from .bed import Bed
-from .models import TranscriptModel, BedModel
+from .models import TranscriptModel
 from .wrappers import lookup_transcript
 
 from typing import Dict
