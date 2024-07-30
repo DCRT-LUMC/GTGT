@@ -10,13 +10,10 @@
 The documentation is available on [http://gtgt.readthedocs.io/](http://gtgt.readthedocs.io/).
 
 ## Caching
-To speed up the tool, you can use caching by either specifying a folder using `--cachedir`, or by setting the `GTGT_CACHE` environment variable.
+To speed up the tool, you can use caching by either specifying a folder using `--cachedir`, or by setting the `GTGT_CACHE` environment variable. This currently does not work with `gtgt server`.
 
 ## Human
 gtgt --cachedir cache transcript ENST00000241453.12 | jq .
-
-## Rat
-gtgt --cachedir cache transcript ENSRNOT00000088957.2 | jq .
 
 
 ## Variant Information
