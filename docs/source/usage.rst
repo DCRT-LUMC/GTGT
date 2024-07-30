@@ -12,22 +12,28 @@ GTGT can be installed using pip:
 
    (.venv) $ pip install GTGT
 
-Default usage
-----------------
-Currently, the command line interface for GTGT is just
-a placeholder.
+To install the requirements for `gtgt server`, you can install from pip using:
 
 .. code-block:: console
 
-   gtgt
-   Hello, world
+   (.venv) $ pip install GTGT[server]
 
-You can also specify the person to greeting
+Transcript
+----------
+You can fetch transcript information using the command below, or use the `/transcript` endpoint
 
 .. code-block:: console
 
-   gtgt --name John
-   Hello, John
+   gtgt transcript ENST00000241453.12 | jq .
+
+Links
+-----
+You can fetch links to external resources for a specified variant using the command below, or use the `/links` endpoint
+
+.. code-block:: console
+
+   gtgt links "NM_002520.7:c.860_863dup"
+
 
 Python functions
 ----------------
