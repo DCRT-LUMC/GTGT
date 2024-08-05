@@ -1,5 +1,6 @@
 from GTGT.models import BedModel, TranscriptModel
 from GTGT.bed import Bed
+from GTGT.transcript import Transcript
 import pytest
 from typing import Dict, Union
 
@@ -79,3 +80,20 @@ def test_transcript_model() -> None:
     transcript = tm.to_transcript()
     # Test that the "coding" region has been set in the new Transcript
     assert transcript.coding == Bed("chr1", 0, 10, name="coding")
+
+def test_Transcript_from_model() -> None:
+    """
+    GIVEN a Transcript
+    WHEN we create a TranscriptModel out of it
+    THEN it must match the expected TranscriptModel
+    """
+    # Create the TranscriptModel
+    bed = Bed("chr1", 0, 10)
+    bm = BedModel.from_bed(bed)
+    expected = TranscriptModel(exons=bm, cds=bm)
+
+    # Create the Transcript we want to convert to a TranscriptModel
+    bed = Bed("chr1", 0, 10)
+    ts = Transcript(exons=bed, cds=bed)
+
+    assert TranscriptModel.from_transcript(ts) == expected
