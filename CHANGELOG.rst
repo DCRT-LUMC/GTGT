@@ -8,6 +8,8 @@ Changelog
 
 v0.0.3-dev
 ----------
++ Add FastAPI endpoint for comparing transcripts
++ Add FastAPI endpoint for skipping exons
 
 v0.0.2
 ------

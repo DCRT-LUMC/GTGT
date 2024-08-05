@@ -31,6 +31,18 @@ class BedModel(BaseModel):
     score: int = 0
     strand: str = "."
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "chrom": "chr1",
+                    "blocks": [[30, 35]],
+                    "name": "",
+                }
+            ]
+        }
+    }
+
     @model_validator(mode="after")
     def valid_Bed(self) -> "BedModel":
         """Validate that the data is consistent with Bed requirements"""
@@ -97,6 +109,43 @@ class BedModel(BaseModel):
 class TranscriptModel(BaseModel):
     exons: BedModel
     cds: BedModel
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                # Example transcript
+                {
+                    "exons": {
+                        "chrom": "chr1",
+                        "blocks": [[0, 10], [20, 40], [50, 60], [70, 100]],
+                        "name": "exons",
+                    },
+                    "cds": {
+                        "chrom": "chr1",
+                        "blocks": [[23, 72]],
+                        "name": "cds",
+                    },
+                },
+                # Skipped exon 2 ([20, 40])
+                {
+                    "exons": {
+                        "chrom": "chr1",
+                        "blocks": [[0, 10], [50, 60], [70, 100]],
+                        "name": "exons",
+                        "score": 0,
+                        "strand": ".",
+                    },
+                    "cds": {
+                        "chrom": "chr1",
+                        "blocks": [[40, 72]],
+                        "name": "cds",
+                        "score": 0,
+                        "strand": ".",
+                    },
+                },
+            ]
+        }
+    }
 
     def to_transcript(self) -> Transcript:
         exons = self.exons.to_bed()

@@ -1,5 +1,5 @@
 import uvicorn as uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 
 from .variant_validator import lookup_variant
 from .provider import Provider
@@ -35,7 +35,32 @@ async def exon_skip(transcript: TranscriptModel, region: BedModel) -> Transcript
 
 
 @app.post("/transcript/compare")
-async def compare(self: TranscriptModel, other: TranscriptModel) -> Dict[str, float]:
+async def compare(
+    self: Annotated[
+        TranscriptModel,
+        Body(
+            examples=[
+                {
+                    "exons": {
+                        "chrom": "chr1",
+                        "blocks": [[0, 10], [50, 60], [70, 100]],
+                        "name": "exons",
+                        "score": 0,
+                        "strand": ".",
+                    },
+                    "cds": {
+                        "chrom": "chr1",
+                        "blocks": [[40, 72]],
+                        "name": "cds",
+                        "score": 0,
+                        "strand": ".",
+                    },
+                }
+            ]
+        ),
+    ],
+    other: TranscriptModel,
+) -> Dict[str, float]:
     """Compare two transcripts"""
     s = self.to_transcript()
     o = other.to_transcript()
