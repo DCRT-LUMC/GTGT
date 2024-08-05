@@ -32,3 +32,12 @@ async def exon_skip(transcript: TranscriptModel, region: BedModel) -> Transcript
     skip_region = region.to_bed()
     ts.exon_skip(skip_region)
     return TranscriptModel.from_transcript(ts)
+
+
+@app.post("/transcript/compare")
+async def compare(self: TranscriptModel, other: TranscriptModel) -> Dict[str, float]:
+    """Compare two transcripts"""
+    s = self.to_transcript()
+    o = other.to_transcript()
+
+    return s.compare(o)

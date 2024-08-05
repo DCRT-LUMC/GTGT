@@ -291,7 +291,7 @@ class Bed:
 
         # Other can not have size zero
         if other.size == 0:
-            msg = "Comparison not allowed with zero-size Bed record"
+            msg = f"Comparison not allowed with zero-size Bed record ({other=})"
             raise ValueError(msg)
 
         # We only compare Bed objects if their properties match

@@ -47,3 +47,38 @@ def test_exonskip(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert response.json() == expected
+
+
+def test_compare(client: TestClient) -> None:
+    """
+             0 1 2 3 4 5 6 7 8 9 10
+    self         - -   -   - - - -
+    cds            -
+    other        - -       - - - -
+    """
+    # One transcript, which is smaller
+    exons = make_bed("chr1", (2, 4), (7, 11))
+    exons.name = "exons"
+    cds = Bed("chr1", 3, 4, "cds")
+    self = Transcript(exons, cds)
+
+    # Other Transcript
+    exons = make_bed("chr1", (2, 4), (5, 6), (7, 11))
+    exons.name = "exons"
+    cds = Bed("chr1", 3, 4, "cds")
+    other = Transcript(exons, cds)
+
+    expected = {
+        "cds": 1.0,
+        "coding": 1.0,
+        "exons": 6 / 7,
+    }
+
+    body = {
+        "self": TranscriptModel.from_transcript(self).model_dump(),
+        "other": TranscriptModel.from_transcript(other).model_dump(),
+    }
+    response = client.post("/transcript/compare", json=body)
+
+    assert response.status_code == 200
+    assert response.json() == expected
