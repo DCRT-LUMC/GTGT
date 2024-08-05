@@ -22,27 +22,28 @@ def test_exonskip(client: TestClient) -> None:
     skip               -
     """
     # The input transcript
-    exons = make_bed("chr1", (2, 4), (5, 6), (7, 11))
-    cds = Bed("chr1", 5, 6)
-    before = Transcript(exons, cds)
+    exons = BedModel(chrom="chr1", blocks=[(2, 4), (5, 6), (7, 11)])
+    cds = BedModel(chrom="chr1", blocks=[(5, 6)], name="cds")
+    before = TranscriptModel(exons=exons, cds=cds)
 
     # We want to skip the second exon
-    skip = Bed("chr1", 5, 6)
+    skip = BedModel(chrom="chr1", blocks=[(5, 6)])
 
     # After skipping the exon
-    after_exons = make_bed("chr1", (2, 4), (7, 11))
-    after_cds = Bed("chr1", 5, 5)
-    after = Transcript(after_exons, after_cds)
-    expected = TranscriptModel.from_transcript(after).model_dump()
+    after_exons = BedModel(chrom="chr1", blocks=[(2, 4), (7, 11)])
+    after_cds = BedModel(chrom="chr1", blocks=[(5, 5)], name="cds")
+    after = TranscriptModel(exons=after_exons, cds=after_cds)
 
-    # Update the itemrgb, since json cannot hold tuples
-    expected["exons"]["itemRgb"] = list(expected["exons"]["itemRgb"])
-    expected["cds"]["itemRgb"] = list(expected["cds"]["itemRgb"])
+    # JSON cannot do tuples, so we have to make those into lists
+    expected = after.model_dump()
+    expected["exons"]["blocks"] = [list(range) for range in expected["exons"]["blocks"]]
+    expected["cds"]["blocks"] = [list(range) for range in expected["cds"]["blocks"]]
 
     body = {
-        "transcript": TranscriptModel.from_transcript(before).model_dump(),
-        "region": BedModel.from_bed(skip).model_dump(),
+        "transcript": before.model_dump(),
+        "region": skip.model_dump(),
     }
+
     response = client.post("/transcript/exonskip", json=body)
 
     assert response.status_code == 200

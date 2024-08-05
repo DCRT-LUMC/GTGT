@@ -12,8 +12,14 @@ def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel
     track_name = "knownGene"
     track = lookup_knownGene(provider, r, track_name)
     knownGene = track[track_name][0]
-    bm = BedModel.from_ucsc(knownGene)
+    exons = BedModel.from_ucsc(knownGene)
 
-    exons = bm.copy()
-    cds = BedModel.from_bed(Bed(bm.chrom, bm.thickStart, bm.thickEnd))
+    # The CDS is defied as the thickStart, thickEnd in ucsc
+    chrom = knownGene["chrom"]
+    start = knownGene["thickStart"]
+    end = knownGene["thickEnd"]
+    name = "cds"
+    strand = knownGene["strand"]
+    cds = BedModel(chrom=chrom, blocks=[(start, end)], name=name, strand=strand)
+
     return TranscriptModel(exons=exons, cds=cds)

@@ -1,4 +1,4 @@
-from GTGT.models import BedModel, TranscriptModel
+from GTGT.models import BedModel, TranscriptModel, TranscriptModel
 from GTGT.bed import Bed
 from GTGT.transcript import Transcript
 import pytest
@@ -58,8 +58,9 @@ def test_Bed_from_model(ucsc: payload) -> None:
 
 
 def test_Bed_validation(ucsc: payload) -> None:
-    # The first block must start at position 0
-    ucsc["chromStarts"] = "10,300"
+    # Blocks must be in ascending order
+    ucsc["chromStarts"] = "300,0"
+    ucsc["blockSizes"] = "700,200"
     with pytest.raises(ValueError):
         BedModel.from_ucsc(ucsc)
 
@@ -68,8 +69,7 @@ def test_BedModel_from_bed() -> None:
     bed = Bed("chr1", 0, 10)
     bm = BedModel.from_bed(bed)
     assert bm.chrom == "chr1"
-    assert bm.itemRgb == (0, 0, 0)
-    assert bm.blockStarts == [0]
+    assert bm.blocks == [(0, 10)]
 
 
 def test_transcript_model() -> None:

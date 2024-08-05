@@ -4,6 +4,8 @@ from typing import Any, Dict, List, Tuple, Union
 from .bed import Bed
 from .transcript import Transcript
 
+Range = Tuple[int, int]
+
 
 class Assembly(Enum):
     HUMAN = "GRCh38"
@@ -21,20 +23,13 @@ class EnsemblTranscript(BaseModel):
 
 
 class BedModel(BaseModel):
-    """Pydantic wrapper around Bed class"""
+    """Pydantic wrapper for BED objects"""
 
     chrom: str
-    chromStart: int
-    chromEnd: int
-    name: str
-    score: int
-    strand: str
-    thickStart: int
-    thickEnd: int
-    itemRgb: Tuple[int, ...] = (0, 0, 0)
-    blockCount: int
-    blockSizes: List[int]
-    blockStarts: List[int]
+    blocks: List[Range]
+    name: str = ""
+    score: int = 0
+    strand: str = "."
 
     @model_validator(mode="after")
     def valid_Bed(self) -> "BedModel":
@@ -48,31 +43,55 @@ class BedModel(BaseModel):
     @classmethod
     def from_ucsc(cls, ucsc: Dict[str, Union[str, int]]) -> "BedModel":
         fields: Dict[str, Any] = ucsc.copy()
+
         # Note that UCSC calls the "blockStarts" field "chromStarts"
-        fields["blockStarts"] = Bed._csv_to_int(fields["chromStarts"])
-        fields["blockSizes"] = Bed._csv_to_int(fields["blockSizes"])
-        return cls(**fields)
+        block_starts = Bed._csv_to_int(fields["chromStarts"])
+        block_sizes = Bed._csv_to_int(fields["blockSizes"])
+
+        # Determine the blocks from the payload
+        chr_start = fields["chromStart"]
+        blocks = list()
+        for start, size in zip(block_starts, block_sizes):
+            block_start = start + chr_start
+            block_end = block_start + size
+            blocks.append((block_start, block_end))
+
+        return cls(
+            chrom=fields["chrom"],
+            blocks=blocks,
+            name=fields["name"],
+            score=fields["score"],
+            strand=fields["strand"],
+        )
+
+    def to_bed(self) -> Bed:
+        chrom_start = self.blocks[0][0]
+        chrom_end = self.blocks[-1][1]
+        blockCount = len(self.blocks)
+        blockSizes = [end - start for start, end in self.blocks]
+        blockStarts = [start - chrom_start for start, _ in self.blocks]
+
+        return Bed(
+            chrom=self.chrom,
+            chromStart=chrom_start,
+            chromEnd=chrom_end,
+            name=self.name,
+            score=self.score,
+            strand=self.strand,
+            blockCount=blockCount,
+            blockSizes=blockSizes,
+            blockStarts=blockStarts,
+        )
 
     @classmethod
     def from_bed(cls, bed: Bed) -> "BedModel":
         return cls(
             chrom=bed.chrom,
-            chromStart=bed.chromStart,
-            chromEnd=bed.chromEnd,
+            blocks=list(bed.blocks()),
             name=bed.name,
             score=bed.score,
             strand=bed.strand,
-            thickStart=bed.thickStart,
-            thickEnd=bed.thickEnd,
-            itemRgb=bed.itemRgb,
-            blockCount=bed.blockCount,
-            blockSizes=bed.blockSizes,
-            blockStarts=bed.blockStarts,
         )
-
-    def to_bed(self) -> Bed:
-        """Convert BedModel to Bed"""
-        return Bed(**self.model_dump())
 
 
 class TranscriptModel(BaseModel):
