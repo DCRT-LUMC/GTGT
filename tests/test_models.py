@@ -81,6 +81,7 @@ def test_transcript_model() -> None:
     # Test that the "coding" region has been set in the new Transcript
     assert transcript.coding == Bed("chr1", 0, 10, name="coding")
 
+
 def test_Transcript_from_model() -> None:
     """
     GIVEN a Transcript

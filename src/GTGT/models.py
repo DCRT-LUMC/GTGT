@@ -89,7 +89,4 @@ class TranscriptModel(BaseModel):
         """Create a TranscriptModel from a Transcript object"""
         exons = BedModel.from_bed(transcript.exons)
         cds = BedModel.from_bed(transcript.cds)
-        return cls(
-            exons=exons,
-            cds=cds
-        )
+        return cls(exons=exons, cds=cds)

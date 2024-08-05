@@ -3,17 +3,18 @@ from fastapi import FastAPI
 
 from .variant_validator import lookup_variant
 from .provider import Provider
-from .models import TranscriptModel
+from .models import BedModel, TranscriptModel
 from .wrappers import lookup_transcript
 
 from typing import Dict
+from typing_extensions import Annotated
 
 app = FastAPI()
 provider = Provider()
 
 
 @app.get("/links/{variant}")
-async def get_links(variant: str) -> Dict[str, str]:
+async def get_links(variant: Annotated[str, "NM_000094.4:c.5299G>C"]) -> Dict[str, str]:
     """Lookup external references for the specified variant"""
     return lookup_variant(provider, variant).url_dict()
 
@@ -22,3 +23,12 @@ async def get_links(variant: str) -> Dict[str, str]:
 async def get_transcript(transcript_id: str) -> TranscriptModel:
     """Lookup the specified transcript"""
     return lookup_transcript(provider, transcript_id)
+
+
+@app.post("/transcript/exonskip")
+async def exon_skip(transcript: TranscriptModel, region: BedModel) -> TranscriptModel:
+    """Skip exons that overlap the specified region"""
+    ts = transcript.to_transcript()
+    skip_region = region.to_bed()
+    ts.exon_skip(skip_region)
+    return TranscriptModel.from_transcript(ts)
