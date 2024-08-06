@@ -61,6 +61,7 @@ setup(
     python_requires='>=3.8',
     install_requires=[
         "pydantic",
+        "setuptools",
     ],
     extras_require={
         "server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"]
