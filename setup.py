@@ -63,7 +63,7 @@ setup(
         "pydantic",
     ],
     extras_require={
-        "server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser"]
+        "server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"]
     },
     setup_requires=[
         'pytest-runner',
