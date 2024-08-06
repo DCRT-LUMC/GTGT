@@ -1,5 +1,5 @@
 import pytest
-from GTGT.variant_validator import Links
+from GTGT.variant_validator import Links, parse_payload
 
 
 @pytest.fixture
@@ -43,3 +43,78 @@ def test_url_dict(ids: Links) -> None:
     assert d["lovd"] == "https://databases.lovd.nl/shared/genes/COL7A1"
     assert d["omim_1"] == "https://www.omim.org/entry/1"
     assert d["omim_2"] == "https://www.omim.org/entry/2"
+
+
+def test_parse_payload_unknown_flag() -> None:
+    """
+    GIVEN a payload from variant_validator with an unknown "flag"
+    WHEN we parse the payload
+    THEN we should raise a NotImplementedError
+    """
+    payload = {"flag": "weirdflag"}
+    with pytest.raises(NotImplementedError, match="flag: weirdflag"):
+        parse_payload(payload, variant="", assembly="HG38")
+
+
+def test_parse_payload_warning() -> None:
+    """
+    GIVEN a payload from variant_validator with a warning flag
+    WHEN we parse the payload
+    THEN we should raise a ValueError with the text of the warning
+    """
+    payload = {
+        "flag": "warning",
+        "validation_warning_1": {
+            "validation_warnings": [
+                "InvalidFieldError: The transcript ENST00000296930.10 is not in the RefSeq data set. Please select Ensembl",
+                "WeirdMadeUpError: I don't feel like looking up that variant",
+            ],
+        },
+    }
+    with pytest.raises(ValueError, match="WeirdMadeUpError"):
+        parse_payload(payload, variant="", assembly="HG38")
+
+
+def test_parse_valid_payload() -> None:
+    """
+    GIVEN a valid payload from variant_validator
+    WHEN we parse the payload
+    THEN we should get a reduced payload with the relevant fields
+    """
+    payload = {
+        "flag": "gene_variant",
+        "100A>T": {
+            "gene_ids": {
+                "omim_id": [
+                    164040,
+                ],
+                "ensembl_gene_id": "ENSG00000181163",
+                "ucsc_id": "uc032vtc.2",
+            },
+            "gene_symbol": "NPM1",
+            "annotations": {"db_xref": {"hgnc": "HGNC:7910"}},
+            "primary_assembly_loci": {
+                "hg38": {
+                    "vcf": {
+                        "alt": "CTCTG",
+                        "chr": "chr5",
+                        "pos": "171410539",
+                        "ref": "C",
+                    }
+                }
+            },
+        },
+    }
+
+    expected = {
+        "omim_ids": [164040],
+        "gene_symbol": "NPM1",
+        "ensembl_gene_id": "ENSG00000181163",
+        "hgnc": "HGNC:7910",
+        "ucsc": "uc032vtc.2",
+        "decipher": "5-171410539-C-CTCTG",
+    }
+
+    reply = parse_payload(payload, variant="100A>T", assembly="hg38")
+
+    assert reply == expected

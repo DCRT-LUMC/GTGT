@@ -1,5 +1,5 @@
 import uvicorn as uvicorn
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException
 
 from .variant_validator import lookup_variant
 from .provider import Provider
@@ -16,7 +16,11 @@ provider = Provider()
 @app.post("/links")
 async def get_links(variant: HGVS) -> Dict[str, str]:
     """Lookup external references for the specified variant"""
-    return lookup_variant(provider, variant.description).url_dict()
+    try:
+        reply = lookup_variant(provider, variant.description).url_dict()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return reply
 
 
 @app.get("/transcript/{transcript_id}")

@@ -76,7 +76,7 @@ def lookup_variant(provider: Provider, variant: str, assembly: str = "hg38") -> 
 
     payload = provider.get(url)
 
-    d = parse_payload(payload[variant], assembly)
+    d = parse_payload(payload, variant, assembly)
     d["uniprot"] = lookup_uniprot(provider, d["ensembl_gene_id"])
     d["variant"] = variant
 
@@ -89,16 +89,27 @@ def lookup_uniprot(provider: Provider, ensembl_gene_id: str) -> str:
     return uniprot_id
 
 
-def parse_payload(payload: payload, assembly: str) -> payload:
+def parse_payload(payload: payload, variant: str, assembly: str) -> payload:
+    # Check the flag to see if the reply is valid
+    flag = payload["flag"]
+    if flag == "warning":
+        w = payload.get("validation_warning_1", dict())
+        errors = "\n".join(w.get("validation_warnings", []))
+        raise ValueError(errors)
+    if flag != "gene_variant":
+        msg = f"Unknown VariantValidator flag: {flag}"
+        raise NotImplementedError(msg)
+
+    var = payload[variant]
     d = {
-        "omim_ids": payload["gene_ids"]["omim_id"],
-        "gene_symbol": payload["gene_symbol"],
-        "ensembl_gene_id": payload["gene_ids"]["ensembl_gene_id"],
-        "hgnc": payload["annotations"]["db_xref"]["hgnc"],
-        "ucsc": payload["gene_ids"]["ucsc_id"],
+        "omim_ids": var["gene_ids"]["omim_id"],
+        "gene_symbol": var["gene_symbol"],
+        "ensembl_gene_id": var["gene_ids"]["ensembl_gene_id"],
+        "hgnc": var["annotations"]["db_xref"]["hgnc"],
+        "ucsc": var["gene_ids"]["ucsc_id"],
     }
     # Get the 'VCF' notation on the specified assembly
-    vcf = payload["primary_assembly_loci"][assembly]["vcf"]
+    vcf = var["primary_assembly_loci"][assembly]["vcf"]
     # Remove the 'chr' prefix
     vcf["chr"] = vcf["chr"][3:]
     # Decypher uses {chrom}-{pos}-{ref}-{alt} as variant ID
