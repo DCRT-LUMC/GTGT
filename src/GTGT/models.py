@@ -165,6 +165,16 @@ class TranscriptModel(BaseModel):
 class HGVS(BaseModel):
     description: str
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "description": "NM_002520.7:c.860_863dup",
+                }
+            ]
+        }
+    }
+
     @model_validator(mode="after")
     def hgvs_parser(self) -> "HGVS":
         """Parse the HGVS description with mutalyzer-hgvs-parser"""

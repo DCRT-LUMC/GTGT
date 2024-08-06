@@ -3,7 +3,7 @@ from fastapi import FastAPI, Body
 
 from .variant_validator import lookup_variant
 from .provider import Provider
-from .models import BedModel, TranscriptModel
+from .models import BedModel, TranscriptModel, HGVS
 from .wrappers import lookup_transcript
 
 from typing import Dict
@@ -13,10 +13,10 @@ app = FastAPI()
 provider = Provider()
 
 
-@app.get("/links/{variant}")
-async def get_links(variant: Annotated[str, "NM_000094.4:c.5299G>C"]) -> Dict[str, str]:
+@app.post("/links")
+async def get_links(variant: HGVS) -> Dict[str, str]:
     """Lookup external references for the specified variant"""
-    return lookup_variant(provider, variant).url_dict()
+    return lookup_variant(provider, variant.description).url_dict()
 
 
 @app.get("/transcript/{transcript_id}")
