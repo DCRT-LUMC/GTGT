@@ -1,8 +1,9 @@
-from GTGT.models import BedModel, TranscriptModel, TranscriptModel
+from GTGT.models import BedModel, TranscriptModel, TranscriptModel, HGVS
 from GTGT.bed import Bed
 from GTGT.transcript import Transcript
 import pytest
 from typing import Dict, Union
+from pydantic import ValidationError
 
 payload = Dict[str, Union[str, int]]
 
@@ -98,3 +99,30 @@ def test_Transcript_from_model() -> None:
     ts = Transcript(exons=bed, cds=bed)
 
     assert TranscriptModel.from_transcript(ts) == expected
+
+
+def test_HGVS_model_valid() -> None:
+    """
+    GIVEN a valid HGVS description
+    WHEN we make an HGVS object out of it
+    THEN there should be no error
+    """
+    HGVS(description="NM_000094.4:c.5299G>C")
+
+
+INVALID_HGVS = [
+    "NM_000094.4:c.5299G>",
+    "NM_000094.4>",
+    "NM_000094",
+]
+
+
+@pytest.mark.parametrize("description", INVALID_HGVS)
+def test_HGVS_model_invalid(description: str) -> None:
+    """
+    GIVEN an invalid HGVS description
+    WHEN we make an HGVS object out of itemRgb
+    THEN we should get a ValidationError
+    """
+    with pytest.raises(ValidationError):
+        HGVS(description=description)

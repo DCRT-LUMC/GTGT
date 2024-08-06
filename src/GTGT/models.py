@@ -4,6 +4,8 @@ from typing import Any, Dict, List, Tuple, Union
 from .bed import Bed
 from .transcript import Transcript
 
+import mutalyzer_hgvs_parser
+
 Range = Tuple[int, int]
 
 
@@ -158,3 +160,20 @@ class TranscriptModel(BaseModel):
         exons = BedModel.from_bed(transcript.exons)
         cds = BedModel.from_bed(transcript.cds)
         return cls(exons=exons, cds=cds)
+
+
+class HGVS(BaseModel):
+    description: str
+
+    @model_validator(mode="after")
+    def hgvs_parser(self) -> "HGVS":
+        """Parse the HGVS description with mutalyzer-hgvs-parser"""
+        hgvs_error = (
+            mutalyzer_hgvs_parser.exceptions.UnexpectedCharacter,
+            mutalyzer_hgvs_parser.exceptions.UnexpectedEnd,
+        )
+        try:
+            mutalyzer_hgvs_parser.to_model(self.description)
+        except hgvs_error as e:
+            raise ValueError(e)
+        return self
