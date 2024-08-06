@@ -1,4 +1,4 @@
-from GTGT.models import BedModel, TranscriptModel, TranscriptModel, HGVS
+from GTGT.models import BedModel, TranscriptId, TranscriptModel, TranscriptModel, HGVS
 from GTGT.bed import Bed
 from GTGT.transcript import Transcript
 import pytest
@@ -126,3 +126,25 @@ def test_HGVS_model_invalid(description: str) -> None:
     """
     with pytest.raises(ValidationError):
         HGVS(description=description)
+
+
+VALID_TRANSCRIPT_ID = [
+    "ENST00000296930.10",
+]
+
+
+@pytest.mark.parametrize("id", VALID_TRANSCRIPT_ID)
+def test_TranscriptId_valid(id: str) -> None:
+    TranscriptId(id=id)
+
+
+INVALID_TRANSCRIPT_ID = [
+    "ENST00000296930",
+    "ENST00000296930.10:c.100A>T",
+]
+
+
+@pytest.mark.parametrize("id", INVALID_TRANSCRIPT_ID)
+def test_TranscriptId_invalid(id: str) -> None:
+    with pytest.raises(ValidationError):
+        TranscriptId(id=id)

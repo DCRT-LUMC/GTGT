@@ -28,7 +28,7 @@ def payload_to_ensemble_transcript(payload: Dict[str, Any]) -> EnsemblTranscript
 
 
 def _check_transcript(payload: Dict[str, Any], version: int) -> None:
-    if e_version := payload.get("version") != version:
+    if (e_version := payload.get("version")) != version:
         msg = f"Ensembl returned a different version of the transcript: {e_version} instead of {version}"
         raise ValueError(msg)
     return

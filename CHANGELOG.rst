@@ -8,6 +8,7 @@ Changelog
 
 v0.0.3-dev
 ----------
++ Change the transcript endpoint to use POST and a TranscriptId model
 + Use genomic location for ClinVar link
 + Add support for Ensembl transcripts on the links endpoint
 + Refactor and simplify the BedModel

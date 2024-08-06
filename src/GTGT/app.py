@@ -3,7 +3,7 @@ from fastapi import FastAPI, Body, HTTPException
 
 from .variant_validator import lookup_variant
 from .provider import Provider
-from .models import BedModel, TranscriptModel, HGVS
+from .models import BedModel, TranscriptModel, HGVS, TranscriptId
 from .wrappers import lookup_transcript
 
 from typing import Dict
@@ -23,10 +23,14 @@ async def get_links(variant: HGVS) -> Dict[str, str]:
     return reply
 
 
-@app.get("/transcript/{transcript_id}")
-async def get_transcript(transcript_id: str) -> TranscriptModel:
+@app.post("/transcript")
+async def get_transcript(transcript: TranscriptId) -> TranscriptModel:
     """Lookup the specified transcript"""
-    return lookup_transcript(provider, transcript_id)
+    try:
+        ts = lookup_transcript(provider, transcript.id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return ts
 
 
 @app.post("/transcript/exonskip")

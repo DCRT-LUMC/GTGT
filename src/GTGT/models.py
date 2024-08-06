@@ -4,6 +4,8 @@ from typing import Any, Dict, List, Tuple, Union
 from .bed import Bed
 from .transcript import Transcript
 
+from pydantic import Field
+
 import mutalyzer_hgvs_parser
 
 Range = Tuple[int, int]
@@ -187,3 +189,15 @@ class HGVS(BaseModel):
         except hgvs_error as e:
             raise ValueError(e)
         return self
+
+
+class TranscriptId(BaseModel):
+    id: str = Field(pattern=r"^ENST\d+\.\d+$")
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {"id": "ENST00000296930.10"},
+            ]
+        }
+    }
