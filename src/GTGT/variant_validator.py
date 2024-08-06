@@ -80,7 +80,10 @@ def guess_refseq_ensembl(variant: str) -> str:
 
 
 def lookup_variant(provider: Provider, variant: str, assembly: str = "hg38") -> Links:
-    url = f"https://rest.variantvalidator.org/VariantValidator/variantvalidator/{assembly}/{variant}/mane_select?content-type=application/json"
+    if guess_refseq_ensembl(variant) == "ensembl":
+        url = f"https://rest.variantvalidator.org/VariantValidator/variantvalidator_ensembl/{assembly}/{variant}/mane_select?content-type=application/json"
+    else:
+        url = f"https://rest.variantvalidator.org/VariantValidator/variantvalidator/{assembly}/{variant}/mane_select?content-type=application/json"
 
     payload = provider.get(url)
 
