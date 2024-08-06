@@ -71,6 +71,14 @@ class Links(BaseModel):
         return d
 
 
+def guess_refseq_ensembl(variant: str) -> str:
+    """Guess if a transcript is RefSeq or Ensembl"""
+    if variant.startswith("ENS"):
+        return "ensembl"
+    else:
+        return "refseq"
+
+
 def lookup_variant(provider: Provider, variant: str, assembly: str = "hg38") -> Links:
     url = f"https://rest.variantvalidator.org/VariantValidator/variantvalidator/{assembly}/{variant}/mane_select?content-type=application/json"
 
