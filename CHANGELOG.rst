@@ -8,6 +8,9 @@ Changelog
 
 v0.0.3-dev
 ----------
++ Refactor and simplify the BedModel
++ Validate HGVS is valid before querying Variant Validator
++ Change the links endpoint to use POST and HGVS
 + Add FastAPI endpoint for comparing transcripts
 + Add FastAPI endpoint for skipping exons
 
