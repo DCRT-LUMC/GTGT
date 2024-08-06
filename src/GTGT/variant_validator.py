@@ -11,7 +11,7 @@ class Links(BaseModel):
     ensembl_gene_id: str
     uniprot: str
     decipher: str
-    variant: str
+    genomic_variant: str
     hgnc: str
     ucsc: str
 
@@ -44,7 +44,7 @@ class Links(BaseModel):
         elif field == "decipher":
             return f"https://www.deciphergenomics.org/sequence-variant/{self.decipher}"
         elif field == "clinvar":
-            return f"https://www.ncbi.nlm.nih.gov/clinvar/?term={self.variant}"
+            return f"https://www.ncbi.nlm.nih.gov/clinvar/?term={self.genomic_variant}"
         elif field == "hgnc":
             return f"https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/{self.hgnc}"
         elif field == "ucsc":
@@ -89,7 +89,6 @@ def lookup_variant(provider: Provider, variant: str, assembly: str = "hg38") -> 
 
     d = parse_payload(payload, variant, assembly)
     d["uniprot"] = lookup_uniprot(provider, d["ensembl_gene_id"])
-    d["variant"] = variant
 
     return Links(**d)
 
@@ -118,6 +117,9 @@ def parse_payload(payload: payload, variant: str, assembly: str) -> payload:
         "ensembl_gene_id": var["gene_ids"]["ensembl_gene_id"],
         "hgnc": var["annotations"]["db_xref"]["hgnc"],
         "ucsc": var["gene_ids"]["ucsc_id"],
+        "genomic_variant": var["primary_assembly_loci"][assembly][
+            "hgvs_genomic_description"
+        ],
     }
     # Get the 'VCF' notation on the specified assembly
     vcf = var["primary_assembly_loci"][assembly]["vcf"]

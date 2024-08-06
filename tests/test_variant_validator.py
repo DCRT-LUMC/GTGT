@@ -10,7 +10,7 @@ def ids() -> Links:
         ensembl_gene_id="ENSG123",
         uniprot="Q123",
         decipher="3-4000000-C-G",
-        variant="NM_123:c.100A>T",
+        genomic_variant="NC_123:c.100A>T",
         hgnc="HGNC:123",
         ucsc="uc123.3",
     )
@@ -100,7 +100,8 @@ def test_parse_valid_payload() -> None:
                         "chr": "chr5",
                         "pos": "171410539",
                         "ref": "C",
-                    }
+                    },
+                    "hgvs_genomic_description": "NC_000005.10:g.171410540_171410543dup",
                 }
             },
         },
@@ -113,6 +114,7 @@ def test_parse_valid_payload() -> None:
         "hgnc": "HGNC:7910",
         "ucsc": "uc032vtc.2",
         "decipher": "5-171410539-C-CTCTG",
+        "genomic_variant": "NC_000005.10:g.171410540_171410543dup",
     }
 
     reply = parse_payload(payload, variant="100A>T", assembly="hg38")
