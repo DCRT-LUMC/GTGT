@@ -2,8 +2,7 @@ from copy import deepcopy
 
 from .bed import Bed
 
-from typing import List, Dict
-
+from typing import List, Dict, Tuple
 
 class Transcript:
     def __init__(self, exons: Bed, cds: Bed):
@@ -72,3 +71,29 @@ class Transcript:
         else:
             raise RuntimeError("Unable to convert c. position, transcript has no strand")
         return 0
+
+def find_distance_endpoint(ranges: List[range], start: int, distance: int) -> int:
+    """
+    Travel over a list of ranges and determine the endpoint
+
+    Starting from the 'start' position, travel 'distance' over a list of ranges
+    and report the endpoint
+    """
+    # Find the start position in the ranges
+    for index, range_ in enumerate(ranges):
+        if start in range_:
+            break
+    else:
+        raise ValueError(f"Start position '{start}' lies outside the ranges")
+
+    # check if we can travel distance in the current range
+    endpoint = start + distance
+    if endpoint in range_:
+        return ranges[index].start + start + distance
+    else:
+        new_start = range_.start
+        new_distance = None
+    # If not, check which way we go over te boundary
+    # Update index to match the new range
+    # Recurse
+    return 0

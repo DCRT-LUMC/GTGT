@@ -1,7 +1,7 @@
 import pytest
 
 from GTGT import Bed
-from GTGT.transcript import Transcript
+from GTGT.transcript import Transcript, find_distance_endpoint
 
 from GTGT.bed import make_bed
 
@@ -261,3 +261,25 @@ def test_genomic_to_c_dot(cdot: str, genomic: int, RUNX1: Transcript) -> None:
     print(RUNX1.exons)
     print(RUNX1.cds)
     assert RUNX1.cdot_to_genomic(cdot) == genomic
+
+
+TRAVEL = [
+    # start, distance, endpoint
+    (0, 0, 0),
+    (5, 0, 5),
+    # (9, 1, 27),
+]
+@pytest.mark.parametrize("start, distance, endpoint", TRAVEL)
+def test_find_distance_endpoint(start: int, distance:int, endpoint:int) -> None:
+    ranges = [
+        range(0, 10),
+        range(27, 37),
+        range(39, 51)
+    ]
+    assert find_distance_endpoint(ranges, start, distance) == endpoint
+
+
+def test_find_distance_endpoint_error():
+    ranges = [range(0, 10)]
+    with pytest.raises(ValueError):
+        find_distance_endpoint(ranges=ranges, start=11, distance=0)
