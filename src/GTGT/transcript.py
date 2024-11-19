@@ -4,6 +4,7 @@ from .bed import Bed
 
 from typing import List, Dict, Tuple
 
+
 class Transcript:
     def __init__(self, exons: Bed, cds: Bed):
         self.exons = exons
@@ -53,7 +54,6 @@ class Transcript:
 
         return cmp
 
-
     def _reverse_cdot_to_genomic(self, cdot: str) -> int:
         """
         Convert a HGVS c. location to genomic, for transcripts on the
@@ -69,8 +69,11 @@ class Transcript:
         elif self.exons.strand == "+":
             pass
         else:
-            raise RuntimeError("Unable to convert c. position, transcript has no strand")
+            raise RuntimeError(
+                "Unable to convert c. position, transcript has no strand"
+            )
         return 0
+
 
 def find_distance_endpoint(ranges: List[range], start: int, distance: int) -> int:
     """
@@ -79,21 +82,31 @@ def find_distance_endpoint(ranges: List[range], start: int, distance: int) -> in
     Starting from the 'start' position, travel 'distance' over a list of ranges
     and report the endpoint
     """
-    # Find the start position in the ranges
-    for index, range_ in enumerate(ranges):
-        if start in range_:
+    # Local copy of the distance we can change
+    dist = distance
+
+    # Update the distance to count from the start of the range start is in
+    print("\nfind_distance_endpoint")
+    print(f"{dist=}, {start=}")
+
+    # Re-calculate the distance to count from the start of the range it is in
+    for index, _range in enumerate(ranges):
+        if start in _range:
+            dist += start - _range.start
+            print(f"{dist=}, {start=}")
             break
     else:
         raise ValueError(f"Start position '{start}' lies outside the ranges")
 
-    # check if we can travel distance in the current range
-    endpoint = start + distance
-    if endpoint in range_:
-        return ranges[index].start + start + distance
+    print("After loop:")
+    print(f"{dist=}")
+
+    # Iterate over all ranges
+    for _range in ranges[index:]:
+        print(f"{_range=}, {dist=}")
+        if _range.start + dist in _range:
+            return _range.start + dist
+        else:
+            dist -= _range.stop - _range.start
     else:
-        new_start = range_.start
-        new_distance = None
-    # If not, check which way we go over te boundary
-    # Update index to match the new range
-    # Recurse
-    return 0
+        raise ValueError(f"Endpoint for '{distance} lies outside the ranges")

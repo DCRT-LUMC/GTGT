@@ -263,23 +263,40 @@ def test_genomic_to_c_dot(cdot: str, genomic: int, RUNX1: Transcript) -> None:
     assert RUNX1.cdot_to_genomic(cdot) == genomic
 
 
+# start, distance, endpoint
 TRAVEL = [
-    # start, distance, endpoint
+    # Start at zero, no distance
     (0, 0, 0),
+    # Start at 5, no distance
     (5, 0, 5),
-    # (9, 1, 27),
+    # Start in the second range, no distance
+    (27, 0, 27),
+    # Start in the second range, distance is 1
+    (27, 1, 28),
+    # Start at the end of the first range, distance is 1
+    (9, 1, 27),
+    # Start at the end of the second range, distance is 1
+    (36, 1, 39),
+    # Start at the end of the first range, distance is 10
+    (9, 10, 36),
+    # Start at the first range, go into the last range
+    (0, 20, 39),
+    # Start at the beginning, to all the way to the end
+    (0, 31, 50),
 ]
+
+
 @pytest.mark.parametrize("start, distance, endpoint", TRAVEL)
-def test_find_distance_endpoint(start: int, distance:int, endpoint:int) -> None:
+def test_find_distance_endpoint(start: int, distance: int, endpoint: int) -> None:
     ranges = [
-        range(0, 10),
-        range(27, 37),
-        range(39, 51)
+        range(0, 10),  # size 10, last value is 9
+        range(27, 37),  # size 10, last value is 9
+        range(39, 51),  # size 12, last value is 50
     ]
     assert find_distance_endpoint(ranges, start, distance) == endpoint
 
 
-def test_find_distance_endpoint_error():
+def test_find_distance_endpoint_error() -> None:
     ranges = [range(0, 10)]
     with pytest.raises(ValueError):
         find_distance_endpoint(ranges=ranges, start=11, distance=0)
