@@ -283,6 +283,14 @@ TRAVEL = [
     (0, 20, 39),
     # Start at the beginning, to all the way to the end
     (0, 31, 50),
+    # Negative distances
+    (3, -3, 0),
+    # Negative distance crossing a boundary
+    (27, -1, 9),
+    # Cross two boundaries
+    (39, -11, 9),
+    # From end to end
+    (50, -31, 0),
 ]
 
 
