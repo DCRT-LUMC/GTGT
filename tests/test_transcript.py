@@ -212,3 +212,52 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
     assert cmp["exons"] == pytest.approx(0.71, abs=0.01)
     assert cmp["cds"] == 1
     assert cmp["coding"] == pytest.approx(0.41, abs=0.01)
+
+
+@pytest.fixture
+def RUNX1() -> Transcript:
+    """
+    Transcript model of RUNX1 (ENST00000675419.1), on the reverse strand
+    """
+    # Offset of 34787800 removed for clarity
+    exons_ranges = [
+        (0, 4810),
+        (11500, 11662),
+        (46609, 46801),
+        (71673, 71778),
+        (92756, 92913),
+        (99042, 99296),
+        (105124, 105163),
+        (261041, 261158),
+        (261367, 261502),
+    ]
+    cds_range = [4334, 261099]
+
+    exons = make_bed("chr21", *exons_ranges)
+    exons.name = "exons"
+    exons.strand = "-"
+
+    cds = Bed("chr21", chromStart=cds_range[0], chromEnd=cds_range[1], strand="-")
+
+    return Transcript(exons, cds)
+
+
+POSITIONS = [
+    # c., genomic
+    ("1", 261099),
+    ("2", 261098),
+    ("58", 261042),
+    # ("59", 105163),
+]
+
+
+@pytest.mark.parametrize("cdot, genomic", POSITIONS)
+def test_genomic_to_c_dot(cdot: str, genomic: int, RUNX1: Transcript) -> None:
+    """
+    NOTE: RUNX1 is located on the reverse strand
+    """
+    print()
+    print(cdot, genomic)
+    print(RUNX1.exons)
+    print(RUNX1.cds)
+    assert RUNX1.cdot_to_genomic(cdot) == genomic

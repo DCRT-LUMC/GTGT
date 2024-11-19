@@ -53,3 +53,22 @@ class Transcript:
             cmp[record1.name] = record1.compare(record2)
 
         return cmp
+
+
+    def _reverse_cdot_to_genomic(self, cdot: str) -> int:
+        """
+        Convert a HGVS c. location to genomic, for transcripts on the
+        reverse strand
+        """
+        pos = int(cdot) - 1
+        return self.cds.chromEnd - pos
+
+    def cdot_to_genomic(self, cdot: str) -> int:
+        """Convert a HGVS c. location to genomic"""
+        if self.exons.strand == "-":
+            return self._reverse_cdot_to_genomic(cdot)
+        elif self.exons.strand == "+":
+            pass
+        else:
+            raise RuntimeError("Unable to convert c. position, transcript has no strand")
+        return 0
