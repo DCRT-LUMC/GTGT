@@ -90,51 +90,44 @@ def find_distance_endpoint(ranges: List[range], start: int, distance: int) -> in
     print(f"{dist=}, {start=}")
 
     if dist >= 0:
-    # Re-calculate the distance to count from the start of the range it is in
+        # Re-calculate the distance to count from the start of the range it is in
         for index, _range in enumerate(ranges):
             if start in _range:
                 dist += start - _range.start
-                print(f"{dist=}, {start=}")
                 break
         else:
             raise ValueError(f"Start position '{start}' lies outside the ranges")
 
-        print("After loop:")
-        print(f"{dist=}")
-
-        # Iterate over all ranges
-        print("Ranges: ",ranges[index:])
+        # Iterate over all ranges we haven't skipped yet
         for _range in ranges[index:]:
             print(f"{_range=}, {dist=}")
+            # If the distance we still have to travel falls in _range, we are done
             if _range.start + dist in _range:
                 return _range.start + dist
+            # Else, subtract the size of the current range and go to the next range
             else:
                 dist -= _range.stop - _range.start
-            print(f"After loop: {_range=}, {dist=}")
         else:
             raise ValueError(f"Endpoint for '{distance}' lies outside the ranges")
-    elif dist < 0:
+    # If the specified distance is negative
+    else:
+        # Re-calculate the distance to count from the start of the range it is in
         for index, _range in enumerate(ranges):
             if start in _range:
                 dist -= _range.stop - start
-                print(f"{dist=}, {start=}")
                 break
         else:
             raise ValueError(f"Start position '{start}' lies outside the ranges")
 
-        print("After loop:")
-        print(f"{dist=}")
-
-        # Iterate over all ranges
-        print("Ranges: ",ranges[index::-1])
+        # Iterate over all ranges we haven't skipped yet (note, iterate in reverse)
         for _range in ranges[index::-1]:
             print(f"{_range=}, {dist=}")
+            # If the distance we still have to travel falls in _range, we are done
             if _range.stop + dist in _range:
                 return _range.stop + dist
+            # Else, subtract the size of the current range and go to the next range
             else:
                 dist += _range.stop - _range.start
             print(f"After loop: {_range=}, {dist=}")
         else:
             raise ValueError(f"Endpoint for '{distance}' lies outside the ranges")
-    else:
-        raise RuntimeError

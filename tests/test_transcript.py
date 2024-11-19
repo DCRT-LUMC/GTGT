@@ -298,7 +298,7 @@ TRAVEL = [
 def test_find_distance_endpoint(start: int, distance: int, endpoint: int) -> None:
     ranges = [
         range(0, 10),  # size 10, last value is 9
-        range(27, 37),  # size 10, last value is 9
+        range(27, 37),  # size 10, last value is 36
         range(39, 51),  # size 12, last value is 50
     ]
     assert find_distance_endpoint(ranges, start, distance) == endpoint
