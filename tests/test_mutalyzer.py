@@ -84,11 +84,64 @@ def test_genomic_to_c_dot_SDHD(cdot: str, genomic: Tuple[int, int]) -> None:
     # Build the HGVS description
     description = f"{ENST}:c.{cdot}"
 
-    # Genomic offset of SDHD, just used for testing
+    start, end = HGVS_to_genome_range(HGVS(description=description))
+
+    # Genomic offset of SDHD, just used for testing so the genomic positions
+    # are manageable
     offset = 112086872
+    start -= offset
+    end -= offset
+
+    assert (start, end) == genomic
+
+
+POSITIONS = [
+    # c., genome range
+    # Start of the transcript / first exon
+    ("-179", (47764, 47765)),
+    # Start of the coding region
+    ("1", (47585, 47586)),
+    # End of the first exon
+    ("661", (46925, 46926)),
+    # Start of the second exon
+    ("662", (40844, 40845)),
+    # End of the second exon
+    ("784", (40722, 40723)),
+    # Start of the third exon
+    ("785", (40283, 40284)),
+    # End of the third exon
+    ("887", (40181, 40182)),
+    # Start of the tenth exon
+    ("1448", (1404, 1405)),
+    # End of the CDS
+    ("1569", (1283, 1284)),
+    # End of the transcript / tenth exon
+    ("*1283", (0, 1)),
+]
+
+
+@pytest.mark.parametrize("cdot, genomic", POSITIONS)
+def test_genomic_to_c_dot_WT1(cdot: str, genomic: Tuple[int, int]) -> None:
+    """
+    GIVEN a Transcript and a position in c. notation
+    WHEN we translate the c. to genomic positions
+    THEN we should get a range, on the genomic coordinates
+
+    NOTE: WT1 is on the reverse strand
+
+    NOTE that genomic coordinates refer to the UCSC annotations on the genome,
+    i.e. 0 based, half open. Not to be confused with hgvs g. positions
+    """
+    # Ensemble transcript ID for SDHD
+    ENST = "ENST00000452863.10"
+    # Build the HGVS description
+    description = f"{ENST}:c.{cdot}"
 
     start, end = HGVS_to_genome_range(HGVS(description=description))
 
+    # Genomic offset of WT1, just used for testing so the genomic positions are
+    # manageable
+    offset = 32387774
     start -= offset
     end -= offset
 
