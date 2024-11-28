@@ -2,6 +2,10 @@ import pytest
 
 from GTGT import Bed
 from GTGT.transcript import Transcript, find_distance_endpoint
+from GTGT.models import TranscriptModel
+
+from mutalyzer.description import Description, to_rna_reference_model, model_to_string
+from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 
 from GTGT.bed import make_bed
 
@@ -214,27 +218,16 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
     assert cmp["coding"] == pytest.approx(0.41, abs=0.01)
 
 
-@pytest.fixture
-def RUNX1() -> Transcript:
+def SDHD() -> Transcript:
     """
-    Transcript model of RUNX1 (ENST00000675419.1), on the reverse strand
+    Transcript model of SDHD (ENST00000375549.8), on the forward strand
     """
     # Offset of 34787800 removed for clarity
-    exons_ranges = [
-        (0, 4810),
-        (11500, 11662),
-        (46609, 46801),
-        (71673, 71778),
-        (92756, 92913),
-        (99042, 99296),
-        (105124, 105163),
-        (261041, 261158),
-        (261367, 261502),
-    ]
-    cds_range = [4334, 261099]
+    exons_ranges = [(0, 87), (984, 1101), (1994, 2139), (7932, 8922)]
+    cds_range = [35, 8098]
 
-    exons = make_bed("chr21", *exons_ranges)
-    exons.name = "exons"
+    exons = make_bed("chr11", *exons_ranges)
+    exons.name = "ENST00000375549.8"
     exons.strand = "-"
 
     cds = Bed("chr21", chromStart=cds_range[0], chromEnd=cds_range[1], strand="-")
@@ -242,28 +235,6 @@ def RUNX1() -> Transcript:
     return Transcript(exons, cds)
 
 
-POSITIONS = [
-    # c., genomic
-    ("1", 261099),
-    ("2", 261098),
-    ("58", 261042),
-    # ("59", 105163),
-]
-
-
-@pytest.mark.parametrize("cdot, genomic", POSITIONS)
-def test_genomic_to_c_dot(cdot: str, genomic: int, RUNX1: Transcript) -> None:
-    """
-    NOTE: RUNX1 is located on the reverse strand
-    """
-    print()
-    print(cdot, genomic)
-    print(RUNX1.exons)
-    print(RUNX1.cds)
-    assert RUNX1.cdot_to_genomic(cdot) == genomic
-
-
-# start, distance, endpoint
 TRAVEL = [
     # Start at zero, no distance
     (0, 0, 0),
