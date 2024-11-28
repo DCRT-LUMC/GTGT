@@ -5,15 +5,17 @@ from pathlib import Path
 from GTGT.mutalyzer import HGVS_to_genome_range
 from GTGT.models import HGVS
 
+from typing import Any, Tuple
+
 
 def retrieve_raw(
-    reference_id,
-    reference_source=None,
-    reference_type=None,
-    size_off=True,
-    configuration_path=None,
-    timeout=1,
-):
+    reference_id: str,
+    reference_source: Any = None,
+    reference_type: Any = None,
+    size_off: bool = True,
+    configuration_path: Any = None,
+    timeout: int = 1,
+) -> Tuple[str, str, str]:
     if reference_type == "fasta":
         return _get_content("data/" + reference_id + ".fasta"), "fasta", "ncbi"
     elif reference_id.startswith("LRG_"):
@@ -22,11 +24,11 @@ def retrieve_raw(
         return _get_content("data/" + reference_id + ".gff3"), "gff3", "ncbi"
 
 
-def get_cds_to_mrna(cds_id, timeout=10):
+def get_cds_to_mrna(cds_id: Any, timeout: Any = 10) -> None:
     return None
 
 
-def _get_content(relative_location):
+def _get_content(relative_location: str) -> str:
     data_file = Path(__file__).parent.joinpath(relative_location)
     try:
         with open(str(data_file), "r") as file:
@@ -37,7 +39,7 @@ def _get_content(relative_location):
 
 
 @pytest.fixture(autouse=True)
-def mock_env(monkeypatch):
+def mock_env(monkeypatch: Any) -> None:
     monkeypatch.setattr("mutalyzer_retriever.retriever.retrieve_raw", retrieve_raw)
     monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", get_cds_to_mrna)
 
@@ -68,7 +70,7 @@ POSITIONS = [
 
 
 @pytest.mark.parametrize("cdot, genomic", POSITIONS)
-def test_genomic_to_c_dot_SDHD(cdot: str, genomic: int) -> None:
+def test_genomic_to_c_dot_SDHD(cdot: str, genomic: Tuple[int, int]) -> None:
     """
     GIVEN a Transcript and a position in c. notation
     WHEN we translate the c. to genomic positions
@@ -110,7 +112,7 @@ SUPPORTED_DESCRIPTIONS = [
 
 
 @pytest.mark.parametrize("description", SUPPORTED_DESCRIPTIONS)
-def test_supported_descriptions(description: HGVS) -> None:
+def test_supported_descriptions(description: str) -> None:
     HGVS_to_genome_range(HGVS(description=description))
 
 
@@ -125,6 +127,6 @@ UNSUPPORTED_DESCRIPTIONS = [
 
 
 @pytest.mark.parametrize("description", UNSUPPORTED_DESCRIPTIONS)
-def test_unsupported_descriptions(description: HGVS) -> None:
+def test_unsupported_descriptions(description: str) -> None:
     with pytest.raises(ValueError):
         HGVS_to_genome_range(HGVS(description=description))
