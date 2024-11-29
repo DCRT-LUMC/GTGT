@@ -2,9 +2,10 @@ import pytest
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from pathlib import Path
-from GTGT.mutalyzer import HGVS_to_genome_range
+from GTGT.mutalyzer import HGVS_to_genome_range, exonskip
 from GTGT.models import HGVS
 
+from itertools import zip_longest
 from typing import Any, Tuple
 
 
@@ -183,3 +184,29 @@ UNSUPPORTED_DESCRIPTIONS = [
 def test_unsupported_descriptions(description: str) -> None:
     with pytest.raises(ValueError):
         HGVS_to_genome_range(HGVS(description=description))
+
+
+def test_exonskip_SDHD() -> None:
+    SDHD = HGVS(description="ENST00000375549.8:c.=")
+    results = [
+        "ENST00000375549.8:c.53_169del",
+        "ENST00000375549.8:c.170_314del",
+    ]
+    for output, expected in zip_longest(exonskip(SDHD), results):
+        assert output == HGVS(description=expected)
+
+
+def test_exonskip_WT1() -> None:
+    WT1 = HGVS(description="ENST00000452863.10:c.=")
+    results = [
+        "ENST00000452863.10:c.662_784del",
+        "ENST00000452863.10:c.785_887del",
+        "ENST00000452863.10:c.888_965del",
+        "ENST00000452863.10:c.966_1016del",
+        "ENST00000452863.10:c.1017_1113del",
+        "ENST00000452863.10:c.1114_1264del",
+        "ENST00000452863.10:c.1265_1354del",
+        "ENST00000452863.10:c.1355_1447del",
+    ]
+    for output, expected in zip_longest(exonskip(WT1), results):
+        assert output == HGVS(description=expected)

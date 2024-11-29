@@ -2,7 +2,7 @@ from mutalyzer.description import Description, to_rna_reference_model, model_to_
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from .models import HGVS
 
-from typing import Tuple
+from typing import Tuple, List
 
 
 def HGVS_to_genome_range(hgvs: HGVS) -> Tuple[int, int]:
@@ -25,3 +25,21 @@ def HGVS_to_genome_range(hgvs: HGVS) -> Tuple[int, int]:
     end = model["variants"][0]["location"]["end"]["position"]
 
     return (start, end)
+
+
+def exonskip(hgvs: HGVS) -> List[HGVS]:
+    """Generate all possible exon skips for the specified HGVS description"""
+    d = Description(description=hgvs.description)
+    d.normalize()
+
+    # Extract relevant information from the normalized description
+    raw_response = d.output()
+    exons = raw_response["selector_short"]["exon"]["c"]
+    transcript_id = raw_response["input_model"]["reference"]["id"]
+
+    exon_skips = list()
+    # The first and second exon cannot be skipped
+    for start, end in exons[1:-1]:
+        skip = f"{transcript_id}:c.{start}_{end}del"
+        exon_skips.append(HGVS(description=skip))
+    return exon_skips
