@@ -6,6 +6,8 @@ without executing side effects
 from .wrappers import lookup_transcript
 from .variant_validator import lookup_variant
 from .provider import Provider
+from .mutalyzer import exonskip
+from .models import HGVS
 
 import argparse
 import json
@@ -32,7 +34,7 @@ def main() -> None:
         description="Description of command.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(dest="command")
     parser.add_argument("--cachedir", type=str, default=os.environ.get("GTGT_CACHE"))
 
     transcript_parser = subparsers.add_parser(
@@ -51,27 +53,39 @@ def main() -> None:
         "--host", default="0.0.0.0", help="Hostname to listen on"
     )
 
+    mutator_parser = subparsers.add_parser(
+        "mutate", help="Mutate the specified transcript"
+    )
+
+    mutator_parser.add_argument("transcript_id", help="The transcript to mutate")
+
     args = parser.parse_args()
 
     logger = logger_setup()
 
     provider = Provider(args.cachedir)
 
-    if "transcript_id" in args:
+    if args.command == "transcript":
         ts = lookup_transcript(provider, args.transcript_id)
         print(ts.model_dump_json())
-    elif "hgvs_variant" in args:
+    elif args.command == "links":
         logger.debug(args)
         links = lookup_variant(provider, args.hgvs_variant).url_dict()
         for website, url in links.items():
             print(f"{website}: {url}")
-    elif "host" in args:
+    elif args.command == "server":
         try:
             from .app import app, uvicorn
         except ModuleNotFoundError:
             print("Missing modules, please install with 'pip install gtgt[server]'")
             exit(-1)
         uvicorn.run(app, host=args.host)
+    elif args.command == "mutate":
+        desc = f"{args.transcript_id}:c.="
+        hgvs_transcript = HGVS(description=desc)
+        for hgvs in exonskip(hgvs_transcript):
+            print(hgvs.description)
+        print(args.transcript_id)
     else:
         raise NotImplementedError
 
