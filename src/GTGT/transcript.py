@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from .bed import Bed
 
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 
 class Transcript:
@@ -53,81 +53,3 @@ class Transcript:
             cmp[record1.name] = record1.compare(record2)
 
         return cmp
-
-    def _reverse_cdot_to_genomic(self, cdot: str) -> int:
-        """
-        Convert a HGVS c. location to genomic, for transcripts on the
-        reverse strand
-        """
-        pos = int(cdot) - 1
-        return self.cds.chromEnd - pos
-
-    def cdot_to_genomic(self, cdot: str) -> int:
-        """Convert a HGVS c. location to genomic"""
-        if self.exons.strand == "-":
-            return self._reverse_cdot_to_genomic(cdot)
-        elif self.exons.strand == "+":
-            pass
-        else:
-            raise RuntimeError(
-                "Unable to convert c. position, transcript has no strand"
-            )
-        return 0
-
-
-def find_distance_endpoint(ranges: List[range], start: int, distance: int) -> int:
-    """
-    Travel over a list of ranges and determine the endpoint
-
-    Starting from the 'start' position, travel 'distance' over a list of ranges
-    and report the endpoint
-    """
-    # Local copy of the distance we can change
-    dist = distance
-
-    # Update the distance to count from the start of the range start is in
-    print("\nfind_distance_endpoint")
-    print(f"{dist=}, {start=}")
-
-    if dist >= 0:
-        # Re-calculate the distance to count from the start of the range it is in
-        for index, _range in enumerate(ranges):
-            if start in _range:
-                dist += start - _range.start
-                break
-        else:
-            raise ValueError(f"Start position '{start}' lies outside the ranges")
-
-        # Iterate over all ranges we haven't skipped yet
-        for _range in ranges[index:]:
-            print(f"{_range=}, {dist=}")
-            # If the distance we still have to travel falls in _range, we are done
-            if _range.start + dist in _range:
-                return _range.start + dist
-            # Else, subtract the size of the current range and go to the next range
-            else:
-                dist -= _range.stop - _range.start
-        else:
-            raise ValueError(f"Endpoint for '{distance}' lies outside the ranges")
-    # If the specified distance is negative
-    else:
-        # Re-calculate the distance to count from the start of the range it is in
-        for index, _range in enumerate(ranges):
-            if start in _range:
-                dist -= _range.stop - start
-                break
-        else:
-            raise ValueError(f"Start position '{start}' lies outside the ranges")
-
-        # Iterate over all ranges we haven't skipped yet (note, iterate in reverse)
-        for _range in ranges[index::-1]:
-            print(f"{_range=}, {dist=}")
-            # If the distance we still have to travel falls in _range, we are done
-            if _range.stop + dist in _range:
-                return _range.stop + dist
-            # Else, subtract the size of the current range and go to the next range
-            else:
-                dist += _range.stop - _range.start
-            print(f"After loop: {_range=}, {dist=}")
-        else:
-            raise ValueError(f"Endpoint for '{distance}' lies outside the ranges")
