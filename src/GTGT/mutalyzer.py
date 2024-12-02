@@ -43,3 +43,34 @@ def exonskip(hgvs: HGVS) -> List[HGVS]:
         skip = f"{transcript_id}:c.{start}_{end}del"
         exon_skips.append(HGVS(description=skip))
     return exon_skips
+
+
+def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
+    """
+    Determine the effect of the specified HGVS description on the CDS, on the genome
+
+    Steps:
+    - Use the protein prediction of mutalyzer to determine which protein
+      residues are changed
+    - Map this back to a deletion in c. positions to determine which protein
+      annotations are no longer valid
+    - Convert the c. positions to genome coordiinates as used by the UCSC
+    NOTE that the genome range is similar to the UCSC annotations on the genome,
+    i.e. 0 based, half open. Not to be confused with hgvs g. positions
+    """
+    d = Description(description=hgvs.description)
+    d.normalize()
+
+    # Determine the protein positions that were changed
+    protein = d.output()["protein"]
+    first = protein["position_first"]
+    last = protein["position_last_original"]
+
+    # Convert the changed amino acids into a deletion in HGVS c. format
+    transcript_id = hgvs.description.split(":c.")[0]
+    start_pos = first * 3
+    end_pos = (last * 3) - 1
+
+    cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
+
+    return HGVS_to_genome_range(HGVS(description=cdot))

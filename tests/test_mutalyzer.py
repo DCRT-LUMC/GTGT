@@ -2,7 +2,7 @@ import pytest
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from pathlib import Path
-from GTGT.mutalyzer import HGVS_to_genome_range, exonskip
+from GTGT.mutalyzer import HGVS_to_genome_range, exonskip, mutation_to_cds_effect
 from GTGT.models import HGVS
 
 from itertools import zip_longest
@@ -210,3 +210,32 @@ def test_exonskip_WT1() -> None:
     ]
     for output, expected in zip_longest(exonskip(WT1), results):
         assert output == HGVS(description=expected)
+
+
+MUTATIONS = [
+    # HGVS, coordinates on the genome
+    # A simple missense that changes a single amino acids
+    ("ENST00000452863.10:c.13T>A", (32435347, 32435350)),
+    # A frameshift which destroys most of the protein
+    ("ENST00000452863.10:c.10del", (32389058, 32435352)),
+    # A frameshift that is restored by an insertion
+    ("ENST00000452863.10:c.[10del;20_21insA]", (32435340, 32435352)),
+    # A frameshift that is restored by a bigger insertion
+    ("ENST00000452863.10:c.[10del;20_21insATCGAATATGGGG]", (32435340, 32435352)),
+    # A bigger deletion
+    ("ENST00000452863.10:c.11_19del", (32435344, 32435353)),
+    # An inframe deletion that creates a STOP codon
+    ("ENST00000452863.10:c.87_89del", (32389059, 32435278)),
+]
+
+
+@pytest.mark.parametrize("description, expected", MUTATIONS)
+def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> None:
+    """
+    GIVEN a HGVS transcript description
+    WHEN we determine the CDS effect
+    THEN we should get genome coordinates
+    """
+    WT1 = HGVS(description=description)
+
+    assert mutation_to_cds_effect(WT1) == expected
