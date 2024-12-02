@@ -211,12 +211,26 @@ class HGVS(BaseModel):
         if "offset" in var["location"]:
             raise NotImplementedError
 
-    def _position(hgvs: "HGVS"):
+    @property
+    def position(self):
         """
         Return the position of a description as (start, end)
+
+        These are just the .c position, so 1 based and inclusive
         """
-        model = mutalyzer_hgvs_parser.to_model(hgvs.description)
+        model = mutalyzer_hgvs_parser.to_model(self.description)
         assert len(model["variants"]) == 1
+
+        var = model["variants"][0]
+        if var["location"]["type"] == "point":
+            p = var["location"]["position"]
+            return p, p
+        elif var["location"]["type"] == "range":
+            s = var["location"]["start"]["position"]
+            e = var["location"]["end"]["position"]
+            return s, e
+        else:
+            raise NotImplementedError
 
     def apply_deletion(self, other: "HGVS") -> None:
         """
@@ -244,6 +258,10 @@ class HGVS(BaseModel):
         o_id = o_model["reference"]["id"]
         if s_id != o_id:
             raise NotImplementedError
+
+        # Get the c. positions for start and end
+        s_start, s_end = self.position
+        o_start, o_end = other.position
 
 
 class TranscriptId(BaseModel):

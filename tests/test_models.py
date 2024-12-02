@@ -2,7 +2,7 @@ from GTGT.models import BedModel, TranscriptId, TranscriptModel, TranscriptModel
 from GTGT.bed import Bed
 from GTGT.transcript import Transcript
 import pytest
-from typing import Dict, Union
+from typing import Dict, Union, Tuple
 from pydantic import ValidationError
 
 payload = Dict[str, Union[str, int]]
@@ -154,6 +154,26 @@ def test_HGVS_model_add_deletion_invalid(deletion: str):
 
     with pytest.raises(NotImplementedError):
         variant.apply_deletion(HGVS(description=deletion))
+
+
+POSITIONS = [
+    # Variant, positions
+    ("ENST:c.10", (10, 10)),
+    ("ENST:c.10A>T", (10, 10)),
+    ("ENST:c.10_11insATC", (10, 11)),
+    ("ENST:c.10_12del", (10, 12)),
+]
+
+
+@pytest.mark.parametrize("description, expected", POSITIONS)
+def test_HGVS_model_positions(description: str, expected: Tuple[int, int]):
+    """
+    GIVEN a HGVS description
+    WHEN we determine the position
+    THEN we should get a range for the position
+    """
+    variant = HGVS(description=description)
+    assert variant.position == expected
 
 
 SUPPORTED = [
