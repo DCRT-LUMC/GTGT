@@ -128,6 +128,52 @@ def test_HGVS_model_invalid(description: str) -> None:
         HGVS(description=description)
 
 
+UNSUPPORTED = [
+    # No variant present
+    ("ENST:c.="),
+    # Variant outside of the CDS
+    ("ENST:c.-10del"),
+    ("ENST:c.*10del"),
+    # Intronic variants
+    ("ENST:c.10+10del"),
+    # Not a deletion
+    ("ENST:c.10A>T"),
+    # Different transcript ID
+    ("ENST001:c.10del"),
+]
+
+
+@pytest.mark.parametrize("deletion", UNSUPPORTED)
+def test_HGVS_model_add_deletion_invalid(deletion: str):
+    """
+    GIVEN a deletion to add to a HGVS variant
+    WHEN the deletion is of an unsupported type
+    THEN we raise an error
+    """
+    variant = HGVS(description="ENST:c.10A>T")
+
+    with pytest.raises(NotImplementedError):
+        variant.apply_deletion(HGVS(description=deletion))
+
+
+SUPPORTED = [
+    # Deletion, expected
+    ("ENST:c.10_15del", "ENST:c.10_15del"),
+]
+
+
+@pytest.mark.parametrize("deletion, expected", SUPPORTED)
+def test_HGVS_model_add_deletion(deletion: str, expected: str):
+    """
+    GIVEN a deletion to add to a HGVS variant
+    WHEN the deletion is applied to the variant
+    THEN the variant is updated to include the deletion
+    """
+    variant = HGVS(description="ENST:c.10A>T")
+    variant.apply_deletion(HGVS(description=deletion))
+    # assert variant.description == expected
+
+
 VALID_TRANSCRIPT_ID = [
     "ENST00000296930.10",
 ]

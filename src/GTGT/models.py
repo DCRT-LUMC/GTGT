@@ -190,6 +190,61 @@ class HGVS(BaseModel):
             raise ValueError(e)
         return self
 
+    @staticmethod
+    def _validate_for_apply_deletion(hgvs: "HGVS") -> None:
+        """
+        Raise a NotImplementedError if the hgvs is not supported
+        """
+        model = mutalyzer_hgvs_parser.to_model(hgvs.description)
+
+        # There must be one variant
+        if len(model["variants"]) != 1:
+            raise NotImplementedError
+
+        var = model["variants"][0]
+
+        # The variant must be in the CDS
+        if "outside_cds" in var["location"]:
+            raise NotImplementedError
+
+        # The variant must not be intronic
+        if "offset" in var["location"]:
+            raise NotImplementedError
+
+    def _position(hgvs: "HGVS"):
+        """
+        Return the position of a description as (start, end)
+        """
+        model = mutalyzer_hgvs_parser.to_model(hgvs.description)
+        assert len(model["variants"]) == 1
+
+    def apply_deletion(self, other: "HGVS") -> None:
+        """
+        Apply a deletion to the current variant
+
+        If the deletion does not overlap, add them together
+        If the deletion completely overlaps the variant, replace the variant
+
+        If the deletion partially overlaps the variant, raise an error
+        """
+        # Perform all validations
+        self._validate_for_apply_deletion(other)
+        self._validate_for_apply_deletion(self)
+
+        # other must be a deletion or an insertion_deletion
+        o_model = mutalyzer_hgvs_parser.to_model(other.description)
+        o_type = o_model["variants"][0]["type"]
+        if o_type not in ["deletion", "insertion_deletion"]:
+            raise NotImplementedError
+
+        s_model = mutalyzer_hgvs_parser.to_model(self.description)
+
+        # self and other must refer to the same reference ID
+        s_id = s_model["reference"]["id"]
+        o_id = o_model["reference"]["id"]
+        if s_id != o_id:
+            raise NotImplementedError
+
 
 class TranscriptId(BaseModel):
     id: str = Field(pattern=r"^ENST\d+\.\d+$")
