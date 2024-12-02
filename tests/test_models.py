@@ -144,7 +144,7 @@ UNSUPPORTED = [
 
 
 @pytest.mark.parametrize("deletion", UNSUPPORTED)
-def test_HGVS_model_add_deletion_invalid(deletion: str):
+def test_HGVS_model_add_deletion_invalid(deletion: str) -> None:
     """
     GIVEN a deletion to add to a HGVS variant
     WHEN the deletion is of an unsupported type
@@ -166,7 +166,7 @@ POSITIONS = [
 
 
 @pytest.mark.parametrize("description, expected", POSITIONS)
-def test_HGVS_model_positions(description: str, expected: Tuple[int, int]):
+def test_HGVS_model_positions(description: str, expected: Tuple[int, int]) -> None:
     """
     GIVEN a HGVS description
     WHEN we determine the position
@@ -189,8 +189,10 @@ SUPPORTED = [
     # Deletion is after the variant
     ("ENST:c.11del", "ENST:c.[10A>T;11del]"),
 ]
+
+
 @pytest.mark.parametrize("deletion, expected", SUPPORTED)
-def test_HGVS_model_add_deletion(deletion: str, expected: str):
+def test_HGVS_model_add_deletion(deletion: str, expected: str) -> None:
     """
     GIVEN a deletion to add to a HGVS variant
     WHEN the deletion is applied to the variant

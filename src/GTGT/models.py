@@ -212,7 +212,7 @@ class HGVS(BaseModel):
             raise NotImplementedError
 
     @property
-    def position(self):
+    def position(self) -> Tuple[int, int]:
         """
         Return the position of a description as (start, end)
 
@@ -280,7 +280,6 @@ class HGVS(BaseModel):
         # partial overlaps are not supported
         else:
             raise NotImplementedError
-
 
 
 class TranscriptId(BaseModel):
