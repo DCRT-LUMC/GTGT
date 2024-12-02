@@ -231,15 +231,21 @@ def WT() -> Transcript:
 
     return t.to_transcript()
 
-
-def test_something(WT):
+VARIANTS = [
+    # variant, Transcript effect
     # In frame deletion that creates a STOP codon
-    mutation = "ENST00000452863.10:c.87_89del"
-    print()
-    print(WT)
-    print(WT.cds)
-    modified = copy.deepcopy(WT)
-    modified.mutate(mutation)
-    print(modified)
+    ("ENST00000452863.10:c.87_89del", 0.0018),
+    # In frame deletion that does not make a STOP
+    ("ENST00000452863.10:c.85_87del", 0.9999),
+    # Synonymous mutation
+    ("ENST00000452863.10:c.13T>C", 1),
 
-    print(json.dumps(WT.compare(modified), indent=True))
+]
+@pytest.mark.parametrize("variant, effect", VARIANTS)
+def test_something(variant: str, effect: float, WT):
+    # In frame deletion that creates a STOP codon
+    modified = copy.deepcopy(WT)
+    modified.mutate(variant)
+
+    cmp = modified.compare(WT)
+    assert cmp["cds"] == pytest.approx(effect, abs=0.0001)

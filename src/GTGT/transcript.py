@@ -57,7 +57,10 @@ class Transcript:
         return cmp
 
     def compare_score(self, other: object) -> float:
-        """Compare the size of each records in the transcripts, and return a single value"""
+        """Compare the size of each records in the transcripts
+
+        Returns the average value for all records
+        """
         if not isinstance(other, Transcript):
             raise NotImplementedError
         cmp = self.compare(other)
