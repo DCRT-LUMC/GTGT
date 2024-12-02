@@ -178,10 +178,17 @@ def test_HGVS_model_positions(description: str, expected: Tuple[int, int]):
 
 SUPPORTED = [
     # Deletion, expected
+    # Deletion fully overlaps
+    ("ENST:c.8_15del", "ENST:c.8_15del"),
+    # Deletion fully overlaps, but starts at the variant
     ("ENST:c.10_15del", "ENST:c.10_15del"),
+    # Deletion fully overlaps, but ends at the variant
+    ("ENST:c.8_10del", "ENST:c.8_10del"),
+    # Deletion is before the variant
+    ("ENST:c.8del", "ENST:c.[8del;10A>T]"),
+    # Deletion is after the variant
+    ("ENST:c.11del", "ENST:c.[10A>T;11del]"),
 ]
-
-
 @pytest.mark.parametrize("deletion, expected", SUPPORTED)
 def test_HGVS_model_add_deletion(deletion: str, expected: str):
     """
@@ -191,7 +198,7 @@ def test_HGVS_model_add_deletion(deletion: str, expected: str):
     """
     variant = HGVS(description="ENST:c.10A>T")
     variant.apply_deletion(HGVS(description=deletion))
-    # assert variant.description == expected
+    assert variant.description == expected
 
 
 VALID_TRANSCRIPT_ID = [

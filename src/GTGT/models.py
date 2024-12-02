@@ -263,6 +263,25 @@ class HGVS(BaseModel):
         s_start, s_end = self.position
         o_start, o_end = other.position
 
+        # Get the variants in text format
+        s_var = self.description.split("c.")[1]
+        o_var = other.description.split("c.")[1]
+
+        # self is before other
+        if s_end < o_start:
+            self.description = f"{s_id}:c.[{s_var};{o_var}]"
+        # self is after other
+        elif s_start > o_end:
+            self.description = f"{s_id}:c.[{o_var};{s_var}]"
+        # self is fully inside other
+        elif s_start >= o_start and s_end <= o_end:
+            # We overwrite self with other
+            self.description = other.description
+        # partial overlaps are not supported
+        else:
+            raise NotImplementedError
+
+
 
 class TranscriptId(BaseModel):
     id: str = Field(pattern=r"^ENST\d+\.\d+$")
