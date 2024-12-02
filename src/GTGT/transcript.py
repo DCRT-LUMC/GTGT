@@ -55,6 +55,18 @@ class Transcript:
             cmp[record1.name] = record1.compare(record2)
 
         return cmp
+
+    def compare_score(self, other: object) -> float:
+        """Compare the size of each records in the transcripts, and return a single value"""
+        if not isinstance(other, Transcript):
+            raise NotImplementedError
+        cmp = self.compare(other)
+
+        return sum(cmp.values())/len(cmp)
+
     def mutate(self, hgvs: str) -> None:
         """Mutate the transcript based on the specified hgvs description"""
-        cds_loss = mutation_to_cds_effect(HGVS(description=hgvs))
+        # Determine the CDS interval that is affected by the hgvs description
+        chromStart, chromEnd = mutation_to_cds_effect(HGVS(description=hgvs))
+        # Subtract that region from the annotations
+        self.subtract(Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd))
