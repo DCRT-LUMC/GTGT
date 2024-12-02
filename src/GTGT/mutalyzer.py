@@ -6,6 +6,7 @@ from pydantic import BaseModel, model_validator
 
 from typing import Tuple, List
 
+
 class HGVS(BaseModel):
     description: str
 
@@ -164,7 +165,7 @@ def exonskip(hgvs: HGVS) -> List[HGVS]:
     return exon_skips
 
 
-def _init_model(d):
+def _init_model(d: Description) -> None:
     d.assembly_checks()
     d.retrieve_references()
     d.pre_conversion_checks()
@@ -175,8 +176,8 @@ def _init_model(d):
         d._correct_chromosome_points()
         d.to_internal_indexing_model()
         d._correct_variants_type()
-        # d._correct_points()
-        # d._check_and_correct_sequences()
+        d._correct_points()
+        d._check_and_correct_sequences()
 
         d.check()
         d._construct_delins_model()
@@ -192,6 +193,7 @@ def _init_model(d):
             d.construct_protein_description()
             d.construct_equivalent()
         d.remove_superfluous_selector()
+
 
 def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
     """

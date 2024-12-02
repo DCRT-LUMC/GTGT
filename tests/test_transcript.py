@@ -217,7 +217,6 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
     assert cmp["coding"] == pytest.approx(0.41, abs=0.01)
 
 
-
 @pytest.fixture
 def WT() -> Transcript:
     """
@@ -231,6 +230,7 @@ def WT() -> Transcript:
 
     return t.to_transcript()
 
+
 VARIANTS = [
     # variant, Transcript effect
     # In frame deletion that creates a STOP codon
@@ -239,13 +239,29 @@ VARIANTS = [
     ("ENST00000452863.10:c.85_87del", 0.9999),
     # Synonymous mutation
     ("ENST00000452863.10:c.13T>C", 1),
-
 ]
+
+
 @pytest.mark.parametrize("variant, effect", VARIANTS)
-def test_mutate_transcript_with_variant(variant: str, effect: float, WT):
-    # In frame deletion that creates a STOP codon
+def test_mutate_transcript_with_variant(
+    variant: str, effect: float, WT: Transcript
+) -> None:
     modified = copy.deepcopy(WT)
     modified.mutate(variant)
 
     cmp = modified.compare(WT)
     assert cmp["cds"] == pytest.approx(effect, abs=0.0001)
+
+
+def test_analyze_transcript(WT: Transcript) -> None:
+    # In frame deletion that creates a STOP codon
+    variant = "ENST00000452863.10:c.87_89del"
+    # Frameshift in small in-frame exon 5
+    variant = "ENST00000452863.10:c.970del"
+
+    results = WT.analyze(variant)
+
+    print()
+    print(json.dumps(results, indent=True))
+
+    assert results["wildtype"] == 1

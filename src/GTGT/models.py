@@ -164,7 +164,6 @@ class TranscriptModel(BaseModel):
         return cls(exons=exons, cds=cds)
 
 
-
 class TranscriptId(BaseModel):
     id: str = Field(pattern=r"^ENST\d+\.\d+$")
 

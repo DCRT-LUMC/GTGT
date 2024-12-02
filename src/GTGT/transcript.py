@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from GTGT.mutalyzer import mutation_to_cds_effect, HGVS
+from GTGT.mutalyzer import mutation_to_cds_effect, HGVS, exonskip
 
 from .bed import Bed
 
@@ -65,11 +65,45 @@ class Transcript:
             raise NotImplementedError
         cmp = self.compare(other)
 
-        return sum(cmp.values())/len(cmp)
+        return sum(cmp.values()) / len(cmp)
 
     def mutate(self, hgvs: str) -> None:
         """Mutate the transcript based on the specified hgvs description"""
         # Determine the CDS interval that is affected by the hgvs description
-        chromStart, chromEnd = mutation_to_cds_effect(HGVS(description=hgvs))
+        H = HGVS(description=hgvs)
+        chromStart, chromEnd = mutation_to_cds_effect(H)
         # Subtract that region from the annotations
-        self.subtract(Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd))
+        self.subtract(
+            Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd)
+        )
+
+    def analyze(self, hgvs: str) -> Dict[str, float]:
+        """Analyse the transcript based on the specified hgvs description
+
+        Calculate the score for the Wildtype (1), the patient transcript and the exon skips
+        """
+        # Initialize the results dictionary. Wildtype has a score of 1 by definition
+        results = dict()
+        results["wildtype"] = 1.0
+
+        # Determine the score of the patient
+        patient = deepcopy(self)
+        patient.mutate(hgvs)
+        results["patient"] = patient.compare_score(self)
+
+        # Determine the score of each exon skip
+        for skip in exonskip(HGVS(description=hgvs)):
+            # Add deletion to the patient mutation
+            desc = HGVS(description=hgvs)
+            desc.apply_deletion(skip)
+
+            # Apply the combination to the wildtype transcript
+            therapy = deepcopy(self)
+            try:
+                therapy.mutate(desc.description)
+            # Splice site error from mutalyzer, no protein prediction
+            except KeyError:
+                continue
+            results[skip.description] = therapy.compare_score(self)
+
+        return results
