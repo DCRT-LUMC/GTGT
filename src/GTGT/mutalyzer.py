@@ -164,6 +164,35 @@ def exonskip(hgvs: HGVS) -> List[HGVS]:
     return exon_skips
 
 
+def _init_model(d):
+    d.assembly_checks()
+    d.retrieve_references()
+    d.pre_conversion_checks()
+
+    if d.corrected_model.get("type") == "description_protein":
+        d.normalize_protein()
+    else:
+        d._correct_chromosome_points()
+        d.to_internal_indexing_model()
+        d._correct_variants_type()
+        # d._correct_points()
+        # d._check_and_correct_sequences()
+
+        d.check()
+        d._construct_delins_model()
+        if d.only_equals() or d.no_operation():
+            d.normalize_only_equals_or_no_operation()
+        else:
+            d.mutate()
+            d.extract()
+            d.construct_de_hgvs_internal_indexing_model()
+            d.construct_de_hgvs_coordinates_model()
+            d.construct_normalized_description()
+            d.construct_rna_description()
+            d.construct_protein_description()
+            d.construct_equivalent()
+        d.remove_superfluous_selector()
+
 def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome
@@ -178,7 +207,8 @@ def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
     i.e. 0 based, half open. Not to be confused with hgvs g. positions
     """
     d = Description(description=hgvs.description)
-    d.normalize()
+    # Do only part of the normalizations from mutalyzer
+    _init_model(d)
 
     # Determine the protein positions that were changed
     protein = d.output()["protein"]
