@@ -7,7 +7,7 @@ from .wrappers import lookup_transcript
 from .variant_validator import lookup_variant
 from .provider import Provider
 from .mutalyzer import exonskip
-from .models import HGVS
+from .mutalyzer import HGVS
 
 import argparse
 import json

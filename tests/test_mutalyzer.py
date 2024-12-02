@@ -2,8 +2,7 @@ import pytest
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from pathlib import Path
-from GTGT.mutalyzer import HGVS_to_genome_range, exonskip, mutation_to_cds_effect
-from GTGT.models import HGVS
+from GTGT.mutalyzer import HGVS_to_genome_range, exonskip, mutation_to_cds_effect, HGVS
 
 from itertools import zip_longest
 from typing import Any, Tuple

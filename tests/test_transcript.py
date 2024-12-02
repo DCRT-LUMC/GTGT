@@ -1,8 +1,12 @@
 import pytest
+import json
+from pydantic.tools import parse_obj_as
+import copy
 
 from GTGT import Bed
 from GTGT.transcript import Transcript
 from GTGT.bed import make_bed
+from GTGT.models import TranscriptModel
 
 
 @pytest.fixture
@@ -211,3 +215,31 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
     assert cmp["exons"] == pytest.approx(0.71, abs=0.01)
     assert cmp["cds"] == 1
     assert cmp["coding"] == pytest.approx(0.41, abs=0.01)
+
+
+
+@pytest.fixture
+def WT() -> Transcript:
+    """
+    Transcript for WT1, using real genomic positionsjjkkkkjklkj
+    """
+    path = "tests/data/ENST00000452863.10.Transcript.json"
+    with open(path) as fin:
+        js = json.load(fin)
+
+    t = TranscriptModel.model_validate(js)
+
+    return t.to_transcript()
+
+
+def test_something(WT):
+    # In frame deletion that creates a STOP codon
+    mutation = "ENST00000452863.10:c.87_89del"
+    print()
+    print(WT)
+    print(WT.cds)
+    modified = copy.deepcopy(WT)
+    modified.mutate(mutation)
+    print(modified)
+
+    print(json.dumps(WT.compare(modified), indent=True))

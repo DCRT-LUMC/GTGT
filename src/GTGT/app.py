@@ -3,7 +3,8 @@ from fastapi import FastAPI, Body, HTTPException
 
 from .variant_validator import lookup_variant
 from .provider import Provider
-from .models import BedModel, TranscriptModel, HGVS, TranscriptId
+from .models import BedModel, TranscriptModel, TranscriptId
+from .mutalyzer import HGVS
 from .wrappers import lookup_transcript
 
 from typing import Dict

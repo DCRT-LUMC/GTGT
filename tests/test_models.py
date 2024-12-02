@@ -1,4 +1,5 @@
-from GTGT.models import BedModel, TranscriptId, TranscriptModel, TranscriptModel, HGVS
+from GTGT.models import BedModel, TranscriptId, TranscriptModel, TranscriptModel
+from GTGT.mutalyzer import HGVS
 from GTGT.bed import Bed
 from GTGT.transcript import Transcript
 import pytest

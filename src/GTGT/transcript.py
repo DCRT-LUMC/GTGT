@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+from GTGT.mutalyzer import mutation_to_cds_effect, HGVS
+
 from .bed import Bed
 
 from typing import List, Dict
@@ -53,3 +55,6 @@ class Transcript:
             cmp[record1.name] = record1.compare(record2)
 
         return cmp
+    def mutate(self, hgvs: str) -> None:
+        """Mutate the transcript based on the specified hgvs description"""
+        cds_loss = mutation_to_cds_effect(HGVS(description=hgvs))
