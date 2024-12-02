@@ -242,7 +242,7 @@ VARIANTS = [
 
 ]
 @pytest.mark.parametrize("variant, effect", VARIANTS)
-def test_something(variant: str, effect: float, WT):
+def test_mutate_transcript_with_variant(variant: str, effect: float, WT):
     # In frame deletion that creates a STOP codon
     modified = copy.deepcopy(WT)
     modified.mutate(variant)
