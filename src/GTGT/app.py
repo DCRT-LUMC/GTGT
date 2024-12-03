@@ -75,3 +75,10 @@ async def compare(
     o = other.to_transcript()
 
     return s.compare(o)
+
+@app.post("/hgvs/analyze")
+async def analyze(hgvs: HGVS) -> Dict[str, float]:
+    transcript_id = hgvs.description.split(":")[0]
+    transcript_model = lookup_transcript(provider, transcript_id)
+    transcript = transcript_model.to_transcript()
+    return transcript.analyze(hgvs.description)
