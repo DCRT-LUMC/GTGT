@@ -59,6 +59,12 @@ def main() -> None:
 
     mutator_parser.add_argument("transcript_id", help="The transcript to mutate")
 
+    analyze_parser = subparsers.add_parser(
+        "analyze", help="Analyze all possible exons skips for the spcified HGVS variant"
+    )
+    analyze_parser.add_argument(
+        "hgvs", help="HGVS description of the transcript of interest"
+    )
     args = parser.parse_args()
 
     logger = logger_setup()
@@ -86,6 +92,12 @@ def main() -> None:
         for hgvs in exonskip(hgvs_transcript):
             print(hgvs.description)
         print(args.transcript_id)
+    elif args.command == "analyze":
+        transcript_id = args.hgvs.split(":")[0]
+        transcript_model = lookup_transcript(provider, transcript_id)
+        transcript = transcript_model.to_transcript()
+        results = transcript.analyze(args.hgvs)
+        print(json.dumps(results, indent=True))
     else:
         raise NotImplementedError
 
