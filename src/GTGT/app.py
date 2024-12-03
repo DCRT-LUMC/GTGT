@@ -1,5 +1,6 @@
 import uvicorn as uvicorn
 from fastapi import FastAPI, Body, HTTPException
+from fastapi.responses import RedirectResponse
 
 from .variant_validator import lookup_variant
 from .provider import Provider
@@ -12,6 +13,12 @@ from typing_extensions import Annotated
 
 app = FastAPI()
 provider = Provider()
+
+
+@app.get("/")
+async def redirect() -> RedirectResponse:
+    response = RedirectResponse(url="/docs")
+    return response
 
 
 @app.post("/links")
@@ -75,6 +82,7 @@ async def compare(
     o = other.to_transcript()
 
     return s.compare(o)
+
 
 @app.post("/hgvs/analyze")
 async def analyze(hgvs: HGVS) -> Dict[str, float]:
