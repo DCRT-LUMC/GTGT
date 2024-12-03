@@ -78,6 +78,7 @@ async def compare(
 
 @app.post("/hgvs/analyze")
 async def analyze(hgvs: HGVS) -> Dict[str, float]:
+    """Analyze all possible exons skips for the spcified HGVS variant"""
     transcript_id = hgvs.description.split(":")[0]
     transcript_model = lookup_transcript(provider, transcript_id)
     transcript = transcript_model.to_transcript()
