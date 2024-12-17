@@ -19,6 +19,48 @@ gtgt --cachedir cache transcript ENST00000241453.12 | jq .
 ## Variant Information
 gtgt links "NM_000094.4:c.5299G>C"
 
+## Analyze exon skips
+Use the `analyze` entry point to generate all exon skips, and compare them to the wildtype and patient transcripts
+
+```bash
+# A frameshift deletion in exon 2
+$ gtgt analyze ENST00000375549.8:c.100del
+{
+ "wildtype": 1.0,
+ "ENST00000375549.8:c.50_172del": 0.8048779330148124,
+ "patient": 0.3513663563397666,
+ "ENST00000375549.8:c.167_317del": 0.3513663563397666
+}
+
+# An in-frame deletion in exon 2, notice how non of the exon skips have a
+# higher score than the patient
+$ gtgt analyze ENST00000375549.8:c.100_102del
+{
+ "wildtype": 1.0,
+ "patient": 0.9970458173607387,
+ "ENST00000375549.8:c.50_172del": 0.8048779330148124,
+ "ENST00000375549.8:c.167_317del": 0.3484121737005053
+}
+
+
+# An in-frame deletion that creates a STOP codon is recognized as
+# as highly detrimental
+$ gtgt analyze ENST00000452863.10:c.87_89del
+{
+ "wildtype": 1.0,
+ "patient": 0.18847136926335686,
+ "ENST00000452863.10:c.659_787del": 0.18847136926335686,
+ "ENST00000452863.10:c.782_890del": 0.18847136926335686,
+ "ENST00000452863.10:c.885_968del": 0.18847136926335686,
+ "ENST00000452863.10:c.963_1019del": 0.18847136926335686,
+ "ENST00000452863.10:c.1014_1116del": 0.18847136926335686,
+ "ENST00000452863.10:c.1111_1267del": 0.18847136926335686,
+ "ENST00000452863.10:c.1262_1357del": 0.18847136926335686,
+ "ENST00000452863.10:c.1352_1450del": 0.18847136926335686
+}
+
+```
+
 # Disclaimer
 Copyright© 2023 LUMC (https://www.lumc.nl)
 
