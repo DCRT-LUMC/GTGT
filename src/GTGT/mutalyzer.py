@@ -150,7 +150,7 @@ def HGVS_to_genome_range(hgvs: HGVS) -> Tuple[int, int]:
 def exonskip(hgvs: HGVS) -> List[HGVS]:
     """Generate all possible exon skips for the specified HGVS description"""
     d = Description(description=hgvs.description)
-    d.normalize()
+    d.to_delins()
 
     # Extract relevant information from the normalized description
     raw_response = d.output()
@@ -166,33 +166,19 @@ def exonskip(hgvs: HGVS) -> List[HGVS]:
 
 
 def _init_model(d: Description) -> None:
-    d.assembly_checks()
-    d.retrieve_references()
-    d.pre_conversion_checks()
+    """
+    Initialize the HGVS Description
 
-    if d.corrected_model.get("type") == "description_protein":
-        d.normalize_protein()
-    else:
-        d._correct_chromosome_points()
-        d.to_internal_indexing_model()
-        d._correct_variants_type()
-        d._correct_points()
-        d._check_and_correct_sequences()
-
-        d.check()
-        d._construct_delins_model()
-        if d.only_equals() or d.no_operation():
-            d.normalize_only_equals_or_no_operation()
-        else:
-            d.mutate()
-            d.extract()
-            d.construct_de_hgvs_internal_indexing_model()
-            d.construct_de_hgvs_coordinates_model()
-            d.construct_normalized_description()
-            d.construct_rna_description()
-            d.construct_protein_description()
-            d.construct_equivalent()
-        d.remove_superfluous_selector()
+    Don't normalize the positions
+    TODO: check that other sanity checks are still performed
+    """
+    d.to_delins()
+    d.de_hgvs_internal_indexing_model = d.delins_model
+    d.construct_de_hgvs_internal_indexing_model()
+    d.construct_de_hgvs_coordinates_model()
+    d.construct_normalized_description()
+    d.construct_rna_description()
+    d.construct_protein_description()
 
 
 def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
