@@ -253,15 +253,3 @@ def test_mutate_transcript_with_variant(
     assert cmp["cds"] == pytest.approx(effect, abs=0.0001)
 
 
-def test_analyze_transcript(WT: Transcript) -> None:
-    # In frame deletion that creates a STOP codon
-    variant = "ENST00000452863.10:c.87_89del"
-    # Frameshift in small in-frame exon 5
-    variant = "ENST00000452863.10:c.970del"
-
-    results = WT.analyze(variant)
-
-    print()
-    print(json.dumps(results, indent=True))
-
-    assert results["wildtype"] == 1

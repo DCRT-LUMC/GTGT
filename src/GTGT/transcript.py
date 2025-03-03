@@ -84,12 +84,12 @@ class Transcript:
         """
         # Initialize the results dictionary. Wildtype has a score of 1 by definition
         results = dict()
-        results["wildtype"] = 1.0
+        results["wildtype"] = self.compare(self)
 
         # Determine the score of the patient
         patient = deepcopy(self)
         patient.mutate(hgvs)
-        results["patient"] = patient.compare_score(self)
+        results["patient"] = patient.compare(self)
 
         # Determine the score of each exon skip
         for skip in exonskip(HGVS(description=hgvs)):
@@ -104,6 +104,6 @@ class Transcript:
             # Splice site error from mutalyzer, no protein prediction
             except KeyError:
                 continue
-            results[skip.description] = therapy.compare_score(self)
+            results[skip.description] = therapy.compare(self)
 
         return results

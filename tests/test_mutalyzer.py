@@ -1,8 +1,9 @@
 import pytest
-from mutalyzer.description import Description, to_rna_reference_model, model_to_string
-from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from pathlib import Path
 from GTGT.mutalyzer import HGVS_to_genome_range, exonskip, mutation_to_cds_effect, HGVS
+from GTGT.transcript import Transcript
+from GTGT.models import TranscriptModel
+import json
 
 from itertools import zip_longest
 from typing import Any, Tuple
@@ -238,3 +239,29 @@ def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> 
     WT1 = HGVS(description=description)
 
     assert mutation_to_cds_effect(WT1) == expected
+
+@pytest.fixture
+def WT() -> Transcript:
+    """
+    Transcript for WT1, using real genomic positionsjjkkkkjklkj
+    """
+    path = "tests/data/ENST00000452863.10.Transcript.json"
+    with open(path) as fin:
+        js = json.load(fin)
+
+    t = TranscriptModel.model_validate(js)
+
+    return t.to_transcript()
+
+def test_analyze_transcript(WT: Transcript) -> None:
+    # In frame deletion that creates a STOP codon
+    variant = "ENST00000452863.10:c.87_89del"
+    # Frameshift in small in-frame exon 5
+    variant = "ENST00000452863.10:c.970del"
+
+    results = WT.analyze(variant)
+
+    print()
+    print(json.dumps(results, indent=True))
+
+    assert results["wildtype"]["cds"] == 1.0
