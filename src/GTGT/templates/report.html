@@ -1,0 +1,302 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="google" content="notranslate">
+    <title>GTGT analsys results for ENST00000375549.8:c.100del</title>
+    <link href="https://cdn.jsdelivr.net/npm/beercss@3.9.6/dist/cdn/beer.min.css" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.9.6/dist/cdn/beer.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js"></script>
+    <script type="text/javascript">
+      function myFunction() {
+        // set all additional sections (help, github, disclaimer) to active
+        let sections = ['disclaimer', 'documentation', 'github'];
+        for (index in sections) {
+          let element = document.getElementById(sections[index]);
+          element.classList.add('active');
+        }
+
+        // set all other sections to inactive
+        sections = ['analysis', 'external-resources', 'export-report']
+        for (index in sections) {
+          let element = document.getElementById(sections[index]);
+          element.classList.remove('active');
+        }
+
+        // unset the selected color from the nav menu
+        let nav_elements = Array.from(document.querySelectorAll('nav a'));
+          for (index in nav_elements) {
+            let element = nav_elements[index];
+            element.classList.remove('active');
+            //if ("class" in element) {
+            //  element.classList.remove('active');
+            //}
+          }
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="left drawer l">
+      <header>
+        <nav>
+          <img src="https://lirp.cdn-website.com/335a66d0/dms3rep/multi/opt/logo+small-1920w.png" class="circle">
+          <h6>GTGT</h6>
+        </nav>
+      </header>
+      <a data-ui="#analysis">
+        <i>genetics</i>
+        <div>Analysis</div>
+      </a>
+      <a data-ui="#external-resources">
+        <i>database</i>
+        <div>External resources</div>
+      </a>
+      <a data-ui="#export-report">
+        <i>picture_as_pdf</i>
+        <div>Export report</div>
+      </a>
+      <div class="divider"></div>
+      <label>Background</label>
+      <a data-ui="#documentation">
+        <i>description</i>
+        <div>Help</div>
+      </a>
+      <a data-ui="#github">
+        <i>terminal</i>
+        <div>Github</div>
+      </a>
+      <a data-ui="#disclaimer">
+        <i>copyright</i>
+        <div>Disclaimer</div>
+      </a>
+    </nav>
+
+    <nav class="left m">
+      <a data-ui="#analysis">
+        <i>genetics</i>
+        <div>Analysis</div>
+      </a>
+      <a data-ui="#external-resources">
+        <i>database</i>
+        <div>External resources</div>
+      </a>
+      <a data-ui="#export-report">
+        <i>picture_as_pdf</i>
+        <div>Export report</div>
+      </a>
+      <div class="divider"></div>
+      <a data-ui="#documentation">
+        <i>description</i>
+        <div>Help</div>
+      </a>
+      <a data-ui="#github">
+        <i>terminal</i>
+        <div>Github</div>
+      </a>
+      <a data-ui="#disclaimer">
+        <i>copyright</i>
+        <div>Disclaimer</div>
+      </a>
+    </nav>
+
+    <nav class="bottom s">
+      <a data-ui="#analysis">
+        <i>genetics</i>
+      </a>
+      <a data-ui="#external-resources">
+        <i>database</i>
+      </a>
+      <a data-ui="#export-report">
+        <i>picture_as_pdf</i>
+      </a>
+      <a onclick="myFunction()">
+        <i>info</i>
+      </a>
+    </nav>
+
+    <main class="responsive">
+
+      <div id="analysis" class="page padding active">
+        <h2> Analysis results</h2>
+        <article>
+          <details>
+            <summary class="none">
+              <div class="row">
+                <div class="max">
+                  <h3>Wildtype</h3>
+                </div>
+                <i>arrow_drop_down</i>
+              </div>
+            </summary>
+            <table class="stripes">
+              <thead>
+                <tr>
+                  <th>Annotation</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ENST00000375549.8</td>
+                  <td>1.0</td>
+                </tr>
+                <tr>
+                  <td>CDS</td>
+                  <td>1.0</td>
+                </tr>
+                <tr>
+                  <td>Coding region</td>
+                  <td>1.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </details>
+        </article>
+
+        <article>
+          <details>
+            <summary class="none">
+              <div class="row">
+                <div class="max">
+                  <h3>Patient</h3>
+                </div>
+                <i>arrow_drop_down</i>
+              </div>
+            </summary>
+            <table class="stripes">
+              <thead>
+                <tr>
+                  <th>Annotation</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ENST00000375549.8</td>
+                  <td><progress value="71" max="100"></progress></td>
+                </tr>
+                <tr>
+                  <td>CDS</td>
+                  <td><progress value="12" max="100"></progress></td>
+                </tr>
+                <tr>
+                  <td>Coding region</td>
+                  <td><progress value="21" max="100"></progress></td>
+                </tr>
+              </tbody>
+            </table>
+          </details>
+        </article>
+
+        <article>
+          <details>
+            <summary class="none">
+              <div class="row">
+                <div class="max">
+                  <h3>ENST00000375549.8:c.53_169del</h3>
+                </div>
+                <i>arrow_drop_down</i>
+              </div>
+            </summary>
+            <table>
+              <thead>
+                <tr>
+                  <th>Annotation</th>
+                  <th>Value</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ENST00000375549.8</td>
+                  <td>241/326</td>
+                  <td><progress value="91" max="100"></progress></td>
+                </tr>
+                <tr>
+                  <td>CDS</td>
+                  <td>120/150</td>
+                  <td><progress value="87" max="100"></progress></td>
+                </tr>
+                <tr>
+                  <td>Coding region</td>
+                  <td>300/400</td>
+                  <td><progress value="75" max="100"></progress></td>
+                </tr>
+              </tbody>
+            </table>
+          </details>
+        </article>
+      </div>
+
+      <div id="external-resources" class="page padding">
+        <h2>External resources</h2>
+        <div class="grid">
+
+          <div class="s12 m6 l3">
+            <a href="https://databases.lovd.nl/shared/genes/NPM1" target="_blank">
+              <article>
+                <h5>LOVD</h5>
+                <p>This is a description of the LOVD database</p>
+              </article>
+            </a>
+          </div>
+
+          <div class="s12 m6 l3">
+            <a href="https://www.omim.org/entry/164040" target="_blank">
+              <article>
+                <h5>OMIM 1</h5>
+                <p>This is a description of the MOMIM database</p>
+              </article>
+            </a>
+          </div>
+
+          <div class="s12 m6 l3">
+            <a href="https://www.deciphergenomics.org/sequence-variant/5-171410539-C-CTCTG" target="_blank">
+              <article>
+                <h5>Decipher</h5>
+                <p>This is a description of the Decipher database</p>
+              </article>
+            </a>
+          </div>
+
+          <div class="s12 m6 l3">
+            <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term=NC_000005.10:g.171410540_171410543dup" target="_blank">
+              <article>
+                <h5>ClinVar</h5>
+                <p>This is a description of the ClinVar database</p>
+              </article>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="export-report" class="page padding">
+        <h2>Export report</h2>
+        <p>Here will be an option to export the report, either as a stand alone html page or a PDF document</p>
+      </div>
+
+      <div id="documentation" class="page padding">
+        <h2>Help</h2>
+        <p>The documentation for this website is still under construction.</p>
+        <p>The technical documentation for this tool can be found on <a class="link" href=https://gtgt.readthedocs.io/en/latest/>https://gtgt.readthedocs.io</a>.
+      </div>
+
+      <div id="github" class="page padding">
+        <h2>Development</h2>
+        <p>The Genetic Therapy Generator Toolkit is a tool developed by the DCRT</p>
+        <p>The source code is available on <a class="link" href=https://github.com/DCRT-LUMC/GTGT>Github</a>.
+      </div>
+
+      <div id="disclaimer" class="page padding">
+        <h2>Disclaimer</h2>
+        <p>Copyright© 2023 LUMC <a class="link" href=https://www.lumc.nl>https://www.lumc.nl</a></p>
+        <p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
+        <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.</p>
+        <p>By accessing and using the program in any manner (including copying, modifying or redistributing the program), you accept and agree to the applicability of the GNU Affero General Public License. You can find and read this license on GNU Affero General Public License - GNU Project - Free Software Foundation.</p>
+      </div>
+    </main>
+  </body>
+</html>
+

@@ -1,7 +1,11 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 @app.route("/")
-def hello_world():
-    return "<p>Hello, world!</p>"
+def home():
+    return render_template("home.html")
+
+@app.route("/<variant>")
+def result(variant):
+    return render_template("report.html")
