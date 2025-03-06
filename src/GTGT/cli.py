@@ -55,6 +55,13 @@ def main() -> None:
         "--host", default="0.0.0.0", help="Hostname to listen on"
     )
 
+    web_server_parser = subparsers.add_parser(
+        "webserver", help="Run the GTGT web server"
+    )
+    web_server_parser.add_argument(
+        "--host", default="0.0.0.0", help="Hostname to listen on"
+    )
+
     mutator_parser = subparsers.add_parser(
         "mutate", help="Mutate the specified transcript"
     )
@@ -100,8 +107,15 @@ def main() -> None:
         transcript = transcript_model.to_transcript()
         results = transcript.analyze(args.hgvs)
         print(json.dumps(results, indent=True))
+    elif args.command == "webserver":
+        try:
+            from .flask import app
+        except ModuleNotFoundError:
+            print("Missing modules, please install with 'pip install gtgt[webserver]'")
+            exit(-1)
+        app.run(args.host)
     else:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 if __name__ == "__main__":
