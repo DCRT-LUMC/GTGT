@@ -1,3 +1,4 @@
+from GTGT.transcript import TranscriptComparison
 import uvicorn as uvicorn
 from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import RedirectResponse
@@ -85,7 +86,7 @@ async def compare(
 
 
 @app.post("/hgvs/analyze")
-async def analyze(hgvs: HGVS) -> Dict[str, float]:
+async def analyze(hgvs: HGVS) -> Dict[str, TranscriptComparison]:
     """Analyze all possible exons skips for the spcified HGVS variant"""
     transcript_id = hgvs.description.split(":")[0]
     transcript_model = lookup_transcript(provider, transcript_id)

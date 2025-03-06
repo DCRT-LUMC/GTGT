@@ -4,6 +4,7 @@ from GTGT.mutalyzer import HGVS_to_genome_range, exonskip, mutation_to_cds_effec
 from GTGT.transcript import Transcript
 from GTGT.models import TranscriptModel
 import json
+import copy
 
 from itertools import zip_longest
 from typing import Any, Tuple
@@ -267,3 +268,25 @@ def test_analyze_transcript(WT: Transcript) -> None:
     print(json.dumps(results, indent=True))
 
     assert results["wildtype"]["cds"] == 1.0
+
+
+VARIANTS = [
+    # variant, Transcript effect
+    # In frame deletion that creates a STOP codon
+    ("ENST00000452863.10:c.87_89del", 0.0018),
+    # In frame deletion that does not make a STOP
+    ("ENST00000452863.10:c.85_87del", 0.9999),
+    # Synonymous mutation
+    ("ENST00000452863.10:c.13T>C", 1),
+]
+
+
+@pytest.mark.parametrize("variant, effect", VARIANTS)
+def test_mutate_transcript_with_variant(
+    variant: str, effect: float, WT: Transcript
+) -> None:
+    modified = copy.deepcopy(WT)
+    modified.mutate(variant)
+
+    cmp = modified.compare(WT)
+    assert cmp["cds"] == pytest.approx(effect, abs=0.0001)

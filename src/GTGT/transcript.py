@@ -6,6 +6,8 @@ from .bed import Bed
 
 from typing import List, Dict
 
+TranscriptComparison = Dict[str, float]
+
 
 class Transcript:
     def __init__(self, exons: Bed, cds: Bed):
@@ -77,7 +79,7 @@ class Transcript:
             Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd)
         )
 
-    def analyze(self, hgvs: str) -> Dict[str, float]:
+    def analyze(self, hgvs: str) -> Dict[str, TranscriptComparison]:
         """Analyse the transcript based on the specified hgvs description
 
         Calculate the score for the Wildtype (1), the patient transcript and the exon skips

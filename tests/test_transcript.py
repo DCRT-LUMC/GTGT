@@ -220,7 +220,7 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
 @pytest.fixture
 def WT() -> Transcript:
     """
-    Transcript for WT1, using real genomic positionsjjkkkkjklkj
+    Transcript for WT1, using real genomic positions
     """
     path = "tests/data/ENST00000452863.10.Transcript.json"
     with open(path) as fin:
@@ -229,25 +229,3 @@ def WT() -> Transcript:
     t = TranscriptModel.model_validate(js)
 
     return t.to_transcript()
-
-
-VARIANTS = [
-    # variant, Transcript effect
-    # In frame deletion that creates a STOP codon
-    ("ENST00000452863.10:c.87_89del", 0.0018),
-    # In frame deletion that does not make a STOP
-    ("ENST00000452863.10:c.85_87del", 0.9999),
-    # Synonymous mutation
-    ("ENST00000452863.10:c.13T>C", 1),
-]
-
-
-@pytest.mark.parametrize("variant, effect", VARIANTS)
-def test_mutate_transcript_with_variant(
-    variant: str, effect: float, WT: Transcript
-) -> None:
-    modified = copy.deepcopy(WT)
-    modified.mutate(variant)
-
-    cmp = modified.compare(WT)
-    assert cmp["cds"] == pytest.approx(effect, abs=0.0001)
