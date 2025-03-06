@@ -240,6 +240,7 @@ def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> 
 
     assert mutation_to_cds_effect(WT1) == expected
 
+
 @pytest.fixture
 def WT() -> Transcript:
     """
@@ -252,6 +253,7 @@ def WT() -> Transcript:
     t = TranscriptModel.model_validate(js)
 
     return t.to_transcript()
+
 
 def test_analyze_transcript(WT: Transcript) -> None:
     # In frame deletion that creates a STOP codon

@@ -65,7 +65,7 @@ setup(
         "mutalyzer @ git+https://github.com/mutalyzer/mutalyzer.git",
     ],
     extras_require={
-        "server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"]
+        "api_server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"]
     },
     setup_requires=[
         'pytest-runner',

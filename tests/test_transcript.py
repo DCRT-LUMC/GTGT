@@ -251,5 +251,3 @@ def test_mutate_transcript_with_variant(
 
     cmp = modified.compare(WT)
     assert cmp["cds"] == pytest.approx(effect, abs=0.0001)
-
-
