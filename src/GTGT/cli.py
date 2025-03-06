@@ -61,6 +61,9 @@ def main() -> None:
     web_server_parser.add_argument(
         "--host", default="0.0.0.0", help="Hostname to listen on"
     )
+    web_server_parser.add_argument(
+        "--debug", default=False, action='store_true', help="Run Flask in debug mode"
+    )
 
     mutator_parser = subparsers.add_parser(
         "mutate", help="Mutate the specified transcript"
@@ -113,7 +116,7 @@ def main() -> None:
         except ModuleNotFoundError:
             print("Missing modules, please install with 'pip install gtgt[webserver]'")
             exit(-1)
-        app.run(args.host)
+        app.run(args.host, debug=args.debug)
     else:
         raise NotImplementedError()
 
