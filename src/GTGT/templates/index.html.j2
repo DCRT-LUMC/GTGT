@@ -4,12 +4,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="google" content="notranslate">
-    <title>GTGT analsys results for ENST00000375549.8:c.100del</title>
+    <title>{{'GTGT analysis results for ' + variant if variant else 'Genetic Therapy Generator Toolkit'}}</title>
     <link href="https://cdn.jsdelivr.net/npm/beercss@3.9.6/dist/cdn/beer.min.css" rel="stylesheet">
     <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.9.6/dist/cdn/beer.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js"></script>
     <script type="text/javascript">
-      function myFunction() {
+      function activate_info() {
         // set all additional sections (help, github, disclaimer) to active
         let sections = ['disclaimer', 'documentation', 'github'];
         for (index in sections) {
@@ -35,6 +35,21 @@
           }
       }
     </script>
+    <script>
+      function redirect()
+      {
+        var url = document.getElementById('test').value
+        window.location = "/" + url
+      }
+
+      // Also trigger submit when the user presses enter in the text field
+      document.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) { //13 is enter}
+          event.preventDefault();
+          redirect();
+        }
+      });
+    </script>
   </head>
   <body>
     <nav class="left drawer l">
@@ -44,6 +59,10 @@
           <h6>GTGT</h6>
         </nav>
       </header>
+      <a data-ui="#home">
+        <i>home</i>
+        <div>Home</div>
+      </a>
       <a data-ui="#analysis">
         <i>genetics</i>
         <div>Analysis</div>
@@ -73,6 +92,10 @@
     </nav>
 
     <nav class="left m">
+      <a data-ui="#home">
+        <i>home</i>
+        <div>Home</div>
+      </a>
       <a data-ui="#analysis">
         <i>genetics</i>
         <div>Analysis</div>
@@ -101,6 +124,9 @@
     </nav>
 
     <nav class="bottom s">
+      <a data-ui="#home">
+        <i>home</i>
+      </a>
       <a data-ui="#analysis">
         <i>genetics</i>
       </a>
@@ -110,166 +136,88 @@
       <a data-ui="#export-report">
         <i>picture_as_pdf</i>
       </a>
-      <a onclick="myFunction()">
+      <a onclick="activate_info()">
         <i>info</i>
       </a>
     </nav>
 
     <main class="responsive">
 
-      <div id="analysis" class="page padding active">
-        <h2> Analysis results</h2>
-        <article>
-          <details>
-            <summary class="none">
-              <div class="row">
-                <div class="max">
-                  <h3>Wildtype</h3>
-                </div>
-                <i>arrow_drop_down</i>
-              </div>
-            </summary>
-            <table class="stripes">
-              <thead>
-                <tr>
-                  <th>Annotation</th>
-                  <th>Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>ENST00000375549.8</td>
-                  <td>1.0</td>
-                </tr>
-                <tr>
-                  <td>CDS</td>
-                  <td>1.0</td>
-                </tr>
-                <tr>
-                  <td>Coding region</td>
-                  <td>1.0</td>
-                </tr>
-              </tbody>
-            </table>
-          </details>
-        </article>
+      {% if results is defined %}
+        <div id="home" class="page padding">
+      {% else %}
+        <div id="home" class="page padding active">
+      {% endif %}
+          <h2>Home page</h2>
+          <p>Welcome to the Genetic Therapy Generator Toolkit, please specify a variant below:</p>
+          <div class="field border round small">
+            <input id="test" type="text" {{'value=' + variant if variant else ''}} autofocus>
+            <button class="center" type="button" onclick="redirect()">Submit</button>
+          </div>
+        </div>
 
-        <article>
-          <details>
-            <summary class="none">
-              <div class="row">
-                <div class="max">
-                  <h3>Patient</h3>
-                </div>
-                <i>arrow_drop_down</i>
-              </div>
-            </summary>
-            <table class="stripes">
-              <thead>
-                <tr>
-                  <th>Annotation</th>
-                  <th>Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>ENST00000375549.8</td>
-                  <td><progress value="71" max="100"></progress></td>
-                </tr>
-                <tr>
-                  <td>CDS</td>
-                  <td><progress value="12" max="100"></progress></td>
-                </tr>
-                <tr>
-                  <td>Coding region</td>
-                  <td><progress value="21" max="100"></progress></td>
-                </tr>
-              </tbody>
-            </table>
-          </details>
-        </article>
-
-        <article>
-          <details>
-            <summary class="none">
-              <div class="row">
-                <div class="max">
-                  <h3>ENST00000375549.8:c.53_169del</h3>
-                </div>
-                <i>arrow_drop_down</i>
-              </div>
-            </summary>
-            <table>
-              <thead>
-                <tr>
-                  <th>Annotation</th>
-                  <th>Value</th>
-                  <th>Percentage</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>ENST00000375549.8</td>
-                  <td>241/326</td>
-                  <td><progress value="91" max="100"></progress></td>
-                </tr>
-                <tr>
-                  <td>CDS</td>
-                  <td>120/150</td>
-                  <td><progress value="87" max="100"></progress></td>
-                </tr>
-                <tr>
-                  <td>Coding region</td>
-                  <td>300/400</td>
-                  <td><progress value="75" max="100"></progress></td>
-                </tr>
-              </tbody>
-            </table>
-          </details>
-        </article>
-      </div>
+      {% if results is defined %}
+        <div id="analysis" class="page padding active">
+          <h2> Analysis results for {{ variant }}</h2>
+          {% for name in results %}
+            <article>
+              <details>
+                <summary class="none">
+                  <div class="row">
+                    <div class="max">
+                      <h3>{{ name }}</h3>
+                    </div>
+                    <i>arrow_drop_down</i>
+                  </div>
+                </summary>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Annotation</th>
+                      <th>Remaining</th>
+                      <th>Percentage</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for fieldname in results[name] %}
+                    {% set value = (results[name][fieldname] * 100) | round(precision=1) %}
+                    <tr>
+                      <td>{{ fieldname }}</td>
+                      <td>{{ value }}% </td>
+                      <td><progress value="{{value}}" max="100"></progress></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </details>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div id="analysis" class="page padding">
+          <h2> Analysis results for {{ variant }}</h2>
+          Please specify a variant to analyze.
+        </div>
+      {% endif %}
 
       <div id="external-resources" class="page padding">
         <h2>External resources</h2>
-        <div class="grid">
-
-          <div class="s12 m6 l3">
-            <a href="https://databases.lovd.nl/shared/genes/NPM1" target="_blank">
-              <article>
-                <h5>LOVD</h5>
-                <p>This is a description of the LOVD database</p>
-              </article>
-            </a>
+        {% if links is defined %}
+          <div class="grid">
+            {% for dbname, link in links.items() %}
+              <div class="s12 m6 l3">
+                <a href={{ link }} target="_blank">
+                  <article>
+                    <h5>{{ dbname | upper}}</h5>
+                    <p>This is a description of the {{ dbname }} database</p>
+                  </article>
+                </a>
+              </div>
+            {% endfor %}
           </div>
-
-          <div class="s12 m6 l3">
-            <a href="https://www.omim.org/entry/164040" target="_blank">
-              <article>
-                <h5>OMIM 1</h5>
-                <p>This is a description of the MOMIM database</p>
-              </article>
-            </a>
-          </div>
-
-          <div class="s12 m6 l3">
-            <a href="https://www.deciphergenomics.org/sequence-variant/5-171410539-C-CTCTG" target="_blank">
-              <article>
-                <h5>Decipher</h5>
-                <p>This is a description of the Decipher database</p>
-              </article>
-            </a>
-          </div>
-
-          <div class="s12 m6 l3">
-            <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term=NC_000005.10:g.171410540_171410543dup" target="_blank">
-              <article>
-                <h5>ClinVar</h5>
-                <p>This is a description of the ClinVar database</p>
-              </article>
-            </a>
-          </div>
-
-        </div>
+        {% else %}
+        Please specify a variant to discover links to external resources.
+        {% endif %}
       </div>
 
       <div id="export-report" class="page padding">

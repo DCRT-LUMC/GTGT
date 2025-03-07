@@ -7,13 +7,11 @@ app = Flask(__name__)
 provider = Provider()
 
 @app.route("/")
-def home():
-    return render_template("home.html")
-
 @app.route("/<variant>")
-def result(variant):
+def result(variant=None):
+    template_file="index.html.j2"
     if not variant:
-        return render_template("report.html")
+        return render_template(template_file)
 
     # Analyze the transcript
     transcript_id = variant.split(":")[0]
@@ -24,5 +22,4 @@ def result(variant):
     # Get external links
     links = lookup_variant(provider, variant).url_dict()
 
-    print(results)
-    return render_template("report.html", results=results, links=links, variant=variant)
+    return render_template(template_file, results=results, links=links, variant=variant)
