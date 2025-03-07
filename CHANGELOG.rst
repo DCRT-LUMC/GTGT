@@ -17,6 +17,8 @@ v0.1.0
 + Add FastAPI endpoint for comparing transcripts
 + Add FastAPI endpoint for skipping exons
 + Add Flask web app
++ Drop support for Python 3.8
++ Add support for python 3.13
 
 v0.0.2
 ------
