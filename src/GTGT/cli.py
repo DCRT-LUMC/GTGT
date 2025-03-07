@@ -62,7 +62,7 @@ def main() -> None:
         "--host", default="0.0.0.0", help="Hostname to listen on"
     )
     web_server_parser.add_argument(
-        "--debug", default=False, action='store_true', help="Run Flask in debug mode"
+        "--debug", default=False, action="store_true", help="Run Flask in debug mode"
     )
 
     mutator_parser = subparsers.add_parser(

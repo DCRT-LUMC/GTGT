@@ -6,10 +6,11 @@ from flask import Flask, render_template
 app = Flask(__name__)
 provider = Provider()
 
+
 @app.route("/")
 @app.route("/<variant>")
 def result(variant=None):
-    template_file="index.html.j2"
+    template_file = "index.html.j2"
     if not variant:
         return render_template(template_file)
 
