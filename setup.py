@@ -24,6 +24,7 @@ setup(
     license='AGPL-3.0',
     description='Genetic Therapy Generator Toolkit',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     author='Redmar van den Berg',
     author_email='RedmarvandenBerg@lumc.nl',
     url='https://github.com/DCRT-LUMC/GTGT',
