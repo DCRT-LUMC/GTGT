@@ -6,7 +6,7 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
-v0.0.3-dev
+v0.1.0
 ----------
 + Change the transcript endpoint to use POST and a TranscriptId model
 + Use genomic location for ClinVar link
@@ -16,6 +16,7 @@ v0.0.3-dev
 + Change the links endpoint to use POST and HGVS
 + Add FastAPI endpoint for comparing transcripts
 + Add FastAPI endpoint for skipping exons
++ Add Flask web app
 
 v0.0.2
 ------
