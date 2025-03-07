@@ -112,11 +112,11 @@ def main() -> None:
         print(json.dumps(results, indent=True))
     elif args.command == "webserver":
         try:
-            from .flask import app
+            from .flask import app as flask_app
         except ModuleNotFoundError:
             print("Missing modules, please install with 'pip install gtgt[webserver]'")
             exit(-1)
-        app.run(args.host, debug=args.debug)
+        flask_app.run(args.host, debug=args.debug)
     else:
         raise NotImplementedError()
 
