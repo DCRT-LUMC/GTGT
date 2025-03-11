@@ -57,8 +57,8 @@
         </nav>
       </header>
       <a data-ui="#home">
-        <i>home</i>
-        <div>Home</div>
+        <i>search</i>
+        <div>Search</div>
       </a>
       <a data-ui="#analysis">
         <i>genetics</i>
@@ -90,8 +90,8 @@
 
     <nav class="left m">
       <a data-ui="#home">
-        <i>home</i>
-        <div>Home</div>
+        <i>search</i>
+        <div>Search</div>
       </a>
       <a data-ui="#analysis">
         <i>genetics</i>
@@ -122,7 +122,7 @@
 
     <nav class="bottom s">
       <a data-ui="#home">
-        <i>home</i>
+        <i>search</i>
       </a>
       <a data-ui="#analysis">
         <i>genetics</i>
@@ -145,7 +145,7 @@
       {% else %}
         <div id="home" class="page padding active">
       {% endif %}
-          <h2>Home page</h2>
+          <h2>Specify variant</h2>
           <p>Welcome to the Genetic Therapy Generator Toolkit, please specify a variant below:</p>
           <div class="field border round small">
             <input id="test" type="text" {{'value=' + variant if variant else ''}} autofocus>
