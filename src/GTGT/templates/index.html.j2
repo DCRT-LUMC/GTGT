@@ -10,18 +10,18 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js"></script>
     <script type="text/javascript">
       function activate_info() {
-        // set all additional sections (help, github, disclaimer) to active
-        let sections = ['disclaimer', 'documentation', 'github'];
-        for (index in sections) {
-          let element = document.getElementById(sections[index]);
-          element.classList.add('active');
+        // set all pages to inactive
+        let pages = Array.from(document.getElementsByClassName('page'))
+        for (index in pages) {
+          let element = pages[index];
+          element.classList.remove('active');
         }
 
-        // set all other sections to inactive
-        sections = ['analysis', 'external-resources', 'export-report']
-        for (index in sections) {
-          let element = document.getElementById(sections[index]);
-          element.classList.remove('active');
+        // set all information pages (help, github, disclaimer) to active
+        let page_names = ['disclaimer', 'documentation', 'github'];
+        for (index in page_names) {
+          let element = document.getElementById(page_names[index]);
+          element.classList.add('active');
         }
 
         // unset the selected color from the nav menu
@@ -29,9 +29,6 @@
           for (index in nav_elements) {
             let element = nav_elements[index];
             element.classList.remove('active');
-            //if ("class" in element) {
-            //  element.classList.remove('active');
-            //}
           }
       }
     </script>
