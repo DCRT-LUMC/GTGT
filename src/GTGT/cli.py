@@ -52,14 +52,14 @@ def main() -> None:
         "api_server", help="Run the GTGT API server"
     )
     api_server_parser.add_argument(
-        "--host", default="0.0.0.0", help="Hostname to listen on"
+        "--host", default="localhost", help="Hostname to listen on"
     )
 
     web_server_parser = subparsers.add_parser(
         "webserver", help="Run the GTGT web server"
     )
     web_server_parser.add_argument(
-        "--host", default="0.0.0.0", help="Hostname to listen on"
+        "--host", default="localhost", help="Hostname to listen on"
     )
     web_server_parser.add_argument(
         "--debug", default=False, action="store_true", help="Run Flask in debug mode"
