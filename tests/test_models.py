@@ -157,6 +157,25 @@ def test_HGVS_model_add_deletion_invalid(deletion: str) -> None:
         variant.apply_deletion(HGVS(description=deletion))
 
 
+UNSUPPORTED_DELETION = [
+    # Partially overlaps
+    ("ENST:c.10_14del"),
+]
+
+
+@pytest.mark.parametrize("indel", UNSUPPORTED_DELETION)
+def test_HGVS_model_add_insertion_deletion_invalid(indel: str) -> None:
+    """
+    GIVEN a deletion to add to a HGVS variant which is an indel
+    WHEN the deletion is of an unsupported type
+    THEN we raise an error
+    """
+    variant = HGVS(description="ENST:c.10_15delinsATCG")
+
+    with pytest.raises(NotImplementedError):
+        variant.apply_deletion(HGVS(description=indel))
+
+
 POSITIONS = [
     # Variant, positions
     ("ENST:c.10", (10, 10)),
@@ -202,6 +221,33 @@ def test_HGVS_model_add_deletion(deletion: str, expected: str) -> None:
     variant = HGVS(description="ENST:c.10A>T")
     variant.apply_deletion(HGVS(description=deletion))
     assert variant.description == expected
+
+
+SMALLER_DELETION = [
+    # Overlap start
+    "10del",
+    # Overlap end
+    "20del",
+    # Start till middle
+    "10_15del",
+    # Middle to end
+    "15_20del",
+    # Full overlap
+    "10_20del",
+]
+
+
+@pytest.mark.parametrize("small_del", SMALLER_DELETION)
+def test_HGVS_model_add_smaller_deletion(small_del: str) -> None:
+    """
+    GIVEN a deletion to add to a HGVS variant, which is itself a bigger deletion
+    WHEN the deletion is applied to the variant
+    THEN the variant should remain unchanged
+    """
+    variant = HGVS(description="ENST:c.10_20del")
+    deletion = HGVS(description=f"ENST:c.{small_del}")
+    variant.apply_deletion(deletion)
+    assert variant.description == "ENST:c.10_20del"
 
 
 VALID_TRANSCRIPT_ID = [

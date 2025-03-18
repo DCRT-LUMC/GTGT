@@ -90,11 +90,15 @@ class HGVS(BaseModel):
 
         # other must be a deletion
         o_model = mutalyzer_hgvs_parser.to_model(other.description)
+        assert len(o_model["variants"]) == 1
+
         o_type = o_model["variants"][0]["type"]
-        if o_type not in ["deletion"]:
+        if o_type != "deletion":
             raise NotImplementedError
 
         s_model = mutalyzer_hgvs_parser.to_model(self.description)
+        assert len(s_model["variants"]) == 1
+        s_type = s_model["variants"][0]["type"]
 
         # self and other must refer to the same reference ID
         s_id = s_model["reference"]["id"]
@@ -110,6 +114,12 @@ class HGVS(BaseModel):
         s_var = self.description.split("c.")[1]
         o_var = other.description.split("c.")[1]
 
+        # If self is a deletion, and other is fully inside self, we don't have to add anything
+        if s_type == "deletion":
+            if o_start >= s_start and o_end <= s_end:
+                return
+
+        # If self is not a deletion:
         # self is before other
         if s_end < o_start:
             self.description = f"{s_id}:c.[{s_var};{o_var}]"
