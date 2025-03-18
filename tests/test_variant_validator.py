@@ -1,5 +1,11 @@
 import pytest
-from GTGT.variant_validator import Links, parse_payload, guess_refseq_ensembl
+from GTGT.variant_validator import (
+    Links,
+    Payload,
+    extract_variant,
+    parse_payload,
+    guess_refseq_ensembl,
+)
 
 
 @pytest.fixture
@@ -75,6 +81,30 @@ def test_parse_payload_warning() -> None:
         parse_payload(payload, variant="", assembly="HG38")
 
 
+def test_extract_variant_payload_variant_was_normalized() -> None:
+    """
+    GIVEN a payload from a non-normalized variant
+    WHEN we receive the reply for the normalized variant
+    THEN we should be able to parse the payload
+    """
+    payload = {"normalized_variant": {"submitted_variant": "not_normalized"}}
+
+    assert extract_variant(payload, "not_normalized") == {
+        "submitted_variant": "not_normalized"
+    }
+
+
+def test_extract_variant_missing_variant() -> None:
+    """
+    GIVEN a payload from VariantValidator which lacks the input variant
+    WHEN we attempt to extract the input variant
+    THEN we should get a ValueError
+    """
+    payload: Payload = dict()
+    with pytest.raises(ValueError, match="100A>T"):
+        extract_variant(payload, "100A>T")
+
+
 def test_parse_valid_payload() -> None:
     """
     GIVEN a valid payload from variant_validator
@@ -84,6 +114,7 @@ def test_parse_valid_payload() -> None:
     payload = {
         "flag": "gene_variant",
         "100A>T": {
+            "submitted_variant": "100A>T",
             "gene_ids": {
                 "omim_id": [
                     164040,

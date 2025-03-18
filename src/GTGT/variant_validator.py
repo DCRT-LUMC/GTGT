@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Union, cast
 from .provider import Provider
 from pydantic import BaseModel
 
-payload = Dict[str, Any]
+Payload = Dict[str, Any]
 
 
 class Links(BaseModel):
@@ -99,7 +99,22 @@ def lookup_uniprot(provider: Provider, ensembl_gene_id: str) -> str:
     return uniprot_id
 
 
-def parse_payload(payload: payload, variant: str, assembly: str) -> payload:
+def extract_variant(payload: Payload, variant: str) -> Payload:
+    """Extract the variant section from the payload"""
+    for value in payload.values():
+        # Skip flag field
+        if not isinstance(value, dict):
+            continue
+        submitted_variant = value.get("submitted_variant")
+        if submitted_variant == variant:
+            var_payload: Payload = value
+            return var_payload
+    else:
+        msg = f"Unable to parse VariantValidator output, '{variant}' not found."
+        raise ValueError(msg)
+
+
+def parse_payload(payload: Payload, variant: str, assembly: str) -> Payload:
     # Check the flag to see if the reply is valid
     flag = payload["flag"]
     if flag == "warning":
@@ -110,7 +125,7 @@ def parse_payload(payload: payload, variant: str, assembly: str) -> payload:
         msg = f"Unknown VariantValidator flag: {flag}"
         raise NotImplementedError(msg)
 
-    var = payload[variant]
+    var = extract_variant(payload, variant)
     d = {
         "omim_ids": var["gene_ids"]["omim_id"],
         "gene_symbol": var["gene_symbol"],
