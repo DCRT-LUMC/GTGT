@@ -88,10 +88,10 @@ class HGVS(BaseModel):
         self._validate_for_apply_deletion(other)
         self._validate_for_apply_deletion(self)
 
-        # other must be a deletion or an insertion_deletion
+        # other must be a deletion
         o_model = mutalyzer_hgvs_parser.to_model(other.description)
         o_type = o_model["variants"][0]["type"]
-        if o_type not in ["deletion", "insertion_deletion"]:
+        if o_type not in ["deletion"]:
             raise NotImplementedError
 
         s_model = mutalyzer_hgvs_parser.to_model(self.description)
@@ -122,7 +122,8 @@ class HGVS(BaseModel):
             self.description = other.description
         # partial overlaps are not supported
         else:
-            raise NotImplementedError
+            msg = f"Unable to apply deletion {other} to {self}"
+            raise NotImplementedError(msg)
 
 
 def HGVS_to_genome_range(hgvs: HGVS) -> Tuple[int, int]:
