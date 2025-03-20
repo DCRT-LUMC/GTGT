@@ -332,6 +332,9 @@ APPEND_TO_EXISTING = [
     ("10_15inv", "16A>T", "MAVPEWLSAV"),
     # Existing variant is an delins
     ("10_12delinsGG", "15dup", "MAVGGRLSAV"),
+    # 8del gets normalized to 9del
+    ("8del", "9del", "MAALEAECRL"),
+    ("9del", "8del", "MAALEAECRL"),
 ]
 
 
@@ -356,7 +359,7 @@ def test_append_mutation_to_existing_variant(
 APPEND_OVERLAPPING_VARIANT = [
     # Transcript variant, new variant
     # Add another variant at the same location
-    # ("10A>T", "10A>G"),
+    ("10C>T", "10del"),
 ]
 
 

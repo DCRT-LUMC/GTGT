@@ -3,6 +3,7 @@ from mutalyzer.description import Description, to_rna_reference_model, model_to_
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
 from mutalyzer.converter.to_internal_indexing import to_internal_indexing
+from mutalyzer.checker import is_overlap
 import mutalyzer_hgvs_parser
 
 from pydantic import BaseModel, model_validator
@@ -249,6 +250,10 @@ def append_mutation(description: Description, mutation: str) -> None:
     model["variants"] += [c_variant]
     model = to_internal_coordinates(model, description.references)
     model = to_internal_indexing(model)
+
+    if is_overlap(model["variants"]):
+        msg=f"Variant {mutation} overlaps {description.input_description}"
+        raise ValueError(msg)
 
     # Replace the variant in the description
     description.de_hgvs_internal_indexing_model["variants"] = model["variants"]
