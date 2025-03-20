@@ -321,6 +321,45 @@ def test_append_mutation(mutation: str, protein: str) -> None:
 
     assert d.output()["protein"]["predicted"] == protein
 
+APPEND_TO_EXISTING = [
+    # Add an insertion after the deletion to restore the reading frame
+    ("11_12insA", "MAVYWRLSAV"),
+    # Add an insertion before the deletion, e.g. the variants are out of order after appending
+    ("4dup", "MGGFWRLSAV"),
+]
+@pytest.mark.parametrize("mutation, protein", APPEND_TO_EXISTING)
+def test_append_mutation_to_existing_variant(mutation: str, protein: str) -> None:
+    """
+    GIVEN a string denoting a HGVS variant
+    WHEN we append this variant to an existing Description
+    THEN the Description should be updated
+    """
+    transcript = "ENST00000375549.8:c.10del"
+    d = Description(f"{transcript}")
+    _init_model(d)
+
+    append_mutation(d, mutation)
+
+    # Test the first 10 aa of the protein
+    assert d.output()["protein"]["predicted"][:10] == protein
+
+APPEND_OVERLAPPING_VARIANT= [
+    # Add another variant at the same location 
+    # ("10A>T", "10A>G"),
+]
+@pytest.mark.parametrize("transcript, variant", APPEND_OVERLAPPING_VARIANT)
+def test_appending_overlapping_variants(transcript: str, variant: str) -> None:
+    """
+    GIVEN a transcript with variant(s)
+    WHEN we attempt to add an overlapping variant
+    THEN we should throw a ValueError
+    """
+    ts = f"ENST00000375549.8:c.{transcript}"
+    d = Description(ts)
+    _init_model(d)
+
+    with pytest.raises(ValueError):
+        append_mutation(d, variant)
 
 PARSE_VARIANT = [
     (
