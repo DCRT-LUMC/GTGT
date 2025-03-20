@@ -245,16 +245,15 @@ def append_mutation(description: Description, mutation: str) -> None:
 
     # Convert the c. variant to i.
     model = deepcopy(description.corrected_model)
+    # Add the c_variant to the variant(s) which are already there
     model["variants"] += [c_variant]
     model = to_internal_coordinates(model, description.references)
     model = to_internal_indexing(model)
 
-    # Add the i. variants to the description
-    description.de_hgvs_internal_indexing_model["variants"] += model["variants"]
+    # Replace the variant in the description
+    description.de_hgvs_internal_indexing_model["variants"] = model["variants"]
 
     # Update the internal description models
     description.construct_de_hgvs_coordinates_model()
     description.construct_normalized_description()
     description.construct_protein_description()
-
-    print(description.de_hgvs_internal_indexing_model["variants"])

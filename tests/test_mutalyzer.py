@@ -272,9 +272,6 @@ def test_analyze_transcript(WT: Transcript) -> None:
 
     results = WT.analyze(variant)
 
-    print()
-    print(json.dumps(results, indent=True))
-
     assert results["wildtype"]["cds"] == 1.0
 
 
@@ -321,45 +318,62 @@ def test_append_mutation(mutation: str, protein: str) -> None:
 
     assert d.output()["protein"]["predicted"] == protein
 
+
 APPEND_TO_EXISTING = [
     # Add an insertion after the deletion to restore the reading frame
-    ("11_12insA", "MAVYWRLSAV"),
+    ("10del", "11_12insA", "MAVYWRLSAV"),
     # Add an insertion before the deletion, e.g. the variants are out of order after appending
-    ("4dup", "MGGFWRLSAV"),
+    ("10del", "4dup", "MGGFWRLSAV"),
+    # Existing variant is a snp, not deletion
+    ("10C>T", "11dup", "MAVFLEAECR"),
+    # Existing variant is a dup
+    ("10dup", "15del", "MAVPLRLSAV"),
+    # Existing variant is an inversion
+    ("10_15inv", "16A>T", "MAVPEWLSAV"),
+    # Existing variant is an delins
+    ("10_12delinsGG", "15dup", "MAVGGRLSAV"),
 ]
-@pytest.mark.parametrize("mutation, protein", APPEND_TO_EXISTING)
-def test_append_mutation_to_existing_variant(mutation: str, protein: str) -> None:
+
+
+@pytest.mark.parametrize("existing, novel, protein", APPEND_TO_EXISTING)
+def test_append_mutation_to_existing_variant(
+    existing: str, novel: str, protein: str
+) -> None:
     """
     GIVEN a string denoting a HGVS variant
     WHEN we append this variant to an existing Description
     THEN the Description should be updated
     """
-    transcript = "ENST00000375549.8:c.10del"
-    d = Description(f"{transcript}")
+    transcript = f"ENST00000375549.8:c.{existing}"
+    d = Description(transcript)
     _init_model(d)
+    append_mutation(d, novel)
 
-    append_mutation(d, mutation)
-
-    # Test the first 10 aa of the protein
+    # Test the first 10 aa of the protein as readout
     assert d.output()["protein"]["predicted"][:10] == protein
 
-APPEND_OVERLAPPING_VARIANT= [
-    # Add another variant at the same location 
+
+APPEND_OVERLAPPING_VARIANT = [
+    # Transcript variant, new variant
+    # Add another variant at the same location
     # ("10A>T", "10A>G"),
 ]
-@pytest.mark.parametrize("transcript, variant", APPEND_OVERLAPPING_VARIANT)
-def test_appending_overlapping_variants(transcript: str, variant: str) -> None:
+
+
+@pytest.mark.parametrize("existing, novel", APPEND_OVERLAPPING_VARIANT)
+def test_appending_overlapping_variants(existing: str, novel: str) -> None:
     """
-    GIVEN a transcript with variant(s)
-    WHEN we attempt to add an overlapping variant
+    GIVEN a transcript with existing variant(s)
+    WHEN we attempt to add novel variant which overlaps the existing variants
     THEN we should throw a ValueError
     """
-    ts = f"ENST00000375549.8:c.{transcript}"
-    d = Description(ts)
+    transcript = f"ENST00000375549.8:c.{existing}"
+    d = Description(transcript)
     _init_model(d)
 
     with pytest.raises(ValueError):
-        append_mutation(d, variant)
+        append_mutation(d, novel)
+
 
 PARSE_VARIANT = [
     (
