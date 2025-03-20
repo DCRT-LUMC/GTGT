@@ -256,7 +256,7 @@ def append_mutation(description: Description, mutation: str) -> None:
     model = to_internal_indexing(model)
 
     if is_overlap(model["variants"]):
-        msg=f"Variant {mutation} overlaps {description.input_description}"
+        msg = f"Variant {mutation} overlaps {description.input_description}"
         raise ValueError(msg)
 
     # Replace the variant in the description

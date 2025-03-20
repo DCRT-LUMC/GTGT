@@ -361,7 +361,13 @@ APPEND_OVERLAPPING_VARIANT = [
     # Add another variant at the same location
     ("10C>T", "10del"),
     # Both variants we want to add overlap
-    # ("=", "[10del;10C>T]"),
+    ("=", "[10del;10C>T]"),
+    # Both variants already in the description overlap
+    ("[10del;10C>T]", "15del"),
+    # Overlap with an inversion
+    ("10_15inv", "12C>T"),
+    ("10_15inv", "12G>T"),
+    ("10_15inv", "10C>T"),
 ]
 
 
