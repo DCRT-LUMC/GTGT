@@ -229,12 +229,16 @@ def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
     return HGVS_to_genome_range(HGVS(description=cdot))
 
 
-def variant_to_model(variant: str) -> VariantModel:
+def variant_to_model(variant: str) -> List[VariantModel]:
     """
     Parse the specified variant into a variant model
     """
-    result: VariantModel = mutalyzer_hgvs_parser.to_model(variant, "variant")
-    return result
+    results: List[VariantModel]
+    if "[" in variant:
+        results = mutalyzer_hgvs_parser.to_model(variant, "variants")
+    else:
+        results = [mutalyzer_hgvs_parser.to_model(variant, "variant")]
+    return results
 
 
 def append_mutation(description: Description, mutation: str) -> None:
@@ -242,12 +246,12 @@ def append_mutation(description: Description, mutation: str) -> None:
     Add mutation to the Description, re-using the Description object
     """
     # Get the variant model in c.
-    c_variant = variant_to_model(mutation)
+    c_variants = variant_to_model(mutation)
 
     # Convert the c. variant to i.
     model = deepcopy(description.corrected_model)
     # Add the c_variant to the variant(s) which are already there
-    model["variants"] += [c_variant]
+    model["variants"] += c_variants
     model = to_internal_coordinates(model, description.references)
     model = to_internal_indexing(model)
 

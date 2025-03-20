@@ -15,7 +15,7 @@ import json
 import copy
 
 from itertools import zip_longest
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 
 def retrieve_raw(
@@ -360,6 +360,8 @@ APPEND_OVERLAPPING_VARIANT = [
     # Transcript variant, new variant
     # Add another variant at the same location
     ("10C>T", "10del"),
+    # Both variants we want to add overlap
+    # ("=", "[10del;10C>T]"),
 ]
 
 
@@ -381,20 +383,37 @@ def test_appending_overlapping_variants(existing: str, novel: str) -> None:
 PARSE_VARIANT = [
     (
         "10del",
-        {
-            "location": {"type": "point", "position": 10},
-            "type": "deletion",
-            "source": "reference",
-        },
+        [
+            {
+                "location": {"type": "point", "position": 10},
+                "type": "deletion",
+                "source": "reference",
+            }
+        ],
+    ),
+    (
+        "[10del; 16dup]",
+        [
+            {
+                "location": {"type": "point", "position": 10},
+                "type": "deletion",
+                "source": "reference",
+            },
+            {
+                "location": {"type": "point", "position": 16},
+                "type": "duplication",
+                "source": "reference",
+            },
+        ],
     ),
 ]
 
 
-@pytest.mark.parametrize("variant, variant_model", PARSE_VARIANT)
-def test_variant_to_model(variant: str, variant_model: VariantModel) -> None:
+@pytest.mark.parametrize("variant, variant_models", PARSE_VARIANT)
+def test_variant_to_model(variant: str, variant_models: List[VariantModel]) -> None:
     """
     GIVEN a string denoting a HGVS variant
     WHEN we parse this into a VariantModel
     THEN it should contain the expected values
     """
-    assert variant_to_model(variant) == variant_model
+    assert variant_to_model(variant) == variant_models
