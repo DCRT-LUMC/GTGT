@@ -1,6 +1,14 @@
 import pytest
 from pathlib import Path
-from GTGT.mutalyzer import HGVS_to_genome_range, exonskip, mutation_to_cds_effect, HGVS
+from GTGT.mutalyzer import (
+    HGVS_to_genome_range,
+    append_mutation,
+    exonskip,
+    mutation_to_cds_effect,
+    _init_model,
+)
+from GTGT.mutalyzer import HGVS, VariantModel, variant_to_model
+from mutalyzer.description import Description
 from GTGT.transcript import Transcript
 from GTGT.models import TranscriptModel
 import json
@@ -290,3 +298,47 @@ def test_mutate_transcript_with_variant(
 
     cmp = modified.compare(WT)
     assert cmp["cds"] == pytest.approx(effect, abs=0.0001)
+
+
+APPEND_VARIANT = [
+    # mutation, predicted protein description as readout
+    ("10del", "MAVSGG*")
+]
+
+
+@pytest.mark.parametrize("mutation, protein", APPEND_VARIANT)
+def test_append_mutation(mutation: str, protein: str) -> None:
+    """
+    GIVEN a string denoting a HGVS variant
+    WHEN we append this variant to an existing Description
+    THEN the Description should be updated
+    """
+    transcript = "ENST00000375549.8:c.="
+    d = Description(f"{transcript}")
+    _init_model(d)
+
+    append_mutation(d, mutation)
+
+    assert d.output()["protein"]["predicted"] == protein
+
+
+PARSE_VARIANT = [
+    (
+        "10del",
+        {
+            "location": {"type": "point", "position": 10},
+            "type": "deletion",
+            "source": "reference",
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("variant, variant_model", PARSE_VARIANT)
+def test_variant_to_model(variant: str, variant_model: VariantModel) -> None:
+    """
+    GIVEN a string denoting a HGVS variant
+    WHEN we parse this into a VariantModel
+    THEN it should contain the expected values
+    """
+    assert variant_to_model(variant) == variant_model

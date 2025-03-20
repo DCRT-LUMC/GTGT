@@ -1,10 +1,15 @@
+from copy import deepcopy
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
+from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
+from mutalyzer.converter.to_internal_indexing import to_internal_indexing
 import mutalyzer_hgvs_parser
 
 from pydantic import BaseModel, model_validator
 
-from typing import Tuple, List
+from typing import Any, Tuple, List, Dict
+
+VariantModel = Dict[str, Any]
 
 
 class HGVS(BaseModel):
@@ -188,7 +193,6 @@ def _init_model(d: Description) -> None:
     d.construct_de_hgvs_internal_indexing_model()
     d.construct_de_hgvs_coordinates_model()
     d.construct_normalized_description()
-    d.construct_rna_description()
     d.construct_protein_description()
 
 
@@ -222,3 +226,33 @@ def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
     cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
 
     return HGVS_to_genome_range(HGVS(description=cdot))
+
+
+def variant_to_model(variant: str) -> VariantModel:
+    """
+    Parse the specified variant into a variant model
+    """
+    result: VariantModel = mutalyzer_hgvs_parser.to_model(variant, "variant")
+    return result
+
+
+def append_mutation(description: Description, mutation: str) -> None:
+    """
+    Add mutation to the Description, re-using the Description object
+    """
+    # Get the variant model in c.
+    c_variant = variant_to_model(mutation)
+
+    # Convert the c. variant to i.
+    model = deepcopy(description.corrected_model)
+    model["variants"] = [c_variant]
+    model = to_internal_coordinates(model, description.references)
+    model = to_internal_indexing(model)
+
+    # Add the i. variants to the description
+    description.de_hgvs_internal_indexing_model["variants"] += model["variants"]
+
+    # Update the internal description models
+    description.construct_de_hgvs_coordinates_model()
+    description.construct_normalized_description()
+    description.construct_protein_description()
