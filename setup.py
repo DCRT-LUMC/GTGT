@@ -72,7 +72,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'gtgt=GTGT.cli:main',
+            'gtgt=gtgt.cli:main',
         ]
     },
 )
