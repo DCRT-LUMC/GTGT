@@ -5,8 +5,6 @@ from __future__ import print_function
 
 from glob import glob
 from os.path import basename
-from os.path import dirname
-from os.path import join
 from os.path import splitext
 from pathlib import Path
 
@@ -19,7 +17,7 @@ long_description = (this_directory / "README.md").read_text()
 
 
 setup(
-    name='GTGT',
+    name='gtgt',
     version='0.1.1',
     license='AGPL-3.0',
     description='Genetic Therapy Generator Toolkit',
