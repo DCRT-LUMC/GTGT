@@ -63,7 +63,7 @@ setup(
     install_requires=[
         "pydantic",
         "setuptools",
-        "mutalyzer @ git+https://github.com/mutalyzer/mutalyzer.git",
+        "mutalyzer>=3.1.1",
     ],
     extras_require={
         "api_server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"],
