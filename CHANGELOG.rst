@@ -6,6 +6,13 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+v0.1.1
+----------
++ Add support for re-using mutalyzer Descriptions
++ Add support for small deletions
++ Fix a bug parsing VariantValidator payload
++ Add web interface using Flask
+
 v0.1.0
 ----------
 + Change the transcript endpoint to use POST and a TranscriptId model
