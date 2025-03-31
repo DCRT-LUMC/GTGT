@@ -6,6 +6,10 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+v0.2.0
+------
++ Rename python package from GTGT to gtgt
+
 v0.1.1
 ----------
 + Add support for re-using mutalyzer Descriptions
