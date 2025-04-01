@@ -1,4 +1,4 @@
-from GTGT.transcript import TranscriptComparison
+from .transcript import TranscriptComparison
 import uvicorn as uvicorn
 from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import RedirectResponse

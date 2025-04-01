@@ -4,7 +4,7 @@ API
 .. autosummary::
    :toctree: generated
 
-   GTGT.Bed
-   GTGT.Transcript
-   GTGT.transcript
-   GTGT.range
+   gtgt.Bed
+   gtgt.Transcript
+   gtgt.transcript
+   gtgt.range

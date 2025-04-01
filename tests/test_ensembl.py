@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict, Any
-from GTGT.models import EnsemblTranscript, Assembly
-from GTGT.ensembl import (
+from gtgt.models import EnsemblTranscript, Assembly
+from gtgt.ensembl import (
     _check_transcript,
     payload_to_ensemble_transcript,
     lookup_transcript,

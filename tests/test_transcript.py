@@ -3,10 +3,10 @@ import json
 from pydantic.tools import parse_obj_as
 import copy
 
-from GTGT import Bed
-from GTGT.transcript import Transcript
-from GTGT.bed import make_bed
-from GTGT.models import TranscriptModel
+from gtgt import Bed
+from gtgt.transcript import Transcript
+from gtgt.bed import make_bed
+from gtgt.models import TranscriptModel
 
 
 @pytest.fixture

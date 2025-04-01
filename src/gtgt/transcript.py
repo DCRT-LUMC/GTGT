@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from GTGT.mutalyzer import mutation_to_cds_effect, HGVS, exonskip
+from .mutalyzer import mutation_to_cds_effect, HGVS, exonskip
 
 from .bed import Bed
 

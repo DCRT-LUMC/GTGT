@@ -1,7 +1,7 @@
 import pytest
 from typing import List
 
-from GTGT.range import Range, intersect, overlap, subtract, _to_range
+from gtgt.range import Range, intersect, overlap, subtract, _to_range
 
 # fmt: off
 range_overlap = [

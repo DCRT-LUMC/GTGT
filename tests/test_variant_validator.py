@@ -1,5 +1,5 @@
 import pytest
-from GTGT.variant_validator import (
+from gtgt.variant_validator import (
     Links,
     Payload,
     extract_variant,

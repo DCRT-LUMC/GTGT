@@ -1,1 +1,1 @@
-recursive-include src/GTGT/templates *
+recursive-include src/gtgt/templates *

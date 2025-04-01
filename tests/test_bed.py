@@ -2,11 +2,11 @@ import pytest
 
 from typing import Any, Dict, List, Tuple
 
-from GTGT import Bed
-from GTGT.bed import _range_to_size_start, make_bed
+from gtgt import Bed
+from gtgt.bed import _range_to_size_start, make_bed
 
 # This is just a type alias
-from GTGT.range import Range
+from gtgt.range import Range
 
 
 @pytest.fixture

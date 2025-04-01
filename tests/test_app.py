@@ -1,9 +1,9 @@
-from GTGT.models import BedModel, TranscriptModel
+from gtgt.models import BedModel, TranscriptModel
 import pytest
-from GTGT import Bed
-from GTGT.bed import make_bed
-from GTGT.transcript import Transcript
-from GTGT.app import app
+from gtgt import Bed
+from gtgt.bed import make_bed
+from gtgt.transcript import Transcript
+from gtgt.app import app
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient

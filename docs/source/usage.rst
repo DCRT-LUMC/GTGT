@@ -6,17 +6,17 @@ Usage
 Installation
 ------------
 
-GTGT can be installed using pip:
+gtgt can be installed using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install GTGT
+   (.venv) $ pip install gtgt
 
 To install the requirements for `gtgt server`, you can install from pip using:
 
 .. code-block:: console
 
-   (.venv) $ pip install GTGT[server]
+   (.venv) $ pip install gtgt[server]
 
 Transcript
 ----------
@@ -37,6 +37,6 @@ You can fetch links to external resources for a specified variant using the comm
 
 Python functions
 ----------------
-To work with Bed files, GTGT comes with a Bed class that will expand to BED12.
+To work with Bed files, gtgt comes with a Bed class that will expand to BED12.
 
-See :py:func:`GTGT.Bed`.
+See :py:func:`gtgt.Bed`.

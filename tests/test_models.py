@@ -1,7 +1,7 @@
-from GTGT.models import BedModel, TranscriptId, TranscriptModel, TranscriptModel
-from GTGT.mutalyzer import HGVS
-from GTGT.bed import Bed
-from GTGT.transcript import Transcript
+from gtgt.models import BedModel, TranscriptId, TranscriptModel, TranscriptModel
+from gtgt.mutalyzer import HGVS
+from gtgt.bed import Bed
+from gtgt.transcript import Transcript
 import pytest
 from typing import Dict, Union, Tuple
 from pydantic import ValidationError

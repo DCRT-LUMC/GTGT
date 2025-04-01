@@ -1,4 +1,4 @@
-from GTGT.variant_validator import lookup_variant
+from .variant_validator import lookup_variant
 from .provider import Provider
 from .wrappers import lookup_transcript
 from flask import Flask, render_template

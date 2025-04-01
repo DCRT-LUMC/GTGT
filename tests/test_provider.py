@@ -1,5 +1,5 @@
 import pytest
-from GTGT.provider import Provider
+from gtgt.provider import Provider
 
 
 def test_default_provider() -> None:

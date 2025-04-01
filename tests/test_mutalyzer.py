@@ -1,16 +1,16 @@
 import pytest
 from pathlib import Path
-from GTGT.mutalyzer import (
+from gtgt.mutalyzer import (
     HGVS_to_genome_range,
     append_mutation,
     exonskip,
     mutation_to_cds_effect,
     _init_model,
 )
-from GTGT.mutalyzer import HGVS, VariantModel, variant_to_model
+from gtgt.mutalyzer import HGVS, VariantModel, variant_to_model
 from mutalyzer.description import Description
-from GTGT.transcript import Transcript
-from GTGT.models import TranscriptModel
+from gtgt.transcript import Transcript
+from gtgt.models import TranscriptModel
 import json
 import copy
 
