@@ -1,9 +1,16 @@
 from .variant_validator import lookup_variant
 from .provider import Provider
 from .wrappers import lookup_transcript
-from flask import Flask, render_template
 
+from flask import Flask, flash, render_template
 from typing import Optional
+
+import mutalyzer_hgvs_parser
+
+hgvs_error = (
+    mutalyzer_hgvs_parser.exceptions.UnexpectedCharacter,
+    mutalyzer_hgvs_parser.exceptions.UnexpectedEnd,
+)
 
 app = Flask(__name__)
 provider = Provider()
@@ -13,7 +20,18 @@ provider = Provider()
 @app.route("/<variant>")
 def result(variant: Optional[str] = None) -> str:
     template_file = "index.html.j2"
+
+    # If no variant was specified
     if not variant:
+        return render_template(template_file)
+
+    # Test if the variant is valid HGVS
+    try:
+        mutalyzer_hgvs_parser.to_model(variant)
+    except hgvs_error as e:
+        flash(str(e))
+        print("ERROR IS")
+        print(e)
         return render_template(template_file)
 
     # Analyze the transcript

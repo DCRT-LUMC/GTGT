@@ -9,6 +9,7 @@ from .provider import Provider
 from .mutalyzer import exonskip
 from .mutalyzer import HGVS
 
+import secrets
 import argparse
 import json
 import logging
@@ -113,9 +114,12 @@ def main() -> None:
     elif args.command == "webserver":
         try:
             from .flask import app as flask_app
-        except ModuleNotFoundError:
-            print("Missing modules, please install with 'pip install gtgt[webserver]'")
+        except ModuleNotFoundError as e:
+            print(f"Missing modules ({e})")
+            print("Did you isntall requirements with 'pip install gtgt[webserver]'?")
             exit(-1)
+        if not flask_app.config.get("SECRET_KEY"):
+            flask_app.secret_key = secrets.token_hex()
         flask_app.run(args.host, debug=args.debug)
     else:
         raise NotImplementedError()
