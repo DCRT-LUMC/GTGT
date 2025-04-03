@@ -94,7 +94,10 @@ def test_genomic_to_c_dot_SDHD(cdot: str, genomic: Tuple[int, int]) -> None:
     # Build the HGVS description
     description = f"{ENST}:c.{cdot}"
 
-    start, end = HGVS_to_genome_range(HGVS(description=description))
+    d = Description(description)
+    _init_model(d)
+
+    start, end = HGVS_to_genome_range(d)
 
     # Genomic offset of SDHD, just used for testing so the genomic positions
     # are manageable
@@ -147,7 +150,10 @@ def test_genomic_to_c_dot_WT1(cdot: str, genomic: Tuple[int, int]) -> None:
     # Build the HGVS description
     description = f"{ENST}:c.{cdot}"
 
-    start, end = HGVS_to_genome_range(HGVS(description=description))
+    d = Description(description)
+    _init_model(d)
+
+    start, end = HGVS_to_genome_range(d)
 
     # Genomic offset of WT1, just used for testing so the genomic positions are
     # manageable
@@ -176,7 +182,9 @@ SUPPORTED_DESCRIPTIONS = [
 
 @pytest.mark.parametrize("description", SUPPORTED_DESCRIPTIONS)
 def test_supported_descriptions(description: str) -> None:
-    HGVS_to_genome_range(HGVS(description=description))
+    d = Description(description)
+    _init_model(d)
+    HGVS_to_genome_range(d)
 
 
 UNSUPPORTED_DESCRIPTIONS = [
@@ -192,21 +200,25 @@ UNSUPPORTED_DESCRIPTIONS = [
 @pytest.mark.parametrize("description", UNSUPPORTED_DESCRIPTIONS)
 def test_unsupported_descriptions(description: str) -> None:
     with pytest.raises(ValueError):
-        HGVS_to_genome_range(HGVS(description=description))
+        d = Description(description)
+        _init_model(d)
+        HGVS_to_genome_range(d)
 
 
 def test_exonskip_SDHD() -> None:
-    SDHD = HGVS(description="ENST00000375549.8:c.=")
+    d = Description("ENST00000375549.8:c.=")
+    _init_model(d)
     results = [
         "ENST00000375549.8:c.53_169del",
         "ENST00000375549.8:c.170_314del",
     ]
-    for output, expected in zip_longest(exonskip(SDHD), results):
+    for output, expected in zip_longest(exonskip(d), results):
         assert output == HGVS(description=expected)
 
 
 def test_exonskip_WT1() -> None:
-    WT1 = HGVS(description="ENST00000452863.10:c.=")
+    d = Description("ENST00000452863.10:c.=")
+    _init_model(d)
     results = [
         "ENST00000452863.10:c.662_784del",
         "ENST00000452863.10:c.785_887del",
@@ -217,7 +229,7 @@ def test_exonskip_WT1() -> None:
         "ENST00000452863.10:c.1265_1354del",
         "ENST00000452863.10:c.1355_1447del",
     ]
-    for output, expected in zip_longest(exonskip(WT1), results):
+    for output, expected in zip_longest(exonskip(d), results):
         assert output == HGVS(description=expected)
 
 
@@ -245,9 +257,10 @@ def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> 
     WHEN we determine the CDS effect
     THEN we should get genome coordinates
     """
-    WT1 = HGVS(description=description)
+    d = Description(description)
+    _init_model(d)
 
-    assert mutation_to_cds_effect(WT1) == expected
+    assert mutation_to_cds_effect(d) == expected
 
 
 @pytest.fixture
@@ -266,7 +279,7 @@ def WT() -> Transcript:
 
 def test_analyze_transcript(WT: Transcript) -> None:
     # In frame deletion that creates a STOP codon
-    variant = "ENST00000452863.10:c.87_89del"
+    # variant = "ENST00000452863.10:c.87_89del"
     # Frameshift in small in-frame exon 5
     variant = "ENST00000452863.10:c.970del"
 
@@ -290,8 +303,12 @@ VARIANTS = [
 def test_mutate_transcript_with_variant(
     variant: str, effect: float, WT: Transcript
 ) -> None:
+
+    d = Description(variant)
+    _init_model(d)
+
     modified = copy.deepcopy(WT)
-    modified.mutate(variant)
+    modified.mutate(d)
 
     cmp = modified.compare(WT)
     assert cmp["cds"] == pytest.approx(effect, abs=0.0001)

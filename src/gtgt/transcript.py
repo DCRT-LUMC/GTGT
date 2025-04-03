@@ -1,6 +1,7 @@
 from copy import deepcopy
 
-from .mutalyzer import mutation_to_cds_effect, HGVS, exonskip
+from .mutalyzer import mutation_to_cds_effect, HGVS, exonskip, _init_model
+from mutalyzer.description import Description
 
 from .bed import Bed
 
@@ -69,11 +70,10 @@ class Transcript:
 
         return sum(cmp.values()) / len(cmp)
 
-    def mutate(self, hgvs: str) -> None:
+    def mutate(self, d: Description) -> None:
         """Mutate the transcript based on the specified hgvs description"""
         # Determine the CDS interval that is affected by the hgvs description
-        H = HGVS(description=hgvs)
-        chromStart, chromEnd = mutation_to_cds_effect(H)
+        chromStart, chromEnd = mutation_to_cds_effect(d)
         # Subtract that region from the annotations
         self.subtract(
             Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd)
@@ -88,21 +88,31 @@ class Transcript:
         results = dict()
         results["wildtype"] = self.compare(self)
 
+        # Initialize the Description
+        d = Description(hgvs)
+        _init_model(d)
         # Determine the score of the patient
         patient = deepcopy(self)
-        patient.mutate(hgvs)
+        patient.mutate(d)
         results["patient"] = patient.compare(self)
 
         # Determine the score of each exon skip
-        for skip in exonskip(HGVS(description=hgvs)):
+        for skip in exonskip(d):
             # Add deletion to the patient mutation
-            desc = HGVS(description=hgvs)
+            desc = HGVS(description=d.input_description)
             desc.apply_deletion(skip)
+
+            # Create HGVS Description
+            print()
+            print(f"{desc.description=}")
+            d_skip = Description(desc.description)
+            _init_model(d_skip)
 
             # Apply the combination to the wildtype transcript
             therapy = deepcopy(self)
+
             try:
-                therapy.mutate(desc.description)
+                therapy.mutate(d_skip)
             # Splice site error from mutalyzer, no protein prediction
             except KeyError:
                 continue

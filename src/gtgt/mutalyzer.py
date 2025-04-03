@@ -142,13 +142,12 @@ class HGVS(BaseModel):
             raise NotImplementedError(msg)
 
 
-def HGVS_to_genome_range(hgvs: HGVS) -> Tuple[int, int]:
+def HGVS_to_genome_range(d: Description) -> Tuple[int, int]:
     """Convert HGVS variant description to affected genome range
 
     NOTE that the genome range is similar to the UCSC annotations on the genome,
     i.e. 0 based, half open. Not to be confused with hgvs g. positions
     """
-    d = Description(description=hgvs.description)
     d.normalize()
     model = d.ensembl_model_with_no_offset()
 
@@ -164,9 +163,8 @@ def HGVS_to_genome_range(hgvs: HGVS) -> Tuple[int, int]:
     return (start, end)
 
 
-def exonskip(hgvs: HGVS) -> List[HGVS]:
+def exonskip(d: Description) -> List[HGVS]:
     """Generate all possible exon skips for the specified HGVS description"""
-    d = Description(description=hgvs.description)
     d.to_delins()
 
     # Extract relevant information from the normalized description
@@ -197,7 +195,7 @@ def _init_model(d: Description) -> None:
     d.construct_protein_description()
 
 
-def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
+def mutation_to_cds_effect(d: Description) -> Tuple[int, int]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome
 
@@ -210,23 +208,22 @@ def mutation_to_cds_effect(hgvs: HGVS) -> Tuple[int, int]:
     NOTE that the genome range is similar to the UCSC annotations on the genome,
     i.e. 0 based, half open. Not to be confused with hgvs g. positions
     """
-    d = Description(description=hgvs.description)
-    # Do only part of the normalizations from mutalyzer
-    _init_model(d)
-
     # Determine the protein positions that were changed
     protein = d.output()["protein"]
     first = protein["position_first"]
     last = protein["position_last_original"]
 
     # Convert the changed amino acids into a deletion in HGVS c. format
-    transcript_id = hgvs.description.split(":c.")[0]
+    transcript_id = d.input_model["reference"]["id"]
     start_pos = first * 3
     end_pos = (last * 3) - 1
 
     cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
 
-    return HGVS_to_genome_range(HGVS(description=cdot))
+    cdot_d = Description(cdot)
+    _init_model(cdot_d)
+
+    return HGVS_to_genome_range(cdot_d)
 
 
 def variant_to_model(variant: str) -> List[VariantModel]:
