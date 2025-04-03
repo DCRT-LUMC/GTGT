@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy, deepcopy
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
@@ -149,8 +149,10 @@ def HGVS_to_genome_range(d: Description) -> Tuple[int, int]:
     i.e. 0 based, half open. Not to be confused with hgvs g. positions
     """
     d.normalize()
+    print(f"{d.input_model=}")
     model = d.ensembl_model_with_no_offset()
 
+    print(f"{model=}")
     if len(model["variants"]) == 0:
         raise ValueError("Descriptions without variants are not supported")
     if len(model["variants"]) > 1:
@@ -214,16 +216,20 @@ def mutation_to_cds_effect(d: Description) -> Tuple[int, int]:
     last = protein["position_last_original"]
 
     # Convert the changed amino acids into a deletion in HGVS c. format
-    transcript_id = d.input_model["reference"]["id"]
     start_pos = first * 3
     end_pos = (last * 3) - 1
 
-    cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
+    # Make a copy of the Description object
+    cdot = deepcopy(d)
+    # Create the mutation model
+    deletion = f"{start_pos}_{end_pos}del"
+    print(f"{deletion=}")
+    deletion_model = variant_to_model(deletion)
+    print(f"{deletion_model=}")
+    # Replace any mutations present in cdot with the deletion
+    cdot.de_hgvs_internal_indexing_model["variants"] = deletion_model
 
-    cdot_d = Description(cdot)
-    _init_model(cdot_d)
-
-    return HGVS_to_genome_range(cdot_d)
+    return HGVS_to_genome_range(cdot)
 
 
 def variant_to_model(variant: str) -> List[VariantModel]:
