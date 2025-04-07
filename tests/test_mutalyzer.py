@@ -6,6 +6,7 @@ from gtgt.mutalyzer import (
     exonskip,
     mutation_to_cds_effect,
     _init_model,
+    replace_variants,
 )
 from gtgt.mutalyzer import HGVS, VariantModel, variant_to_model
 from mutalyzer.description import Description
@@ -266,7 +267,7 @@ def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> 
 @pytest.fixture
 def WT() -> Transcript:
     """
-    Transcript for WT1, using real genomic positionsjjkkkkjklkj
+    Transcript for WT1, using real genomic positions
     """
     path = "tests/data/ENST00000452863.10.Transcript.json"
     with open(path) as fin:
@@ -440,3 +441,24 @@ def test_variant_to_model(variant: str, variant_models: List[VariantModel]) -> N
     THEN it should contain the expected values
     """
     assert variant_to_model(variant) == variant_models
+
+FORWARD_VARIANTS = [
+    # We only look at the first 10 amino acids, so 500 del gives the wildtype
+    ("500del", "MAVLWRLSAV"),
+    ("10del", "MAVSGG*"),
+]
+@pytest.mark.parametrize("variant, protein", FORWARD_VARIANTS)
+def test_replace_variants_forward(variant: str, protein: str) -> None:
+    """
+    GIVEN an existing HGVS Description
+    WHEN we replace the variants
+    THEN the model should be updated to incorporate the new variants
+
+    We use the predicted protein sequence as a readout
+    """
+    d = Description("ENST00000375549.8:c.=")
+    _init_model(d)
+
+    variants = variant_to_model(variant)
+    replace_variants(d, variants)
+    assert d.output()["protein"]["predicted"][:10] == protein

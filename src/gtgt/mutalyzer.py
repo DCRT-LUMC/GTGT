@@ -11,6 +11,7 @@ from pydantic import BaseModel, model_validator
 from typing import Any, Tuple, List, Dict
 
 VariantModel = Dict[str, Any]
+DeletionModel = Dict[str, Any]
 
 
 class HGVS(BaseModel):
@@ -226,11 +227,18 @@ def mutation_to_cds_effect(d: Description) -> Tuple[int, int]:
     print(f"{deletion=}")
     deletion_model = variant_to_model(deletion)
     print(f"{deletion_model=}")
+    print(type(deletion_model))
     # Replace any mutations present in cdot with the deletion
     cdot.de_hgvs_internal_indexing_model["variants"] = deletion_model
 
     return HGVS_to_genome_range(cdot)
 
+def replace_variants(d: Description, variants: List[VariantModel]) -> None:
+    d.de_hgvs_internal_indexing_model["variants"] = variants
+    d.construct_de_hgvs_internal_indexing_model()
+    d.construct_de_hgvs_coordinates_model()
+    d.construct_normalized_description()
+    d.construct_protein_description()
 
 def variant_to_model(variant: str) -> List[VariantModel]:
     """
