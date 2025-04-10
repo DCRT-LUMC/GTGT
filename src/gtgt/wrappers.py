@@ -13,6 +13,9 @@ def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel
     knownGene = track[track_name][0]
     exons = BedModel.from_ucsc(knownGene)
 
+    # Rename the exons track to "Exons"
+    exons.name = "Exons"
+
     # The CDS is defied as the thickStart, thickEnd in ucsc
     chrom = knownGene["chrom"]
     start = knownGene["thickStart"]
