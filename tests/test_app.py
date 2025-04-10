@@ -71,7 +71,7 @@ def test_compare(client: TestClient) -> None:
 
     expected = {
         "cds": 1.0,
-        "coding": 1.0,
+        "Coding exons": 1.0,
         "exons": 6 / 7,
     }
 

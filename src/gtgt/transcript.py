@@ -17,7 +17,7 @@ class Transcript:
 
         # Set the coding region
         coding = deepcopy(self.exons)
-        coding.name = "coding"
+        coding.name = "Coding exons"
         coding.intersect(self.cds)
         self.coding = coding
 

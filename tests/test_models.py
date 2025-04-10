@@ -81,7 +81,7 @@ def test_transcript_model() -> None:
     # Test converting a TranscriptModel to a Transcript
     transcript = tm.to_transcript()
     # Test that the "coding" region has been set in the new Transcript
-    assert transcript.coding == Bed("chr1", 0, 10, name="coding")
+    assert transcript.coding == Bed("chr1", 0, 10, name="Coding exons")
 
 
 def test_Transcript_from_model() -> None:
