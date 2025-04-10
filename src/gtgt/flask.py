@@ -63,6 +63,7 @@ def result(variant: Optional[str] = None) -> str:
     transcript = transcript_model.to_transcript()
     results = transcript.analyze(variant)
 
+    print(results)
     # Get external links
     try:
         links = lookup_variant(provider, variant).url_dict()

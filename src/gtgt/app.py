@@ -2,6 +2,7 @@ from .transcript import TranscriptComparison
 import uvicorn as uvicorn
 from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import RedirectResponse
+from fractions import Fraction
 
 from .variant_validator import lookup_variant
 from .provider import Provider
@@ -9,7 +10,7 @@ from .models import BedModel, TranscriptModel, TranscriptId
 from .mutalyzer import HGVS
 from .wrappers import lookup_transcript
 
-from typing import Dict
+from typing import Dict, Union
 from typing_extensions import Annotated
 
 app = FastAPI()
@@ -77,7 +78,7 @@ async def compare(
         ),
     ],
     other: TranscriptModel,
-) -> Dict[str, float]:
+) -> Dict[str, Dict[str, Union[float, Fraction]]]:
     """Compare two transcripts"""
     s = self.to_transcript()
     o = other.to_transcript()

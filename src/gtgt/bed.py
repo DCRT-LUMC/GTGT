@@ -1,5 +1,7 @@
 from typing import Any, Dict, Optional, Iterator, List, Tuple
 from .range import Range, overlap, intersect, subtract
+from fractions import Fraction
+from typing import Union
 
 # colorRgb field from Bed
 color = Tuple[int, ...]
@@ -275,7 +277,9 @@ class Bed:
         subtracted_blocks = subtract(list(self.blocks()), list(other.blocks()))
         self.update(subtracted_blocks)
 
-    def compare(self, other: object) -> float:
+    def compare(
+        self, other: object, type: str = "percentage"
+    ) -> Union[float, Fraction]:
         """
         Compare the size of Bed objects
 
@@ -302,7 +306,12 @@ class Bed:
             msg = "Comparison failed, properties mismatch: {prop_self} != {prop_other}"
             raise ValueError(msg)
 
-        return self.size / other.size
+        if type == "fraction":
+            return Fraction(self.size, other.size)
+        elif type == "percentage":
+            return self.size / other.size
+        else:
+            raise ValueError(f"Unknown comparison type {type}")
 
     def update(self, ranges: List[Range]) -> None:
         """Update a Bed object with a list of ranges"""

@@ -46,7 +46,12 @@ def test_transcript_init(transcript: Transcript) -> None:
 def test_coding(transcript: Transcript, Exons: Bed, cds: Bed) -> None:
     # The coding region is the intersection of the exons and the CDS
     coding = Bed(
-        "chr1", 23, 72, name="Coding exons", blockSizes=[17, 10, 2], blockStarts=[0, 27, 47]
+        "chr1",
+        23,
+        72,
+        name="Coding exons",
+        blockSizes=[17, 10, 2],
+        blockStarts=[0, 27, 47],
     )
     # Test that we did not change the cds or exons
     assert transcript.exons == Exons
@@ -212,9 +217,9 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
 
     cmp = smaller.compare(transcript)
 
-    assert cmp["exons"] == pytest.approx(0.71, abs=0.01)
-    assert cmp["cds"] == 1
-    assert cmp["Coding exons"] == pytest.approx(0.41, abs=0.01)
+    assert cmp["exons"]["percentage"] == pytest.approx(0.71, abs=0.01)
+    assert cmp["cds"]["percentage"] == 1
+    assert cmp["Coding exons"]["percentage"] == pytest.approx(0.41, abs=0.01)
 
 
 @pytest.fixture

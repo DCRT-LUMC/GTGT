@@ -70,9 +70,18 @@ def test_compare(client: TestClient) -> None:
     other = Transcript(exons, cds)
 
     expected = {
-        "cds": 1.0,
-        "Coding exons": 1.0,
-        "exons": 6 / 7,
+        "cds": {
+            "percentage": 1.0,
+            "fraction": "1",
+        },
+        "Coding exons": {
+            "percentage": 1.0,
+            "fraction": "1",
+        },
+        "exons": {
+            "percentage": 6 / 7,
+            "fraction": "6/7",
+        },
     }
 
     body = {

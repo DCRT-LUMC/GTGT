@@ -2,12 +2,12 @@ from copy import deepcopy
 
 from .mutalyzer import mutation_to_cds_effect, HGVS, exonskip, _init_model
 from mutalyzer.description import Description
-
+from fractions import Fraction
 from .bed import Bed
 
-from typing import List, Dict
+from typing import List, Dict, Union
 
-TranscriptComparison = Dict[str, float]
+TranscriptComparison = Dict[str, Dict[str, Union[float, Fraction]]]
 
 
 class Transcript:
@@ -46,7 +46,7 @@ class Transcript:
         exons_to_skip.overlap(selector)
         self.subtract(exons_to_skip)
 
-    def compare(self, other: object) -> Dict[str, float]:
+    def compare(self, other: object) -> TranscriptComparison:
         """Compare the size of each record in the transcripts"""
         if not isinstance(other, Transcript):
             raise NotImplementedError
@@ -55,7 +55,10 @@ class Transcript:
         # The comparison will fail if the record.name does not match
         cmp = dict()
         for record1, record2 in zip(self.records(), other.records()):
-            cmp[record1.name] = record1.compare(record2)
+            cmp[record1.name] = {
+                "percentage": record1.compare(record2),
+                "fraction": record1.compare(record2, type="fraction"),
+            }
 
         return cmp
 
@@ -68,7 +71,8 @@ class Transcript:
             raise NotImplementedError
         cmp = self.compare(other)
 
-        return sum(cmp.values()) / len(cmp)
+        values = [float(x["percentage"]) for x in cmp.values()]
+        return sum(values) / len(cmp)
 
     def mutate(self, d: Description) -> None:
         """Mutate the transcript based on the specified hgvs description"""

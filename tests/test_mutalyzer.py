@@ -285,7 +285,7 @@ def test_analyze_transcript(WT: Transcript) -> None:
 
     results = WT.analyze(variant)
 
-    assert results["wildtype"]["cds"] == 1.0
+    assert results["wildtype"]["cds"]["percentage"] == 1.0
 
 
 VARIANTS = [
@@ -311,7 +311,7 @@ def test_mutate_transcript_with_variant(
     modified.mutate(d)
 
     cmp = modified.compare(WT)
-    assert cmp["cds"] == pytest.approx(effect, abs=0.0001)
+    assert cmp["cds"]["percentage"] == pytest.approx(effect, abs=0.0001)
 
 
 APPEND_VARIANT = [

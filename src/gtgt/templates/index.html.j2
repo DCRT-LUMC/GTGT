@@ -190,15 +190,18 @@
                     <tr>
                       <th>Annotation</th>
                       <th>Remaining</th>
+                      <th>Basepairs</th>
                       <th>Percentage</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for fieldname in results[name] %}
-                    {% set value = (results[name][fieldname] * 100) | round(precision=1) %}
+                    {% set value = (results[name][fieldname]['percentage'] * 100) | round(precision=1) %}
+                    {% set basepair = results[name][fieldname]['fraction'] %}
                     <tr>
                       <td>{{ fieldname }}</td>
                       <td>{{ value }}% </td>
+                      <td>{{ basepair }}
                       <td><progress value="{{value}}" max="100"></progress></td>
                     </tr>
                     {% endfor %}
