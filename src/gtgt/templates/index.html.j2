@@ -147,7 +147,10 @@
         <div id="home" class="page padding active">
       {% endif %}
           <h2>Specify variant</h2>
-          <p>Welcome to the Genetic Therapy Generator Toolkit, please specify a variant below:</p>
+          <p>
+            Welcome to the Genetic Therapy Generator Toolkit, please specify a variant below:
+          </p>
+          <p>(For example, ENST00000375549.8:c.100del)</p>
           <div class="field border round small">
             <input id="test" type="text" {{'value=' + variant if variant else ''}} autofocus>
             <button class="center" type="button" onclick="redirect()">Submit</button>
@@ -163,7 +166,7 @@
                 {{ error["summary"]}}
               </p>
             </summary>
-            {{ error["details"] }}
+            <code>{{ error["details"] }}</code>
           </details>
         </article>
       {% endif %}
