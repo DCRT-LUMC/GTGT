@@ -20,7 +20,7 @@ def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel
     chrom = knownGene["chrom"]
     start = knownGene["thickStart"]
     end = knownGene["thickEnd"]
-    name = "cds"
+    name = "CDS"
     strand = knownGene["strand"]
     cds = BedModel(chrom=chrom, blocks=[(start, end)], name=name, strand=strand)
 
