@@ -64,6 +64,9 @@ def result(variant: Optional[str] = None) -> str:
     results = transcript.analyze(variant)
 
     # Get external links
-    links = lookup_variant(provider, variant).url_dict()
+    try:
+        links = lookup_variant(provider, variant).url_dict()
+    except Exception as e:
+        links = dict()
 
     return render_template(template_file, results=results, links=links, variant=variant)
