@@ -54,20 +54,29 @@ def result(variant: Optional[str] = None) -> str:
     if not variant:
         return render_template(template_file)
 
+    # Invalid user input
     if error := validate_user_input(variant):
         return render_template(template_file, variant=variant, error=error)
 
     # Analyze the transcript
-    transcript_id = variant.split(":")[0]
-    transcript_model = lookup_transcript(provider, transcript_id)
-    transcript = transcript_model.to_transcript()
-    results = transcript.analyze(variant)
+    try:
+        transcript_id = variant.split(":")[0]
+        transcript_model = lookup_transcript(provider, transcript_id)
+        transcript = transcript_model.to_transcript()
+        results = transcript.analyze(variant)
+    except Exception as e:
+        error = {"summary": "Analysis failed", "details": str(e)}
+        results = None
 
-    print(results)
     # Get external links
     try:
         links = lookup_variant(provider, variant).url_dict()
     except Exception as e:
         links = dict()
 
-    return render_template(template_file, results=results, links=links, variant=variant)
+    if error:
+        return render_template(template_file, variant=variant, error=error)
+    else:
+        return render_template(
+            template_file, results=results, links=links, variant=variant
+        )
