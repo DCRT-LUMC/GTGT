@@ -2,8 +2,8 @@ from .variant_validator import lookup_variant
 from .provider import Provider
 from .wrappers import lookup_transcript
 
-from flask import Flask, flash, render_template
-from typing import Optional
+from flask import Flask, render_template
+from typing import Optional, Dict
 
 import mutalyzer_hgvs_parser
 
@@ -16,6 +16,23 @@ app = Flask(__name__)
 provider = Provider()
 
 
+def validate_user_input(input: str) -> Dict[str, str]:
+    """
+    Validate the user input
+
+    If there is an error, return a dict with summary and details of the error
+    """
+    error = dict()
+
+    # Test if the variant is valid HGVS
+    try:
+        mutalyzer_hgvs_parser.to_model(input)
+    except hgvs_error as e:
+        error["summary"] = "Not a valid HGVS description"
+        error["details"] = str(e)
+
+    return error
+
 @app.route("/")
 @app.route("/<variant>")
 def result(variant: Optional[str] = None) -> str:
@@ -25,14 +42,8 @@ def result(variant: Optional[str] = None) -> str:
     if not variant:
         return render_template(template_file)
 
-    # Test if the variant is valid HGVS
-    try:
-        mutalyzer_hgvs_parser.to_model(variant)
-    except hgvs_error as e:
-        flash(str(e))
-        print("ERROR IS")
-        print(e)
-        return render_template(template_file)
+    if error:=validate_user_input(variant):
+        return render_template(template_file, variant=variant, error=error)
 
     # Analyze the transcript
     transcript_id = variant.split(":")[0]
