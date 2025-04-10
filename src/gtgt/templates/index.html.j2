@@ -151,25 +151,29 @@
             Welcome to the Genetic Therapy Generator Toolkit, please specify a variant below:
           </p>
           <p>(For example, <a class="link" href="/ENST00000375549.8:c.100del">ENST00000375549.8:c.100del</a>)</p>
-          <div class="field border round small">
+          <div class="field border round small" style="margin-bottom:3em;">
             <input id="test" type="text" {{'value=' + variant if variant else ''}} autofocus>
-            <button class="center" type="button" onclick="redirect()">Submit</button>
+            <button class="center" type="button" onclick="redirect()" >Submit</button>
           </div>
+
+          {% if error is defined %}
+          <div id="error" class="active">
+            <article>
+              <details>
+                <summary>
+                  <p>
+                    <i>error</i>
+                    {{ error["summary"]}}
+                  </p>
+                </summary>
+                <code>{{ error["details"] }}</code>
+              </details>
+            </article>
+
+          </div>
+          {% endif %}
         </div>
 
-      {% if error is defined %}
-        <article>
-          <details>
-            <summary>
-              <p>
-                <i>error</i>
-                {{ error["summary"]}}
-              </p>
-            </summary>
-            <code>{{ error["details"] }}</code>
-          </details>
-        </article>
-      {% endif %}
 
       {% if results is defined %}
         <div id="analysis" class="page padding active">
