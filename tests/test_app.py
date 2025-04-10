@@ -72,11 +72,11 @@ def test_compare(client: TestClient) -> None:
     expected = {
         "cds": {
             "percentage": 1.0,
-            "fraction": "1",
+            "fraction": "1/1",
         },
         "Coding exons": {
             "percentage": 1.0,
-            "fraction": "1",
+            "fraction": "1/1",
         },
         "exons": {
             "percentage": 6 / 7,

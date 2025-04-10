@@ -1,6 +1,5 @@
 from typing import Any, Dict, Optional, Iterator, List, Tuple
 from .range import Range, overlap, intersect, subtract
-from fractions import Fraction
 from typing import Union
 
 # colorRgb field from Bed
@@ -277,9 +276,7 @@ class Bed:
         subtracted_blocks = subtract(list(self.blocks()), list(other.blocks()))
         self.update(subtracted_blocks)
 
-    def compare(
-        self, other: object, type: str = "percentage"
-    ) -> Union[float, Fraction]:
+    def compare(self, other: object, type: str = "percentage") -> Union[float, str]:
         """
         Compare the size of Bed objects
 
@@ -307,7 +304,7 @@ class Bed:
             raise ValueError(msg)
 
         if type == "fraction":
-            return Fraction(self.size, other.size)
+            return f"{self.size}/{other.size}"
         elif type == "percentage":
             return self.size / other.size
         else:

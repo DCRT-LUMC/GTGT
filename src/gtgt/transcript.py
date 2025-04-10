@@ -2,12 +2,11 @@ from copy import deepcopy
 
 from .mutalyzer import mutation_to_cds_effect, HGVS, exonskip, _init_model
 from mutalyzer.description import Description
-from fractions import Fraction
 from .bed import Bed
 
 from typing import List, Dict, Union
 
-TranscriptComparison = Dict[str, Dict[str, Union[float, Fraction]]]
+TranscriptComparison = Dict[str, Dict[str, Union[float, str]]]
 
 
 class Transcript:
