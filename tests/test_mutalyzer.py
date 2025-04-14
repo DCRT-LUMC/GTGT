@@ -270,6 +270,7 @@ def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> 
 
     assert mutation_to_cds_effect(d) == expected
 
+
 MUTATIONS2 = [
     # HGVS, coordinates on the genome
     # A simple missense that changes a single amino acids
@@ -288,7 +289,9 @@ MUTATIONS2 = [
 
 
 @pytest.mark.parametrize("variants, expected", MUTATIONS2)
-def test_mutation_to_cds_effect2(variants: CdotVariant, expected: Tuple[int, int]) -> None:
+def test_mutation_to_cds_effect2(
+    variants: CdotVariant, expected: Tuple[int, int]
+) -> None:
     """
     GIVEN a HGVS transcript description
     WHEN we determine the CDS effect
@@ -300,6 +303,7 @@ def test_mutation_to_cds_effect2(variants: CdotVariant, expected: Tuple[int, int
     print()
     assert mutation_to_cds_effect2(d, variants) == expected
 
+
 CDOT_MUTATIONS = [
     # c. variant, i. delins variant
     ("13T>A", "47_48delTinsA"),
@@ -307,8 +311,9 @@ CDOT_MUTATIONS = [
     ("53_169del", "984_1101delins"),
     ("315_*824del", "7932_8922delins"),
     # Multiple variants
-    ("[13T>A;15_16delinsAT]", "[47_48delTinsA;49_51delinsAT]")
+    ("[13T>A;15_16delinsAT]", "[47_48delTinsA;49_51delinsAT]"),
 ]
+
 
 @pytest.mark.parametrize("cdot, internal_delins", CDOT_MUTATIONS)
 def test_cdot_to_indel(cdot: str, internal_delins: str) -> None:
