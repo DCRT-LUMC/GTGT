@@ -292,6 +292,26 @@ def _c_variants_to_delins_variants(variants, ref_id, references):
         to_internal_indexing(to_internal_coordinates(model, references))["variants"]
     )
 
+def _internal_to_internal_genome(variants, offset):
+    output = deepcopy(variants)
+
+    for variant in output:
+        location = variant.get("location", {})
+        if location.get("type") == "range":
+            if "start" in location and "position" in location["start"]:
+                location["start"]["position"] += offset
+            if "end" in location and "position" in location["end"]:
+                location["end"]["position"] += offset
+
+    return output
+
+def _get_ensembl_offset(references, ref_id="reference"):
+    return (
+        references.get(ref_id, {})
+        .get("annotations", {})
+        .get("qualifiers", {})
+        .get("location_offset")
+    )
 def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVariant]:
     """Convert a list of cdot variants to internal indels"""
     #  Get stuf we need
@@ -321,6 +341,9 @@ def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int,
     NOTE that the genome range is similar to the UCSC annotations on the genome,
     i.e. 0 based, half open. Not to be confused with hgvs g. positions
     """
+    # Convert the c. variants to internal indels
+    delins = _cdot_to_internal_delins(d, variants)
+
     # Get required data structures from the Description
     ref_id = get_reference_id(d.corrected_model)
     selector_model = get_protein_selector_model(
@@ -328,7 +351,7 @@ def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int,
     )
 
     # Determine the protein positions that were changed
-    protein = get_protein_description(variants, d.references, selector_model)
+    protein = get_protein_description(delins, d.references, selector_model)
     first = protein[3]
     last = protein[4]
 
@@ -338,7 +361,23 @@ def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int,
     end_pos = (last * 3) - 1
 
     cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
+    cdot_mutation = f"{start_pos}_{end_pos}del"
 
+    # Convert cdot to delins
+    positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
+    # positions_delins[0]["inverted"] = True
+    ensembl_offset = _get_ensembl_offset(d.references, ref_id)
+
+    genome_positions = _internal_to_internal_genome(positions_delins, ensembl_offset)
+
+    assert len(genome_positions) == 1
+    start = genome_positions[0]["location"]["start"]["position"]
+    end = genome_positions[0]["location"]["end"]["position"]
+
+    assert end > start
+
+    # TODO enable after bugfix
+    # return start, end
     cdot_d = Description(cdot)
     _init_model(cdot_d)
 

@@ -1,6 +1,7 @@
 import pytest
 from pathlib import Path
 from gtgt.mutalyzer import (
+    CdotVariant,
     HGVS_to_genome_range,
     InternalVariant,
     append_mutation,
@@ -275,19 +276,19 @@ MUTATIONS2 = [
     ("13T>A", (32435347, 32435350)),
     # A frameshift which destroys most of the protein
     ("10del", (32389058, 32435352)),
-    # A frameshift that is restored by an insertion
+    # # A frameshift that is restored by an insertion
     ("[10del;20_21insA]", (32435340, 32435352)),
-    # A frameshift that is restored by a bigger insertion
-    ("10del;20_21insATCGAATATGGGG]", (32435340, 32435352)),
-    # A bigger deletion
+    # # A frameshift that is restored by a bigger insertion
+    ("[10del;20_21insATCGAATATGGGG]", (32435340, 32435352)),
+    # # A bigger deletion
     ("11_19del", (32435344, 32435353)),
-    # An inframe deletion that creates a STOP codon
+    # # An inframe deletion that creates a STOP codon
     ("87_89del", (32389059, 32435278)),
 ]
 
 
-@pytest.mark.parametrize("variant, expected", MUTATIONS)
-def test_mutation_to_cds_effect2(variant: str, expected: Tuple[int, int]) -> None:
+@pytest.mark.parametrize("variants, expected", MUTATIONS2)
+def test_mutation_to_cds_effect2(variants: CdotVariant, expected: Tuple[int, int]) -> None:
     """
     GIVEN a HGVS transcript description
     WHEN we determine the CDS effect
@@ -296,23 +297,7 @@ def test_mutation_to_cds_effect2(variant: str, expected: Tuple[int, int]) -> Non
     d = Description("ENST00000452863.10:c.=")
     _init_model(d)
 
-    def _description_model(ref_id: str, variants: str) -> Dict[str, Any]:
-        """
-        To be used only locally with ENSTs.
-        """
-        return {
-            "type": "description_dna",
-            "reference": {"id": ref_id, "selector": {"id": ref_id}},
-            "coordinate_system": "c",
-            "variants": variants,
-        }
-    # Conver the c. variants to i.
-    ref_id = get_reference_id(d.corrected_model)
-    model = _description_model(ref_id, variant)
-    internal_variants = variants_to_delins(to_internal_indexing(to_internal_coordinates(model, d.references))["variants"]
-    )
-
-    assert mutation_to_cds_effect2(d, internal_variants) == expected
+    assert mutation_to_cds_effect2(d, variants) == expected
 
 CDOT_MUTATIONS = [
     # c. variant, i. delins variant
@@ -334,7 +319,6 @@ def test_cdot_to_indel(cdot: str, internal_delins: str) -> None:
     d = Description("ENST00000375549.8:c.=")
     _init_model(d)
     indels = _cdot_to_internal_delins(d, cdot)
-    print(variants_to_description(indels))
     assert variants_to_description(indels) == internal_delins
 
 
