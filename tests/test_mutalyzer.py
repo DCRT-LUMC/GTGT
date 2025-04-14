@@ -2,20 +2,27 @@ import pytest
 from pathlib import Path
 from gtgt.mutalyzer import (
     HGVS_to_genome_range,
+    InternalVariant,
     append_mutation,
     exonskip,
     mutation_to_cds_effect,
+    mutation_to_cds_effect2,
+    _cdot_to_internal_delins,
     _init_model,
 )
 from gtgt.mutalyzer import HGVS, VariantModel, variant_to_model
 from mutalyzer.description import Description
+from mutalyzer.converter.to_delins import variants_to_delins
+from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
+from mutalyzer.converter.to_internal_indexing import to_internal_indexing
+from mutalyzer.description_model import get_reference_id, variants_to_description
 from gtgt.transcript import Transcript
 from gtgt.models import TranscriptModel
 import json
 import copy
 
 from itertools import zip_longest
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Dict
 
 
 def retrieve_raw(
@@ -261,6 +268,74 @@ def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> 
     _init_model(d)
 
     assert mutation_to_cds_effect(d) == expected
+
+MUTATIONS2 = [
+    # HGVS, coordinates on the genome
+    # A simple missense that changes a single amino acids
+    ("13T>A", (32435347, 32435350)),
+    # A frameshift which destroys most of the protein
+    ("10del", (32389058, 32435352)),
+    # A frameshift that is restored by an insertion
+    ("[10del;20_21insA]", (32435340, 32435352)),
+    # A frameshift that is restored by a bigger insertion
+    ("10del;20_21insATCGAATATGGGG]", (32435340, 32435352)),
+    # A bigger deletion
+    ("11_19del", (32435344, 32435353)),
+    # An inframe deletion that creates a STOP codon
+    ("87_89del", (32389059, 32435278)),
+]
+
+
+@pytest.mark.parametrize("variant, expected", MUTATIONS)
+def test_mutation_to_cds_effect2(variant: str, expected: Tuple[int, int]) -> None:
+    """
+    GIVEN a HGVS transcript description
+    WHEN we determine the CDS effect
+    THEN we should get genome coordinates
+    """
+    d = Description("ENST00000452863.10:c.=")
+    _init_model(d)
+
+    def _description_model(ref_id: str, variants: str) -> Dict[str, Any]:
+        """
+        To be used only locally with ENSTs.
+        """
+        return {
+            "type": "description_dna",
+            "reference": {"id": ref_id, "selector": {"id": ref_id}},
+            "coordinate_system": "c",
+            "variants": variants,
+        }
+    # Conver the c. variants to i.
+    ref_id = get_reference_id(d.corrected_model)
+    model = _description_model(ref_id, variant)
+    internal_variants = variants_to_delins(to_internal_indexing(to_internal_coordinates(model, d.references))["variants"]
+    )
+
+    assert mutation_to_cds_effect2(d, internal_variants) == expected
+
+CDOT_MUTATIONS = [
+    # c. variant, i. delins variant
+    ("13T>A", "47_48delTinsA"),
+    ("-35_52del", "0_87delins"),
+    ("53_169del", "984_1101delins"),
+    ("315_*824del", "7932_8922delins"),
+    # Multiple variants
+    ("[13T>A;15_16delinsAT]", "[47_48delTinsA;49_51delinsAT]")
+]
+
+@pytest.mark.parametrize("cdot, internal_delins", CDOT_MUTATIONS)
+def test_cdot_to_indel(cdot: str, internal_delins: str) -> None:
+    """
+    GIVEN a list of c. mutations a string
+    WHEN we convert them to internal i. indels
+    THEN we should get a list of internal variants
+    """
+    d = Description("ENST00000375549.8:c.=")
+    _init_model(d)
+    indels = _cdot_to_internal_delins(d, cdot)
+    print(variants_to_description(indels))
+    assert variants_to_description(indels) == internal_delins
 
 
 @pytest.fixture

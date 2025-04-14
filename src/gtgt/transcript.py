@@ -97,8 +97,11 @@ class Transcript:
         # Determine the score of the patient
         patient = deepcopy(self)
         patient.mutate(d)
+        return results
         results["patient"] = patient.compare(self)
+        return results
 
+        print("Initilized d")
         # Determine the score of each exon skip
         for skip in exonskip(d):
             # Add deletion to the patient mutation
@@ -108,7 +111,12 @@ class Transcript:
             # Create HGVS Description
             print()
             print(f"{desc.description=}")
-            d_skip = Description(desc.description)
+            # d_skip = Description(desc.description)
+
+            # Get the c. variant
+            cdot = desc.description.split("c.")[1]
+            print(f"{cdot=}")
+            continue
             _init_model(d_skip)
 
             # Apply the combination to the wildtype transcript

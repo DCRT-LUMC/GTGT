@@ -1,14 +1,19 @@
 from copy import deepcopy
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
+from mutalyzer.converter.to_delins import variants_to_delins
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
 from mutalyzer.converter.to_internal_indexing import to_internal_indexing
+from mutalyzer.description_model import get_reference_id, variants_to_description
+from mutalyzer.protein import get_protein_description
+from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.checker import is_overlap
 import mutalyzer_hgvs_parser
 
 from pydantic import BaseModel, model_validator
 
 from typing import Any, Tuple, List, Dict
+from typing_extensions import NewType
 
 VariantModel = Dict[str, Any]
 
@@ -225,6 +230,119 @@ def mutation_to_cds_effect(d: Description) -> Tuple[int, int]:
 
     return HGVS_to_genome_range(cdot_d)
 
+# Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
+InternalVariant = NewType('InternalVariant', dict[str, Any])
+CdotVariant = NewType('CdotVariant', str)
+
+def _get_genome_annotations(references):
+    """
+    The sequence is removed. It should work with conversions, as long as there
+    are no sequence slices involved, which will not be the case here.
+    """
+    def _apply_offset(location, offset):
+        if isinstance(location, dict) and location.get("type") == "range":
+            if "start" in location and "position" in location["start"]:
+                location["start"]["position"] += offset
+            if "end" in location and "position" in location["end"]:
+                location["end"]["position"] += offset
+
+    def _walk_features(features, offset):
+        for feature in features:
+            loc = feature.get("location")
+            if loc:
+                _apply_offset(loc, offset)
+            if "features" in feature:
+                _walk_features(feature["features"], offset)
+
+    output = {}
+
+    for key, entry in references.items():
+        annotations = deepcopy(entry.get("annotations"))
+        if not annotations:
+            continue
+
+        qualifiers = annotations.get("qualifiers", {})
+        offset = qualifiers.pop("location_offset", None)
+
+        if offset is not None:
+            _apply_offset(annotations.get("location", {}), offset)
+            _walk_features(annotations.get("features", []), offset)
+
+        output[key] = {"annotations": annotations}
+
+    return output
+
+def _description_model(ref_id, variants):
+    """
+    To be used only locally with ENSTs.
+    """
+    return {
+        "type": "description_dna",
+        "reference": {"id": ref_id, "selector": {"id": ref_id}},
+        "coordinate_system": "c",
+        "variants": variants,
+    }
+
+def _c_variants_to_delins_variants(variants, ref_id, references):
+    """
+    The variants can be of any type (substitutions, duplications, etc.).
+    """
+    model = _description_model(ref_id, variants)
+    return variants_to_delins(
+        to_internal_indexing(to_internal_coordinates(model, references))["variants"]
+    )
+
+def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVariant]:
+    """Convert a list of cdot variants to internal indels"""
+    #  Get stuf we need
+    ref_id = get_reference_id(d.corrected_model)
+    genome_references = _get_genome_annotations(d.references)
+
+    # Parse the c. string into mutalyzer variant dictionary
+    if "[" in variants:
+        parsed_variants = mutalyzer_hgvs_parser.to_model(variants, "variants")
+    else:
+        parsed_variants = [mutalyzer_hgvs_parser.to_model(variants, "variant")]
+
+    # Convert the variant dicts into internal delins
+    internal_delins = _c_variants_to_delins_variants(parsed_variants, ref_id, d.references)
+    return internal_delins
+
+def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int, int]:
+    """
+    Determine the effect of the specified HGVS description on the CDS, on the genome
+
+    Steps:
+    - Use the protein prediction of mutalyzer to determine which protein
+      residues are changed
+    - Map this back to a deletion in c. positions to determine which protein
+      annotations are no longer valid
+    - Convert the c. positions to genome coordiinates as used by the UCSC
+    NOTE that the genome range is similar to the UCSC annotations on the genome,
+    i.e. 0 based, half open. Not to be confused with hgvs g. positions
+    """
+    # Get required data structures from the Description
+    ref_id = get_reference_id(d.corrected_model)
+    selector_model = get_protein_selector_model(
+        d.references[ref_id]["annotations"], ref_id
+    )
+
+    # Determine the protein positions that were changed
+    protein = get_protein_description(variants, d.references, selector_model)
+    first = protein[3]
+    last = protein[4]
+
+    # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
+    transcript_id = d.input_model["reference"]["id"]
+    start_pos = first * 3
+    end_pos = (last * 3) - 1
+
+    cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
+
+    cdot_d = Description(cdot)
+    _init_model(cdot_d)
+
+    return HGVS_to_genome_range(cdot_d)
 
 def variant_to_model(variant: str) -> List[VariantModel]:
     """
