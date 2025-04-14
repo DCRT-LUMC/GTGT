@@ -12,7 +12,7 @@ import mutalyzer_hgvs_parser
 
 from pydantic import BaseModel, model_validator
 
-from typing import Any, Tuple, List, Dict
+from typing import Any, Tuple, List, Dict, Union
 from typing_extensions import NewType
 
 VariantModel = Dict[str, Any]
@@ -234,19 +234,19 @@ def mutation_to_cds_effect(d: Description) -> Tuple[int, int]:
 InternalVariant = NewType('InternalVariant', dict[str, Any])
 CdotVariant = NewType('CdotVariant', str)
 
-def _get_genome_annotations(references):
+def _get_genome_annotations(references: Dict[str, Any]) -> Dict[str, Any]:
     """
     The sequence is removed. It should work with conversions, as long as there
     are no sequence slices involved, which will not be the case here.
     """
-    def _apply_offset(location, offset):
+    def _apply_offset(location: Dict[str, Any], offset: int) -> None:
         if isinstance(location, dict) and location.get("type") == "range":
             if "start" in location and "position" in location["start"]:
                 location["start"]["position"] += offset
             if "end" in location and "position" in location["end"]:
                 location["end"]["position"] += offset
 
-    def _walk_features(features, offset):
+    def _walk_features(features: List[Dict[str, Any]], offset: int) -> None:
         for feature in features:
             loc = feature.get("location")
             if loc:
@@ -272,7 +272,7 @@ def _get_genome_annotations(references):
 
     return output
 
-def _description_model(ref_id, variants):
+def _description_model(ref_id: str, variants: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     To be used only locally with ENSTs.
     """
@@ -283,16 +283,17 @@ def _description_model(ref_id, variants):
         "variants": variants,
     }
 
-def _c_variants_to_delins_variants(variants, ref_id, references):
+def _c_variants_to_delins_variants(variants: List[Dict[str, Any]], ref_id: str, references: Dict[str, Any]) -> List[InternalVariant]:
     """
     The variants can be of any type (substitutions, duplications, etc.).
     """
     model = _description_model(ref_id, variants)
-    return variants_to_delins(
+    delins : List[InternalVariant] = variants_to_delins(
         to_internal_indexing(to_internal_coordinates(model, references))["variants"]
     )
+    return delins
 
-def _internal_to_internal_genome(variants, offset):
+def _internal_to_internal_genome(variants: List[InternalVariant], offset:int) -> List[InternalVariant]:
     output = deepcopy(variants)
 
     for variant in output:
@@ -305,13 +306,15 @@ def _internal_to_internal_genome(variants, offset):
 
     return output
 
-def _get_ensembl_offset(references, ref_id="reference"):
-    return (
+def _get_ensembl_offset(references: Dict[str, Any], ref_id: str ="reference") -> Union[int, None]:
+    offset: Union[int, None] = (
         references.get(ref_id, {})
         .get("annotations", {})
         .get("qualifiers", {})
         .get("location_offset")
     )
+    return offset
+
 def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVariant]:
     """Convert a list of cdot variants to internal indels"""
     #  Get stuf we need
@@ -326,6 +329,7 @@ def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVari
 
     # Convert the variant dicts into internal delins
     internal_delins = _c_variants_to_delins_variants(parsed_variants, ref_id, d.references)
+    print(f"{internal_delins=}")
     return internal_delins
 
 def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int, int]:
@@ -367,6 +371,9 @@ def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int,
     positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
     # positions_delins[0]["inverted"] = True
     ensembl_offset = _get_ensembl_offset(d.references, ref_id)
+
+    if ensembl_offset is None:
+        raise RuntimeError("Missing ensemble offset")
 
     genome_positions = _internal_to_internal_genome(positions_delins, ensembl_offset)
 

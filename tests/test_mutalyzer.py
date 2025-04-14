@@ -297,6 +297,7 @@ def test_mutation_to_cds_effect2(variants: CdotVariant, expected: Tuple[int, int
     d = Description("ENST00000452863.10:c.=")
     _init_model(d)
 
+    print()
     assert mutation_to_cds_effect2(d, variants) == expected
 
 CDOT_MUTATIONS = [
