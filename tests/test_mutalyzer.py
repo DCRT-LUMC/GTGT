@@ -272,9 +272,9 @@ def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> 
 
 
 MUTATIONS2 = [
-    # HGVS, coordinates on the genome
+    # HGVS, coordinates on the genome,
     # A simple missense that changes a single amino acids
-    ("13T>A", (32435347, 32435350)),
+    ("13T>A", (32435345, 32435348)),
     # A frameshift which destroys most of the protein
     ("10del", (32389058, 32435352)),
     # # A frameshift that is restored by an insertion
@@ -293,7 +293,7 @@ def test_mutation_to_cds_effect2(
     variants: CdotVariant, expected: Tuple[int, int]
 ) -> None:
     """
-    GIVEN a HGVS transcript description
+    GIVEN a HGVS transcript description for a transcript on the reverse strand
     WHEN we determine the CDS effect
     THEN we should get genome coordinates
     """
@@ -301,6 +301,7 @@ def test_mutation_to_cds_effect2(
     _init_model(d)
 
     print()
+    print(f"{variants=}")
     assert mutation_to_cds_effect2(d, variants) == expected
 
 
