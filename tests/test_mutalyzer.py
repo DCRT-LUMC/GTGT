@@ -276,15 +276,15 @@ MUTATIONS2 = [
     # A simple missense that changes a single amino acids
     ("13T>A", (32435345, 32435348)),
     # A frameshift which destroys most of the protein
-    ("10del", (32389058, 32435352)),
+    ("10del", (32389057, 32435351)),
     # # A frameshift that is restored by an insertion
-    ("[10del;20_21insA]", (32435340, 32435352)),
+    ("[10del;20_21insA]", (32435339, 32435351)),
     # # A frameshift that is restored by a bigger insertion
-    ("[10del;20_21insATCGAATATGGGG]", (32435340, 32435352)),
+    ("[10del;20_21insATCGAATATGGGG]", (32435339, 32435351)),
     # # A bigger deletion
-    ("11_19del", (32435344, 32435353)),
+    ("11_19del", (32435342, 32435351)),
     # # An inframe deletion that creates a STOP codon
-    ("87_89del", (32389059, 32435278)),
+    ("87_89del", (32389057, 32435276)),
 ]
 
 
