@@ -381,7 +381,7 @@ def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int,
 
     # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
     start_pos = first * 3 + 1
-    end_pos = (last * 3)
+    end_pos = last * 3
 
     cdot_mutation = f"{start_pos}_{end_pos}del"
 

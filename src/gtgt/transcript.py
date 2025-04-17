@@ -108,7 +108,11 @@ class Transcript:
         for skip in exonskip(d):
             # Add deletion to the patient mutation
             desc = HGVS(description=hgvs)
-            desc.apply_deletion(skip)
+            try:
+                desc.apply_deletion(skip)
+            except NotImplementedError as e:
+                # TODO add logging
+                continue
 
             # Get the c. variant
             exonskip_variant = CdotVariant(desc.description.split("c.")[1])
