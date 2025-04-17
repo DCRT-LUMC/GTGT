@@ -6,10 +6,17 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
-v0.2.1-dev
-----------
+v0.2.1
+------
++ Re-use mutalyzer Description object to reduce load on Ensembl API
 + Drop support for Python 3.8
 + Add support for Python 3.13
++ Add number of remaining basepairs to the transcript comparison
++ Rename default annotations for clarity
++ Fix a bug when the specified variant partially overlaps an exon
++ Fix a bug when VariantValidator is not available
++ Check user input for errors in web interface
++ Rename module from GTGT to gtgt
 
 v0.2.0
 ------

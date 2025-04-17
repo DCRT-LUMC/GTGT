@@ -6,7 +6,7 @@ project = 'GTGT'
 copyright = '2023, Redmar van den Berg'
 author = 'Redmar van den Berg'
 
-release = '0.2.0'
+release = '0.2.1'
 version = '.'.join(release.split('.')[0:2])
 
 # -- General configuration
