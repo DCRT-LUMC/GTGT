@@ -200,37 +200,6 @@ def _init_model(d: Description) -> None:
     d.construct_protein_description()
 
 
-def mutation_to_cds_effect(d: Description) -> Tuple[int, int]:
-    """
-    Determine the effect of the specified HGVS description on the CDS, on the genome
-
-    Steps:
-    - Use the protein prediction of mutalyzer to determine which protein
-      residues are changed
-    - Map this back to a deletion in c. positions to determine which protein
-      annotations are no longer valid
-    - Convert the c. positions to genome coordiinates as used by the UCSC
-    NOTE that the genome range is similar to the UCSC annotations on the genome,
-    i.e. 0 based, half open. Not to be confused with hgvs g. positions
-    """
-    # Determine the protein positions that were changed
-    protein = d.output()["protein"]
-    first = protein["position_first"]
-    last = protein["position_last_original"]
-
-    # Convert the changed amino acids into a deletion in HGVS c. format
-    transcript_id = d.input_model["reference"]["id"]
-    start_pos = first * 3
-    end_pos = (last * 3) - 1
-
-    cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
-
-    cdot_d = Description(cdot)
-    _init_model(cdot_d)
-
-    return HGVS_to_genome_range(cdot_d)
-
-
 # Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
 InternalVariant = NewType("InternalVariant", dict[str, Any])
 CdotVariant = NewType("CdotVariant", str)
@@ -348,7 +317,7 @@ def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVari
     return internal_delins
 
 
-def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int, int]:
+def mutation_to_cds_effect(d: Description, variants: CdotVariant) -> Tuple[int, int]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome
 

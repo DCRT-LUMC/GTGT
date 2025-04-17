@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from .mutalyzer import CdotVariant, mutation_to_cds_effect2, HGVS, exonskip, _init_model
+from .mutalyzer import CdotVariant, mutation_to_cds_effect, HGVS, exonskip, _init_model
 from mutalyzer.description import Description
 from .bed import Bed
 
@@ -76,7 +76,7 @@ class Transcript:
     def mutate(self, d: Description, variants: CdotVariant) -> None:
         """Mutate the transcript based on the specified hgvs description"""
         # Determine the CDS interval that is affected by the hgvs description
-        chromStart, chromEnd = mutation_to_cds_effect2(d, variants)
+        chromStart, chromEnd = mutation_to_cds_effect(d, variants)
         # Subtract that region from the annotations
         self.subtract(
             Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd)

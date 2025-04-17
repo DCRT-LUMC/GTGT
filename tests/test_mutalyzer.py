@@ -7,7 +7,6 @@ from gtgt.mutalyzer import (
     append_mutation,
     exonskip,
     mutation_to_cds_effect,
-    mutation_to_cds_effect2,
     _cdot_to_internal_delins,
     _init_model,
 )
@@ -242,36 +241,6 @@ def test_exonskip_WT1() -> None:
 
 
 MUTATIONS = [
-    # HGVS, coordinates on the genome
-    # A simple missense that changes a single amino acids
-    ("ENST00000452863.10:c.13T>A", (32435347, 32435350)),
-    # A frameshift which destroys most of the protein
-    ("ENST00000452863.10:c.10del", (32389058, 32435352)),
-    # A frameshift that is restored by an insertion
-    ("ENST00000452863.10:c.[10del;20_21insA]", (32435340, 32435352)),
-    # A frameshift that is restored by a bigger insertion
-    ("ENST00000452863.10:c.[10del;20_21insATCGAATATGGGG]", (32435340, 32435352)),
-    # A bigger deletion
-    ("ENST00000452863.10:c.11_19del", (32435344, 32435353)),
-    # An inframe deletion that creates a STOP codon
-    ("ENST00000452863.10:c.87_89del", (32389059, 32435278)),
-]
-
-
-@pytest.mark.parametrize("description, expected", MUTATIONS)
-def test_mutation_to_cds_effect(description: str, expected: Tuple[int, int]) -> None:
-    """
-    GIVEN a HGVS transcript description
-    WHEN we determine the CDS effect
-    THEN we should get genome coordinates
-    """
-    d = Description(description)
-    _init_model(d)
-
-    assert mutation_to_cds_effect(d) == expected
-
-
-MUTATIONS2 = [
     # HGVS, coordinates on the genome,
     # A simple missense that changes a single amino acids
     ("13T>A", (32435345, 32435348)),
@@ -288,8 +257,8 @@ MUTATIONS2 = [
 ]
 
 
-@pytest.mark.parametrize("variants, expected", MUTATIONS2)
-def test_mutation_to_cds_effect2(
+@pytest.mark.parametrize("variants, expected", MUTATIONS)
+def test_mutation_to_cds_effect(
     variants: CdotVariant, expected: Tuple[int, int]
 ) -> None:
     """
@@ -300,7 +269,7 @@ def test_mutation_to_cds_effect2(
     d = Description("ENST00000452863.10:c.=")
     _init_model(d)
 
-    assert mutation_to_cds_effect2(d, variants) == expected
+    assert mutation_to_cds_effect(d, variants) == expected
 
 
 CDOT_MUTATIONS = [
