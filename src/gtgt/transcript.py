@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from .mutalyzer import mutation_to_cds_effect, HGVS, exonskip, _init_model
+from .mutalyzer import CdotVariant, mutation_to_cds_effect2, HGVS, exonskip, _init_model
 from mutalyzer.description import Description
 from .bed import Bed
 
@@ -73,10 +73,10 @@ class Transcript:
         values = [float(x["percentage"]) for x in cmp.values()]
         return sum(values) / len(cmp)
 
-    def mutate(self, d: Description) -> None:
+    def mutate(self, d: Description, variants: CdotVariant) -> None:
         """Mutate the transcript based on the specified hgvs description"""
         # Determine the CDS interval that is affected by the hgvs description
-        chromStart, chromEnd = mutation_to_cds_effect(d)
+        chromStart, chromEnd = mutation_to_cds_effect2(d, variants)
         # Subtract that region from the annotations
         self.subtract(
             Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd)
@@ -91,37 +91,33 @@ class Transcript:
         results = dict()
         results["wildtype"] = self.compare(self)
 
-        # Initialize the Description
-        d = Description(hgvs)
+        transcript_id = hgvs.split(":c.")[0]
+        variants = CdotVariant(hgvs.split(":c.")[1])
+
+        # Initialize the wildtype description
+        d = Description(f"{transcript_id}:c.=")
         _init_model(d)
+
         # Determine the score of the patient
         patient = deepcopy(self)
-        patient.mutate(d)
+        patient.mutate(d, variants)
 
         results["patient"] = patient.compare(self)
 
-        print("Initilized d")
         # Determine the score of each exon skip
         for skip in exonskip(d):
             # Add deletion to the patient mutation
-            desc = HGVS(description=d.input_description)
+            desc = HGVS(description=hgvs)
             desc.apply_deletion(skip)
 
-            # Create HGVS Description
-            print()
-            print(f"{desc.description=}")
-            d_skip = Description(desc.description)
-
             # Get the c. variant
-            cdot = desc.description.split("c.")[1]
-            print(f"{cdot=}")
-            _init_model(d_skip)
+            exonskip_variant = CdotVariant(desc.description.split("c.")[1])
 
             # Apply the combination to the wildtype transcript
             therapy = deepcopy(self)
 
             try:
-                therapy.mutate(d_skip)
+                therapy.mutate(d, exonskip_variant)
             # Splice site error from mutalyzer, no protein prediction
             except KeyError:
                 continue

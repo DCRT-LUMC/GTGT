@@ -345,7 +345,6 @@ def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVari
     internal_delins = _c_variants_to_delins_variants(
         parsed_variants, ref_id, d.references
     )
-    print(f"{internal_delins=}")
     return internal_delins
 
 
@@ -375,16 +374,16 @@ def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int,
     protein = get_protein_description(delins, d.references, selector_model)
     first = protein[3]
     last = protein[4]
-    print(f"{protein=}")
+
+    # No change to coding region
+    if first == 0 and last == 0:
+        return (0, 0)
 
     # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
-    transcript_id = d.input_model["reference"]["id"]
     start_pos = first * 3 + 1
     end_pos = (last * 3)
 
-    cdot = f"{transcript_id}:c.{start_pos}_{end_pos}del"
     cdot_mutation = f"{start_pos}_{end_pos}del"
-    print(f"{cdot_mutation=}")
 
     # Convert cdot to delins
     positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
@@ -402,12 +401,7 @@ def mutation_to_cds_effect2(d: Description, variants: CdotVariant) -> Tuple[int,
 
     assert end > start
 
-    # TODO enable after bugfix
     return start, end
-    cdot_d = Description(cdot)
-    _init_model(cdot_d)
-
-    return HGVS_to_genome_range(cdot_d)
 
 
 def variant_to_model(variant: str) -> List[VariantModel]:

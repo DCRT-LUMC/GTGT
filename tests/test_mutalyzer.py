@@ -300,8 +300,6 @@ def test_mutation_to_cds_effect2(
     d = Description("ENST00000452863.10:c.=")
     _init_model(d)
 
-    print()
-    print(f"{variants=}")
     assert mutation_to_cds_effect2(d, variants) == expected
 
 
@@ -365,16 +363,19 @@ VARIANTS = [
 ]
 
 
-@pytest.mark.parametrize("variant, effect", VARIANTS)
+@pytest.mark.parametrize("hgvs_description, effect", VARIANTS)
 def test_mutate_transcript_with_variant(
-    variant: str, effect: float, WT: Transcript
+    hgvs_description: str, effect: float, WT: Transcript
 ) -> None:
 
-    d = Description(variant)
+    transcript_id = hgvs_description.split(":c.")[0]
+    variants = CdotVariant(hgvs_description.split(":c.")[1])
+
+    d = Description(f"{transcript_id}:c.=")
     _init_model(d)
 
     modified = copy.deepcopy(WT)
-    modified.mutate(d)
+    modified.mutate(d, variants)
 
     cmp = modified.compare(WT)
     assert cmp["cds"]["percentage"] == pytest.approx(effect, abs=0.0001)
