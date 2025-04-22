@@ -6,7 +6,7 @@ from gtgt.mutalyzer import (
     InternalVariant,
     append_mutation,
     exonskip,
-    protein_change_extractor,
+    changed_protein_positions,
     mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
@@ -493,22 +493,24 @@ PROTEIN_EXTRACTOR = [
     ("AAA", "A", [(1, 3)]),
     # A delins
     ("AAA", "ATC", [(1, 3)]),
-    # An insertion
-    ("AAA", "AATA", [(2, 2)]),
+    # An insertion, which we ignore
+    ("AAA", "AATA", []),
     # A delins of TAG, which is equivalent to two insertions
-    ("AAA", "ATAGAA", [(1, 1)]),
+    ("AAA", "ATAGAA", []),
     # A delins which is equivalent to a deletion
     ("AAA", "AGGGA", [(1, 2)]),
+    # Multiple deletions
+    ("AAA", "TAT", [(0, 1), (2, 3)]),
 ]
 
 
 @pytest.mark.parametrize("reference, observed, expected", PROTEIN_EXTRACTOR)
-def test_protein_extractor(
+def test_changed_protein_positions(
     reference: str, observed: str, expected: List[Tuple[int, int]]
 ) -> None:
     """
     GIVEN a referene and observed sequence
     WHEN we extrat the protein changes
-    THEN we should get 0 based, 3' shifted positions of the deleted residues
+    THEN we should get 0 based positions of the deleted residues
     """
-    assert protein_change_extractor(reference, observed) == expected
+    assert changed_protein_positions(reference, observed) == expected
