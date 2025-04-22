@@ -1,7 +1,6 @@
 from gtgt.models import BedModel, TranscriptModel
 import pytest
 from gtgt import Bed
-from gtgt.bed import make_bed
 from gtgt.transcript import Transcript
 from gtgt.app import app
 
@@ -58,13 +57,13 @@ def test_compare(client: TestClient) -> None:
     other        - -       - - - -
     """
     # One transcript, which is smaller
-    exons = make_bed("chr1", (2, 4), (7, 11))
+    exons = Bed.from_blocks("chr1", (2, 4), (7, 11))
     exons.name = "exons"
     cds = Bed("chr1", 3, 4, "cds")
     self = Transcript(exons, cds)
 
     # Other Transcript
-    exons = make_bed("chr1", (2, 4), (5, 6), (7, 11))
+    exons = Bed.from_blocks("chr1", (2, 4), (5, 6), (7, 11))
     exons.name = "exons"
     cds = Bed("chr1", 3, 4, "cds")
     other = Transcript(exons, cds)

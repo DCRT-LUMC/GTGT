@@ -5,14 +5,13 @@ import copy
 
 from gtgt import Bed
 from gtgt.transcript import Transcript
-from gtgt.bed import make_bed
 from gtgt.models import TranscriptModel
 
 
 @pytest.fixture
 def Exons() -> Bed:
     exons = [(0, 10), (20, 40), (50, 60), (70, 100)]
-    bed = make_bed("chr1", *exons)
+    bed = Bed.from_blocks("chr1", *exons)
     bed.name = "exons"
 
     return bed
@@ -211,7 +210,7 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
         (50, 60),
         (70, 100),
     ]
-    exons = make_bed("chr1", *exon_blocks)
+    exons = Bed.from_blocks("chr1", *exon_blocks)
     exons.name = "exons"
     smaller = Transcript(exons, cds)
 

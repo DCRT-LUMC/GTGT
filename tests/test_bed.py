@@ -3,7 +3,7 @@ import pytest
 from typing import Any, Dict, List, Tuple
 
 from gtgt import Bed
-from gtgt.bed import _range_to_size_start, make_bed
+from gtgt.bed import _range_to_size_start
 
 # This is just a type alias
 from gtgt.range import Range
@@ -40,23 +40,23 @@ def test_defaul_values_blocks() -> None:
     assert bed.blockSizes == [5]
 
 
-def test_make_bed_one() -> None:
+def test_from_blocks_one() -> None:
     """
     Test making a Bed record from a single Range
     """
-    bed = make_bed("chr1", (0, 10))
+    bed = Bed.from_blocks("chr1", (0, 10))
     assert bed.chromStart == 0
     assert bed.chromEnd == 10
 
 
-def test_make_bed_multiple() -> None:
+def test_from_blocks_multiple() -> None:
     """
     Test making a Bed record from a bunch of ranges
 
     0 1 2 3 4 5 6 7 8 9 10
         - -   -   - - - -
     """
-    bed = make_bed("chr1", (2, 4), (5, 6), (7, 11))
+    bed = Bed.from_blocks("chr1", (2, 4), (5, 6), (7, 11))
     assert bed.chromStart == 2
     assert bed.chromEnd == 11
     assert bed.blockStarts == [0, 3, 5]
@@ -418,7 +418,7 @@ def test_bed_size() -> None:
 
     The size is the sum of all blocks
     """
-    bed = make_bed("chr1", (0, 5), (10, 15))
+    bed = Bed.from_blocks("chr1", (0, 5), (10, 15))
     assert bed.size == 10
 
 
@@ -445,7 +445,7 @@ compare = [
     # A, B, A/B
     (Bed("chr1", 5, 10), Bed("chr1", 0, 10), 0.5),
     # A consists of 2 blocks
-    (make_bed("chr1", (0, 10), (15, 20)), Bed("chr1", 0, 100), 0.15),
+    (Bed.from_blocks("chr1", (0, 10), (15, 20)), Bed("chr1", 0, 100), 0.15),
     # A > B
     (Bed("chr1", 0, 100), Bed("chr1", 0, 10), 10),
     # A has zero size

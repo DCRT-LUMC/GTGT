@@ -65,9 +65,9 @@ class Bed:
     def validate(self) -> None:
         """Validate the internal constistence of the Bed record"""
         if self.thickStart < self.chromStart or self.thickStart > self.chromEnd:
-            raise ValueError("thickStart outside of record")
+            raise ValueError(f"thickStart outside of record ({self})")
         if self.thickEnd < self.chromStart or self.thickEnd > self.chromEnd:
-            raise ValueError("thickEnd outside of record")
+            raise ValueError(f"thickEnd outside of record ({self})")
         if self.thickEnd < self.thickStart:
             raise ValueError("thickEnd before thickStart")
         if len(self.blockSizes) != self.blockCount:
@@ -219,6 +219,16 @@ class Bed:
             ),
         )
 
+    @classmethod
+    def from_blocks(cls, chrom: str, *blocks: Range) -> "Bed":
+        """Create a Bed record from multiple Ranges"""
+        bed = cls(chrom, 0, 0)
+
+        # Ensure the blocks are sorted in ascending order
+        sorted_blocks = sorted(blocks, key=lambda x: x[0])
+        bed.update(sorted_blocks)
+        return bed
+
     def intersect(self, other: object) -> None:
         """Update record to only contain features that overlap other"""
         if not isinstance(other, Bed):
@@ -356,10 +366,3 @@ def _range_to_size_start(range: Range, offset: int) -> Tuple[int, int]:
     size = range[1] - range[0]
     start = range[0] - offset
     return size, start
-
-
-def make_bed(chrom: str, *blocks: Range) -> Bed:
-    """Create a Bed record from multiple Ranges"""
-    bed = Bed(chrom, 0, 0)
-    bed.update(list(blocks))
-    return bed
