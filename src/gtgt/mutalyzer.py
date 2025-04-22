@@ -298,6 +298,12 @@ def _get_ensembl_offset(
     return offset
 
 
+def protein_change_extractor(reference: str, observed: str) -> None:
+    """
+    Extract the change protein positions (1 based)
+    """
+    return None
+
 def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVariant]:
     """Convert a list of cdot variants to internal indels"""
     #  Get stuf we need
