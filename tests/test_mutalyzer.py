@@ -480,24 +480,28 @@ def test_variant_to_model(variant: str, variant_models: List[VariantModel]) -> N
 
 
 PROTEIN_EXTRACTOR = [
-        # No change
-        ("A", "A", []),
-        # A single change
-        ("A", "T", [(1,1)]),
-        # Change in a repeat region
-        ("AA", "A", [(2,2)]),
-        ("AAA", "A", [(2,3)]),
-        # A delins
-        ("AAA", "ATC" [(2,3)]),
-        # An insertion
-        ("AAA", "AATA", []),
-        # A delins of TAG, which is equivalent to two insertions
-        ("AAA", "ATAGAA", []),
-        # A delins which is equivalent to a deletion
-        ("AAA", "AGGGA", [(2,2)],
+    # No change
+    ("A", "A", []),
+    # A single change
+    ("A", "T", [(1, 1)]),
+    # Change in a repeat region
+    ("AA", "A", [(2, 2)]),
+    ("AAA", "A", [(2, 3)]),
+    # A delins
+    ("AAA", "ATC", [(2, 3)]),
+    # An insertion
+    ("AAA", "AATA", []),
+    # A delins of TAG, which is equivalent to two insertions
+    ("AAA", "ATAGAA", []),
+    # A delins which is equivalent to a deletion
+    ("AAA", "AGGGA", [(2, 2)]),
 ]
+
+
 @pytest.mark.parametrize("reference, observed, expected", PROTEIN_EXTRACTOR)
-def test_protein_extractor(reference: str, observed:str, expected: List[Tuple[int,int]]) -> None:
+def test_protein_extractor(
+    reference: str, observed: str, expected: List[Tuple[int, int]]
+) -> None:
     """
     GIVEN a referene and observed sequence
     WHEN we extrat the protein changes
