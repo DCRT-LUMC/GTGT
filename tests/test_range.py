@@ -70,7 +70,7 @@ range_subtract = [
     # The selector is before A
     #    0 1 2 3 4 5 6 7 8 9
     # A            - - - - -
-    # S  - -  - - -
+    # S  - - - - -
     # E            - - - - -
     (
         # A
@@ -110,15 +110,35 @@ range_subtract = [
         [(3, 6)],
         [(0, 3)],
     ),
+    # The selector is larger than A
+    #    0 1 2 3 4 5 6 7 8 9
+    # A        - - - - -
+    # S      - - - - - - -
+    # E
+    (
+        [(3, 8)],
+        [(2, 9)],
+        [],
+    ),
+    # The selector is the same as A
+    #    0 1 2 3 4 5 6 7 8 9
+    # A        - - - - -
+    # S        - - - - -
+    # E
+    (
+        [(3, 8)],
+        [(3, 8)],
+        [],
+    ),
     # The selector is after A
     #    0 1 2 3 4 5 6 7 8 9
-    # A  - - - - -
+    # A  - - - - - -
     # S              - - -
-    # E  - - -  - -
+    # E  - - - - - -
     (
-        [(0, 5)],
+        [(0, 6)],
         [(6, 9)],
-        [(0, 5)],
+        [(0, 6)],
     ),
     # Both A and the selector consist of multiple ranges
     # The first region in A has partial overlap with the first two selector regions
@@ -132,6 +152,24 @@ range_subtract = [
         [(0, 4), (5, 7), (9, 10)],
         [(0, 2), (3, 6), (9, 15)],
         [(2, 3), (6, 7)],
+    ),
+    # A is empty
+    (
+        [],
+        [(0,2)],
+        [],
+    ),
+    # The selector is empty, so A is unchanged
+    (
+        [(0, 4)],
+        [],
+        [(0, 4)],
+    ),
+    # Both A and the selector are empty
+    (
+        [],
+        [],
+        [],
     ),
 ]
 # fmt: on
