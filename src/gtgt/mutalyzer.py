@@ -10,6 +10,10 @@ from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.checker import is_overlap
 import mutalyzer_hgvs_parser
 
+from algebra import Variant
+from algebra.extractor import extract_sequence, local_supremal
+from algebra.lcs.lcs_graph import trim
+
 from pydantic import BaseModel, model_validator
 
 from typing import Any, Tuple, List, Dict, Union
@@ -298,11 +302,28 @@ def _get_ensembl_offset(
     return offset
 
 
-def protein_change_extractor(reference: str, observed: str) -> None:
+def protein_change_extractor(reference: str, observed: str) -> List[Tuple[int, int]]:
     """
     Extract the change protein positions (1 based)
     """
-    return None
+    algebra_variants, graph = extract_sequence(reference, observed)
+
+    trimmed_variants = list()
+
+    for variant in algebra_variants:
+        deleted = reference[variant.start : variant.end]
+        start, end = trim(deleted, variant.sequence)
+        trimmed_variants.append(
+            Variant(
+                variant.start + start,
+                variant.end - end,
+                variant.sequence[start : len(variant.sequence) - end],
+            )
+        )
+
+    # Return start and end positions, zero based
+    # We ignore the inserted sequence, since we only look at deletions
+    return [(x.start, x.end) for x in trimmed_variants]
 
 
 def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVariant]:

@@ -480,21 +480,25 @@ def test_variant_to_model(variant: str, variant_models: List[VariantModel]) -> N
 
 
 PROTEIN_EXTRACTOR = [
+    # No protein description
+    ("", "", []),
     # No change
     ("A", "A", []),
     # A single change
-    ("A", "T", [(1, 1)]),
+    ("A", "T", [(0, 1)]),
+    # A single change on the second position
+    ("AAA", "ATA", [(1, 2)]),
     # Change in a repeat region
-    ("AA", "A", [(2, 2)]),
-    ("AAA", "A", [(2, 3)]),
+    ("AA", "A", [(1, 2)]),
+    ("AAA", "A", [(1, 3)]),
     # A delins
-    ("AAA", "ATC", [(2, 3)]),
+    ("AAA", "ATC", [(1, 3)]),
     # An insertion
-    ("AAA", "AATA", []),
+    ("AAA", "AATA", [(2, 2)]),
     # A delins of TAG, which is equivalent to two insertions
-    ("AAA", "ATAGAA", []),
+    ("AAA", "ATAGAA", [(1, 1)]),
     # A delins which is equivalent to a deletion
-    ("AAA", "AGGGA", [(2, 2)]),
+    ("AAA", "AGGGA", [(1, 2)]),
 ]
 
 
@@ -505,6 +509,6 @@ def test_protein_extractor(
     """
     GIVEN a referene and observed sequence
     WHEN we extrat the protein changes
-    THEN we should get 1 based, 3' shifted positions
+    THEN we should get 0 based, 3' shifted positions of the deleted residues
     """
-    assert True
+    assert protein_change_extractor(reference, observed) == expected
