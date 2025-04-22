@@ -341,7 +341,9 @@ def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVari
     return internal_delins
 
 
-def mutation_to_cds_effect(d: Description, variants: CdotVariant) -> Tuple[int, int]:
+def mutation_to_cds_effect(
+    d: Description, variants: CdotVariant
+) -> List[Tuple[int, int]]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome
 
@@ -365,36 +367,37 @@ def mutation_to_cds_effect(d: Description, variants: CdotVariant) -> Tuple[int, 
 
     # Determine the protein positions that were changed
     protein = get_protein_description(delins, d.references, selector_model)
-    first = protein[3]
-    last = protein[4]
+    reference, observed = protein[1], protein[2]
 
-    # No change to coding region
-    if first == 0 and last == 0:
-        return (0, 0)
+    # Keep track of changed positions on the genome
+    changed_genomic = list()
 
-    # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
-    start_pos = first * 3 + 1
-    end_pos = last * 3
+    for start, end in changed_protein_positions(reference, observed):
+        # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
+        start_pos = start * 3 + 1
+        end_pos = end * 3
 
-    cdot_mutation = f"{start_pos}_{end_pos}del"
+        cdot_mutation = f"{start_pos}_{end_pos}del"
 
-    # Convert cdot to delins
-    positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
-    # positions_delins[0]["inverted"] = True
-    ensembl_offset = _get_ensembl_offset(d.references, ref_id)
+        # Convert cdot to delins
+        positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
+        ensembl_offset = _get_ensembl_offset(d.references, ref_id)
 
-    if ensembl_offset is None:
-        raise RuntimeError("Missing ensemble offset")
+        if ensembl_offset is None:
+            raise RuntimeError("Missing ensemble offset")
 
-    genome_positions = _internal_to_internal_genome(positions_delins, ensembl_offset)
+        genome_positions = _internal_to_internal_genome(
+            positions_delins, ensembl_offset
+        )
 
-    assert len(genome_positions) == 1
-    start = genome_positions[0]["location"]["start"]["position"]
-    end = genome_positions[0]["location"]["end"]["position"]
+        assert len(genome_positions) == 1
+        start = genome_positions[0]["location"]["start"]["position"]
+        end = genome_positions[0]["location"]["end"]["position"]
 
-    assert end > start
+        assert end > start
+        changed_genomic.append((start, end))
 
-    return start, end
+    return changed_genomic
 
 
 def variant_to_model(variant: str) -> List[VariantModel]:

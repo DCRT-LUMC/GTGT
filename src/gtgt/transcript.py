@@ -75,12 +75,10 @@ class Transcript:
 
     def mutate(self, d: Description, variants: CdotVariant) -> None:
         """Mutate the transcript based on the specified hgvs description"""
-        # Determine the CDS interval that is affected by the hgvs description
-        chromStart, chromEnd = mutation_to_cds_effect(d, variants)
+        # Determine the CDS intervals that are affected by the hgvs description
+        deleted = Bed.from_blocks(self.cds.chrom, *mutation_to_cds_effect(d, variants))
         # Subtract that region from the annotations
-        self.subtract(
-            Bed(chrom=self.cds.chrom, chromStart=chromStart, chromEnd=chromEnd)
-        )
+        self.subtract(deleted)
 
     def analyze(self, hgvs: str) -> Dict[str, TranscriptComparison]:
         """Analyse the transcript based on the specified hgvs description

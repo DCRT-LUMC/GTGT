@@ -245,8 +245,8 @@ MUTATIONS = [
     # HGVS, coordinates on the genome,
     # A simple missense that changes a single amino acids
     ("13T>A", (32435345, 32435348)),
-    # A frameshift which destroys most of the protein
-    ("10del", (32389057, 32435351)),
+    # A stop mutation which destroys most of the protein
+    ("9_10insTAG", (32389060, 32435351)),
     # # A frameshift that is restored by an insertion
     ("[10del;20_21insA]", (32435339, 32435351)),
     # # A frameshift that is restored by a bigger insertion
@@ -254,7 +254,7 @@ MUTATIONS = [
     # # A bigger deletion
     ("11_19del", (32435342, 32435351)),
     # # An inframe deletion that creates a STOP codon
-    ("87_89del", (32389057, 32435276)),
+    ("87_89del", (32389060, 32435276)),
 ]
 
 
@@ -270,7 +270,7 @@ def test_mutation_to_cds_effect(
     d = Description("ENST00000452863.10:c.=")
     _init_model(d)
 
-    assert mutation_to_cds_effect(d, variants) == expected
+    assert mutation_to_cds_effect(d, variants) == [expected]
 
 
 CDOT_MUTATIONS = [
