@@ -328,7 +328,6 @@ def _cdot_to_internal_delins(d: Description, variants: CdotVariant) -> List[Inte
     """Convert a list of cdot variants to internal indels"""
     #  Get stuf we need
     ref_id = get_reference_id(d.corrected_model)
-    genome_references = _get_genome_annotations(d.references)
 
     # Parse the c. string into mutalyzer variant dictionary
     parsed_variants = variant_to_model(variants)
