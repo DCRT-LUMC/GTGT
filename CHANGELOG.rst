@@ -6,6 +6,11 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+v0.2.2-dev
+----------
++ Reduce the analysis time by 50% per exon
++ Fix a bug where the number of changed amino acids was overestimated
+
 v0.2.1
 ------
 + Re-use mutalyzer Description object to reduce load on Ensembl API
