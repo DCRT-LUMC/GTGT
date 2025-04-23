@@ -18,10 +18,11 @@ from typing import Any, Tuple, List, Dict, Union
 from typing_extensions import NewType
 
 # Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
-InternalVariant = NewType("InternalVariant", dict[str, Any])
 # Variant string in HGVS c. format
 CdotVariant = NewType("CdotVariant", str)
-VariantModel = NewType("VariantModel", Dict[str, Any])
+# Mutalyzer Variant dictionary
+Variant = NewType("Variant", Dict[str, Any])
+InternalVariant = NewType("InternalVariant", dict[str, Any])
 
 
 
@@ -401,11 +402,11 @@ def mutation_to_cds_effect(
     return changed_genomic
 
 
-def variant_to_model(variant: str) -> List[VariantModel]:
+def variant_to_model(variant: str) -> List[Variant]:
     """
     Parse the specified variant into a variant model
     """
-    results: List[VariantModel]
+    results: List[Variant]
     if "[" in variant:
         results = mutalyzer_hgvs_parser.to_model(variant, "variants")
     else:

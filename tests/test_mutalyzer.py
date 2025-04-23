@@ -11,7 +11,7 @@ from gtgt.mutalyzer import (
     _cdot_to_internal_delins,
     _init_model,
 )
-from gtgt.mutalyzer import HGVS, VariantModel, variant_to_model
+from gtgt.mutalyzer import HGVS, Variant, variant_to_model
 from mutalyzer.description import Description
 from mutalyzer.converter.to_delins import variants_to_delins
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
@@ -470,10 +470,10 @@ PARSE_VARIANT = [
 
 
 @pytest.mark.parametrize("variant, variant_models", PARSE_VARIANT)
-def test_variant_to_model(variant: str, variant_models: List[VariantModel]) -> None:
+def test_variant_to_model(variant: str, variant_models: List[Variant]) -> None:
     """
     GIVEN a string denoting a HGVS variant
-    WHEN we parse this into a VariantModel
+    WHEN we parse this into a Variant
     THEN it should contain the expected values
     """
     assert variant_to_model(variant) == variant_models
