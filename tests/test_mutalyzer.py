@@ -426,7 +426,9 @@ APPEND_OVERLAPPING_VARIANT = [
 
 
 @pytest.mark.parametrize("existing, novel", APPEND_OVERLAPPING_VARIANT)
-def test_appending_overlapping_variants(existing: CdotVariant, novel: CdotVariant) -> None:
+def test_appending_overlapping_variants(
+    existing: CdotVariant, novel: CdotVariant
+) -> None:
     """
     GIVEN a transcript with existing variant(s)
     WHEN we attempt to add novel variant which overlaps the existing variants

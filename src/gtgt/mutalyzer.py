@@ -25,8 +25,6 @@ Variant = NewType("Variant", Dict[str, Any])
 InternalVariant = NewType("InternalVariant", dict[str, Any])
 
 
-
-
 class HGVS(BaseModel):
     description: str
 
@@ -324,7 +322,9 @@ def changed_protein_positions(reference: str, observed: str) -> List[Tuple[int, 
     return deleted
 
 
-def _cdot_to_internal_delins(d: Description, variants: CdotVariant) -> List[InternalVariant]:
+def _cdot_to_internal_delins(
+    d: Description, variants: CdotVariant
+) -> List[InternalVariant]:
     """Convert a list of cdot variants to internal indels"""
     #  Get stuf we need
     ref_id = get_reference_id(d.corrected_model)
