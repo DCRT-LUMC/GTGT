@@ -17,7 +17,13 @@ import Levenshtein
 from typing import Any, Tuple, List, Dict, Union
 from typing_extensions import NewType
 
-VariantModel = Dict[str, Any]
+# Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
+InternalVariant = NewType("InternalVariant", dict[str, Any])
+# Variant string in HGVS c. format
+CdotVariant = NewType("CdotVariant", str)
+VariantModel = NewType("VariantModel", Dict[str, Any])
+
+
 
 
 class HGVS(BaseModel):
@@ -200,11 +206,6 @@ def _init_model(d: Description) -> None:
     d.construct_de_hgvs_coordinates_model()
     d.construct_normalized_description()
     d.construct_protein_description()
-
-
-# Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
-InternalVariant = NewType("InternalVariant", dict[str, Any])
-CdotVariant = NewType("CdotVariant", str)
 
 
 def _get_genome_annotations(references: Dict[str, Any]) -> Dict[str, Any]:
