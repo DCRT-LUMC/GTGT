@@ -1,4 +1,6 @@
 from copy import deepcopy
+import dataclasses
+
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from mutalyzer.converter.to_delins import variants_to_delins
@@ -17,12 +19,22 @@ import Levenshtein
 from typing import Any, Tuple, List, Dict, Union
 from typing_extensions import NewType
 
+
 # Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
 # Variant string in HGVS c. format
 CdotVariant = NewType("CdotVariant", str)
 # Mutalyzer Variant dictionary
 Variant = NewType("Variant", Dict[str, Any])
 InternalVariant = NewType("InternalVariant", dict[str, Any])
+
+
+@dataclasses.dataclass
+class Therapy:
+    """Class to store genetic therapies"""
+
+    name: str
+    hgvs: str
+    description: str
 
 
 class HGVS(BaseModel):
@@ -175,7 +187,7 @@ def HGVS_to_genome_range(d: Description) -> Tuple[int, int]:
     return (start, end)
 
 
-def exonskip(d: Description) -> List[HGVS]:
+def exonskip(d: Description) -> List[Therapy]:
     """Generate all possible exon skips for the specified HGVS description"""
     d.to_delins()
 
@@ -186,9 +198,16 @@ def exonskip(d: Description) -> List[HGVS]:
 
     exon_skips = list()
     # The first and second exon cannot be skipped
+
+    exon_counter = 2
     for start, end in exons[1:-1]:
-        skip = f"{transcript_id}:c.{start}_{end}del"
-        exon_skips.append(HGVS(description=skip))
+        name = f"Skip exon {exon_counter}"
+        hgvs = f"{transcript_id}:c.{start}_{end}del"
+        description = f"The effect prediction for skipping exon {exon_counter}"
+        t = Therapy(name, hgvs, description)
+        print(f"{t=}")
+        exon_skips.append(t)
+        exon_counter += 1
     return exon_skips
 
 

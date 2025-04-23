@@ -107,7 +107,7 @@ class Transcript:
             # Add deletion to the patient mutation
             desc = HGVS(description=hgvs)
             try:
-                desc.apply_deletion(skip)
+                desc.apply_deletion(HGVS(description=skip.hgvs))
             except NotImplementedError as e:
                 # TODO add logging
                 continue
@@ -123,6 +123,6 @@ class Transcript:
             # Splice site error from mutalyzer, no protein prediction
             except KeyError:
                 continue
-            results[skip.description] = therapy.compare(self)
+            results[skip.name] = therapy.compare(self)
 
         return results

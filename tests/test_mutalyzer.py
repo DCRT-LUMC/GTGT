@@ -221,7 +221,7 @@ def test_exonskip_SDHD() -> None:
         "ENST00000375549.8:c.170_314del",
     ]
     for output, expected in zip_longest(exonskip(d), results):
-        assert output == HGVS(description=expected)
+        assert output.hgvs == expected
 
 
 def test_exonskip_WT1() -> None:
@@ -238,7 +238,7 @@ def test_exonskip_WT1() -> None:
         "ENST00000452863.10:c.1355_1447del",
     ]
     for output, expected in zip_longest(exonskip(d), results):
-        assert output == HGVS(description=expected)
+        assert output.hgvs == expected
 
 
 MUTATIONS = [
