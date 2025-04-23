@@ -285,7 +285,7 @@ CDOT_MUTATIONS = [
 
 
 @pytest.mark.parametrize("cdot, internal_delins", CDOT_MUTATIONS)
-def test_cdot_to_indel(cdot: str, internal_delins: str) -> None:
+def test_cdot_to_indel(cdot: CdotVariant, internal_delins: str) -> None:
     """
     GIVEN a list of c. mutations a string
     WHEN we convert them to internal i. indels
@@ -358,7 +358,7 @@ APPEND_VARIANT = [
 
 
 @pytest.mark.parametrize("mutation, protein", APPEND_VARIANT)
-def test_append_mutation(mutation: str, protein: str) -> None:
+def test_append_mutation(mutation: CdotVariant, protein: str) -> None:
     """
     GIVEN a string denoting a HGVS variant
     WHEN we append this variant to an existing Description
@@ -394,7 +394,7 @@ APPEND_TO_EXISTING = [
 
 @pytest.mark.parametrize("existing, novel, protein", APPEND_TO_EXISTING)
 def test_append_mutation_to_existing_variant(
-    existing: str, novel: str, protein: str
+    existing: CdotVariant, novel: CdotVariant, protein: str
 ) -> None:
     """
     GIVEN a string denoting a HGVS variant
@@ -426,7 +426,7 @@ APPEND_OVERLAPPING_VARIANT = [
 
 
 @pytest.mark.parametrize("existing, novel", APPEND_OVERLAPPING_VARIANT)
-def test_appending_overlapping_variants(existing: str, novel: str) -> None:
+def test_appending_overlapping_variants(existing: CdotVariant, novel: CdotVariant) -> None:
     """
     GIVEN a transcript with existing variant(s)
     WHEN we attempt to add novel variant which overlaps the existing variants
@@ -470,7 +470,7 @@ PARSE_VARIANT = [
 
 
 @pytest.mark.parametrize("variant, variant_models", PARSE_VARIANT)
-def test_variant_to_model(variant: str, variant_models: List[Variant]) -> None:
+def test_variant_to_model(variant: CdotVariant, variant_models: List[Variant]) -> None:
     """
     GIVEN a string denoting a HGVS variant
     WHEN we parse this into a Variant

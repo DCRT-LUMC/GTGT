@@ -249,7 +249,7 @@ def _get_genome_annotations(references: Dict[str, Any]) -> Dict[str, Any]:
     return output
 
 
-def _description_model(ref_id: str, variants: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _description_model(ref_id: str, variants: List[Variant]) -> Dict[str, Any]:
     """
     To be used only locally with ENSTs.
     """
@@ -262,7 +262,7 @@ def _description_model(ref_id: str, variants: List[Dict[str, Any]]) -> Dict[str,
 
 
 def _c_variants_to_delins_variants(
-    variants: List[Dict[str, Any]], ref_id: str, references: Dict[str, Any]
+    variants: List[Variant], ref_id: str, references: Dict[str, Any]
 ) -> List[InternalVariant]:
     """
     The variants can be of any type (substitutions, duplications, etc.).
@@ -324,17 +324,14 @@ def changed_protein_positions(reference: str, observed: str) -> List[Tuple[int, 
     return deleted
 
 
-def _cdot_to_internal_delins(d: Description, variants: str) -> List[InternalVariant]:
+def _cdot_to_internal_delins(d: Description, variants: CdotVariant) -> List[InternalVariant]:
     """Convert a list of cdot variants to internal indels"""
     #  Get stuf we need
     ref_id = get_reference_id(d.corrected_model)
     genome_references = _get_genome_annotations(d.references)
 
     # Parse the c. string into mutalyzer variant dictionary
-    if "[" in variants:
-        parsed_variants = mutalyzer_hgvs_parser.to_model(variants, "variants")
-    else:
-        parsed_variants = [mutalyzer_hgvs_parser.to_model(variants, "variant")]
+    parsed_variants = variant_to_model(variants)
 
     # Convert the variant dicts into internal delins
     internal_delins = _c_variants_to_delins_variants(
@@ -379,7 +376,7 @@ def mutation_to_cds_effect(
         start_pos = start * 3 + 1
         end_pos = end * 3
 
-        cdot_mutation = f"{start_pos}_{end_pos}del"
+        cdot_mutation = CdotVariant(f"{start_pos}_{end_pos}del")
 
         # Convert cdot to delins
         positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
@@ -402,7 +399,7 @@ def mutation_to_cds_effect(
     return changed_genomic
 
 
-def variant_to_model(variant: str) -> List[Variant]:
+def variant_to_model(variant: CdotVariant) -> List[Variant]:
     """
     Parse the specified variant into a variant model
     """
@@ -414,7 +411,7 @@ def variant_to_model(variant: str) -> List[Variant]:
     return results
 
 
-def append_mutation(description: Description, mutation: str) -> None:
+def append_mutation(description: Description, mutation: CdotVariant) -> None:
     """
     Add mutation to the Description, re-using the Description object
     """
