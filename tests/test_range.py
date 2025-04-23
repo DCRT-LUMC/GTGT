@@ -1,7 +1,7 @@
 import pytest
 from typing import List
 
-from gtgt.range import Range, intersect, overlap, subtract, _to_range
+from gtgt.range import Range, intersect, overlap, subtract
 
 # fmt: off
 range_overlap = [
@@ -178,24 +178,3 @@ range_subtract = [
 @pytest.mark.parametrize("a, b, expected", range_subtract)
 def test_subtract_ranges(a: List[Range], b: List[Range], expected: List[Range]) -> None:
     assert subtract(a, b) == expected
-
-
-to_range = [
-    ([], []),
-    ([0], [(0, 1)]),
-    ([0, 1], [(0, 2)]),
-    ([0, 1, 2, 4, 5], [(0, 3), (4, 6)]),
-    ([3, 2, 1, 0], [(0, 4)]),
-]
-
-
-@pytest.mark.parametrize("numbers, expected", to_range)
-def test_to_range(numbers: List[int], expected: List[Range]) -> None:
-    # Test from numbers to ranges
-    assert _to_range(set(numbers)) == expected
-
-    # Test from returned ranges to numbers
-    nums = list()
-    for r in expected:
-        nums += list(range(*r))
-    assert set(nums) == set(numbers)

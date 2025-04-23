@@ -1,4 +1,4 @@
-from typing import Tuple, List, Set
+from typing import Tuple, List, Set, cast
 
 Range = Tuple[int, int]
 
@@ -25,47 +25,58 @@ def intersect(a: Range, b: Range) -> List[Range]:
 def subtract(a: List[Range], b: List[Range]) -> List[Range]:
     """
     Subtract the regions in b from a
-
-    Lazy implementation by just putting all numbers into two sets
     """
-    A: Set[int] = set()
-    for start, end in a:
-        A.update(range(start, end))
 
-    B: Set[int] = set()
-    for start, end in b:
-        B.update(range(start, end))
+    # Iterate over a and b, and add None as a stop value
+    a_iter = iter([x for x in a] + [None])
+    b_iter = iter([x for x in b] + [None])
 
-    return _to_range(A - B)
+    A = next(a_iter)
+    B = next(b_iter)
 
+    results: List[Tuple[int, int]] = list()
 
-def _to_range(numbers: Set[int]) -> List[Range]:
-    """Convert a set of numbers to a range[start, end)"""
-    # Make sure the numbers are sorted
-    _numbers = sorted(numbers)
+    while True:
+        # If we exhaust A or B we are done
+        if A is None:
+            break
+        if B is None:
+            # Get the values for A still waiting to be processed
+            # Remove the None value
+            left_over = [x for x in a_iter if x is not None]
+            results += [A] + left_over
+            break
 
-    # If there are no _numbers
-    if not _numbers:
-        return list()
+        # A before B
+        if A[1] <= B[0]:
+            results.append(A)
+            A = next(a_iter)
+            continue
 
-    # If there is only a single number
-    if len(_numbers) == 1:
-        i = _numbers[0]
-        return [(i, i + 1)]
+        # A after B
+        if A[0] >= B[1]:
+            B = next(b_iter)
+            continue
 
-    # Initialise the start and previous number
-    start = prev = _numbers[0]
+        # If we are here, A and B overlap
+        o = intersect(A, B)[0]
 
-    # Store the ranges we found
-    ranges = list()
+        # B is in the middle of A
+        if B == o:
+            results.append((A[0], o[0]))
+            A = (o[1], A[1])
+        # B fully overlaps A
+        elif A == o:
+            A = next(a_iter)
+        # B overlaps start of A
+        elif o[1] == B[1]:
+            B = next(b_iter)
+            A = (o[1], A[1])
+        # B overlaps the end of A
+        elif A[1] == o[1]:
+            results.append((A[0], o[0]))
+            A = next(a_iter)
 
-    # Process all _numbers
-    for i in _numbers[1:]:
-        if i == prev + 1:
-            prev = i
-        else:
-            ranges.append((start, prev + 1))
-            start = prev = i
-    ranges.append((start, prev + 1))
-
-    return ranges
+    # Remove ranges of size zero
+    results = [x for x in results if x[1] > x[0]]
+    return results
