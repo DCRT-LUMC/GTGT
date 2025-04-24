@@ -125,9 +125,9 @@ class Transcript:
 
         # The wildtype has a score of 100% by default
         wt = Therapy(
-            name="wildtype",
+            name="Wildtype",
             hgvs=f"{transcript_id}:c.=",
-            description="These are the annotations as defined on the reference",
+            description="These are the annotations as defined on the reference. They are always 100% by definition.",
         )
         wildtype = Result(wt, self.compare(self))
         results.append(wildtype)
@@ -141,9 +141,9 @@ class Transcript:
         patient.mutate(d, variants)
 
         p = Therapy(
-            name="patient",
+            name="Input",
             hgvs=hgvs,
-            description="The annotations based on the supplied variant",
+            description="The annotations based on the supplied input variants.",
         )
         results.append(Result(p, patient.compare(self)))
 

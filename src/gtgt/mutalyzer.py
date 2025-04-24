@@ -203,7 +203,7 @@ def exonskip(d: Description) -> List[Therapy]:
     for start, end in exons[1:-1]:
         name = f"Skip exon {exon_counter}"
         hgvs = f"{transcript_id}:c.{start}_{end}del"
-        description = f"The effect prediction for skipping exon {exon_counter}"
+        description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
         t = Therapy(name, hgvs, description)
         exon_skips.append(t)
         exon_counter += 1
