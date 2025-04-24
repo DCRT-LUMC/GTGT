@@ -7,13 +7,15 @@ from .wrappers import lookup_transcript
 from .variant_validator import lookup_variant
 from .provider import Provider
 from .mutalyzer import exonskip
-from .mutalyzer import HGVS
+from .mutalyzer import _init_model
+from mutalyzer.description import Description
 
 import secrets
 import argparse
 import json
 import logging
 import os
+import dataclasses
 
 
 def logger_setup() -> logging.Logger:
@@ -101,15 +103,16 @@ def main() -> None:
         uvicorn.run(app, host=args.host)
     elif args.command == "mutate":
         desc = f"{args.transcript_id}:c.="
-        hgvs_transcript = HGVS(description=desc)
-        for hgvs in exonskip(hgvs_transcript):
-            print(hgvs.description)
-        print(args.transcript_id)
+        d = Description(desc)
+        _init_model(d)
+        for therapy in exonskip(d):
+            print(f"{therapy.name}: {therapy.hgvs}")
     elif args.command == "analyze":
         transcript_id = args.hgvs.split(":")[0]
         transcript_model = lookup_transcript(provider, transcript_id)
         transcript = transcript_model.to_transcript()
-        results = transcript.analyze(args.hgvs)
+        # Convert Result objects to dict
+        results = [dataclasses.asdict(x) for x in transcript.analyze(args.hgvs)]
         print(json.dumps(results, indent=True))
     elif args.command == "webserver":
         try:
