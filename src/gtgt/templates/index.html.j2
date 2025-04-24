@@ -208,7 +208,7 @@
                     {% set value = (comp.percentage * 100) | round(precision=1) %}
                     <tr>
                       <td>{{ comp.name }}</td>
-                      <td>{{ comp.percentage }}% </td>
+                      <td>{{ value }}% </td>
                       <td>{{ comp.basepairs }}
                       <td><progress value="{{value}}" max="100"></progress></td>
                     </tr>
