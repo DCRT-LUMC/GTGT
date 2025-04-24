@@ -6,8 +6,10 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
-v0.2.2-dev
-----------
+v0.2.2
+------
++ Update the analysis results to give more information on proposed Therapies
++ Improve type annotations
 + Reduce the analysis time by 50% per exon
 + Fix a bug where the number of changed amino acids was overestimated
 
