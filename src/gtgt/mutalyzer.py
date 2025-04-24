@@ -44,7 +44,7 @@ class HGVS(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "description": "NM_002520.7:c.860_863dup",
+                    "description": "ENST00000357033.9:c.6439_6614del",
                 }
             ]
         }
