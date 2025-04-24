@@ -157,6 +157,9 @@ class Transcript:
                 # TODO add logging
                 continue
 
+            # Update the therapy hgvs after applying the deletion
+            skip.hgvs = desc.description
+
             # Get the c. variant
             exonskip_variant = CdotVariant(desc.description.split("c.")[1])
 
