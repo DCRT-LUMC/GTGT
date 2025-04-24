@@ -177,18 +177,23 @@
 
       {% if results is defined %}
         <div id="analysis" class="page padding active">
-          <h5> Analysis results for {{ variant }}</h5>
-          {% for name in results %}
+          <h4> Analysis results for {{ variant }}</h4>
+          {% for result in results %}
             <article>
               <details>
                 <summary class="none">
                   <div class="row">
                     <div class="max">
-                      <h6>{{ name }}</h6>
+                      <h5>{{ result.therapy.name }}</h5>
                     </div>
                     <i>arrow_drop_down</i>
                   </div>
                 </summary>
+                <h6>HGVS</h6>
+                <code>{{ result.therapy.hgvs }}</code>
+                <h6>Therapy description</h6>
+                <p>{{ result.therapy.description}}
+                <h6>Annotation overview</h6>
                 <table>
                   <thead>
                     <tr>
@@ -199,13 +204,12 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for fieldname in results[name] %}
-                    {% set value = (results[name][fieldname]['percentage'] * 100) | round(precision=1) %}
-                    {% set basepair = results[name][fieldname]['fraction'] %}
+                    {% for comp in result.comparison %}
+                    {% set value = (comp.percentage * 100) | round(precision=1) %}
                     <tr>
-                      <td>{{ fieldname }}</td>
-                      <td>{{ value }}% </td>
-                      <td>{{ basepair }}
+                      <td>{{ comp.name }}</td>
+                      <td>{{ comp.percentage }}% </td>
+                      <td>{{ comp.basepairs }}
                       <td><progress value="{{value}}" max="100"></progress></td>
                     </tr>
                     {% endfor %}
