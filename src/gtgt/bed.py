@@ -286,7 +286,7 @@ class Bed:
         subtracted_blocks = subtract(list(self.blocks()), list(other.blocks()))
         self.update(subtracted_blocks)
 
-    def compare(self, other: object, type: str = "percentage") -> Union[float, str]:
+    def compare(self, other: object) -> float:
         """
         Compare the size of Bed objects
 
@@ -313,12 +313,36 @@ class Bed:
             msg = "Comparison failed, properties mismatch: {prop_self} != {prop_other}"
             raise ValueError(msg)
 
-        if type == "fraction":
-            return f"{self.size}/{other.size}"
-        elif type == "percentage":
-            return self.size / other.size
-        else:
-            raise ValueError(f"Unknown comparison type {type}")
+        return self.size / other.size
+
+    def compare_basepair(self, other: object) -> str:
+        """
+        Compare the size of Bed objects, return a string showing remainting basepairs
+
+        Raises a ValueError if chrom, name or strand are not identical
+        """
+
+        def get_properties(bed: Bed) -> Tuple[str, ...]:
+            """Return a tuple of the properties that must match"""
+            return (bed.chrom, bed.name, bed.strand)
+
+        if not isinstance(other, Bed):
+            raise NotImplementedError
+
+        # Other can not have size zero
+        if other.size == 0:
+            msg = f"Comparison not allowed with zero-size Bed record ({other=})"
+            raise ValueError(msg)
+
+        # We only compare Bed objects if their properties match
+        prop_self = get_properties(self)
+        prop_other = get_properties(other)
+
+        if prop_self != prop_other:
+            msg = "Comparison failed, properties mismatch: {prop_self} != {prop_other}"
+            raise ValueError(msg)
+
+        return f"{self.size}/{other.size}"
 
     def update(self, ranges: List[Range]) -> None:
         """Update a Bed object with a list of ranges"""

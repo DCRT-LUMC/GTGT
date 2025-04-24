@@ -1,12 +1,45 @@
 from copy import deepcopy
+import dataclasses
 
-from .mutalyzer import CdotVariant, mutation_to_cds_effect, HGVS, exonskip, _init_model
+from .mutalyzer import (
+    CdotVariant,
+    Therapy,
+    mutation_to_cds_effect,
+    HGVS,
+    exonskip,
+    _init_model,
+)
 from mutalyzer.description import Description
 from .bed import Bed
 
 from typing import List, Dict, Union
 
 TranscriptComparison = Dict[str, Dict[str, Union[float, str]]]
+
+
+@dataclasses.dataclass
+class Comparison:
+    name: str
+    percentage: float
+    fraction: str
+
+
+@dataclasses.dataclass
+class Result:
+    """To hold results for separate mutations of a transcript"""
+
+    therapy: Therapy
+    comparison: List[Comparison]
+
+    def __gt__(self, other: "Result") -> bool:
+        """Sort Result based on the sum of the percentage"""
+        if not isinstance(other, Result):
+            msg = f"Unsupported comparison between Bed and {type(other)}"
+            raise NotImplementedError(msg)
+
+        total_self = sum(c.percentage for c in self.comparison)
+        total_other = sum(c.percentage for c in other.comparison)
+        return total_self > total_other
 
 
 class Transcript:
@@ -45,19 +78,19 @@ class Transcript:
         exons_to_skip.overlap(selector)
         self.subtract(exons_to_skip)
 
-    def compare(self, other: object) -> TranscriptComparison:
+    def compare(self, other: object) -> List[Comparison]:
         """Compare the size of each record in the transcripts"""
         if not isinstance(other, Transcript):
             raise NotImplementedError
 
         # Compare each record that makes up self and other
         # The comparison will fail if the record.name does not match
-        cmp = dict()
+        cmp = list()
         for record1, record2 in zip(self.records(), other.records()):
-            cmp[record1.name] = {
-                "percentage": record1.compare(record2),
-                "fraction": record1.compare(record2, type="fraction"),
-            }
+            percentage = record1.compare(record2)
+            fraction = record1.compare_basepair(record2)
+            C = Comparison(record1.name, percentage, fraction)
+            cmp.append(C)
 
         return cmp
 
@@ -70,7 +103,7 @@ class Transcript:
             raise NotImplementedError
         cmp = self.compare(other)
 
-        values = [float(x["percentage"]) for x in cmp.values()]
+        values = [x.percentage for x in cmp]
         return sum(values) / len(cmp)
 
     def mutate(self, d: Description, variants: CdotVariant) -> None:
@@ -80,17 +113,24 @@ class Transcript:
         # Subtract that region from the annotations
         self.subtract(deleted)
 
-    def analyze(self, hgvs: str) -> Dict[str, TranscriptComparison]:
+    def analyze(self, hgvs: str) -> List[Result]:
         """Analyse the transcript based on the specified hgvs description
 
         Calculate the score for the Wildtype (1), the patient transcript and the exon skips
         """
-        # Initialize the results dictionary. Wildtype has a score of 1 by definition
-        results = dict()
-        results["wildtype"] = self.compare(self)
-
         transcript_id = hgvs.split(":c.")[0]
         variants = CdotVariant(hgvs.split(":c.")[1])
+
+        results = list()
+
+        # The wildtype has a score of 100% by default
+        wt = Therapy(
+            name="wildtype",
+            hgvs=f"{transcript_id}:c.=",
+            description="These are the annotations as defined on the reference",
+        )
+        wildtype = Result(wt, self.compare(self))
+        results.append(wildtype)
 
         # Initialize the wildtype description
         d = Description(f"{transcript_id}:c.=")
@@ -100,7 +140,12 @@ class Transcript:
         patient = deepcopy(self)
         patient.mutate(d, variants)
 
-        results["patient"] = patient.compare(self)
+        p = Therapy(
+            name="patient",
+            hgvs=hgvs,
+            description="The annotations based on the supplied variant",
+        )
+        results.append(Result(p, patient.compare(self)))
 
         # Determine the score of each exon skip
         for skip in exonskip(d):
@@ -123,6 +168,6 @@ class Transcript:
             # Splice site error from mutalyzer, no protein prediction
             except KeyError:
                 continue
-            results[skip.name] = therapy.compare(self)
+            results.append(Result(therapy=skip, comparison=therapy.compare(self)))
 
         return results

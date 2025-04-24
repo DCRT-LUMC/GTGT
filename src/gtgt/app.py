@@ -1,4 +1,4 @@
-from .transcript import TranscriptComparison
+from .transcript import Comparison, Result, TranscriptComparison
 import uvicorn as uvicorn
 from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import RedirectResponse
@@ -9,7 +9,7 @@ from .models import BedModel, TranscriptModel, TranscriptId
 from .mutalyzer import HGVS
 from .wrappers import lookup_transcript
 
-from typing import Dict, Union
+from typing import Dict, List
 from typing_extensions import Annotated
 
 app = FastAPI()
@@ -77,7 +77,7 @@ async def compare(
         ),
     ],
     other: TranscriptModel,
-) -> Dict[str, Dict[str, Union[float, str]]]:
+) -> List[Comparison]:
     """Compare two transcripts"""
     s = self.to_transcript()
     o = other.to_transcript()
@@ -86,7 +86,7 @@ async def compare(
 
 
 @app.post("/hgvs/analyze")
-async def analyze(hgvs: HGVS) -> Dict[str, TranscriptComparison]:
+async def analyze(hgvs: HGVS) -> List[Result]:
     """Analyze all possible exons skips for the spcified HGVS variant"""
     transcript_id = hgvs.description.split(":")[0]
     transcript_model = lookup_transcript(provider, transcript_id)

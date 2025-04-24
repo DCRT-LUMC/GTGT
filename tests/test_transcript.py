@@ -4,7 +4,8 @@ from pydantic.tools import parse_obj_as
 import copy
 
 from gtgt import Bed
-from gtgt.transcript import Transcript
+from gtgt.mutalyzer import Therapy
+from gtgt.transcript import Comparison, Result, Transcript
 from gtgt.models import TranscriptModel
 
 
@@ -216,9 +217,9 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
 
     cmp = smaller.compare(transcript)
 
-    assert cmp["exons"]["percentage"] == pytest.approx(0.71, abs=0.01)
-    assert cmp["cds"]["percentage"] == 1
-    assert cmp["Coding exons"]["percentage"] == pytest.approx(0.41, abs=0.01)
+    assert cmp[0].percentage == pytest.approx(0.71, abs=0.01)
+    assert cmp[1].percentage == 1
+    assert cmp[2].percentage == pytest.approx(0.41, abs=0.01)
 
 
 @pytest.fixture
@@ -233,3 +234,28 @@ def WT() -> Transcript:
     t = TranscriptModel.model_validate(js)
 
     return t.to_transcript()
+
+
+def test_Result_init() -> None:
+    t = Therapy("skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5")
+    c = Comparison("Coding exons", 0.5, "100/200")
+
+    r = Result(therapy=t, comparison=[c])
+
+    assert True
+
+
+def test_Result_comparison() -> None:
+    t1 = Therapy("skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5")
+    c1 = Comparison("Coding exons", 0.5, "100/200")
+    r1 = Result(therapy=t1, comparison=[c1])
+
+    t2 = Therapy("skip exon 6", "ENST123:c.49_73del", "Try to skip exon 5")
+    c2 = Comparison("Coding exons", 0.2, "100/200")
+    r2 = Result(therapy=t2, comparison=[c2])
+
+    # Results in the wrong order
+    results = [r2, r1]
+
+    # Highest scoring Results should come first
+    assert sorted(results, reverse=True) == [r1, r2]

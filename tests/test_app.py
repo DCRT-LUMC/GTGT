@@ -1,7 +1,7 @@
 from gtgt.models import BedModel, TranscriptModel
 import pytest
 from gtgt import Bed
-from gtgt.transcript import Transcript
+from gtgt.transcript import Comparison, Transcript
 from gtgt.app import app
 
 from fastapi import FastAPI
@@ -68,20 +68,23 @@ def test_compare(client: TestClient) -> None:
     cds = Bed("chr1", 3, 4, "cds")
     other = Transcript(exons, cds)
 
-    expected = {
-        "cds": {
-            "percentage": 1.0,
-            "fraction": "1/1",
-        },
-        "Coding exons": {
-            "percentage": 1.0,
-            "fraction": "1/1",
-        },
-        "exons": {
+    expected = [
+        {
+            "name": "exons",
             "percentage": 6 / 7,
             "fraction": "6/7",
         },
-    }
+        {
+            "name": "cds",
+            "percentage": 1.0,
+            "fraction": "1/1",
+        },
+        {
+            "name": "Coding exons",
+            "percentage": 1.0,
+            "fraction": "1/1",
+        },
+    ]
 
     body = {
         "self": TranscriptModel.from_transcript(self).model_dump(),
