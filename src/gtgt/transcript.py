@@ -21,7 +21,7 @@ TranscriptComparison = Dict[str, Dict[str, Union[float, str]]]
 class Comparison:
     name: str
     percentage: float
-    fraction: str
+    basepairs: str
 
 
 @dataclasses.dataclass

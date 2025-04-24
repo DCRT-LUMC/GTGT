@@ -72,17 +72,17 @@ def test_compare(client: TestClient) -> None:
         {
             "name": "exons",
             "percentage": 6 / 7,
-            "fraction": "6/7",
+            "basepairs": "6/7",
         },
         {
             "name": "cds",
             "percentage": 1.0,
-            "fraction": "1/1",
+            "basepairs": "1/1",
         },
         {
             "name": "Coding exons",
             "percentage": 1.0,
-            "fraction": "1/1",
+            "basepairs": "1/1",
         },
     ]
 
