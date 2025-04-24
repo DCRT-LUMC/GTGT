@@ -173,4 +173,7 @@ class Transcript:
                 continue
             results.append(Result(therapy=skip, comparison=therapy.compare(self)))
 
-        return results
+        # Sort the results
+        wt_patient = results[:2]
+        rest = sorted(results[2:], reverse=True)
+        return wt_patient + rest
