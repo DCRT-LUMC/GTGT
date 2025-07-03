@@ -41,7 +41,7 @@ def validate_user_input(input: str) -> Dict[str, str]:
     or_ = " or ".join(f"'{x}.'" for x in supported_coordinate_system)
     and_ = " and ".join(f"'{x}.'" for x in supported_coordinate_system)
     if model["coordinate_system"] not in supported_coordinate_system:
-        error["summary"] = f"Only the {and_} coordinate system variants are supported"
+        error["summary"] = f"Only variants using {and_} coordinates are supported"
         error["details"] = f"Please convert your variant to the {or_} coordinate system"
         return error
 
