@@ -324,6 +324,7 @@ def test_analyze_transcript(WT: Transcript) -> None:
     assert cds.name == "cds"
     assert cds.percentage == 1.0
 
+
 def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
     """Test analyzing a transcript using the r. coordinate system"""
     # In frame deletion that creates a STOP codon
