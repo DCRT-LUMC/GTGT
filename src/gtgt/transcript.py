@@ -118,22 +118,23 @@ class Transcript:
 
         Calculate the score for the Wildtype (1), the patient transcript and the exon skips
         """
-        transcript_id = hgvs.split(":c.")[0]
-        variants = CdotVariant(hgvs.split(":c.")[1])
+        coordinate_system = hgvs.split(":")[1][0:2]
+        transcript_id = hgvs.split(f":{coordinate_system}")[0]
+        variants = CdotVariant(hgvs.split(f":{coordinate_system}")[1])
 
         results = list()
 
         # The wildtype has a score of 100% by default
         wt = Therapy(
             name="Wildtype",
-            hgvs=f"{transcript_id}:c.=",
+            hgvs=f"{transcript_id}:{coordinate_system}=",
             description="These are the annotations as defined on the reference. They are always 100% by definition.",
         )
         wildtype = Result(wt, self.compare(self))
         results.append(wildtype)
 
         # Initialize the wildtype description
-        d = Description(f"{transcript_id}:c.=")
+        d = Description(f"{transcript_id}:{coordinate_system}=")
         _init_model(d)
 
         # Determine the score of the patient
@@ -160,8 +161,8 @@ class Transcript:
             # Update the therapy hgvs after applying the deletion
             skip.hgvs = desc.description
 
-            # Get the c. variant
-            exonskip_variant = CdotVariant(desc.description.split("c.")[1])
+            # Get the variant
+            exonskip_variant = CdotVariant(desc.description.split(coordinate_system)[1])
 
             # Apply the combination to the wildtype transcript
             therapy = deepcopy(self)

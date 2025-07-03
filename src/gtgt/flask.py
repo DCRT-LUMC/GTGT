@@ -37,9 +37,12 @@ def validate_user_input(input: str) -> Dict[str, str]:
         error["details"] = "Currently, only ensembl transcripts (ENST) are supported"
         return error
 
-    if model["coordinate_system"] != "c":
-        error["summary"] = "Only 'c.' coordinates are supported"
-        error["details"] = "Please convert your variant to the 'c.' coordinate system"
+    supported_coordinate_system = ["c", "r"]
+    or_ = " or ".join(f"'{x}.'" for x in supported_coordinate_system)
+    and_ = " and ".join(f"'{x}.'" for x in supported_coordinate_system)
+    if model["coordinate_system"] not in supported_coordinate_system:
+        error["summary"] = f"Only the {and_} coordinate system variants are supported"
+        error["details"] = f"Please convert your variant to the {or_} coordinate system"
         return error
 
     return error

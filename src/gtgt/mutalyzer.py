@@ -114,6 +114,7 @@ class HGVS(BaseModel):
 
         If the deletion partially overlaps the variant, raise an error
         """
+        coordinate_system = other.description.split(":")[1][:2]
         # Perform all validations
         self._validate_for_apply_deletion(other)
         self._validate_for_apply_deletion(self)
@@ -141,8 +142,8 @@ class HGVS(BaseModel):
         o_start, o_end = other.position
 
         # Get the variants in text format
-        s_var = self.description.split("c.")[1]
-        o_var = other.description.split("c.")[1]
+        s_var = self.description.split(coordinate_system)[1]
+        o_var = other.description.split(coordinate_system)[1]
 
         # If self is a deletion, and other is fully inside self, we don't have to add anything
         if s_type == "deletion":
@@ -152,10 +153,10 @@ class HGVS(BaseModel):
         # If self is not a deletion:
         # self is before other
         if s_end < o_start:
-            self.description = f"{s_id}:c.[{s_var};{o_var}]"
+            self.description = f"{s_id}:{coordinate_system}[{s_var};{o_var}]"
         # self is after other
         elif s_start > o_end:
-            self.description = f"{s_id}:c.[{o_var};{s_var}]"
+            self.description = f"{s_id}:{coordinate_system}[{o_var};{s_var}]"
         # self is fully inside other
         elif s_start >= o_start and s_end <= o_end:
             # We overwrite self with other
@@ -190,6 +191,7 @@ def HGVS_to_genome_range(d: Description) -> Tuple[int, int]:
 def exonskip(d: Description) -> List[Therapy]:
     """Generate all possible exon skips for the specified HGVS description"""
     d.to_delins()
+    coordinate_system = f"{d.input_model['coordinate_system']}."
 
     # Extract relevant information from the normalized description
     raw_response = d.output()
@@ -202,7 +204,7 @@ def exonskip(d: Description) -> List[Therapy]:
     exon_counter = 2
     for start, end in exons[1:-1]:
         name = f"Skip exon {exon_counter}"
-        hgvs = f"{transcript_id}:c.{start}_{end}del"
+        hgvs = f"{transcript_id}:{coordinate_system}{start}_{end}del"
         description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
         t = Therapy(name, hgvs, description)
         exon_skips.append(t)

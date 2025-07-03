@@ -324,6 +324,18 @@ def test_analyze_transcript(WT: Transcript) -> None:
     assert cds.name == "cds"
     assert cds.percentage == 1.0
 
+def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
+    """Test analyzing a transcript using the r. coordinate system"""
+    # In frame deletion that creates a STOP codon
+    variant = "ENST00000452863.10:r.970del"
+
+    results = WT.analyze(variant)
+
+    wildtype = results[0]
+    cds = wildtype.comparison[1]
+    assert cds.name == "cds"
+    assert cds.percentage == 1.0
+
 
 VARIANTS = [
     # variant, Transcript effect
