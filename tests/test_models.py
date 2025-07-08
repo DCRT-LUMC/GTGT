@@ -265,15 +265,15 @@ DELETION = [
 
 
 @pytest.mark.parametrize("deletion, expected", DELETION)
-def test_HGVS_model_add_variant_is_insertion(deletion: str, expected: str):
+def test_HGVS_model_add_variant_is_insertion(deletion: str, expected: str) -> None:
     """
     GIVE a deletion to add to an HGVS insertion
     WHEN the deletion is applied to the variant
     THEN the result should be both variants combined
     """
     variant = HGVS(description="ENST:c.10_11insATC")
-    deletion = HGVS(description=f"ENST:c.{deletion}")
-    variant.apply_deletion(deletion)
+    hgvs_deletion = HGVS(description=f"ENST:c.{deletion}")
+    variant.apply_deletion(hgvs_deletion)
     assert variant.description == expected
 
 
@@ -289,15 +289,15 @@ DELETION = [
 
 
 @pytest.mark.parametrize("deletion, expected", DELETION)
-def test_HGVS_model_add_variant_is_one_bp_delins(deletion: str, expected: str):
+def test_HGVS_model_add_variant_is_one_bp_delins(deletion: str, expected: str) -> None:
     """
     GIVE a deletion to add to an HGVS indel
     WHEN the deletion is applied to the variant
     THEN the result should be both variants combined
     """
     variant = HGVS(description="ENST:c.10_10delinsA")
-    deletion = HGVS(description=f"ENST:c.{deletion}")
-    variant.apply_deletion(deletion)
+    hgvs_deletion = HGVS(description=f"ENST:c.{deletion}")
+    variant.apply_deletion(hgvs_deletion)
     assert variant.description == expected
 
 
@@ -311,15 +311,15 @@ DELETION = [
 
 
 @pytest.mark.parametrize("deletion, expected", DELETION)
-def test_HGVS_model_add_variant_is_delins(deletion: str, expected: str):
+def test_HGVS_model_add_variant_is_delins(deletion: str, expected: str) -> None:
     """
     GIVE a deletion to add to an HGVS indel
     WHEN the deletion is applied to the variant
     THEN the result should be both variants combined
     """
     variant = HGVS(description="ENST:c.10_12delinsGGT")
-    deletion = HGVS(description=f"ENST:c.{deletion}")
-    variant.apply_deletion(deletion)
+    hgvs_deletion = HGVS(description=f"ENST:c.{deletion}")
+    variant.apply_deletion(hgvs_deletion)
     assert variant.description == expected
 
 
