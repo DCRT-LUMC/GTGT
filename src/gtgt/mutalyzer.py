@@ -19,6 +19,9 @@ import Levenshtein
 from typing import Any, Tuple, List, Dict, Union
 from typing_extensions import NewType
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
 # Variant string in HGVS c. format
@@ -114,6 +117,7 @@ class HGVS(BaseModel):
 
         If the deletion partially overlaps the variant, raise an error
         """
+        logger.debug(f"Applying {other} to {self}")
         coordinate_system = other.description.split(":")[1][:2]
         # Perform all validations
         self._validate_for_apply_deletion(other)
@@ -144,6 +148,8 @@ class HGVS(BaseModel):
         # Get the variants in text format
         s_var = self.description.split(coordinate_system)[1]
         o_var = other.description.split(coordinate_system)[1]
+
+        logger.debug(f"{self.position=}, {other.position=}")
 
         # If self is a deletion, and other is fully inside self, we don't have to add anything
         if s_type == "deletion":

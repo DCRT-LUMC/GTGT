@@ -13,6 +13,10 @@ from mutalyzer.description import Description
 from .bed import Bed
 
 from typing import List, Dict, Union
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 TranscriptComparison = Dict[str, Dict[str, Union[float, str]]]
 
@@ -155,8 +159,9 @@ class Transcript:
             try:
                 desc.apply_deletion(HGVS(description=skip.hgvs))
             except NotImplementedError as e:
-                # TODO add logging
+                logger.warning(e)
                 continue
+            logger.debug(f"Skipping {desc=}")
 
             # Update the therapy hgvs after applying the deletion
             skip.hgvs = desc.description

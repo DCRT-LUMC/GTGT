@@ -17,19 +17,14 @@ import logging
 import os
 import dataclasses
 
+import logging
 
-def logger_setup() -> logging.Logger:
-    import logging
 
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-
-    logger.addHandler(ch)
-
-    return logger
+def set_logging(level: str) -> None:
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=level.upper(),
+    )
 
 
 def main() -> None:
@@ -37,6 +32,12 @@ def main() -> None:
         description="Description of command.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+    parser.add_argument(
+        "--log",
+        choices=["debug", "info", "warning", "error", "critical"],
+        default="info",
+    )
+
     subparsers = parser.add_subparsers(dest="command")
     parser.add_argument("--cachedir", type=str, default=os.environ.get("GTGT_CACHE"))
 
@@ -82,7 +83,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    logger = logger_setup()
+    set_logging(args.log)
+    logger = logging.getLogger(__name__)
 
     provider = Provider(args.cachedir)
 
@@ -98,7 +100,9 @@ def main() -> None:
         try:
             from .app import app, uvicorn
         except ModuleNotFoundError:
-            print("Missing modules, please install with 'pip install gtgt[api_server]'")
+            logger.critical(
+                "Missing modules, please install with 'pip install gtgt[api_server]'"
+            )
             exit(-1)
         uvicorn.run(app, host=args.host)
     elif args.command == "mutate":
@@ -117,9 +121,10 @@ def main() -> None:
     elif args.command == "webserver":
         try:
             from .flask import app as flask_app
-        except ModuleNotFoundError as e:
-            print(f"Missing modules ({e})")
-            print("Did you isntall requirements with 'pip install gtgt[webserver]'?")
+        except ModuleNotFoundError:
+            logger.critical(
+                f"Missing modules, please install with 'pip install gtgt[webserver]'"
+            )
             exit(-1)
         if not flask_app.config.get("SECRET_KEY"):
             flask_app.secret_key = secrets.token_hex()
