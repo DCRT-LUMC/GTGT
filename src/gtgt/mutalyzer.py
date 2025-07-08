@@ -156,12 +156,6 @@ class HGVS(BaseModel):
             if o_start >= s_start and o_end <= s_end:
                 return
         elif s_type == "insertion":
-            # Single bp deletion, always add both together
-            if o_start == o_end:
-                if o_start <= s_start:
-                    self.description = f"{s_id}:{coordinate_system}[{o_var};{s_var}]"
-                else:
-                    self.description = f"{s_id}:{coordinate_system}[{s_var};{o_var}]"
             # if other is before the insertion
             if o_end <= s_start:
                 self.description = f"{s_id}:{coordinate_system}[{o_var};{s_var}]"
@@ -171,7 +165,8 @@ class HGVS(BaseModel):
             # other overlaps the insertion site
             if o_start <= s_start and o_end >= s_end:
                 self.description = f"{s_id}:{coordinate_system}{o_var}"
-
+        # TODO: implement handling of a deletion partially overlapping an indel
+        # elif s_type == "deletion_insertion":
         else:
             # self is before other
             if s_end < o_start:
