@@ -155,22 +155,38 @@ class HGVS(BaseModel):
         if s_type == "deletion":
             if o_start >= s_start and o_end <= s_end:
                 return
+        elif s_type == "insertion":
+            # Single bp deletion, always add both together
+            if o_start == o_end:
+                if o_start <= s_start:
+                    self.description = f"{s_id}:{coordinate_system}[{o_var};{s_var}]"
+                else:
+                    self.description = f"{s_id}:{coordinate_system}[{s_var};{o_var}]"
+            # if other is before the insertion
+            if o_end <= s_start:
+                self.description = f"{s_id}:{coordinate_system}[{o_var};{s_var}]"
+            # if other is after the insertion
+            elif o_start >= s_end:
+                self.description = f"{s_id}:{coordinate_system}[{s_var};{o_var}]"
+            # other overlaps the insertion site
+            if o_start <= s_start and o_end >= s_end:
+                self.description = f"{s_id}:{coordinate_system}{o_var}"
 
-        # If self is not a deletion:
-        # self is before other
-        if s_end < o_start:
-            self.description = f"{s_id}:{coordinate_system}[{s_var};{o_var}]"
-        # self is after other
-        elif s_start > o_end:
-            self.description = f"{s_id}:{coordinate_system}[{o_var};{s_var}]"
-        # self is fully inside other
-        elif s_start >= o_start and s_end <= o_end:
-            # We overwrite self with other
-            self.description = other.description
-        # partial overlaps are not supported
         else:
-            msg = f"Unable to apply deletion {other} to {self}"
-            raise NotImplementedError(msg)
+            # self is before other
+            if s_end < o_start:
+                self.description = f"{s_id}:{coordinate_system}[{s_var};{o_var}]"
+            # self is after other
+            elif s_start > o_end:
+                self.description = f"{s_id}:{coordinate_system}[{o_var};{s_var}]"
+            # self is fully inside other
+            elif s_start >= o_start and s_end <= o_end:
+                # We overwrite self with other
+                self.description = other.description
+            # partial overlaps are not supported
+            else:
+                msg = f"Unable to apply deletion {other} to {self}"
+                raise NotImplementedError(msg)
 
 
 def HGVS_to_genome_range(d: Description) -> Tuple[int, int]:

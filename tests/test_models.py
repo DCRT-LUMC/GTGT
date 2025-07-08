@@ -250,6 +250,37 @@ def test_HGVS_model_add_smaller_deletion(small_del: str) -> None:
     assert variant.description == "ENST:c.10_20del"
 
 
+DELETION = [
+    # Deletion, expected
+    ("9del", "ENST:c.[9del;10_11insATC]"),
+    ("10del", "ENST:c.[10del;10_11insATC]"),
+    ("11del", "ENST:c.[10_11insATC;11del]"),
+    ("9_10del", "ENST:c.[9_10del;10_11insATC]"),
+    ("11_12del", "ENST:c.[10_11insATC;11_12del]"),
+    ("9_11del", "ENST:c.9_11del"),
+    ("10_11del", "ENST:c.10_11del"),
+    ("10_12del", "ENST:c.10_12del"),
+    ("9_12del", "ENST:c.9_12del"),
+]
+
+
+@pytest.mark.parametrize("deletion, expected", DELETION)
+def test_HGVS_model_add_variant_is_insertion(deletion: str, expected: str):
+    """
+    GIVE a deletion to add to an HGVS insertion
+    WHEN the deletion is applied to the variant
+    THEN the result should be both variants combined
+    """
+    variant = HGVS(description="ENST:c.10_11insATC")
+    deletion = HGVS(description=f"ENST:c.{deletion}")
+    variant.apply_deletion(deletion)
+    assert variant.description == expected
+
+
+def test_HGVS_model_add_variant_is_delins():
+    pass
+
+
 VALID_TRANSCRIPT_ID = [
     "ENST00000296930.10",
 ]
