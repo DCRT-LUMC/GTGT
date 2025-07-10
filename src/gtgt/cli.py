@@ -21,8 +21,10 @@ import logging
 
 
 def set_logging(level: str) -> None:
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format = "%(name)s - %(levelname)s - %(message)s"
     logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        format=format,
         level=level.upper(),
     )
 

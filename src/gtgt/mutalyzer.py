@@ -303,6 +303,7 @@ def _c_variants_to_delins_variants(
     The variants can be of any type (substitutions, duplications, etc.).
     """
     model = _description_model(ref_id, variants)
+    # logger.debug(f"{model=}")
     delins: List[InternalVariant] = variants_to_delins(
         to_internal_indexing(to_internal_coordinates(model, references))["variants"]
     )
@@ -371,8 +372,12 @@ def _cdot_to_internal_delins(
 
     # Convert the variant dicts into internal delins
     internal_delins = _c_variants_to_delins_variants(
-        parsed_variants, ref_id, d.references
+        parsed_variants,
+        ref_id,
+        d.references,
     )
+
+    # logger.debug(f"{internal_delins=}")
     return internal_delins
 
 
@@ -417,6 +422,9 @@ def mutation_to_cds_effect(
         # Convert cdot to delins
         positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
         ensembl_offset = _get_ensembl_offset(d.references, ref_id)
+
+        # logger.debug(f"{positions_delins=}")
+        # logger.debug(f"{ensembl_offset=}")
 
         if ensembl_offset is None:
             raise RuntimeError("Missing ensemble offset")
