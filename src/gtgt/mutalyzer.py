@@ -426,11 +426,14 @@ def mutation_to_cds_effect(
         )
 
         assert len(genome_positions) == 1
-        start = genome_positions[0]["location"]["start"]["position"]
-        end = genome_positions[0]["location"]["end"]["position"]
+        g_start = genome_positions[0]["location"]["start"]["position"]
+        g_end = genome_positions[0]["location"]["end"]["position"]
 
-        assert end > start
-        changed_genomic.append((start, end))
+        logger.debug(
+            f"protein difference: p.{start}-{end}, c.{cdot_mutation}, genomic {g_start:_}-{g_end:_} (size={g_end-g_start})"
+        )
+        assert g_end > g_start
+        changed_genomic.append((g_start, g_end))
 
     return changed_genomic
 
