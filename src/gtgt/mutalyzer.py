@@ -153,7 +153,7 @@ class HGVS(BaseModel):
 
         # If self is a deletion, and other is fully inside self, we don't have to add anything
         if s_type == "deletion" and o_start >= s_start and o_end <= s_end:
-                return
+            return
         elif s_type == "insertion":
             # if other is before the insertion
             if o_end <= s_start:

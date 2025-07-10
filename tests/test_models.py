@@ -249,6 +249,7 @@ def test_HGVS_model_add_smaller_deletion(small_del: str) -> None:
     variant.apply_deletion(deletion)
     assert variant.description == "ENST:c.10_20del"
 
+
 def test_HGVS_model_add_deletion_to_deletion() -> None:
     """
     GIVEN a deletion to add to add to self
@@ -259,6 +260,7 @@ def test_HGVS_model_add_deletion_to_deletion() -> None:
     deletion = HGVS(description=f"ENST:c.8del")
     variant.apply_deletion(deletion)
     assert variant.description == "ENST:c.[8del;10_20del]"
+
 
 DELETION = [
     # Deletion, expected
