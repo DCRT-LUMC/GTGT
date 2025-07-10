@@ -369,6 +369,7 @@ def _cdot_to_internal_delins(
 
     # Parse the c. string into mutalyzer variant dictionary
     parsed_variants = variant_to_model(variants)
+    # logger.debug(f"{parsed_variants=}")
 
     # Convert the variant dicts into internal delins
     internal_delins = _c_variants_to_delins_variants(
