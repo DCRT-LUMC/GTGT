@@ -138,7 +138,7 @@ class Transcript:
         results.append(wildtype)
 
         # Initialize the wildtype description
-        d = Description(f"{transcript_id}:{coordinate_system}=")
+        d = Description(f"{transcript_id}:{coordinate_system}=", stop_on_error=True)
         _init_model(d)
 
         # Determine the score of the patient
