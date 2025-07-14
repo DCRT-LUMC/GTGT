@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 import pytest
 from pathlib import Path
 from gtgt.mutalyzer import (
@@ -5,6 +6,7 @@ from gtgt.mutalyzer import (
     HGVS_to_genome_range,
     InternalVariant,
     append_mutation,
+    combine_variants_deletion,
     exonskip,
     changed_protein_positions,
     mutation_to_cds_effect,
@@ -731,3 +733,95 @@ def test_Variant_from_model_deletion() -> None:
     assert v.end == 2
     # Test that the emtpy sequence is a string, not a list
     assert v.sequence == ""
+
+
+def test_combine_variants_deletion_empty() -> None:
+    variants: List[_Variant] = list()
+    deletion = _Variant(0, 10)
+    assert combine_variants_deletion(variants, deletion) == [deletion]
+
+
+# fmt: off
+COMBINE = [
+    ( # The variants are out of order
+        # Variants
+        [_Variant(5, 7), _Variant(2, 4)],
+        # Deletion
+        _Variant(10, 11),
+        # Expected
+        [_Variant(2,4), _Variant(5, 7), _Variant(10, 11)],
+    ),
+    ( # The deletion is before both variants
+        # Variants
+        [_Variant(2, 4), _Variant(5, 7)],
+        # Deletion
+        _Variant(0, 1),
+        # Expected
+        [_Variant(0, 1), _Variant(2,4), _Variant(5, 7)],
+    ),
+    ( # The deletion is between the variants
+        # Variants
+        [_Variant(2, 4), _Variant(5, 7)],
+        # Deletion
+        _Variant(4, 5),
+        # Expected
+        [_Variant(2,4), _Variant(4, 5), _Variant(5, 7)],
+    ),
+    ( # The deletion is after both variants
+        # Variants
+        [_Variant(2, 4), _Variant(5, 7)],
+        # Deletion
+        _Variant(10, 11),
+        # Expected
+        [_Variant(2,4), _Variant(5, 7), _Variant(10, 11)],
+    ),
+    ( # The deletion contains the first variant
+        # Variants
+        [_Variant(2, 4), _Variant(5, 7)],
+        # Deletion
+        _Variant(1, 5),
+        # Expected
+        [_Variant(1, 5), _Variant(5, 7)],
+    ),
+    ( # The deletion contains the second variant
+        # Variants
+        [_Variant(2,4), _Variant(5, 7)],
+        # Deletion
+        _Variant(4, 11),
+        # Expected
+        [_Variant(2,4), _Variant(4, 11)],
+    ),
+    ( # The deletion contains both variants
+        # Variants
+        [_Variant(2,4), _Variant(5, 7)],
+        # Deletion
+        _Variant(2, 7),
+        # Expected
+        [_Variant(2, 7)],
+    ),
+]
+# fmt: on
+
+
+@pytest.mark.parametrize("variants, deletion, expected", COMBINE)
+def test_combine_variants_deletion(
+    variants: Sequence[_Variant], deletion: _Variant, expected: Sequence[_Variant]
+) -> None:
+    combined = combine_variants_deletion(variants, deletion)
+    assert combined == expected
+
+
+def test_combine_variants_deletion_variants_overlap_eachother() -> None:
+    """Test that we get a value error if the variants overlap"""
+    variants = [_Variant(0, 2), _Variant(1, 3)]
+    deletion = _Variant(10, 11)
+    with pytest.raises(ValueError):
+        combine_variants_deletion(variants, deletion)
+
+
+def test_combine_variants_deletion_variants_partially_overlap_deletion() -> None:
+    """Test that we get a value error if one the variants partially overlaps the deletion"""
+    variants = [_Variant(2, 4)]
+    deletion = _Variant(3, 11)
+    with pytest.raises(ValueError):
+        combine_variants_deletion(variants, deletion)

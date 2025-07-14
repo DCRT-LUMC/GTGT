@@ -16,7 +16,7 @@ from pydantic import BaseModel, model_validator
 
 import Levenshtein
 
-from typing import Any, Tuple, List, Dict, Union
+from typing import Any, Tuple, List, Dict, Union, Sequence
 from typing_extensions import NewType
 
 import logging
@@ -306,6 +306,38 @@ def HGVS_to_genome_range(d: Description) -> Tuple[int, int]:
     end = model["variants"][0]["location"]["end"]["position"]
 
     return (start, end)
+
+
+def combine_variants_deletion(
+    variants: Sequence[_Variant], deletion: _Variant
+) -> List[_Variant]:
+    """Combine variants and a deletion, any variants that are contained in
+    the deletion are discarded
+
+    The resulting list of variants is sorted
+    """
+    # Ensure the variants are sorted, and do not overlap
+    sorted_variants = sorted(variants)
+
+    combined = list()
+    for i in range(len(sorted_variants)):
+        variant = sorted_variants[i]
+        if variant.before(deletion):
+            combined.append(variant)
+        elif variant.inside(deletion):
+            # Discard the current variant
+            continue
+        elif variant.after(deletion):
+            combined.append(deletion)
+            combined += sorted_variants[i:]
+            break
+        else:
+            msg = f"Deletion '{deletion}' partially overlaps '{variant}"
+            raise ValueError(msg)
+    else:
+        combined.append(deletion)
+
+    return combined
 
 
 def exonskip(d: Description) -> List[Therapy]:
