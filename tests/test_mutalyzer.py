@@ -678,4 +678,51 @@ def test_Variant_class_order_error() -> None:
     """Test error when sorting overlapping variants"""
     v1 = _Variant(10, 11)
     v2 = _Variant(10, 11)
-    assert sorted([v1, v2]) == [v2, v1]
+    with pytest.raises(ValueError):
+        sorted([v1, v2])
+
+
+def test_Variant_from_model() -> None:
+    """Test creating a variant from a mutalyzer delins model"""
+    delins_model = {
+        "location": {
+            "start": {
+                "position": 0
+            },
+            "end": {
+                "position": 2
+            }
+        },
+        "inserted": [
+            {"sequence": "ATC"}
+        ]
+    }
+    v = _Variant.from_model(delins_model)
+    assert v.start == 0
+    assert v.end == 2
+    assert v.sequence == "ATC"
+
+def test_Variant_from_model_deletion() -> None:
+    """Test creating a variant from a mutalyzer delins model
+
+    If nothing is inserted, the inserted sequence is an emtpy list, but should
+    be made an empty string in the _Variant object
+    """
+    delins_model = {
+        "location": {
+            "start": {
+                "position": 0
+            },
+            "end": {
+                "position": 2
+            }
+        },
+        "inserted": [
+            {"sequence": []}
+        ]
+    }
+    v = _Variant.from_model(delins_model)
+    assert v.start == 0
+    assert v.end == 2
+    # Test that the emtpy sequence is a string, not a list
+    assert v.sequence == ""

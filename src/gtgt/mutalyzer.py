@@ -72,6 +72,28 @@ class _Variant:
             ]
         )
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.sequence == other.sequence
+        )
+
+    def __lt__(self, other: "_Variant") -> bool:
+        if self.overlap(other):
+            msg = f"Overlapping variants '{self}' and '{other}' cannot be sorted"
+            raise ValueError(msg)
+
+        return self.start < other.start
+
+    @classmethod
+    def from_model(cls, model: Dict[str, Any]) -> "_Variant":
+        start = model["location"]["start"]["position"]
+        end = model["location"]["end"]["position"]
+        # sequence is string or empty list
+        sequence = model["inserted"][0]["sequence"]
+        return _Variant(start, end, sequence if sequence else "")
+
     def to_model(self) -> Dict[str, Any]:
         """Convert Variant to mutalyzer delins model"""
 
@@ -108,19 +130,7 @@ class _Variant:
             "inserted": inserted,
         }
 
-    def __eq__(self, other: "_Variant") -> bool:
-        return (
-            self.start == other.start
-            and self.end == other.end
-            and self.sequence == other.sequence
-        )
 
-    def __lt__(self, other: "_Variant") -> bool:
-        if self.overlap(other):
-            msg = f"Overlapping variants '{self}' and '{other}' cannot be sorted"
-            raise ValueError(msg)
-
-        return self.start < other.start
 
 
 @dataclasses.dataclass
