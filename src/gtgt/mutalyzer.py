@@ -108,6 +108,20 @@ class _Variant:
             "inserted": inserted,
         }
 
+    def __eq__(self, other: "_Variant") -> bool:
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.sequence == other.sequence
+        )
+
+    def __lt__(self, other: "_Variant") -> bool:
+        if self.overlap(other):
+            msg = f"Overlapping variants '{self}' and '{other}' cannot be sorted"
+            raise ValueError(msg)
+
+        return self.start < other.start
+
 
 @dataclasses.dataclass
 class Therapy:

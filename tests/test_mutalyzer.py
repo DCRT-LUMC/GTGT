@@ -665,3 +665,17 @@ def test_Variant_class_no_overlap(a: _Variant, b: _Variant) -> None:
     """Variant a and b do not overlap"""
     assert not a.overlap(b)
     assert not b.overlap(a)
+
+
+def test_Variant_class_order() -> None:
+    """Test sorting variants by start position"""
+    v1 = _Variant(10, 11)
+    v2 = _Variant(0, 1)
+    assert sorted([v1, v2]) == [v2, v1]
+
+
+def test_Variant_class_order_error() -> None:
+    """Test error when sorting overlapping variants"""
+    v1 = _Variant(10, 11)
+    v2 = _Variant(10, 11)
+    assert sorted([v1, v2]) == [v2, v1]
