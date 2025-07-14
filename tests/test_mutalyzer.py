@@ -621,3 +621,47 @@ NOT_INSIDE = [
 def test_Variant_class_not_inside(a: _Variant, b: _Variant) -> None:
     """Variant a is not inside variant b"""
     assert not a.inside(b)
+
+
+OVERLAP = [
+    # b ends inside a
+    (_Variant(2, 5), _Variant(1, 3)),
+    # b fully inside a
+    (_Variant(2, 5), _Variant(3, 4)),
+    # b fully inside a, ends at end
+    (_Variant(2, 5), _Variant(3, 5)),
+    # b ends inside a
+    (_Variant(2, 5), _Variant(2, 4)),
+    # b starts in a, extends after
+    (_Variant(2, 5), _Variant(3, 6)),
+    # b start before a
+    (_Variant(2, 5), _Variant(1, 5)),
+    # a is inside b
+    (_Variant(2, 5), _Variant(1, 6)),
+    # a is inside b
+    (_Variant(2, 5), _Variant(2, 6)),
+    # a equals b
+    (_Variant(2, 5), _Variant(2, 5)),
+]
+
+
+@pytest.mark.parametrize("a, b", OVERLAP)
+def test_Variant_class_overlap(a: _Variant, b: _Variant) -> None:
+    """Variant a and b overlap"""
+    assert a.overlap(b)
+    assert b.overlap(a)
+
+
+NO_OVERLAP = [
+    # a is after b
+    (_Variant(2, 5), _Variant(1, 2)),
+    # a is before b
+    (_Variant(2, 5), _Variant(5, 6)),
+]
+
+
+@pytest.mark.parametrize("a, b", NO_OVERLAP)
+def test_Variant_class_no_overlap(a: _Variant, b: _Variant) -> None:
+    """Variant a and b do not overlap"""
+    assert not a.overlap(b)
+    assert not b.overlap(a)

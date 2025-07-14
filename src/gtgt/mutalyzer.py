@@ -95,6 +95,11 @@ class _Variant:
     def inside(self, other: "_Variant") -> bool:
         return self.start >= other.start and self.end <= other.end
 
+    def overlap(self, other: "_Variant") -> bool:
+        self_ends_in_other = self.end > other.start and self.start < other.end
+        self_starts_in_other = self.start >= other.start and self.end < other.end
+        return self_ends_in_other or self_starts_in_other
+
 
 @dataclasses.dataclass
 class Therapy:
