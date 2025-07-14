@@ -73,6 +73,8 @@ class _Variant:
         )
 
     def __eq__(self, other: object) -> bool:
+        if not isinstance(other, _Variant):
+            raise NotImplementedError
         return (
             self.start == other.start
             and self.end == other.end
@@ -80,6 +82,8 @@ class _Variant:
         )
 
     def __lt__(self, other: "_Variant") -> bool:
+        if not isinstance(other, _Variant):
+            raise NotImplementedError
         if self.overlap(other):
             msg = f"Overlapping variants '{self}' and '{other}' cannot be sorted"
             raise ValueError(msg)
@@ -129,8 +133,6 @@ class _Variant:
             "source": "reference",
             "inserted": inserted,
         }
-
-
 
 
 @dataclasses.dataclass

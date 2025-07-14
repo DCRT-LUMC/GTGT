@@ -684,6 +684,7 @@ def test_Variant_class_order_error() -> None:
 
 def test_Variant_from_model() -> None:
     """Test creating a variant from a mutalyzer delins model"""
+    # fmt: off
     delins_model = {
         "location": {
             "start": {
@@ -697,10 +698,12 @@ def test_Variant_from_model() -> None:
             {"sequence": "ATC"}
         ]
     }
+    # fmt: on
     v = _Variant.from_model(delins_model)
     assert v.start == 0
     assert v.end == 2
     assert v.sequence == "ATC"
+
 
 def test_Variant_from_model_deletion() -> None:
     """Test creating a variant from a mutalyzer delins model
@@ -708,6 +711,7 @@ def test_Variant_from_model_deletion() -> None:
     If nothing is inserted, the inserted sequence is an emtpy list, but should
     be made an empty string in the _Variant object
     """
+    # fmt: off
     delins_model = {
         "location": {
             "start": {
@@ -721,6 +725,7 @@ def test_Variant_from_model_deletion() -> None:
             {"sequence": []}
         ]
     }
+    # fmt: on
     v = _Variant.from_model(delins_model)
     assert v.start == 0
     assert v.end == 2
