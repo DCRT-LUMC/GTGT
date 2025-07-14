@@ -41,10 +41,10 @@ class _Variant:
         self.end = end  # exclusive
         self.sequence = sequence
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         start = self.start
         end = self.end
         sequence = self.sequence
@@ -72,7 +72,7 @@ class _Variant:
             ]
         )
 
-    def to_model(self):
+    def to_model(self) -> Dict[str, Any]:
         """Convert Variant to mutalyzer delins model"""
 
         # Specification of the location
