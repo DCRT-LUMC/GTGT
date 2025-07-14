@@ -123,7 +123,7 @@ class Transcript:
         Calculate the score for the Wildtype (1), the patient transcript and the exon skips
         """
         # Test if the input HGVS description is valid
-        check=Description(hgvs, stop_on_error=True)
+        check = Description(hgvs, stop_on_error=True)
         _init_model(check)
 
         coordinate_system = hgvs.split(":")[1][0:2]

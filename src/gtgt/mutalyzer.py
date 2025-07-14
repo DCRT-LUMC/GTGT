@@ -31,6 +31,62 @@ Variant = NewType("Variant", Dict[str, Any])
 InternalVariant = NewType("InternalVariant", dict[str, Any])
 
 
+class _Variant:
+    """Class to store delins variants"""
+
+    def __init__(self, start: int, end: int, sequence: str):
+        if start > end:
+            raise ValueError(f"End ({end}) must be after start ({start})")
+        self.start = start  # zero based
+        self.end = end  # exclusive
+        self.sequence = sequence
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        start = self.start
+        end = self.end
+        sequence = self.sequence
+        return f"Variant({start=}, {end=}, sequence={sequence})"
+
+    def to_model(self):
+        """Convert Variant to mutalyzer delins model"""
+
+        # Specification of the location
+        # fmt: off
+        location = {
+            "type": "range",
+            "start": {
+                "type": "point",
+                "position": self.start
+            },
+            "end": {
+                "type": "point",
+                "position": self.end
+            }
+        }
+
+        # Specification of the inserted sequence
+        if self.sequence:
+            inserted = [
+                {
+                    "sequence": self.sequence,
+                    "source": "description"
+                }
+            ]
+        else:
+            inserted = []
+        # fmt: on
+
+        return {
+            "location": location,
+            "type": "deletion_insertion",
+            "source": "reference",
+            "inserted": inserted,
+        }
+
+
 @dataclasses.dataclass
 class Therapy:
     """Class to store genetic therapies"""

@@ -10,6 +10,7 @@ from gtgt.mutalyzer import (
     mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
+    _Variant,
 )
 from gtgt.mutalyzer import HGVS, Variant, variant_to_model
 from mutalyzer.description import Description
@@ -535,3 +536,37 @@ def test_changed_protein_positions(
     THEN we should get 0 based positions of the deleted residues
     """
     assert changed_protein_positions(reference, observed) == expected
+
+
+def test_Variant_class_str() -> None:
+    """Test converting a Variant to string"""
+    v = _Variant(10, 11, "ATG")
+    assert str(v) == "Variant(start=10, end=11, sequence=ATG)"
+
+
+def test_Variant_class_to_model_positions() -> None:
+    """Test converting a variant to model"""
+    v = _Variant(10, 11, "ATG")
+    model = v.to_model()
+
+    assert model["location"]["start"]["position"] == 10
+    assert model["location"]["end"]["position"] == 11
+    assert model["inserted"][0]["sequence"] == "ATG"
+
+
+def test_Variant_class_no_inserted_sequence() -> None:
+    """
+    GIVEN a Variant with an empty inserted sequence
+    WHEN we convert to a model
+    THEN inserted should be an empty list
+    """
+    v = _Variant(10, 11, "")
+    model = v.to_model()
+
+    assert model["inserted"] == []
+
+
+def test_Variant_class_end_after_start() -> None:
+    """Ensure that end is after start"""
+    with pytest.raises(ValueError):
+        _Variant(11, 10, "")
