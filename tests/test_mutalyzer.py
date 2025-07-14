@@ -570,3 +570,16 @@ def test_Variant_class_end_after_start() -> None:
     """Ensure that end is after start"""
     with pytest.raises(ValueError):
         _Variant(11, 10, "")
+
+
+ORDERING = [
+    # Ends are touching
+    (_Variant(1, 3), _Variant(3,5)),
+    # Gap between variants
+    (_Variant(0, 1), _Variant(2,4)),
+]
+@pytest.mark.parametrize("a, b", ORDERING)
+def test_Variant_class_relative_positions(a: _Variant, b: _Variant) -> None:
+    """Variant a is before variant b"""
+    assert a.before(b)
+    assert b.after(a)

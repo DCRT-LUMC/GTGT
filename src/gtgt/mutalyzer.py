@@ -34,7 +34,7 @@ InternalVariant = NewType("InternalVariant", dict[str, Any])
 class _Variant:
     """Class to store delins variants"""
 
-    def __init__(self, start: int, end: int, sequence: str):
+    def __init__(self, start: int, end: int, sequence: str = ''):
         if start > end:
             raise ValueError(f"End ({end}) must be after start ({start})")
         self.start = start  # zero based
@@ -86,6 +86,12 @@ class _Variant:
             "inserted": inserted,
         }
 
+
+    def before(self, other: "_Variant") -> bool:
+        return self.end <= other.start
+
+    def after(self, other: "_Variant") -> bool:
+        return self.start >= other.end
 
 @dataclasses.dataclass
 class Therapy:
