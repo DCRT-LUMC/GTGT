@@ -50,6 +50,20 @@ class _Variant:
         sequence = self.sequence
         return f"Variant({start=}, {end=}, sequence={sequence})"
 
+    def before(self, other: "_Variant") -> bool:
+        return self.end <= other.start
+
+    def after(self, other: "_Variant") -> bool:
+        return self.start >= other.end
+
+    def inside(self, other: "_Variant") -> bool:
+        return self.start >= other.start and self.end <= other.end
+
+    def overlap(self, other: "_Variant") -> bool:
+        self_ends_in_other = self.end > other.start and self.start < other.end
+        self_starts_in_other = self.start >= other.start and self.end < other.end
+        return self_ends_in_other or self_starts_in_other
+
     def to_model(self):
         """Convert Variant to mutalyzer delins model"""
 
@@ -86,19 +100,6 @@ class _Variant:
             "inserted": inserted,
         }
 
-    def before(self, other: "_Variant") -> bool:
-        return self.end <= other.start
-
-    def after(self, other: "_Variant") -> bool:
-        return self.start >= other.end
-
-    def inside(self, other: "_Variant") -> bool:
-        return self.start >= other.start and self.end <= other.end
-
-    def overlap(self, other: "_Variant") -> bool:
-        self_ends_in_other = self.end > other.start and self.start < other.end
-        self_starts_in_other = self.start >= other.start and self.end < other.end
-        return self_ends_in_other or self_starts_in_other
 
 
 @dataclasses.dataclass
