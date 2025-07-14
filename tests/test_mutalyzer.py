@@ -574,12 +574,50 @@ def test_Variant_class_end_after_start() -> None:
 
 ORDERING = [
     # Ends are touching
-    (_Variant(1, 3), _Variant(3,5)),
+    (_Variant(1, 3), _Variant(3, 5)),
     # Gap between variants
-    (_Variant(0, 1), _Variant(2,4)),
+    (_Variant(0, 1), _Variant(2, 4)),
 ]
+
+
 @pytest.mark.parametrize("a, b", ORDERING)
 def test_Variant_class_relative_positions(a: _Variant, b: _Variant) -> None:
     """Variant a is before variant b"""
     assert a.before(b)
     assert b.after(a)
+
+
+INSIDE = [
+    # Variants are inside themselves
+    (_Variant(0, 3), _Variant(0, 3)),
+    # Smaller variant a is inside b
+    (_Variant(1, 3), _Variant(0, 3)),
+    (_Variant(0, 2), _Variant(0, 3)),
+    (_Variant(1, 2), _Variant(0, 3)),
+]
+
+
+@pytest.mark.parametrize("a, b", INSIDE)
+def test_Variant_class_inside(a: _Variant, b: _Variant) -> None:
+    """Variant a is inside variant b"""
+    assert a.inside(b)
+
+
+NOT_INSIDE = [
+    # a starts outside of b
+    (_Variant(0, 3), _Variant(1, 3)),
+    # a ends outside of b
+    (_Variant(1, 4), _Variant(1, 3)),
+    # b is inside of a
+    (_Variant(0, 3), _Variant(1, 2)),
+    # a before b
+    (_Variant(0, 3), _Variant(3, 5)),
+    # a after b
+    (_Variant(3, 5), _Variant(1, 3)),
+]
+
+
+@pytest.mark.parametrize("a, b", NOT_INSIDE)
+def test_Variant_class_not_inside(a: _Variant, b: _Variant) -> None:
+    """Variant a is not inside variant b"""
+    assert not a.inside(b)
