@@ -12,7 +12,7 @@ from .mutalyzer import (
 from mutalyzer.description import Description
 from .bed import Bed
 
-from typing import List, Dict, Union
+from typing import List, Dict, Optional, Union
 import logging
 
 
@@ -47,9 +47,13 @@ class Result:
 
 
 class Transcript:
-    def __init__(self, exons: Bed, coding_exons: Bed):
+    def __init__(self, exons: Bed, coding_exons: Optional[Bed] = None):
         self.exons = exons
-        self.coding_exons = coding_exons
+
+        if coding_exons is None:
+            self.coding_exons = Bed()
+        else:
+            self.coding_exons = coding_exons
 
     def records(self) -> List[Bed]:
         """Return the Bed records that make up the Transcript"""

@@ -74,6 +74,11 @@ intersect_selectors = [
 ]
 
 
+def test_transcript_init_no_coding(Exons: Bed) -> None:
+    t = Transcript(Exons)
+    assert not t.coding_exons
+
+
 @pytest.mark.parametrize("selector, exons", intersect_selectors)
 def test_intersect_transcript(
     selector: Bed, exons: Bed, transcript: Transcript
