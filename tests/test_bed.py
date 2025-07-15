@@ -469,3 +469,17 @@ csv = [
 @pytest.mark.parametrize("csv, numbers", csv)
 def test_csv_to_int(csv: str, numbers: List[int]) -> None:
     assert Bed._csv_to_int(csv) == numbers
+
+
+def test_empty_bed() -> None:
+    b = Bed()
+
+    assert b.chrom == ""
+    assert b.chromStart == 0
+    assert b.chromEnd == 0
+
+    # Derived
+    assert b.size == 0
+
+    # Test that an empty Bed record is False
+    assert not b

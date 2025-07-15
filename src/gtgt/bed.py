@@ -9,9 +9,9 @@ color = Tuple[int, ...]
 class Bed:
     def __init__(
         self,
-        chrom: str,
-        chromStart: int,
-        chromEnd: int,
+        chrom: Optional[str] = None,
+        chromStart: Optional[int] = None,
+        chromEnd: Optional[int] = None,
         name: str = ".",
         score: int = 0,
         strand: str = ".",
@@ -24,9 +24,10 @@ class Bed:
         **ignored: Any,
     ) -> None:
         # Required attributes
-        self.chrom = chrom
-        self.chromStart = int(chromStart)
-        self.chromEnd = int(chromEnd)
+
+        self.chrom = chrom if chrom is not None else ""
+        self.chromStart = int(chromStart) if chromStart is not None else 0
+        self.chromEnd = int(chromEnd) if chromEnd is not None else 0
 
         # Simple attributes
         self.name = name
@@ -162,6 +163,9 @@ class Bed:
                 self.blockStarts == other.blockStarts,
             )
         )
+
+    def __bool__(self) -> bool:
+        return self.size > 0
 
     def _zero_out(self) -> None:
         """Zero out the Bed object, by setting all ranges to the start"""
