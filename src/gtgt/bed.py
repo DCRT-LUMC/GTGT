@@ -23,15 +23,14 @@ class Bed:
         blockStarts: Optional[List[int]] = None,
         **ignored: Any,
     ) -> None:
-        # Required attributes
-
+        # Required attributes for .bed files
         self.chrom = chrom if chrom is not None else ""
-        self.chromStart = int(chromStart) if chromStart is not None else 0
-        self.chromEnd = int(chromEnd) if chromEnd is not None else 0
+        self.chromStart = chromStart if chromStart is not None else 0
+        self.chromEnd = chromEnd if chromEnd is not None else 0
 
         # Simple attributes
         self.name = name
-        self.score = int(score)
+        self.score = score
         self.strand = strand
 
         if thickStart is None:
@@ -59,7 +58,7 @@ class Bed:
         else:
             self.blockStarts = blockStarts
 
-        self.blockCount = int(blockCount) if blockCount else len(self.blockSizes)
+        self.blockCount = blockCount if blockCount else len(self.blockSizes)
 
         self.validate()
 
