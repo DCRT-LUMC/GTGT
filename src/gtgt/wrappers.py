@@ -30,7 +30,7 @@ def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel
 
     # Determine the coding region
     coding_exons = exons.to_bed()
-    coding_exons.name = "coding_exons"
+    coding_exons.name = "Coding exons"
     coding_exons.intersect(cds)
 
     return TranscriptModel(exons=exons, coding_exons=BedModel.from_bed(coding_exons))
