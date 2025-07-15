@@ -47,7 +47,7 @@
     "score": 0,
     "strand": "-"
   },
-  "cds": {
+  "coding_exons": {
     "chrom": "chr11",
     "blocks": [
       [
@@ -55,7 +55,7 @@
         32435360
       ]
     ],
-    "name": "cds",
+    "name": "coding_exons",
     "score": 0,
     "strand": "-"
   }

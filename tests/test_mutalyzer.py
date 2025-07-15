@@ -303,7 +303,7 @@ def test_cdot_to_indel(cdot: CdotVariant, internal_delins: str) -> None:
 @pytest.fixture
 def WT() -> Transcript:
     """
-    Transcript for WT1, using real genomic positionsjjkkkkjklkj
+    Transcript for WT1, using real genomic positions
     """
     path = "tests/data/ENST00000452863.10.Transcript.json"
     with open(path) as fin:
@@ -323,9 +323,9 @@ def test_analyze_transcript(WT: Transcript) -> None:
     results = WT.analyze(variant)
 
     wildtype = results[0]
-    cds = wildtype.comparison[1]
-    assert cds.name == "cds"
-    assert cds.percentage == 1.0
+    coding_exons = wildtype.comparison[1]
+    assert coding_exons.name == "coding_exons"
+    assert coding_exons.percentage == 1.0
 
 
 def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
@@ -336,9 +336,9 @@ def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
     results = WT.analyze(variant)
 
     wildtype = results[0]
-    cds = wildtype.comparison[1]
-    assert cds.name == "cds"
-    assert cds.percentage == 1.0
+    coding_exons = wildtype.comparison[1]
+    assert coding_exons.name == "coding_exons"
+    assert coding_exons.percentage == 1.0
 
 
 VARIANTS = [
@@ -368,9 +368,9 @@ def test_mutate_transcript_with_variant(
 
     cmp = modified.compare(WT)
 
-    cds = cmp[1]
-    assert cds.name == "cds"
-    assert cds.percentage == pytest.approx(effect, abs=0.0001)
+    coding_exons = cmp[1]
+    assert coding_exons.name == "coding_exons"
+    assert coding_exons.percentage == pytest.approx(effect, abs=0.0001)
 
 
 APPEND_VARIANT = [

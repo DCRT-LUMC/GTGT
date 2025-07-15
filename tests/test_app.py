@@ -22,21 +22,23 @@ def test_exonskip(client: TestClient) -> None:
     """
     # The input transcript
     exons = BedModel(chrom="chr1", blocks=[(2, 4), (5, 6), (7, 11)])
-    cds = BedModel(chrom="chr1", blocks=[(5, 6)], name="cds")
-    before = TranscriptModel(exons=exons, cds=cds)
+    coding_exons = BedModel(chrom="chr1", blocks=[(5, 6)], name="coding_exons")
+    before = TranscriptModel(exons=exons, coding_exons=coding_exons)
 
     # We want to skip the second exon
     skip = BedModel(chrom="chr1", blocks=[(5, 6)])
 
     # After skipping the exon
     after_exons = BedModel(chrom="chr1", blocks=[(2, 4), (7, 11)])
-    after_cds = BedModel(chrom="chr1", blocks=[(5, 5)], name="cds")
-    after = TranscriptModel(exons=after_exons, cds=after_cds)
+    after_coding_exons = BedModel(chrom="chr1", blocks=[(5, 5)], name="coding_exons")
+    after = TranscriptModel(exons=after_exons, coding_exons=after_coding_exons)
 
     # JSON cannot do tuples, so we have to make those into lists
     expected = after.model_dump()
     expected["exons"]["blocks"] = [list(range) for range in expected["exons"]["blocks"]]
-    expected["cds"]["blocks"] = [list(range) for range in expected["cds"]["blocks"]]
+    expected["coding_exons"]["blocks"] = [
+        list(range) for range in expected["coding_exons"]["blocks"]
+    ]
 
     body = {
         "transcript": before.model_dump(),
@@ -51,22 +53,22 @@ def test_exonskip(client: TestClient) -> None:
 
 def test_compare(client: TestClient) -> None:
     """
-             0 1 2 3 4 5 6 7 8 9 10
-    self         - -   -   - - - -
-    cds            -
-    other        - -       - - - -
+                  0 1 2 3 4 5 6 7 8 9 10
+    self              - -   -   - - - -
+    coding_exons        -
+    other             - -       - - - -
     """
     # One transcript, which is smaller
     exons = Bed.from_blocks("chr1", (2, 4), (7, 11))
     exons.name = "exons"
-    cds = Bed("chr1", 3, 4, "cds")
-    self = Transcript(exons, cds)
+    coding_exons = Bed("chr1", 3, 4, "coding_exons")
+    self = Transcript(exons, coding_exons)
 
     # Other Transcript
     exons = Bed.from_blocks("chr1", (2, 4), (5, 6), (7, 11))
     exons.name = "exons"
-    cds = Bed("chr1", 3, 4, "cds")
-    other = Transcript(exons, cds)
+    coding_exons = Bed("chr1", 3, 4, "coding_exons")
+    other = Transcript(exons, coding_exons)
 
     expected = [
         {
@@ -75,12 +77,7 @@ def test_compare(client: TestClient) -> None:
             "basepairs": "6/7",
         },
         {
-            "name": "cds",
-            "percentage": 1.0,
-            "basepairs": "1/1",
-        },
-        {
-            "name": "Coding exons",
+            "name": "coding_exons",
             "percentage": 1.0,
             "basepairs": "1/1",
         },

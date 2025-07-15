@@ -1,7 +1,9 @@
+from copy import copy, deepcopy
 from .models import TranscriptModel, BedModel
 from .provider import Provider
 from .ensembl import lookup_transcript as lookup_transcript_ens
 from .ucsc import lookup_knownGene
+from . import Bed
 
 
 def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel:
@@ -22,6 +24,13 @@ def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel
     end = knownGene["thickEnd"]
     name = "CDS"
     strand = knownGene["strand"]
-    cds = BedModel(chrom=chrom, blocks=[(start, end)], name=name, strand=strand)
+    cds = BedModel(
+        chrom=chrom, blocks=[(start, end)], name=name, strand=strand
+    ).to_bed()
 
-    return TranscriptModel(exons=exons, cds=cds)
+    # Determine the coding region
+    coding_exons = exons.to_bed()
+    coding_exons.name = "coding_exons"
+    coding_exons.intersect(cds)
+
+    return TranscriptModel(exons=exons, coding_exons=BedModel.from_bed(coding_exons))

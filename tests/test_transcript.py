@@ -24,41 +24,31 @@ def cds() -> Bed:
 
 
 @pytest.fixture
-def transcript(Exons: Bed, cds: Bed) -> Transcript:
+def coding_exons() -> Bed:
+    coding_exons = [(23, 40), (50, 60), (70, 72)]
+    bed = Bed.from_blocks("chr1", *coding_exons)
+    bed.name = "coding_exons"
+
+    return bed
+
+
+@pytest.fixture
+def transcript(Exons: Bed, coding_exons: Bed) -> Transcript:
     """
     Bed records that make up a transcript
     Each positions shown here is 10x
     (i) means inferred by the init method
 
-              0 1 2 3 4 5 6 7 8 9
-    exons     -   - -   -   - - -
-    cds           - - - - - -
-    coding(i)     - -   -   -
+                  0 1 2 3 4 5 6 7 8 9
+    exons         -   - -   -   - - -
+    coding_exons      - -   -   -
     """
-    return Transcript(exons=Exons, cds=cds)
+    return Transcript(exons=Exons, coding_exons=coding_exons)
 
 
 def test_transcript_init(transcript: Transcript) -> None:
     assert transcript.exons.name == "exons"
-    assert transcript.cds.name == "cds"
-
-
-def test_coding(transcript: Transcript, Exons: Bed, cds: Bed) -> None:
-    # The coding region is the intersection of the exons and the CDS
-    coding = Bed(
-        "chr1",
-        23,
-        72,
-        name="Coding exons",
-        blockSizes=[17, 10, 2],
-        blockStarts=[0, 27, 47],
-    )
-    # Test that we did not change the cds or exons
-    assert transcript.exons == Exons
-    assert transcript.cds == cds
-
-    # Test that coding was set
-    assert transcript.coding == coding
+    assert transcript.coding_exons.name == "coding_exons"
 
 
 intersect_selectors = [
@@ -204,7 +194,7 @@ def test_exon_skip_transcript(
     assert transcript.exons == exons
 
 
-def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
+def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
     exon_blocks = [
         (0, 10),
         # (20, 40),  # Missing the second exon
@@ -213,13 +203,21 @@ def test_compare_transcripts(transcript: Transcript, cds: Bed) -> None:
     ]
     exons = Bed.from_blocks("chr1", *exon_blocks)
     exons.name = "exons"
-    smaller = Transcript(exons, cds)
+
+    coding_blocks = [
+        # (23, 40),  # Missing the second exon
+        (50, 60),
+        (70, 72),
+    ]
+    coding_exons = Bed.from_blocks("chr1", *coding_blocks)
+    coding_exons.name = "coding_exons"
+
+    smaller = Transcript(exons, coding_exons)
 
     cmp = smaller.compare(transcript)
 
     assert cmp[0].percentage == pytest.approx(0.71, abs=0.01)
-    assert cmp[1].percentage == 1
-    assert cmp[2].percentage == pytest.approx(0.41, abs=0.01)
+    assert cmp[1].percentage == pytest.approx(0.41, abs=0.01)
 
 
 @pytest.fixture

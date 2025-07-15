@@ -112,7 +112,7 @@ class BedModel(BaseModel):
 
 class TranscriptModel(BaseModel):
     exons: BedModel
-    cds: BedModel
+    coding_exons: BedModel
 
     model_config = {
         "json_schema_extra": {
@@ -124,10 +124,10 @@ class TranscriptModel(BaseModel):
                         "blocks": [[0, 10], [20, 40], [50, 60], [70, 100]],
                         "name": "exons",
                     },
-                    "cds": {
+                    "coding_exons": {
                         "chrom": "chr1",
                         "blocks": [[23, 72]],
-                        "name": "cds",
+                        "name": "coding_exons",
                     },
                 },
                 # Skipped exon 2 ([20, 40])
@@ -139,10 +139,10 @@ class TranscriptModel(BaseModel):
                         "score": 0,
                         "strand": ".",
                     },
-                    "cds": {
+                    "coding_exons": {
                         "chrom": "chr1",
                         "blocks": [[40, 72]],
-                        "name": "cds",
+                        "name": "coding_exons",
                         "score": 0,
                         "strand": ".",
                     },
@@ -153,15 +153,15 @@ class TranscriptModel(BaseModel):
 
     def to_transcript(self) -> Transcript:
         exons = self.exons.to_bed()
-        cds = self.cds.to_bed()
-        return Transcript(exons=exons, cds=cds)
+        coding_exons = self.coding_exons.to_bed()
+        return Transcript(exons=exons, coding_exons=coding_exons)
 
     @classmethod
     def from_transcript(cls, transcript: Transcript) -> "TranscriptModel":
         """Create a TranscriptModel from a Transcript object"""
         exons = BedModel.from_bed(transcript.exons)
-        cds = BedModel.from_bed(transcript.cds)
-        return cls(exons=exons, cds=cds)
+        coding_exons = BedModel.from_bed(transcript.coding_exons)
+        return cls(exons=exons, coding_exons=coding_exons)
 
 
 class TranscriptId(BaseModel):

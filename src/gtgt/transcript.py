@@ -47,19 +47,13 @@ class Result:
 
 
 class Transcript:
-    def __init__(self, exons: Bed, cds: Bed):
+    def __init__(self, exons: Bed, coding_exons: Bed):
         self.exons = exons
-        self.cds = cds
-
-        # Set the coding region
-        coding = deepcopy(self.exons)
-        coding.name = "Coding exons"
-        coding.intersect(self.cds)
-        self.coding = coding
+        self.coding_exons = coding_exons
 
     def records(self) -> List[Bed]:
         """Return the Bed records that make up the Transcript"""
-        return [self.exons, self.cds, self.coding]
+        return [self.exons, self.coding_exons]
 
     def intersect(self, selector: Bed) -> None:
         """Update transcript to only contain features that intersect the selector"""
@@ -113,7 +107,9 @@ class Transcript:
     def mutate(self, d: Description, variants: CdotVariant) -> None:
         """Mutate the transcript based on the specified hgvs description"""
         # Determine the CDS intervals that are affected by the hgvs description
-        deleted = Bed.from_blocks(self.cds.chrom, *mutation_to_cds_effect(d, variants))
+        deleted = Bed.from_blocks(
+            self.coding_exons.chrom, *mutation_to_cds_effect(d, variants)
+        )
         # Subtract that region from the annotations
         self.subtract(deleted)
 

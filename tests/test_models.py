@@ -77,11 +77,11 @@ def test_BedModel_from_bed() -> None:
 def test_transcript_model() -> None:
     bed = Bed("chr1", 0, 10)
     bm = BedModel.from_bed(bed)
-    tm = TranscriptModel(exons=bm, cds=bm)
+    tm = TranscriptModel(exons=bm, coding_exons=bm)
     # Test converting a TranscriptModel to a Transcript
     transcript = tm.to_transcript()
     # Test that the "coding" region has been set in the new Transcript
-    assert transcript.coding == Bed("chr1", 0, 10, name="Coding exons")
+    assert transcript.coding_exons == Bed("chr1", 0, 10)
 
 
 def test_Transcript_from_model() -> None:
@@ -93,11 +93,11 @@ def test_Transcript_from_model() -> None:
     # Create the TranscriptModel
     bed = Bed("chr1", 0, 10)
     bm = BedModel.from_bed(bed)
-    expected = TranscriptModel(exons=bm, cds=bm)
+    expected = TranscriptModel(exons=bm, coding_exons=bm)
 
     # Create the Transcript we want to convert to a TranscriptModel
     bed = Bed("chr1", 0, 10)
-    ts = Transcript(exons=bed, cds=bed)
+    ts = Transcript(exons=bed, coding_exons=bed)
 
     assert TranscriptModel.from_transcript(ts) == expected
 
