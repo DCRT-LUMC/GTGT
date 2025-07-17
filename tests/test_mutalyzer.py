@@ -14,6 +14,7 @@ from gtgt.mutalyzer import (
     _cdot_to_internal_delins,
     _init_model,
     _Variant,
+    to_cdot_hgvs,
 )
 from gtgt.mutalyzer import HGVS, Variant, variant_to_model
 from mutalyzer.description import Description
@@ -243,6 +244,15 @@ def test_exonskip_SDHD() -> None:
     for output, expected in zip_longest(exonskip(d), results):
         assert output.hgvs == expected
 
+def test_new_exonskip_SDHD() -> None:
+    d = Description("ENST00000375549.8:c.=")
+    _init_model(d)
+    results = [
+        "ENST00000375549.8:c.53_169del",
+        "ENST00000375549.8:c.170_314del",
+    ]
+    for output, expected in zip_longest(exonskip(d), results):
+        assert output.hgvs == expected
 
 def test_exonskip_WT1() -> None:
     d = Description("ENST00000452863.10:c.=")
@@ -721,7 +731,7 @@ def test_Variant_from_model() -> None:
     v = _Variant.from_model(delins_model)
     assert v.start == 0
     assert v.end == 2
-    assert v.sequence == "ATC"
+    assert v.inserted == "ATC"
 
 
 def test_Variant_from_model_deletion() -> None:
@@ -749,7 +759,7 @@ def test_Variant_from_model_deletion() -> None:
     assert v.start == 0
     assert v.end == 2
     # Test that the emtpy sequence is a string, not a list
-    assert v.sequence == ""
+    assert v.inserted == ""
 
 
 def test_combine_variants_deletion_empty() -> None:
@@ -865,3 +875,8 @@ def test_exons_forward(WT1_description: Description) -> None:
         get_exons(WT1_description, in_transcript_order=False)[0]
         == expected_genomic_order
     )
+
+# def test_Variant_to_hgvs(SDHD_description: Description) -> None:
+#     v = _Variant(44, 45, "T")
+#     expected = "10A>T"
+#     assert to_cdot_hgvs(SDHD_description, [v]) == expected

@@ -34,12 +34,12 @@ InternalVariant = NewType("InternalVariant", dict[str, Any])
 class _Variant:
     """Class to store delins variants"""
 
-    def __init__(self, start: int, end: int, sequence: str = ""):
+    def __init__(self, start: int, end: int, inserted: str = ""):
         if start > end:
             raise ValueError(f"End ({end}) must be after start ({start})")
         self.start = start  # zero based
         self.end = end  # exclusive
-        self.sequence = sequence
+        self.inserted = inserted
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -47,7 +47,7 @@ class _Variant:
     def __repr__(self) -> str:
         start = self.start
         end = self.end
-        sequence = self.sequence
+        sequence = self.inserted
         return f"Variant({start=}, {end=}, sequence={sequence})"
 
     def before(self, other: "_Variant") -> bool:
@@ -78,7 +78,7 @@ class _Variant:
         return (
             self.start == other.start
             and self.end == other.end
-            and self.sequence == other.sequence
+            and self.inserted == other.inserted
         )
 
     def __lt__(self, other: "_Variant") -> bool:
@@ -95,8 +95,8 @@ class _Variant:
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
         # sequence is string or empty list
-        sequence = model["inserted"][0]["sequence"]
-        return _Variant(start, end, sequence if sequence else "")
+        inserted = model["inserted"][0]["sequence"]
+        return _Variant(start, end, inserted if inserted else "")
 
     def to_model(self) -> Dict[str, Any]:
         """Convert Variant to mutalyzer delins model"""
@@ -116,10 +116,10 @@ class _Variant:
         }
 
         # Specification of the inserted sequence
-        if self.sequence:
+        if self.inserted:
             inserted = [
                 {
-                    "sequence": self.sequence,
+                    "sequence": self.inserted,
                     "source": "description"
                 }
             ]
@@ -338,6 +338,68 @@ def combine_variants_deletion(
         combined.append(deletion)
 
     return combined
+
+
+def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
+    """Convert a list of _Variants to hgvs representation"""
+    # Convert to delins dict model
+    variant_models = [v.to_model() for v in variants]
+
+    print(f"{variant_models=}")
+    # Convert 'delins' without insertion to deletion
+    for model in variant_models:
+        model["type"] = "substitution"
+        # continue
+        if not model.get("inserted"):
+            model["type"] = "deletion"
+
+    print(f"{variant_models=}")
+
+    ref_id = get_reference_id(d.corrected_model)
+
+    selector_model = get_protein_selector_model(
+        d.references[ref_id]["annotations"], ref_id
+    )
+
+    description_model = {
+        "type": "description_dna",
+        "reference": {"id": ref_id, "selector": {"id": ref_id}},
+        "coordinate_system": "c",
+        "variants": variant_models,
+    }
+
+    cdot_locations = to_hgvs_locations(
+        description_model,
+        d.references,
+        selector_model=selector_model,
+    )["variants"]
+    
+    hgvs: str =variants_to_description(cdot_locations)
+    return hgvs
+
+
+def _exonskip(d: Description) -> List[Therapy]:
+    """Generate all possible exon skips for the specified Description"""
+    exon_skips = list()
+
+    exons = get_exons(d, in_transcript_order=True)
+    variants = [_Variant.from_model(v) for v in d.internal_coordinates_model["variants"]]
+
+    exon_counter = 2
+    for start, end in exons[1:-1]:
+        exon_skip = _Variant(start, end)
+        # Combine the existing variants with the exon skip
+        combined = combine_variants_deletion(variants, exon_skip)
+
+        # Convert to c. notation (user facing)
+        name = f"Skip exon {exon_counter}"
+        hgvs = ""
+        description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
+        t = Therapy(name, hgvs, description)
+        exon_skips.append(t)
+        exon_counter += 1
+
+    return list()
 
 
 def exonskip(d: Description) -> List[Therapy]:
