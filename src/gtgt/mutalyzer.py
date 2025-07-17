@@ -34,12 +34,16 @@ InternalVariant = NewType("InternalVariant", dict[str, Any])
 class _Variant:
     """Class to store delins variants"""
 
-    def __init__(self, start: int, end: int, inserted: str = ""):
+    def __init__(self, start: int, end: int, inserted: str = "", deleted: str = ""):
         if start > end:
             raise ValueError(f"End ({end}) must be after start ({start})")
         self.start = start  # zero based
         self.end = end  # exclusive
         self.inserted = inserted
+
+        if len(deleted) > 1:
+            raise ValueError("deleted sequence is only defined for SNPS, not indels")
+        self.deleted = deleted
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -47,8 +51,9 @@ class _Variant:
     def __repr__(self) -> str:
         start = self.start
         end = self.end
-        sequence = self.inserted
-        return f"Variant({start=}, {end=}, sequence={sequence})"
+        inserted = self.inserted
+        deleted= self.deleted
+        return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted})"
 
     def before(self, other: "_Variant") -> bool:
         return self.end <= other.start
@@ -127,12 +132,23 @@ class _Variant:
             inserted = []
         # fmt: on
 
-        return {
+        model = {
             "location": location,
             "type": "deletion_insertion",
             "source": "reference",
             "inserted": inserted,
         }
+
+        if self.deleted:
+            deleted = [
+                {
+                    "sequence": self.deleted,
+                    "source": "description"
+                }
+            ]
+            model["deleted"] = deleted
+
+        return model
 
 
 @dataclasses.dataclass

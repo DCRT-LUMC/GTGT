@@ -570,8 +570,14 @@ def test_changed_protein_positions(
 def test_Variant_class_str() -> None:
     """Test converting a Variant to string"""
     v = _Variant(10, 11, "ATG")
-    assert str(v) == "Variant(start=10, end=11, sequence=ATG)"
+    assert str(v) == "Variant(start=10, end=11, inserted=ATG, deleted=)"
 
+
+def test_Variant_class_str_snp() -> None:
+    """SNPS are special, since they contain the inserted sequence"""
+    # 10A>T
+    v = _Variant(10, 11, "T", "A")
+    assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A)"
 
 def test_Variant_class_to_model_positions() -> None:
     """Test converting a variant to model"""
@@ -582,6 +588,25 @@ def test_Variant_class_to_model_positions() -> None:
     assert model["location"]["end"]["position"] == 11
     assert model["inserted"][0]["sequence"] == "ATG"
 
+    # Deleted entry is missing for deletions
+    assert "deleted" not in model
+
+def test_Variant_class_to_model_snp() -> None:
+    # 10 A>T
+    v = _Variant(10, 11, "T", "A")
+    model = v.to_model()
+
+    assert model["inserted"][0]["sequence"] == "T"
+    assert model["deleted"][0]["sequence"] == "A"
+
+def test_Variant_deleted_snp_only() -> None:
+    """Test that deleted is only defined for SNPs, not larger indels
+
+    (To match the behaviour of Mutalyzer)
+    """
+    with pytest.raises(ValueError):
+        # 10_12delinsGG
+        _Variant(10, 12, "GG", "AT")
 
 def test_Variant_class_no_inserted_sequence() -> None:
     """
