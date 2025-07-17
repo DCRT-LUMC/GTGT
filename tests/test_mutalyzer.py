@@ -244,6 +244,7 @@ def test_exonskip_SDHD() -> None:
     for output, expected in zip_longest(exonskip(d), results):
         assert output.hgvs == expected
 
+
 def test_new_exonskip_SDHD() -> None:
     d = Description("ENST00000375549.8:c.=")
     _init_model(d)
@@ -253,6 +254,7 @@ def test_new_exonskip_SDHD() -> None:
     ]
     for output, expected in zip_longest(exonskip(d), results):
         assert output.hgvs == expected
+
 
 def test_exonskip_WT1() -> None:
     d = Description("ENST00000452863.10:c.=")
@@ -579,6 +581,7 @@ def test_Variant_class_str_snp() -> None:
     v = _Variant(10, 11, "T", "A")
     assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A)"
 
+
 def test_Variant_class_to_model_positions() -> None:
     """Test converting a variant to model"""
     v = _Variant(10, 11, "ATG")
@@ -591,6 +594,7 @@ def test_Variant_class_to_model_positions() -> None:
     # Deleted entry is missing for deletions
     assert "deleted" not in model
 
+
 def test_Variant_class_to_model_snp() -> None:
     # 10 A>T
     v = _Variant(10, 11, "T", "A")
@@ -598,6 +602,7 @@ def test_Variant_class_to_model_snp() -> None:
 
     assert model["inserted"][0]["sequence"] == "T"
     assert model["deleted"][0]["sequence"] == "A"
+
 
 def test_Variant_deleted_snp_only() -> None:
     """Test that deleted is only defined for SNPs, not larger indels
@@ -607,6 +612,7 @@ def test_Variant_deleted_snp_only() -> None:
     with pytest.raises(ValueError):
         # 10_12delinsGG
         _Variant(10, 12, "GG", "AT")
+
 
 def test_Variant_class_no_inserted_sequence() -> None:
     """
@@ -901,6 +907,7 @@ def test_exons_forward(WT1_description: Description) -> None:
         == expected_genomic_order
     )
 
+
 TO_HGVS = [
     # SNP
     (_Variant(44, 45, "T", "A"), "10A>T"),
@@ -911,6 +918,10 @@ TO_HGVS = [
     # Insertion/Deletion
     (_Variant(44, 46, "GG"), "10_11delinsGG"),
 ]
+
+
 @pytest.mark.parametrize("variant, expected", TO_HGVS)
-def test_Variant_to_hgvs(SDHD_description: Description, variant: _Variant, expected: str) -> None:
+def test_Variant_to_hgvs(
+    SDHD_description: Description, variant: _Variant, expected: str
+) -> None:
     assert to_cdot_hgvs(SDHD_description, [variant]) == expected

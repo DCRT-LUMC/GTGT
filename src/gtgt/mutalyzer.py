@@ -52,7 +52,7 @@ class _Variant:
         start = self.start
         end = self.end
         inserted = self.inserted
-        deleted= self.deleted
+        deleted = self.deleted
         return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted})"
 
     def before(self, other: "_Variant") -> bool:
@@ -140,12 +140,7 @@ class _Variant:
         }
 
         if self.deleted:
-            deleted = [
-                {
-                    "sequence": self.deleted,
-                    "source": "description"
-                }
-            ]
+            deleted = [{"sequence": self.deleted, "source": "description"}]
             model["deleted"] = deleted
 
         return model
@@ -389,8 +384,8 @@ def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
         d.references,
         selector_model=selector_model,
     )["variants"]
-    
-    hgvs: str =variants_to_description(cdot_locations)
+
+    hgvs: str = variants_to_description(cdot_locations)
     return hgvs
 
 
@@ -399,7 +394,9 @@ def _exonskip(d: Description) -> List[Therapy]:
     exon_skips = list()
 
     exons = get_exons(d, in_transcript_order=True)
-    variants = [_Variant.from_model(v) for v in d.internal_coordinates_model["variants"]]
+    variants = [
+        _Variant.from_model(v) for v in d.internal_coordinates_model["variants"]
+    ]
 
     exon_counter = 2
     for start, end in exons[1:-1]:
