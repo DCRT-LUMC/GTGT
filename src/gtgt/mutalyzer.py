@@ -619,3 +619,17 @@ def append_mutation(description: Description, mutation: CdotVariant) -> None:
     description.construct_de_hgvs_coordinates_model()
     description.construct_normalized_description()
     description.construct_protein_description()
+
+
+def get_exons(
+    description: Description, in_transcript_order: bool
+) -> List[Tuple[int, int]]:
+    """Get exons from a Mutalyzer Description object
+
+    Positions are in the internal coordinate system
+    """
+    exons: List[Tuple[int, int]] = description.get_selector_model()["exon"]
+    if in_transcript_order and description.is_inverted():
+        return exons[::-1]
+
+    return exons

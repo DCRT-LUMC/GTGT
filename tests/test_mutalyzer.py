@@ -9,6 +9,7 @@ from gtgt.mutalyzer import (
     combine_variants_deletion,
     exonskip,
     changed_protein_positions,
+    get_exons,
     mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
@@ -63,6 +64,22 @@ def _get_content(relative_location: str) -> str:
 def mock_env(monkeypatch: Any) -> None:
     monkeypatch.setattr("mutalyzer_retriever.retriever.retrieve_raw", retrieve_raw)
     monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", get_cds_to_mrna)
+
+
+@pytest.fixture()
+def SDHD_description() -> Description:
+    """SDHD, on the forward strand"""
+    d = Description("ENST00000375549.8:c.=")
+    _init_model(d)
+    return d
+
+
+@pytest.fixture()
+def WT1_description() -> Description:
+    """WT1, on the reverse strand"""
+    d = Description("ENST00000452863.10:c.=")
+    _init_model(d)
+    return d
 
 
 POSITIONS = [
@@ -825,3 +842,26 @@ def test_combine_variants_deletion_variants_partially_overlap_deletion() -> None
     deletion = _Variant(3, 11)
     with pytest.raises(ValueError):
         combine_variants_deletion(variants, deletion)
+
+
+def test_get_exons_forward(SDHD_description: Description) -> None:
+    """Text extracting exons from a Description object"""
+    expected = (0, 87)
+
+    assert get_exons(SDHD_description, in_transcript_order=True)[0] == expected
+    assert get_exons(SDHD_description, in_transcript_order=False)[0] == expected
+
+
+def test_exons_forward(WT1_description: Description) -> None:
+    """Text extracting exons from a Description object"""
+    expected_transcript_order = (46925, 47765)
+    expected_genomic_order = (0, 1405)
+
+    assert (
+        get_exons(WT1_description, in_transcript_order=True)[0]
+        == expected_transcript_order
+    )
+    assert (
+        get_exons(WT1_description, in_transcript_order=False)[0]
+        == expected_genomic_order
+    )
