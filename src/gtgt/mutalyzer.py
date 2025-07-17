@@ -364,9 +364,9 @@ def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
     print(f"{variant_models=}")
     # Convert 'delins' without insertion to deletion
     for model in variant_models:
-        model["type"] = "substitution"
-        # continue
-        if not model.get("inserted"):
+        if model.get("deleted"):
+            model["type"] = "substitution"
+        elif not model.get("inserted"):
             model["type"] = "deletion"
 
     print(f"{variant_models=}")

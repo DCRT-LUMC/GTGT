@@ -901,7 +901,16 @@ def test_exons_forward(WT1_description: Description) -> None:
         == expected_genomic_order
     )
 
-# def test_Variant_to_hgvs(SDHD_description: Description) -> None:
-#     v = _Variant(44, 45, "T")
-#     expected = "10A>T"
-#     assert to_cdot_hgvs(SDHD_description, [v]) == expected
+TO_HGVS = [
+    # SNP
+    (_Variant(44, 45, "T", "A"), "10A>T"),
+    # Deletion
+    (_Variant(44, 45), "10del"),
+    # Insertion
+    # (_Variant(44, 45, "A"), "10insA"),
+    # Insertion/Deletion
+    (_Variant(44, 46, "GG"), "10_11delinsGG"),
+]
+@pytest.mark.parametrize("variant, expected", TO_HGVS)
+def test_Variant_to_hgvs(SDHD_description: Description, variant: _Variant, expected: str) -> None:
+    assert to_cdot_hgvs(SDHD_description, [variant]) == expected
