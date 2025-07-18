@@ -366,20 +366,7 @@ def combine_variants_deletion(
 
 def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
-    # Convert to delins dict model
-    variant_models = [v.to_model() for v in variants]
-    print(f"{variant_models=}")
-    variant_models = de_to_hgvs(variant_models, d.get_sequences())
-    print(f"{variant_models=}")
-
-    for model in variant_models:
-        if model.get("deleted"):
-            model["type"] = "substitution"
-        elif not model.get("inserted"):
-            model["type"] = "deletion"
-        elif not model.get("deleted"):
-            model["type"] = "insertion"
-    print(f"{variant_models=}")
+    variant_models = de_to_hgvs([v.to_model() for v in variants], d.get_sequences())
 
     ref_id = get_reference_id(d.corrected_model)
 
@@ -401,7 +388,6 @@ def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
     )["variants"]
 
     hgvs: str = variants_to_description(cdot_locations)
-
     return hgvs
 
 

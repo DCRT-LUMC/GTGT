@@ -932,15 +932,14 @@ TO_HGVS = [
     # Deletion
     (_Variant(44, 45), "10del"),
     # Insertion
-    (_Variant(44, 45, "A"), "10_11insA"),
+    (_Variant(45, 45, "A"), "10_11insA"),
     # Insertion/Deletion
     (_Variant(44, 46, "GG"), "10_11delinsGG"),
 ]
 
 
-# @pytest.mark.parametrize("variant, expected", TO_HGVS)
-# def test_Variant_to_hgvs(
-#     SDHD_description: Description, variant: _Variant, expected: str
-# ) -> None:
-#     print()
-#     assert to_cdot_hgvs(SDHD_description, [variant]) == expected
+@pytest.mark.parametrize("variant, expected", TO_HGVS)
+def test_Variant_to_hgvs(
+    SDHD_description: Description, variant: _Variant, expected: str
+) -> None:
+    assert to_cdot_hgvs(SDHD_description, [variant]) == expected
