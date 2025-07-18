@@ -168,6 +168,16 @@ class Therapy:
     description: str
 
 
+@dataclasses.dataclass
+class _Therapy:
+    """Class to store genetic therapies"""
+
+    name: str
+    hgvs: str
+    description: str
+    variants: Sequence[_Variant]
+
+
 class HGVS(BaseModel):
     description: str
 
@@ -391,7 +401,7 @@ def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
     return hgvs
 
 
-def _exonskip(d: Description) -> List[Therapy]:
+def _exonskip(d: Description) -> List[_Therapy]:
     """Generate all possible exon skips for the specified Description"""
     exon_skips = list()
 
@@ -408,9 +418,9 @@ def _exonskip(d: Description) -> List[Therapy]:
 
         # Convert to c. notation (user facing)
         name = f"Skip exon {exon_counter}"
-        hgvs = ""
+        hgvs = to_cdot_hgvs(d, combined)
         description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
-        t = Therapy(name, hgvs, description)
+        t = _Therapy(name, hgvs, description, combined)
         exon_skips.append(t)
         exon_counter += 1
 
@@ -592,6 +602,12 @@ def _cdot_to_internal_delins(
 
     # logger.debug(f"{internal_delins=}")
     return internal_delins
+
+
+def _mutation_to_cds_effect(
+    d: Description, variants: Sequence[_Variant]
+) -> List[Tuple[int, int]]:
+    return list()
 
 
 def mutation_to_cds_effect(

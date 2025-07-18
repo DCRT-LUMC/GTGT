@@ -85,7 +85,7 @@ async def compare(
     return s.compare(o)
 
 
-@app.post("/hgvs/analyze")
+@app.post("/hgvs/analyze", response_model=None)
 async def analyze(hgvs: HGVS) -> List[Result]:
     """Analyze all possible exons skips for the spcified HGVS variant"""
     transcript_id = hgvs.description.split(":")[0]

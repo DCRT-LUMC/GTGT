@@ -4,15 +4,19 @@ import dataclasses
 from .mutalyzer import (
     CdotVariant,
     Therapy,
+    _Therapy,
+    _Variant,
     mutation_to_cds_effect,
+    _mutation_to_cds_effect,
     HGVS,
     exonskip,
+    _exonskip,
     _init_model,
 )
 from mutalyzer.description import Description
 from .bed import Bed
 
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Sequence, Union
 import logging
 
 
@@ -32,7 +36,7 @@ class Comparison:
 class Result:
     """To hold results for separate mutations of a transcript"""
 
-    therapy: Therapy
+    therapy: Union[Therapy, _Therapy]
     comparison: List[Comparison]
 
     def __gt__(self, other: "Result") -> bool:
@@ -116,6 +120,59 @@ class Transcript:
         )
         # Subtract that region from the annotations
         self.subtract(deleted)
+
+    def _mutate(self, d: Description, variants: Sequence[_Variant]) -> None:
+        """Mutate the transcript based on the specified variants"""
+        deleted = Bed.from_blocks(
+            self.coding_exons.chrom, *_mutation_to_cds_effect(d, variants)
+        )
+        # Subtract that region from the annotations
+        self.subtract(deleted)
+
+    def _analyze(self, hgvs: str) -> List[Result]:
+        """Analyze the transcript based on the specified HGVS description"""
+        # Initialize the input HGVS description
+        d = Description(hgvs, stop_on_error=True)
+        _init_model(d)
+
+        # Extract the input variants as internal delins
+        input_variants = [
+            _Variant.from_model(delins)
+            for delins in d.internal_coordinates_model["variants"]
+        ]
+
+        results = list()
+
+        # Store the wildtype
+        wt = _Therapy(
+            name="Wildtype",
+            hgvs=hgvs.split("c.")[0] + "c.=",
+            description="These are the annotations as defined on the reference. They are always 100% by definition.",
+            variants=list(),
+        )
+        wildtype = Result(wt, self.compare(self))
+        results.append(wildtype)
+
+        # Store the input variants as Therapy
+        input = _Therapy(
+            name="Input",
+            hgvs=hgvs,
+            description="The annotations based on the supplied input variants.",
+            variants=input_variants,
+        )
+        patient = deepcopy(self)
+        patient._mutate(d, input.variants)
+        results.append(Result(input, patient.compare(self)))
+
+        # Generate the exon skips
+        for skip in _exonskip(d):
+            logger.debug(f"Skipping {skip.name}")
+
+            # Apply the combination to the wildtype transcript
+            therapy = deepcopy(self)
+            therapy._mutate(d, skip.variants)
+
+        return results
 
     def analyze(self, hgvs: str) -> List[Result]:
         """Analyse the transcript based on the specified hgvs description
