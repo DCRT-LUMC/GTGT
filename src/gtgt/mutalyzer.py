@@ -607,7 +607,75 @@ def _cdot_to_internal_delins(
 def _mutation_to_cds_effect(
     d: Description, variants: Sequence[_Variant]
 ) -> List[Tuple[int, int]]:
-    return list()
+    """
+    Determine the effect of the specified HGVS description on the CDS, on the genome
+
+    Steps:
+    - Use the protein prediction of mutalyzer to determine which protein
+      residues are changed
+    - Map this back to a deletion in c. positions to determine which protein
+      annotations are no longer valid
+    - Convert the c. positions to genome coordiinates as used by the UCSC
+    NOTE that the genome range is similar to the UCSC annotations on the genome,
+    i.e. 0 based, half open. Not to be confused with hgvs g. positions
+    """
+
+    # Get required data structures from the Description
+    ref_id = get_reference_id(d.corrected_model)
+    selector_model = get_protein_selector_model(
+        d.references[ref_id]["annotations"], ref_id
+    )
+
+    # Convert the Variants to their delins model representation
+    delins = [v.to_model() for v in variants]
+
+    # Add inverted into the delins model, this is required for the protein prediction
+    inverted = selector_model["inverted"]
+    for variant in delins:
+        if "inserted" in variant and variant["inserted"]:
+            variant["inserted"][0]["inverted"] = inverted
+        if "deleted" in variant and variant["deleted"]:
+            variant["deleted"][0]["inverted"] = inverted
+
+    # Determine the protein positions that were changed
+    protein = get_protein_description(delins, d.references, selector_model)
+    reference, observed = protein[1], protein[2]
+
+    # Keep track of changed positions on the genome
+    changed_genomic = list()
+
+    for start, end in changed_protein_positions(reference, observed):
+        # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
+        start_pos = start * 3 + 1
+        end_pos = end * 3
+
+        cdot_mutation = CdotVariant(f"{start_pos}_{end_pos}del")
+
+        # Convert cdot to delins
+        positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
+        ensembl_offset = _get_ensembl_offset(d.references, ref_id)
+
+        # logger.debug(f"{positions_delins=}")
+        # logger.debug(f"{ensembl_offset=}")
+
+        if ensembl_offset is None:
+            raise RuntimeError("Missing ensemble offset")
+
+        genome_positions = _internal_to_internal_genome(
+            positions_delins, ensembl_offset
+        )
+
+        assert len(genome_positions) == 1
+        g_start = genome_positions[0]["location"]["start"]["position"]
+        g_end = genome_positions[0]["location"]["end"]["position"]
+
+        logger.debug(
+            f"protein difference: p.{start}-{end}, c.{cdot_mutation}, genomic {g_start:_}-{g_end:_} (size={g_end-g_start})"
+        )
+        assert g_end > g_start
+        changed_genomic.append((g_start, g_end))
+
+    return changed_genomic
 
 
 def mutation_to_cds_effect(

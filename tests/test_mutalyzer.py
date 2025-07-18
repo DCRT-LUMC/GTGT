@@ -11,6 +11,7 @@ from gtgt.mutalyzer import (
     changed_protein_positions,
     get_exons,
     mutation_to_cds_effect,
+    _mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
     _Variant,
@@ -291,7 +292,7 @@ MUTATIONS = [
 
 
 @pytest.mark.parametrize("variants, expected", MUTATIONS)
-def test_mutation_to_cds_effect(
+def test_mutation_to_cds_effect_reverse(
     variants: CdotVariant, expected: Tuple[int, int]
 ) -> None:
     """
@@ -303,6 +304,68 @@ def test_mutation_to_cds_effect(
     _init_model(d)
 
     assert mutation_to_cds_effect(d, variants) == [expected]
+
+
+# fmt: off
+MUTATIONS_VARIANT = [
+    # Variant, coordinates on the genome
+    # A simple missense that changes a single amino acids
+    (
+        "13T>A",
+        [_Variant(start=47573, end=47574, inserted="A", deleted="T")],
+        (32435345, 32435348)
+    ),
+    # A stop mutation which destroys most of the protein
+    (
+        "9_10insTAG",
+        [_Variant(start=47577, end=47577, inserted="TAG")],
+        (32389060, 32435351)
+    ),
+    # # # A frameshift that is restored by an insertion
+    (
+        "[10del;20_21insA]",
+        [
+            _Variant(start=47576, end=47577),
+            _Variant(start=47566, end=47566, inserted="A"),
+        ],
+        (32435339, 32435351)
+    ),
+    # # # A frameshift that is restored by a bigger insertion
+    (
+        "[10del;20_21insATCGAATATGGGG]",
+        [
+            _Variant(start=47566, end=47566, inserted="ATCGAATATGGGG"),
+            _Variant(start=47576, end=47577),
+        ],
+        (32435339, 32435351)),
+    # # # A bigger deletion
+    (
+        "11_19del",
+        [_Variant(start=47567, end=47576)],
+         (32435342, 32435351)
+    ),
+    # # # An inframe deletion that creates a STOP codon
+    (
+        "87_89del",
+        [_Variant(start=47497, end=47500)],
+        (32389060, 32435276)
+    ),
+]
+# fmt: on
+@pytest.mark.parametrize("cdot, variants, expected", MUTATIONS_VARIANT)
+def test_mutation_to_cds_effect_reverse_new(
+    cdot: str, variants: Sequence[_Variant], expected: Tuple[int, int]
+) -> None:
+    """
+    GIVEN a HGVS transcript description for a transcript on the reverse strand
+    WHEN we determine the CDS effect
+    THEN we should get genome coordinates
+    """
+    hgvs = f"ENST00000452863.10:c.="
+    d = Description(hgvs)
+    _init_model(d)
+
+    assert _mutation_to_cds_effect(d, variants) == [expected]
 
 
 FORWARD_MUTATIONS = [
@@ -340,6 +403,69 @@ def test_mutation_to_cds_effect_forward(
         e = expected
 
     assert mutation_to_cds_effect(d, variants) == e
+
+
+# fmt: off
+FORWARD_MUTATIONS_VARIANT = [
+    # HGVS, coordinates on the genome,
+    # A simple missense that changes a single amino acids
+    (
+        "13T>A",
+        [_Variant(start=47, end=48, inserted="A", deleted="T")],
+        (112086919, 112086922)
+    ),
+    # A stop mutation which destroys most of the protein
+    (
+        "9_10insTAG",
+        [_Variant(start=44, end=44, inserted="TAG")],
+        (112086916, 112094967)
+    ),
+    # # A frameshift that is restored by an insertion
+    # Note this gives two separate, adjacent regions
+    (
+        "[9_10insA;20del]",
+        [
+            _Variant(start=44, end=44, inserted="A"),
+            _Variant(start=54, end=55),
+        ],
+        [
+            (112086919, 112086925),
+            (112086925, 112086928),
+        ]
+    ),
+    # # A bigger deletion
+    (
+        "13_21del",
+        [_Variant(start=47, end=56)],
+        (112086919, 112086928)
+    ),
+    # # An SNP that creates a STOP codon
+    (
+        "14G>A",
+        [_Variant(start=48, end=49, inserted="A", deleted="G")],
+        (112086919, 112094967)
+    ),
+]
+# fmt: on
+@pytest.mark.parametrize("cdot, variants, expected", FORWARD_MUTATIONS_VARIANT)
+def test_mutation_to_cds_effect_forward_new(
+    cdot: str, variants: Sequence[_Variant], expected: Tuple[int, int]
+) -> None:
+    """
+    GIVEN a HGVS transcript description for a transcript on the reverse strand
+    WHEN we determine the CDS effect
+    THEN we should get genome coordinates
+    """
+    hgvs = "ENST00000375549.8:c.="
+    d = Description(hgvs)
+    _init_model(d)
+
+    if not isinstance(expected, list):
+        e = [expected]
+    else:
+        e = expected
+
+    assert _mutation_to_cds_effect(d, variants) == e
 
 
 CDOT_MUTATIONS = [
