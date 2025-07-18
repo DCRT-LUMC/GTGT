@@ -2,6 +2,7 @@ from copy import deepcopy
 import dataclasses
 
 from mutalyzer.description import Description, to_rna_reference_model, model_to_string
+from mutalyzer.converter import de_to_hgvs
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from mutalyzer.converter.to_delins import variants_to_delins
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
@@ -99,9 +100,21 @@ class _Variant:
     def from_model(cls, model: Dict[str, Any]) -> "_Variant":
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
-        # sequence is string or empty list
-        inserted = model["inserted"][0]["sequence"]
-        return _Variant(start, end, inserted if inserted else "")
+
+        inserted = model.get("inserted", [])
+        if inserted:
+            inserted = inserted[0]["sequence"]
+        else:
+            inserted = ""
+
+        deleted = model.get("deleted")
+        if deleted is not None:
+            deleted = deleted[0]["sequence"]
+
+        if deleted:
+            return _Variant(start, end, inserted if inserted else "", deleted)
+        else:
+            return _Variant(start, end, inserted if inserted else "")
 
     def to_model(self) -> Dict[str, Any]:
         """Convert Variant to mutalyzer delins model"""
@@ -355,15 +368,17 @@ def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
     # Convert to delins dict model
     variant_models = [v.to_model() for v in variants]
-
     print(f"{variant_models=}")
-    # Convert 'delins' without insertion to deletion
+    variant_models = de_to_hgvs(variant_models, d.get_sequences())
+    print(f"{variant_models=}")
+
     for model in variant_models:
         if model.get("deleted"):
             model["type"] = "substitution"
         elif not model.get("inserted"):
             model["type"] = "deletion"
-
+        elif not model.get("deleted"):
+            model["type"] = "insertion"
     print(f"{variant_models=}")
 
     ref_id = get_reference_id(d.corrected_model)
@@ -386,6 +401,7 @@ def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
     )["variants"]
 
     hgvs: str = variants_to_description(cdot_locations)
+
     return hgvs
 
 
