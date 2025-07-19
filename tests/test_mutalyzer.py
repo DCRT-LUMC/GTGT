@@ -6,6 +6,7 @@ from gtgt.mutalyzer import (
     HGVS_to_genome_range,
     InternalVariant,
     append_mutation,
+    cds_to_internal_positions,
     combine_variants_deletion,
     exonskip,
     changed_protein_positions,
@@ -1106,3 +1107,48 @@ def test_Variant_to_hgvs(
     SDHD_description: Description, variant: _Variant, expected: str
 ) -> None:
     assert to_cdot_hgvs(SDHD_description, [variant]) == expected
+
+
+# fmt: off
+CDS_POSITIONS = [
+    (0, 0),
+    (4, 4),
+    (5, 11),
+    (7, 13),
+    (8, 100)
+]
+# fmt: on
+
+
+@pytest.mark.parametrize("position, expected", CDS_POSITIONS)
+def test_cds_to_internal_position(position: int, expected: int) -> None:
+    exons = [(0, 5), (11, 14), (100, 120)]
+    assert cds_to_internal_positions(position, exons) == expected
+
+
+CDS_POSITIONS_REV = [
+    (0, 13),
+    (2, 11),
+    (3, 4),
+    (7, 0),
+]
+
+
+@pytest.mark.parametrize("position, expected", CDS_POSITIONS_REV)
+def test_cds_to_internal_position_reverse(position: int, expected: int) -> None:
+    exons = [(0, 5), (11, 14)]
+    assert cds_to_internal_positions(position, exons, reverse=True) == expected
+
+
+def test_cds_to_internal_positions_out_of_range() -> None:
+    exons = [(0, 5)]
+
+    # position 4 is still in the exon
+    cds_to_internal_positions(4, exons)
+    cds_to_internal_positions(4, exons, reverse=True)
+
+    # position 5 is outside the exon
+    with pytest.raises(ValueError):
+        cds_to_internal_positions(5, exons)
+    with pytest.raises(ValueError):
+        cds_to_internal_positions(5, exons, reverse=True)

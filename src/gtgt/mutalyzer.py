@@ -794,3 +794,26 @@ def get_exons(
         return exons[::-1]
 
     return exons
+
+
+def cds_to_internal_positions(
+    position: int,
+    exons: Sequence[Tuple[int, int]],
+    cds_offset: int = 0,
+    reverse: bool = False,
+) -> int:
+    """Convert CDS positions to internal"""
+    pos = position + cds_offset
+
+    # Iterate over the exons
+    iterator = iter(exons[::-1]) if reverse else iter(exons)
+
+    for start, end in iterator:
+        size = end - start
+        # If position is in the current exon
+        if pos < size:
+            return end - pos - 1 if reverse else pos + start
+        else:
+            pos -= size
+    else:
+        raise ValueError(f"{position=} outside {exons=}")
