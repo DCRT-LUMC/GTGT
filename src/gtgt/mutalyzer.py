@@ -449,7 +449,7 @@ def exonskip(d: Description) -> List[Therapy]:
     variants = [Variant.from_model(v) for v in d.delins_model["variants"]]
     logger.debug(f"{variants=}")
 
-    for exon_nr, exon in enumerate(exons[1:-1],2):
+    for exon_nr, exon in enumerate(exons[1:-1], 2):
         start, end = exon
         exon_skip = Variant(start, end)
         logger.debug(f"{exon_skip=}")
@@ -457,7 +457,7 @@ def exonskip(d: Description) -> List[Therapy]:
         try:
             combined = combine_variants_deletion(variants, exon_skip)
         except ValueError as e:
-            msg=f"Cannot skip exon {exon_nr}: {e}"
+            msg = f"Cannot skip exon {exon_nr}: {e}"
             logger.warn(msg)
             continue
         logger.debug(f"{combined=}")

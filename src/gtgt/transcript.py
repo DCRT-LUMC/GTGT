@@ -42,7 +42,6 @@ class Result:
             msg = f"Unsupported comparison between Bed and {type(other)}"
             raise NotImplementedError(msg)
 
-
         total_self = sum(c.percentage for c in self.comparison)
         total_other = sum(c.percentage for c in other.comparison)
         return total_self > total_other
