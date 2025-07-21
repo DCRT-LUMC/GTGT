@@ -158,5 +158,6 @@ class Transcript:
             # Apply the combination to the wildtype transcript
             therapy = deepcopy(self)
             therapy.mutate(d, skip.variants)
+            results.append(Result(skip, therapy.compare(self)))
 
         return results
