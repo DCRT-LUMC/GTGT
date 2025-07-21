@@ -240,7 +240,7 @@ def WT() -> Transcript:
 
 
 def test_Result_init() -> None:
-    t = Therapy("skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5")
+    t = Therapy("skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5", list())
     c = Comparison("Coding exons", 0.5, "100/200")
 
     r = Result(therapy=t, comparison=[c])
@@ -249,11 +249,11 @@ def test_Result_init() -> None:
 
 
 def test_Result_comparison() -> None:
-    t1 = Therapy("skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5")
+    t1 = Therapy("skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5", list())
     c1 = Comparison("Coding exons", 0.5, "100/200")
     r1 = Result(therapy=t1, comparison=[c1])
 
-    t2 = Therapy("skip exon 6", "ENST123:c.49_73del", "Try to skip exon 5")
+    t2 = Therapy("skip exon 6", "ENST123:c.49_73del", "Try to skip exon 5", list())
     c2 = Comparison("Coding exons", 0.2, "100/200")
     r2 = Result(therapy=t2, comparison=[c2])
 

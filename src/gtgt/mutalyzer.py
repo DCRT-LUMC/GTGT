@@ -166,15 +166,6 @@ class Therapy:
     name: str
     hgvs: str
     description: str
-
-
-@dataclasses.dataclass
-class _Therapy:
-    """Class to store genetic therapies"""
-
-    name: str
-    hgvs: str
-    description: str
     variants: Sequence[Variant]
 
 
@@ -401,7 +392,7 @@ def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     return hgvs
 
 
-def _exonskip(d: Description) -> List[_Therapy]:
+def _exonskip(d: Description) -> List[Therapy]:
     """Generate all possible exon skips for the specified Description"""
     exon_skips = list()
 
@@ -418,7 +409,7 @@ def _exonskip(d: Description) -> List[_Therapy]:
         name = f"Skip exon {exon_counter}"
         hgvs = to_cdot_hgvs(d, combined)
         description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
-        t = _Therapy(name, hgvs, description, combined)
+        t = Therapy(name, hgvs, description, combined)
         exon_skips.append(t)
         exon_counter += 1
 
@@ -443,7 +434,7 @@ def exonskip(d: Description) -> List[Therapy]:
         name = f"Skip exon {exon_counter}"
         hgvs = f"{transcript_id}:{coordinate_system}{start}_{end}del"
         description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
-        t = Therapy(name, hgvs, description)
+        t = Therapy(name, hgvs, description, list())
         exon_skips.append(t)
         exon_counter += 1
     return exon_skips

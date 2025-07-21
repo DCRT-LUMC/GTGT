@@ -4,7 +4,6 @@ import dataclasses
 from .mutalyzer import (
     CdotVariant,
     Therapy,
-    _Therapy,
     Variant,
     mutation_to_cds_effect,
     HGVS,
@@ -35,7 +34,7 @@ class Comparison:
 class Result:
     """To hold results for separate mutations of a transcript"""
 
-    therapy: Union[Therapy, _Therapy]
+    therapy: Therapy
     comparison: List[Comparison]
 
     def __gt__(self, other: "Result") -> bool:
@@ -133,7 +132,7 @@ class Transcript:
         results = list()
 
         # Store the wildtype
-        wt = _Therapy(
+        wt = Therapy(
             name="Wildtype",
             hgvs=hgvs.split("c.")[0] + "c.=",
             description="These are the annotations as defined on the reference. They are always 100% by definition.",
@@ -143,7 +142,7 @@ class Transcript:
         results.append(wildtype)
 
         # Store the input variants as Therapy
-        input = _Therapy(
+        input = Therapy(
             name="Input",
             hgvs=hgvs,
             description="The annotations based on the supplied input variants.",
