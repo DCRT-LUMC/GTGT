@@ -119,7 +119,7 @@ def main() -> None:
         transcript = transcript_model.to_transcript()
         # Convert Result objects to dict
         results = [dataclasses.asdict(x) for x in transcript.analyze(args.hgvs)]
-        print(json.dumps(results, indent=True))
+        print(json.dumps(results, indent=True, default=vars))
     elif args.command == "webserver":
         try:
             from .flask import app as flask_app
