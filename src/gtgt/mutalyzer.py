@@ -1,8 +1,7 @@
-from copy import deepcopy
+from copy import deepcopy, copy
 import dataclasses
 
 from mutalyzer.description import Description
-from mutalyzer.converter import de_to_hgvs
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from mutalyzer.converter.to_delins import variants_to_delins
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
@@ -11,13 +10,26 @@ from mutalyzer.description_model import get_reference_id, variants_to_descriptio
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.checker import is_overlap
+from mutalyzer.util import get_inserted_sequence, get_location_length
+from mutalyzer.converter.variants_de_to_hgvs import (
+    delins_to_del,
+    delins_to_substitution,
+    delins_to_repeat,
+    delins_to_insertion,
+    delins_to_duplication,
+    delins_to_delins,
+    is_repeat,
+    is_duplication,
+    get_start,
+    get_end,
+)
 import mutalyzer_hgvs_parser
 
 from pydantic import BaseModel, model_validator
 
 import Levenshtein
 
-from typing import Any, Tuple, List, Dict, Union, Sequence
+from typing import Any, Optional, Tuple, List, Dict, Union, Sequence
 from typing_extensions import NewType
 
 import logging
@@ -365,9 +377,46 @@ def combine_variants_deletion(
     return combined
 
 
+def de_to_hgvs(variants: Any, sequences: Any) -> List[Variant_Dict]:
+    """
+    Convert the description extractor variants to an HGVS format (e.g., a
+    deletion insertion of one nucleotide is converted to a substitution).
+
+    MODIFIED from mutalyzer to not perform the 3' shift
+    """
+    if len(variants) == 1 and variants[0].get("type") == "equal":
+        new_variant = deepcopy(variants[0])
+        new_variant.pop("location")
+        return [new_variant]
+
+    new_variants = []
+    for variant in variants:
+        if variant.get("type") == "inversion":
+            new_variants.append(deepcopy(variant))
+        elif variant.get("type") == "deletion_insertion":
+            inserted_sequence = get_inserted_sequence(variant, sequences)
+            if len(inserted_sequence) == 0:
+                new_variants.append(delins_to_del(variant))
+            elif (
+                get_location_length(variant["location"]) == len(inserted_sequence) == 1
+            ):
+                new_variants.append(delins_to_substitution(variant, sequences))
+            elif is_repeat(variant, sequences):
+                new_variants.append(delins_to_repeat(variant, sequences))
+            elif is_duplication(variant, sequences):
+                new_variants.append(delins_to_duplication(variant, sequences))
+            elif get_start(variant["location"]) == get_end(variant["location"]):
+                new_variants.append(delins_to_insertion(variant))
+            else:
+                new_variants.append(delins_to_delins(variant))
+
+    return new_variants
+
+
 def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
-    variant_models = de_to_hgvs([v.to_model() for v in variants], d.get_sequences())
+    delins_model = [v.to_model() for v in variants]
+    variant_models = de_to_hgvs(delins_model, d.get_sequences())
 
     ref_id = get_reference_id(d.corrected_model)
 
@@ -392,51 +441,32 @@ def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     return hgvs
 
 
-def _exonskip(d: Description) -> List[Therapy]:
+def exonskip(d: Description) -> List[Therapy]:
     """Generate all possible exon skips for the specified Description"""
     exon_skips = list()
 
     exons = get_exons(d, in_transcript_order=True)
     variants = [Variant.from_model(v) for v in d.delins_model["variants"]]
+    logger.debug(f"{variants=}")
 
     exon_counter = 2
     for start, end in exons[1:-1]:
         exon_skip = Variant(start, end)
+        logger.debug(f"{exon_skip=}")
         # Combine the existing variants with the exon skip
         combined = combine_variants_deletion(variants, exon_skip)
+        logger.debug(f"{combined=}")
 
         # Convert to c. notation (user facing)
         name = f"Skip exon {exon_counter}"
-        hgvs = to_cdot_hgvs(d, combined)
+        selector = d.get_selector_id()
+        cdot_variants = to_cdot_hgvs(d, combined)
+        hgvs = f"{selector}:c.{cdot_variants}"
         description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
         t = Therapy(name, hgvs, description, combined)
         exon_skips.append(t)
         exon_counter += 1
 
-    return list()
-
-
-def exonskip(d: Description) -> List[Therapy]:
-    """Generate all possible exon skips for the specified HGVS description"""
-    d.to_delins()
-    coordinate_system = f"{d.input_model['coordinate_system']}."
-
-    # Extract relevant information from the normalized description
-    raw_response = d.output()
-    exons = raw_response["selector_short"]["exon"]["c"]
-    transcript_id = raw_response["input_model"]["reference"]["id"]
-
-    exon_skips = list()
-    # The first and second exon cannot be skipped
-
-    exon_counter = 2
-    for start, end in exons[1:-1]:
-        name = f"Skip exon {exon_counter}"
-        hgvs = f"{transcript_id}:{coordinate_system}{start}_{end}del"
-        description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
-        t = Therapy(name, hgvs, description, list())
-        exon_skips.append(t)
-        exon_counter += 1
     return exon_skips
 
 

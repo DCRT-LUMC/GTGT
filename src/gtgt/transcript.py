@@ -8,7 +8,6 @@ from .mutalyzer import (
     mutation_to_cds_effect,
     HGVS,
     exonskip,
-    _exonskip,
     _init_model,
 )
 from mutalyzer.description import Description
@@ -153,7 +152,7 @@ class Transcript:
         results.append(Result(input, patient.compare(self)))
 
         # Generate the exon skips
-        for skip in _exonskip(d):
+        for skip in exonskip(d):
             logger.debug(f"Skipping {skip.name}")
 
             # Apply the combination to the wildtype transcript
