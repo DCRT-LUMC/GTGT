@@ -12,7 +12,6 @@ from gtgt.mutalyzer import (
     changed_protein_positions,
     get_exons,
     mutation_to_cds_effect,
-    _mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
     _Variant,
@@ -275,38 +274,6 @@ def test_exonskip_WT1() -> None:
         assert output.hgvs == expected
 
 
-MUTATIONS = [
-    # HGVS, coordinates on the genome,
-    # A simple missense that changes a single amino acids
-    ("13T>A", (32435345, 32435348)),
-    # A stop mutation which destroys most of the protein
-    ("9_10insTAG", (32389060, 32435351)),
-    # # A frameshift that is restored by an insertion
-    ("[10del;20_21insA]", (32435339, 32435351)),
-    # # A frameshift that is restored by a bigger insertion
-    ("[10del;20_21insATCGAATATGGGG]", (32435339, 32435351)),
-    # # A bigger deletion
-    ("11_19del", (32435342, 32435351)),
-    # # An inframe deletion that creates a STOP codon
-    ("87_89del", (32389060, 32435276)),
-]
-
-
-@pytest.mark.parametrize("variants, expected", MUTATIONS)
-def test_mutation_to_cds_effect_reverse(
-    variants: CdotVariant, expected: Tuple[int, int]
-) -> None:
-    """
-    GIVEN a HGVS transcript description for a transcript on the reverse strand
-    WHEN we determine the CDS effect
-    THEN we should get genome coordinates
-    """
-    d = Description("ENST00000452863.10:c.=")
-    _init_model(d)
-
-    assert mutation_to_cds_effect(d, variants) == [expected]
-
-
 # fmt: off
 MUTATIONS_VARIANT = [
     # Variant, coordinates on the genome
@@ -366,44 +333,7 @@ def test_mutation_to_cds_effect_reverse_new(
     d = Description(hgvs)
     _init_model(d)
 
-    assert _mutation_to_cds_effect(d, variants) == [expected]
-
-
-FORWARD_MUTATIONS = [
-    # HGVS, coordinates on the genome,
-    # A simple missense that changes a single amino acids
-    ("13T>A", (112086919, 112086922)),
-    # A stop mutation which destroys most of the protein
-    ("9_10insTAG", (112086916, 112094967)),
-    # # A frameshift that is restored by an insertion
-    # Note this gives two separate, adjacent regions
-    ("[9_10insA;20del]", [(112086919, 112086925), (112086925, 112086928)]),
-    # # A bigger deletion
-    ("13_21del", (112086919, 112086928)),
-    # # An SNP that creates a STOP codon
-    ("14G>A", (112086919, 112094967)),
-]
-
-
-@pytest.mark.parametrize("variants, expected", FORWARD_MUTATIONS)
-def test_mutation_to_cds_effect_forward(
-    variants: CdotVariant, expected: Tuple[int, int]
-) -> None:
-    """
-    GIVEN a HGVS transcript description for a transcript on the forward strand
-    WHEN we determine the CDS effect
-    THEN we should get genome coordinates
-    """
-    # SDHD
-    d = Description("ENST00000375549.8:c.=")
-    _init_model(d)
-
-    if not isinstance(expected, list):
-        e = [expected]
-    else:
-        e = expected
-
-    assert mutation_to_cds_effect(d, variants) == e
+    assert mutation_to_cds_effect(d, variants) == [expected]
 
 
 # fmt: off
@@ -466,7 +396,7 @@ def test_mutation_to_cds_effect_forward_new(
     else:
         e = expected
 
-    assert _mutation_to_cds_effect(d, variants) == e
+    assert mutation_to_cds_effect(d, variants) == e
 
 
 CDOT_MUTATIONS = [
@@ -532,38 +462,6 @@ def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
     coding_exons = wildtype.comparison[1]
     assert coding_exons.name == "coding_exons"
     assert coding_exons.percentage == 1.0
-
-
-VARIANTS = [
-    # variant, Transcript effect
-    # In frame deletion that creates a STOP codon
-    ("ENST00000452863.10:c.87_89del", 0.0018),
-    # In frame deletion that does not make a STOP
-    ("ENST00000452863.10:c.85_87del", 0.9999),
-    # Synonymous mutation
-    ("ENST00000452863.10:c.13T>C", 1),
-]
-
-
-@pytest.mark.parametrize("hgvs_description, effect", VARIANTS)
-def test_mutate_transcript_with_variant(
-    hgvs_description: str, effect: float, WT: Transcript
-) -> None:
-
-    transcript_id = hgvs_description.split(":c.")[0]
-    variants = CdotVariant(hgvs_description.split(":c.")[1])
-
-    d = Description(f"{transcript_id}:c.=")
-    _init_model(d)
-
-    modified = copy.deepcopy(WT)
-    modified.mutate(d, variants)
-
-    cmp = modified.compare(WT)
-
-    coding_exons = cmp[1]
-    assert coding_exons.name == "coding_exons"
-    assert coding_exons.percentage == pytest.approx(effect, abs=0.0001)
 
 
 APPEND_VARIANT = [

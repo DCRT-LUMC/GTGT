@@ -7,7 +7,6 @@ from .mutalyzer import (
     _Therapy,
     _Variant,
     mutation_to_cds_effect,
-    _mutation_to_cds_effect,
     HGVS,
     exonskip,
     _exonskip,
@@ -112,24 +111,15 @@ class Transcript:
         values = [x.percentage for x in cmp]
         return sum(values) / len(cmp)
 
-    def mutate(self, d: Description, variants: CdotVariant) -> None:
-        """Mutate the transcript based on the specified hgvs description"""
-        # Determine the CDS intervals that are affected by the hgvs description
+    def mutate(self, d: Description, variants: Sequence[_Variant]) -> None:
+        """Mutate the transcript based on the specified variants"""
         deleted = Bed.from_blocks(
             self.coding_exons.chrom, *mutation_to_cds_effect(d, variants)
         )
         # Subtract that region from the annotations
         self.subtract(deleted)
 
-    def _mutate(self, d: Description, variants: Sequence[_Variant]) -> None:
-        """Mutate the transcript based on the specified variants"""
-        deleted = Bed.from_blocks(
-            self.coding_exons.chrom, *_mutation_to_cds_effect(d, variants)
-        )
-        # Subtract that region from the annotations
-        self.subtract(deleted)
-
-    def _analyze(self, hgvs: str) -> List[Result]:
+    def analyze(self, hgvs: str) -> List[Result]:
         """Analyze the transcript based on the specified HGVS description"""
         # Initialize the input HGVS description
         d = Description(hgvs, stop_on_error=True)
@@ -137,8 +127,7 @@ class Transcript:
 
         # Extract the input variants as internal delins
         input_variants = [
-            _Variant.from_model(delins)
-            for delins in d.internal_coordinates_model["variants"]
+            _Variant.from_model(delins) for delins in d.delins_model["variants"]
         ]
 
         results = list()
@@ -161,7 +150,7 @@ class Transcript:
             variants=input_variants,
         )
         patient = deepcopy(self)
-        patient._mutate(d, input.variants)
+        patient.mutate(d, input.variants)
         results.append(Result(input, patient.compare(self)))
 
         # Generate the exon skips
@@ -170,77 +159,6 @@ class Transcript:
 
             # Apply the combination to the wildtype transcript
             therapy = deepcopy(self)
-            therapy._mutate(d, skip.variants)
+            therapy.mutate(d, skip.variants)
 
         return results
-
-    def analyze(self, hgvs: str) -> List[Result]:
-        """Analyse the transcript based on the specified hgvs description
-
-        Calculate the score for the Wildtype (1), the patient transcript and the exon skips
-        """
-        # Test if the input HGVS description is valid
-        check = Description(hgvs, stop_on_error=True)
-        _init_model(check)
-
-        coordinate_system = hgvs.split(":")[1][0:2]
-        transcript_id = hgvs.split(f":{coordinate_system}")[0]
-        variants = CdotVariant(hgvs.split(f":{coordinate_system}")[1])
-
-        results = list()
-
-        # The wildtype has a score of 100% by default
-        wt = Therapy(
-            name="Wildtype",
-            hgvs=f"{transcript_id}:{coordinate_system}=",
-            description="These are the annotations as defined on the reference. They are always 100% by definition.",
-        )
-        wildtype = Result(wt, self.compare(self))
-        results.append(wildtype)
-
-        # Initialize the wildtype description
-        d = Description(f"{transcript_id}:{coordinate_system}=", stop_on_error=True)
-        _init_model(d)
-
-        # Determine the score of the patient
-        patient = deepcopy(self)
-        patient.mutate(d, variants)
-
-        p = Therapy(
-            name="Input",
-            hgvs=hgvs,
-            description="The annotations based on the supplied input variants.",
-        )
-        results.append(Result(p, patient.compare(self)))
-
-        # Determine the score of each exon skip
-        for skip in exonskip(d):
-            # Add deletion to the patient mutation
-            desc = HGVS(description=hgvs)
-            try:
-                desc.apply_deletion(HGVS(description=skip.hgvs))
-            except NotImplementedError as e:
-                logger.warning(e)
-                continue
-            logger.debug(f"Skipping {desc=}")
-
-            # Update the therapy hgvs after applying the deletion
-            skip.hgvs = desc.description
-
-            # Get the variant
-            exonskip_variant = CdotVariant(desc.description.split(coordinate_system)[1])
-
-            # Apply the combination to the wildtype transcript
-            therapy = deepcopy(self)
-
-            try:
-                therapy.mutate(d, exonskip_variant)
-            # Splice site error from mutalyzer, no protein prediction
-            except KeyError:
-                continue
-            results.append(Result(therapy=skip, comparison=therapy.compare(self)))
-
-        # Sort the results
-        wt_patient = results[:2]
-        rest = sorted(results[2:], reverse=True)
-        return wt_patient + rest
