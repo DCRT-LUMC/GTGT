@@ -32,7 +32,7 @@ Variant_Dict = NewType("Variant_Dict", Dict[str, Any])
 InternalVariant = NewType("InternalVariant", dict[str, Any])
 
 
-class _Variant:
+class Variant:
     """Class to store delins variants"""
 
     def __init__(self, start: int, end: int, inserted: str = "", deleted: str = ""):
@@ -56,16 +56,16 @@ class _Variant:
         deleted = self.deleted
         return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted})"
 
-    def before(self, other: "_Variant") -> bool:
+    def before(self, other: "Variant") -> bool:
         return self.end <= other.start
 
-    def after(self, other: "_Variant") -> bool:
+    def after(self, other: "Variant") -> bool:
         return self.start >= other.end
 
-    def inside(self, other: "_Variant") -> bool:
+    def inside(self, other: "Variant") -> bool:
         return self.start >= other.start and self.end <= other.end
 
-    def overlap(self, other: "_Variant") -> bool:
+    def overlap(self, other: "Variant") -> bool:
         self_ends_in_other = self.end > other.start and self.end <= other.end
         self_starts_in_other = self.start >= other.start and self.start < other.end
 
@@ -79,7 +79,7 @@ class _Variant:
         )
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, _Variant):
+        if not isinstance(other, Variant):
             raise NotImplementedError
         return (
             self.start == other.start
@@ -87,8 +87,8 @@ class _Variant:
             and self.inserted == other.inserted
         )
 
-    def __lt__(self, other: "_Variant") -> bool:
-        if not isinstance(other, _Variant):
+    def __lt__(self, other: "Variant") -> bool:
+        if not isinstance(other, Variant):
             raise NotImplementedError
         if self.overlap(other):
             msg = f"Overlapping variants '{self}' and '{other}' cannot be sorted"
@@ -97,7 +97,7 @@ class _Variant:
         return self.start < other.start
 
     @classmethod
-    def from_model(cls, model: Dict[str, Any]) -> "_Variant":
+    def from_model(cls, model: Dict[str, Any]) -> "Variant":
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
 
@@ -112,9 +112,9 @@ class _Variant:
             deleted = deleted[0]["sequence"]
 
         if deleted:
-            return _Variant(start, end, inserted if inserted else "", deleted)
+            return Variant(start, end, inserted if inserted else "", deleted)
         else:
-            return _Variant(start, end, inserted if inserted else "")
+            return Variant(start, end, inserted if inserted else "")
 
     def to_model(self) -> Dict[str, Any]:
         """Convert Variant to mutalyzer delins model"""
@@ -175,7 +175,7 @@ class _Therapy:
     name: str
     hgvs: str
     description: str
-    variants: Sequence[_Variant]
+    variants: Sequence[Variant]
 
 
 class HGVS(BaseModel):
@@ -343,8 +343,8 @@ def HGVS_to_genome_range(d: Description) -> Tuple[int, int]:
 
 
 def combine_variants_deletion(
-    variants: Sequence[_Variant], deletion: _Variant
-) -> List[_Variant]:
+    variants: Sequence[Variant], deletion: Variant
+) -> List[Variant]:
     """Combine variants and a deletion, any variants that are contained in
     the deletion are discarded
 
@@ -374,7 +374,7 @@ def combine_variants_deletion(
     return combined
 
 
-def to_cdot_hgvs(d: Description, variants: Sequence[_Variant]) -> str:
+def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
     variant_models = de_to_hgvs([v.to_model() for v in variants], d.get_sequences())
 
@@ -406,11 +406,11 @@ def _exonskip(d: Description) -> List[_Therapy]:
     exon_skips = list()
 
     exons = get_exons(d, in_transcript_order=True)
-    variants = [_Variant.from_model(v) for v in d.delins_model["variants"]]
+    variants = [Variant.from_model(v) for v in d.delins_model["variants"]]
 
     exon_counter = 2
     for start, end in exons[1:-1]:
-        exon_skip = _Variant(start, end)
+        exon_skip = Variant(start, end)
         # Combine the existing variants with the exon skip
         combined = combine_variants_deletion(variants, exon_skip)
 
@@ -603,7 +603,7 @@ def _cdot_to_internal_delins(
 
 
 def mutation_to_cds_effect(
-    d: Description, variants: Sequence[_Variant]
+    d: Description, variants: Sequence[Variant]
 ) -> List[Tuple[int, int]]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome

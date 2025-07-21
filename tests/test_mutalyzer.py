@@ -4,7 +4,6 @@ from pathlib import Path
 from gtgt.mutalyzer import (
     CdotVariant,
     HGVS_to_genome_range,
-    InternalVariant,
     append_mutation,
     cds_to_internal_positions,
     combine_variants_deletion,
@@ -14,22 +13,18 @@ from gtgt.mutalyzer import (
     mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
-    _Variant,
+    Variant,
     to_cdot_hgvs,
 )
-from gtgt.mutalyzer import HGVS, Variant_Dict, variant_to_model
+from gtgt.mutalyzer import Variant_Dict, variant_to_model
 from mutalyzer.description import Description
-from mutalyzer.converter.to_delins import variants_to_delins
-from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
-from mutalyzer.converter.to_internal_indexing import to_internal_indexing
-from mutalyzer.description_model import get_reference_id, variants_to_description
+from mutalyzer.description_model import variants_to_description
 from gtgt.transcript import Transcript
 from gtgt.models import TranscriptModel
 import json
-import copy
 
 from itertools import zip_longest
-from typing import Any, List, Tuple, Dict
+from typing import Any, List, Tuple
 
 
 def retrieve_raw(
@@ -280,21 +275,21 @@ MUTATIONS_VARIANT = [
     # A simple missense that changes a single amino acids
     (
         "13T>A",
-        [_Variant(start=47573, end=47574, inserted="A", deleted="T")],
+        [Variant(start=47573, end=47574, inserted="A", deleted="T")],
         (32435345, 32435348)
     ),
     # A stop mutation which destroys most of the protein
     (
         "9_10insTAG",
-        [_Variant(start=47577, end=47577, inserted="TAG")],
+        [Variant(start=47577, end=47577, inserted="TAG")],
         (32389060, 32435351)
     ),
     # # # A frameshift that is restored by an insertion
     (
         "[10del;20_21insA]",
         [
-            _Variant(start=47576, end=47577),
-            _Variant(start=47566, end=47566, inserted="A"),
+            Variant(start=47576, end=47577),
+            Variant(start=47566, end=47566, inserted="A"),
         ],
         (32435339, 32435351)
     ),
@@ -302,27 +297,27 @@ MUTATIONS_VARIANT = [
     (
         "[10del;20_21insATCGAATATGGGG]",
         [
-            _Variant(start=47566, end=47566, inserted="ATCGAATATGGGG"),
-            _Variant(start=47576, end=47577),
+            Variant(start=47566, end=47566, inserted="ATCGAATATGGGG"),
+            Variant(start=47576, end=47577),
         ],
         (32435339, 32435351)),
     # # # A bigger deletion
     (
         "11_19del",
-        [_Variant(start=47567, end=47576)],
+        [Variant(start=47567, end=47576)],
          (32435342, 32435351)
     ),
     # # # An inframe deletion that creates a STOP codon
     (
         "87_89del",
-        [_Variant(start=47497, end=47500)],
+        [Variant(start=47497, end=47500)],
         (32389060, 32435276)
     ),
 ]
 # fmt: on
 @pytest.mark.parametrize("cdot, variants, expected", MUTATIONS_VARIANT)
 def test_mutation_to_cds_effect_reverse_new(
-    cdot: str, variants: Sequence[_Variant], expected: Tuple[int, int]
+    cdot: str, variants: Sequence[Variant], expected: Tuple[int, int]
 ) -> None:
     """
     GIVEN a HGVS transcript description for a transcript on the reverse strand
@@ -342,13 +337,13 @@ FORWARD_MUTATIONS_VARIANT = [
     # A simple missense that changes a single amino acids
     (
         "13T>A",
-        [_Variant(start=47, end=48, inserted="A", deleted="T")],
+        [Variant(start=47, end=48, inserted="A", deleted="T")],
         (112086919, 112086922)
     ),
     # A stop mutation which destroys most of the protein
     (
         "9_10insTAG",
-        [_Variant(start=44, end=44, inserted="TAG")],
+        [Variant(start=44, end=44, inserted="TAG")],
         (112086916, 112094967)
     ),
     # # A frameshift that is restored by an insertion
@@ -356,8 +351,8 @@ FORWARD_MUTATIONS_VARIANT = [
     (
         "[9_10insA;20del]",
         [
-            _Variant(start=44, end=44, inserted="A"),
-            _Variant(start=54, end=55),
+            Variant(start=44, end=44, inserted="A"),
+            Variant(start=54, end=55),
         ],
         [
             (112086919, 112086925),
@@ -367,20 +362,20 @@ FORWARD_MUTATIONS_VARIANT = [
     # # A bigger deletion
     (
         "13_21del",
-        [_Variant(start=47, end=56)],
+        [Variant(start=47, end=56)],
         (112086919, 112086928)
     ),
     # # An SNP that creates a STOP codon
     (
         "14G>A",
-        [_Variant(start=48, end=49, inserted="A", deleted="G")],
+        [Variant(start=48, end=49, inserted="A", deleted="G")],
         (112086919, 112094967)
     ),
 ]
 # fmt: on
 @pytest.mark.parametrize("cdot, variants, expected", FORWARD_MUTATIONS_VARIANT)
 def test_mutation_to_cds_effect_forward_new(
-    cdot: str, variants: Sequence[_Variant], expected: Tuple[int, int]
+    cdot: str, variants: Sequence[Variant], expected: Tuple[int, int]
 ) -> None:
     """
     GIVEN a HGVS transcript description for a transcript on the reverse strand
@@ -585,7 +580,9 @@ PARSE_VARIANT = [
 
 
 @pytest.mark.parametrize("variant, variant_models", PARSE_VARIANT)
-def test_variant_to_model(variant: CdotVariant, variant_models: List[Variant_Dict]) -> None:
+def test_variant_to_model(
+    variant: CdotVariant, variant_models: List[Variant_Dict]
+) -> None:
     """
     GIVEN a string denoting a HGVS variant
     WHEN we parse this into a Variant
@@ -633,20 +630,20 @@ def test_changed_protein_positions(
 
 def test_Variant_class_str() -> None:
     """Test converting a Variant to string"""
-    v = _Variant(10, 11, "ATG")
+    v = Variant(10, 11, "ATG")
     assert str(v) == "Variant(start=10, end=11, inserted=ATG, deleted=)"
 
 
 def test_Variant_class_str_snp() -> None:
     """SNPS are special, since they contain the inserted sequence"""
     # 10A>T
-    v = _Variant(10, 11, "T", "A")
+    v = Variant(10, 11, "T", "A")
     assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A)"
 
 
 def test_Variant_class_to_model_positions() -> None:
     """Test converting a variant to model"""
-    v = _Variant(10, 11, "ATG")
+    v = Variant(10, 11, "ATG")
     model = v.to_model()
 
     assert model["location"]["start"]["position"] == 10
@@ -659,7 +656,7 @@ def test_Variant_class_to_model_positions() -> None:
 
 def test_Variant_class_to_model_snp() -> None:
     # 10 A>T
-    v = _Variant(10, 11, "T", "A")
+    v = Variant(10, 11, "T", "A")
     model = v.to_model()
 
     assert model["inserted"][0]["sequence"] == "T"
@@ -673,7 +670,7 @@ def test_Variant_deleted_snp_only() -> None:
     """
     with pytest.raises(ValueError):
         # 10_12delinsGG
-        _Variant(10, 12, "GG", "AT")
+        Variant(10, 12, "GG", "AT")
 
 
 def test_Variant_class_no_inserted_sequence() -> None:
@@ -682,7 +679,7 @@ def test_Variant_class_no_inserted_sequence() -> None:
     WHEN we convert to a model
     THEN inserted should be an empty list
     """
-    v = _Variant(10, 11, "")
+    v = Variant(10, 11, "")
     model = v.to_model()
 
     assert model["inserted"] == []
@@ -691,19 +688,19 @@ def test_Variant_class_no_inserted_sequence() -> None:
 def test_Variant_class_end_after_start() -> None:
     """Ensure that end is after start"""
     with pytest.raises(ValueError):
-        _Variant(11, 10, "")
+        Variant(11, 10, "")
 
 
 ORDERING = [
     # Ends are touching
-    (_Variant(1, 3), _Variant(3, 5)),
+    (Variant(1, 3), Variant(3, 5)),
     # Gap between variants
-    (_Variant(0, 1), _Variant(2, 4)),
+    (Variant(0, 1), Variant(2, 4)),
 ]
 
 
 @pytest.mark.parametrize("a, b", ORDERING)
-def test_Variant_class_relative_positions(a: _Variant, b: _Variant) -> None:
+def test_Variant_class_relative_positions(a: Variant, b: Variant) -> None:
     """Variant a is before variant b"""
     assert a.before(b)
     assert b.after(a)
@@ -711,64 +708,64 @@ def test_Variant_class_relative_positions(a: _Variant, b: _Variant) -> None:
 
 INSIDE = [
     # Variants are inside themselves
-    (_Variant(0, 3), _Variant(0, 3)),
+    (Variant(0, 3), Variant(0, 3)),
     # Smaller variant a is inside b
-    (_Variant(1, 3), _Variant(0, 3)),
-    (_Variant(0, 2), _Variant(0, 3)),
-    (_Variant(1, 2), _Variant(0, 3)),
+    (Variant(1, 3), Variant(0, 3)),
+    (Variant(0, 2), Variant(0, 3)),
+    (Variant(1, 2), Variant(0, 3)),
 ]
 
 
 @pytest.mark.parametrize("a, b", INSIDE)
-def test_Variant_class_inside(a: _Variant, b: _Variant) -> None:
+def test_Variant_class_inside(a: Variant, b: Variant) -> None:
     """Variant a is inside variant b"""
     assert a.inside(b)
 
 
 NOT_INSIDE = [
     # a starts outside of b
-    (_Variant(0, 3), _Variant(1, 3)),
+    (Variant(0, 3), Variant(1, 3)),
     # a ends outside of b
-    (_Variant(1, 4), _Variant(1, 3)),
+    (Variant(1, 4), Variant(1, 3)),
     # b is inside of a
-    (_Variant(0, 3), _Variant(1, 2)),
+    (Variant(0, 3), Variant(1, 2)),
     # a before b
-    (_Variant(0, 3), _Variant(3, 5)),
+    (Variant(0, 3), Variant(3, 5)),
     # a after b
-    (_Variant(3, 5), _Variant(1, 3)),
+    (Variant(3, 5), Variant(1, 3)),
 ]
 
 
 @pytest.mark.parametrize("a, b", NOT_INSIDE)
-def test_Variant_class_not_inside(a: _Variant, b: _Variant) -> None:
+def test_Variant_class_not_inside(a: Variant, b: Variant) -> None:
     """Variant a is not inside variant b"""
     assert not a.inside(b)
 
 
 OVERLAP = [
     # b ends inside a
-    (_Variant(2, 5), _Variant(1, 3)),
+    (Variant(2, 5), Variant(1, 3)),
     # b fully inside a
-    (_Variant(2, 5), _Variant(3, 4)),
+    (Variant(2, 5), Variant(3, 4)),
     # b fully inside a, ends at end
-    (_Variant(2, 5), _Variant(3, 5)),
+    (Variant(2, 5), Variant(3, 5)),
     # b ends inside a
-    (_Variant(2, 5), _Variant(2, 4)),
+    (Variant(2, 5), Variant(2, 4)),
     # b starts in a, extends after
-    (_Variant(2, 5), _Variant(3, 6)),
+    (Variant(2, 5), Variant(3, 6)),
     # b start before a
-    (_Variant(2, 5), _Variant(1, 5)),
+    (Variant(2, 5), Variant(1, 5)),
     # a is inside b
-    (_Variant(2, 5), _Variant(1, 6)),
+    (Variant(2, 5), Variant(1, 6)),
     # a is inside b
-    (_Variant(2, 5), _Variant(2, 6)),
+    (Variant(2, 5), Variant(2, 6)),
     # a equals b
-    (_Variant(2, 5), _Variant(2, 5)),
+    (Variant(2, 5), Variant(2, 5)),
 ]
 
 
 @pytest.mark.parametrize("a, b", OVERLAP)
-def test_Variant_class_overlap(a: _Variant, b: _Variant) -> None:
+def test_Variant_class_overlap(a: Variant, b: Variant) -> None:
     """Variant a and b overlap"""
     assert a.overlap(b)
     assert b.overlap(a)
@@ -776,14 +773,14 @@ def test_Variant_class_overlap(a: _Variant, b: _Variant) -> None:
 
 NO_OVERLAP = [
     # a is after b
-    (_Variant(2, 5), _Variant(1, 2)),
+    (Variant(2, 5), Variant(1, 2)),
     # a is before b
-    (_Variant(2, 5), _Variant(5, 6)),
+    (Variant(2, 5), Variant(5, 6)),
 ]
 
 
 @pytest.mark.parametrize("a, b", NO_OVERLAP)
-def test_Variant_class_no_overlap(a: _Variant, b: _Variant) -> None:
+def test_Variant_class_no_overlap(a: Variant, b: Variant) -> None:
     """Variant a and b do not overlap"""
     assert not a.overlap(b)
     assert not b.overlap(a)
@@ -791,15 +788,15 @@ def test_Variant_class_no_overlap(a: _Variant, b: _Variant) -> None:
 
 def test_Variant_class_order() -> None:
     """Test sorting variants by start position"""
-    v1 = _Variant(10, 11)
-    v2 = _Variant(0, 1)
+    v1 = Variant(10, 11)
+    v2 = Variant(0, 1)
     assert sorted([v1, v2]) == [v2, v1]
 
 
 def test_Variant_class_order_error() -> None:
     """Test error when sorting overlapping variants"""
-    v1 = _Variant(10, 11)
-    v2 = _Variant(10, 11)
+    v1 = Variant(10, 11)
+    v2 = Variant(10, 11)
     with pytest.raises(ValueError):
         sorted([v1, v2])
 
@@ -821,7 +818,7 @@ def test_Variant_from_model() -> None:
         ]
     }
     # fmt: on
-    v = _Variant.from_model(delins_model)
+    v = Variant.from_model(delins_model)
     assert v.start == 0
     assert v.end == 2
     assert v.inserted == "ATC"
@@ -848,7 +845,7 @@ def test_Variant_from_model_deletion() -> None:
         ]
     }
     # fmt: on
-    v = _Variant.from_model(delins_model)
+    v = Variant.from_model(delins_model)
     assert v.start == 0
     assert v.end == 2
     # Test that the emtpy sequence is a string, not a list
@@ -856,8 +853,8 @@ def test_Variant_from_model_deletion() -> None:
 
 
 def test_combine_variants_deletion_empty() -> None:
-    variants: List[_Variant] = list()
-    deletion = _Variant(0, 10)
+    variants: List[Variant] = list()
+    deletion = Variant(0, 10)
     assert combine_variants_deletion(variants, deletion) == [deletion]
 
 
@@ -865,59 +862,59 @@ def test_combine_variants_deletion_empty() -> None:
 COMBINE = [
     ( # The variants are out of order
         # Variants
-        [_Variant(5, 7), _Variant(2, 4)],
+        [Variant(5, 7), Variant(2, 4)],
         # Deletion
-        _Variant(10, 11),
+        Variant(10, 11),
         # Expected
-        [_Variant(2,4), _Variant(5, 7), _Variant(10, 11)],
+        [Variant(2,4), Variant(5, 7), Variant(10, 11)],
     ),
     ( # The deletion is before both variants
         # Variants
-        [_Variant(2, 4), _Variant(5, 7)],
+        [Variant(2, 4), Variant(5, 7)],
         # Deletion
-        _Variant(0, 1),
+        Variant(0, 1),
         # Expected
-        [_Variant(0, 1), _Variant(2,4), _Variant(5, 7)],
+        [Variant(0, 1), Variant(2,4), Variant(5, 7)],
     ),
     ( # The deletion is between the variants
         # Variants
-        [_Variant(2, 4), _Variant(5, 7)],
+        [Variant(2, 4), Variant(5, 7)],
         # Deletion
-        _Variant(4, 5),
+        Variant(4, 5),
         # Expected
-        [_Variant(2,4), _Variant(4, 5), _Variant(5, 7)],
+        [Variant(2,4), Variant(4, 5), Variant(5, 7)],
     ),
     ( # The deletion is after both variants
         # Variants
-        [_Variant(2, 4), _Variant(5, 7)],
+        [Variant(2, 4), Variant(5, 7)],
         # Deletion
-        _Variant(10, 11),
+        Variant(10, 11),
         # Expected
-        [_Variant(2,4), _Variant(5, 7), _Variant(10, 11)],
+        [Variant(2,4), Variant(5, 7), Variant(10, 11)],
     ),
     ( # The deletion contains the first variant
         # Variants
-        [_Variant(2, 4), _Variant(5, 7)],
+        [Variant(2, 4), Variant(5, 7)],
         # Deletion
-        _Variant(1, 5),
+        Variant(1, 5),
         # Expected
-        [_Variant(1, 5), _Variant(5, 7)],
+        [Variant(1, 5), Variant(5, 7)],
     ),
     ( # The deletion contains the second variant
         # Variants
-        [_Variant(2,4), _Variant(5, 7)],
+        [Variant(2,4), Variant(5, 7)],
         # Deletion
-        _Variant(4, 11),
+        Variant(4, 11),
         # Expected
-        [_Variant(2,4), _Variant(4, 11)],
+        [Variant(2,4), Variant(4, 11)],
     ),
     ( # The deletion contains both variants
         # Variants
-        [_Variant(2,4), _Variant(5, 7)],
+        [Variant(2,4), Variant(5, 7)],
         # Deletion
-        _Variant(2, 7),
+        Variant(2, 7),
         # Expected
-        [_Variant(2, 7)],
+        [Variant(2, 7)],
     ),
 ]
 # fmt: on
@@ -925,7 +922,7 @@ COMBINE = [
 
 @pytest.mark.parametrize("variants, deletion, expected", COMBINE)
 def test_combine_variants_deletion(
-    variants: Sequence[_Variant], deletion: _Variant, expected: Sequence[_Variant]
+    variants: Sequence[Variant], deletion: Variant, expected: Sequence[Variant]
 ) -> None:
     combined = combine_variants_deletion(variants, deletion)
     assert combined == expected
@@ -933,16 +930,16 @@ def test_combine_variants_deletion(
 
 def test_combine_variants_deletion_variants_overlap_eachother() -> None:
     """Test that we get a value error if the variants overlap"""
-    variants = [_Variant(0, 2), _Variant(1, 3)]
-    deletion = _Variant(10, 11)
+    variants = [Variant(0, 2), Variant(1, 3)]
+    deletion = Variant(10, 11)
     with pytest.raises(ValueError):
         combine_variants_deletion(variants, deletion)
 
 
 def test_combine_variants_deletion_variants_partially_overlap_deletion() -> None:
     """Test that we get a value error if one the variants partially overlaps the deletion"""
-    variants = [_Variant(2, 4)]
-    deletion = _Variant(3, 11)
+    variants = [Variant(2, 4)]
+    deletion = Variant(3, 11)
     with pytest.raises(ValueError):
         combine_variants_deletion(variants, deletion)
 
@@ -984,25 +981,25 @@ def test_Variant_hgvs_round_trip_forward(
 ) -> None:
     """Test converting between mutalyzer delins model and Variant"""
     delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[0]
-    v = _Variant.from_model(delins_model)
+    v = Variant.from_model(delins_model)
     assert v.to_model() == delins_model
 
 
 TO_HGVS = [
     # SNP
-    (_Variant(44, 45, "T", "C"), "10C>T"),
+    (Variant(44, 45, "T", "C"), "10C>T"),
     # Deletion
-    (_Variant(44, 45), "10del"),
+    (Variant(44, 45), "10del"),
     # Insertion
-    (_Variant(45, 45, "A"), "10_11insA"),
+    (Variant(45, 45, "A"), "10_11insA"),
     # Insertion/Deletion
-    (_Variant(44, 46, "GG"), "10_11delinsGG"),
+    (Variant(44, 46, "GG"), "10_11delinsGG"),
 ]
 
 
 @pytest.mark.parametrize("variant, expected", TO_HGVS)
 def test_Variant_to_hgvs(
-    SDHD_description: Description, variant: _Variant, expected: str
+    SDHD_description: Description, variant: Variant, expected: str
 ) -> None:
     assert to_cdot_hgvs(SDHD_description, [variant]) == expected
 

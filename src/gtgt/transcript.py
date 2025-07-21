@@ -5,7 +5,7 @@ from .mutalyzer import (
     CdotVariant,
     Therapy,
     _Therapy,
-    _Variant,
+    Variant,
     mutation_to_cds_effect,
     HGVS,
     exonskip,
@@ -111,7 +111,7 @@ class Transcript:
         values = [x.percentage for x in cmp]
         return sum(values) / len(cmp)
 
-    def mutate(self, d: Description, variants: Sequence[_Variant]) -> None:
+    def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
         """Mutate the transcript based on the specified variants"""
         deleted = Bed.from_blocks(
             self.coding_exons.chrom, *mutation_to_cds_effect(d, variants)
@@ -127,7 +127,7 @@ class Transcript:
 
         # Extract the input variants as internal delins
         input_variants = [
-            _Variant.from_model(delins) for delins in d.delins_model["variants"]
+            Variant.from_model(delins) for delins in d.delins_model["variants"]
         ]
 
         results = list()
