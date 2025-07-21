@@ -17,7 +17,7 @@ from gtgt.mutalyzer import (
     _Variant,
     to_cdot_hgvs,
 )
-from gtgt.mutalyzer import HGVS, Variant, variant_to_model
+from gtgt.mutalyzer import HGVS, Variant_Dict, variant_to_model
 from mutalyzer.description import Description
 from mutalyzer.converter.to_delins import variants_to_delins
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
@@ -585,7 +585,7 @@ PARSE_VARIANT = [
 
 
 @pytest.mark.parametrize("variant, variant_models", PARSE_VARIANT)
-def test_variant_to_model(variant: CdotVariant, variant_models: List[Variant]) -> None:
+def test_variant_to_model(variant: CdotVariant, variant_models: List[Variant_Dict]) -> None:
     """
     GIVEN a string denoting a HGVS variant
     WHEN we parse this into a Variant

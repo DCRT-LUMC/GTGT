@@ -1,7 +1,7 @@
 from copy import deepcopy
 import dataclasses
 
-from mutalyzer.description import Description, to_rna_reference_model, model_to_string
+from mutalyzer.description import Description
 from mutalyzer.converter import de_to_hgvs
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from mutalyzer.converter.to_delins import variants_to_delins
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # Variant string in HGVS c. format
 CdotVariant = NewType("CdotVariant", str)
 # Mutalyzer Variant dictionary
-Variant = NewType("Variant", Dict[str, Any])
+Variant_Dict = NewType("Variant_Dict", Dict[str, Any])
 InternalVariant = NewType("InternalVariant", dict[str, Any])
 
 
@@ -504,7 +504,7 @@ def _get_genome_annotations(references: Dict[str, Any]) -> Dict[str, Any]:
     return output
 
 
-def _description_model(ref_id: str, variants: List[Variant]) -> Dict[str, Any]:
+def _description_model(ref_id: str, variants: List[Variant_Dict]) -> Dict[str, Any]:
     """
     To be used only locally with ENSTs.
     """
@@ -517,7 +517,7 @@ def _description_model(ref_id: str, variants: List[Variant]) -> Dict[str, Any]:
 
 
 def _c_variants_to_delins_variants(
-    variants: List[Variant], ref_id: str, references: Dict[str, Any]
+    variants: List[Variant_Dict], ref_id: str, references: Dict[str, Any]
 ) -> List[InternalVariant]:
     """
     The variants can be of any type (substitutions, duplications, etc.).
@@ -676,11 +676,11 @@ def mutation_to_cds_effect(
     return changed_genomic
 
 
-def variant_to_model(variant: CdotVariant) -> List[Variant]:
+def variant_to_model(variant: CdotVariant) -> List[Variant_Dict]:
     """
     Parse the specified variant into a variant model
     """
-    results: List[Variant]
+    results: List[Variant_Dict]
     if "[" in variant:
         results = mutalyzer_hgvs_parser.to_model(variant, "variants")
     else:
