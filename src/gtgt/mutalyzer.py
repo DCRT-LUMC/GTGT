@@ -454,7 +454,12 @@ def exonskip(d: Description) -> List[Therapy]:
         exon_skip = Variant(start, end)
         logger.debug(f"{exon_skip=}")
         # Combine the existing variants with the exon skip
-        combined = combine_variants_deletion(variants, exon_skip)
+        try:
+            combined = combine_variants_deletion(variants, exon_skip)
+        except ValueError as e:
+            msg=f"Cannot skip exon {exon_counter}: {e}"
+            logger.warn(msg)
+            continue
         logger.debug(f"{combined=}")
 
         # Convert to c. notation (user facing)
