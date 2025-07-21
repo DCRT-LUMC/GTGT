@@ -1121,7 +1121,7 @@ CDS_POSITIONS = [
 
 
 @pytest.mark.parametrize("position, expected", CDS_POSITIONS)
-def test_cds_to_internal_position(position: int, expected: int) -> None:
+def test_cds_to_internal_position_forward(position: int, expected: int) -> None:
     exons = [(0, 5), (11, 14), (100, 120)]
     assert cds_to_internal_positions(position, exons) == expected
 
@@ -1140,6 +1140,28 @@ def test_cds_to_internal_position_reverse(position: int, expected: int) -> None:
     assert cds_to_internal_positions(position, exons, reverse=True) == expected
 
 
+CDS_POSITIONS_OFFSET = [
+    # internal, forward, reverse
+    (0, 12, 39),
+    (1, 25, 38),
+    (2, 26, 37),
+    (3, 27, 29),
+    (5, 29, 27),
+    (6, 37, 26),
+    (7, 38, 25),
+    (8, 39, 12),
+]
+
+
+@pytest.mark.parametrize("position, forward, reverse", CDS_POSITIONS_OFFSET)
+def test_cds_to_internal_position(position: int, forward: int, reverse: int) -> None:
+    # coding exons that do not start at position 0
+    # Size:      1        4         2
+    exons = [(12, 13), (25, 30), (37, 40)]
+    assert cds_to_internal_positions(position, exons, reverse=False) == forward
+    assert cds_to_internal_positions(position, exons, reverse=True) == reverse
+
+
 def test_cds_to_internal_positions_out_of_range() -> None:
     exons = [(0, 5)]
 
@@ -1152,3 +1174,11 @@ def test_cds_to_internal_positions_out_of_range() -> None:
         cds_to_internal_positions(5, exons)
     with pytest.raises(ValueError):
         cds_to_internal_positions(5, exons, reverse=True)
+
+    # CDS that does not start at o
+    exons = [(12, 13), (25, 30), (37, 40)]
+
+    with pytest.raises(ValueError):
+        cds_to_internal_positions(9, exons)
+    with pytest.raises(ValueError):
+        cds_to_internal_positions(9, exons, reverse=True)
