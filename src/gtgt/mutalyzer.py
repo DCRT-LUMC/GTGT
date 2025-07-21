@@ -449,28 +449,27 @@ def exonskip(d: Description) -> List[Therapy]:
     variants = [Variant.from_model(v) for v in d.delins_model["variants"]]
     logger.debug(f"{variants=}")
 
-    exon_counter = 2
-    for start, end in exons[1:-1]:
+    for exon_nr, exon in enumerate(exons[1:-1],2):
+        start, end = exon
         exon_skip = Variant(start, end)
         logger.debug(f"{exon_skip=}")
         # Combine the existing variants with the exon skip
         try:
             combined = combine_variants_deletion(variants, exon_skip)
         except ValueError as e:
-            msg=f"Cannot skip exon {exon_counter}: {e}"
+            msg=f"Cannot skip exon {exon_nr}: {e}"
             logger.warn(msg)
             continue
         logger.debug(f"{combined=}")
 
         # Convert to c. notation (user facing)
-        name = f"Skip exon {exon_counter}"
+        name = f"Skip exon {exon_nr}"
         selector = d.get_selector_id()
         cdot_variants = to_cdot_hgvs(d, combined)
         hgvs = f"{selector}:c.{cdot_variants}"
-        description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_counter}."
+        description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_nr}."
         t = Therapy(name, hgvs, description, combined)
         exon_skips.append(t)
-        exon_counter += 1
 
     return exon_skips
 
