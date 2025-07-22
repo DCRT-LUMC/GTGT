@@ -2,7 +2,6 @@ from collections.abc import Sequence
 import pytest
 from gtgt.mutalyzer import (
     CdotVariant,
-    append_mutation,
     cds_to_internal_positions,
     changed_protein_positions,
     get_exons,
@@ -189,97 +188,6 @@ def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
     assert coding_exons.basepairs == "18845/46303"
-
-
-APPEND_VARIANT = [
-    # mutation, predicted protein description as readout
-    ("10del", "MAVSGG*")
-]
-
-
-@pytest.mark.parametrize("mutation, protein", APPEND_VARIANT)
-def test_append_mutation(mutation: CdotVariant, protein: str) -> None:
-    """
-    GIVEN a string denoting a HGVS variant
-    WHEN we append this variant to an existing Description
-    THEN the Description should be updated
-    """
-    transcript = "ENST00000375549.8:c.="
-    d = Description(f"{transcript}")
-    _init_model(d)
-
-    append_mutation(d, mutation)
-
-    assert d.output()["protein"]["predicted"] == protein
-
-
-APPEND_TO_EXISTING = [
-    # Add an insertion after the deletion to restore the reading frame
-    ("10del", "11_12insA", "MAVYWRLSAV"),
-    # Add an insertion before the deletion, e.g. the variants are out of order after appending
-    ("10del", "4dup", "MGGFWRLSAV"),
-    # Existing variant is a snp, not deletion
-    ("10C>T", "11dup", "MAVFLEAECR"),
-    # Existing variant is a dup
-    ("10dup", "15del", "MAVPLRLSAV"),
-    # Existing variant is an inversion
-    ("10_15inv", "16A>T", "MAVPEWLSAV"),
-    # Existing variant is an delins
-    ("10_12delinsGG", "15dup", "MAVGGRLSAV"),
-    # 8del gets normalized to 9del
-    ("8del", "9del", "MAALEAECRL"),
-    ("9del", "8del", "MAALEAECRL"),
-]
-
-
-@pytest.mark.parametrize("existing, novel, protein", APPEND_TO_EXISTING)
-def test_append_mutation_to_existing_variant(
-    existing: CdotVariant, novel: CdotVariant, protein: str
-) -> None:
-    """
-    GIVEN a string denoting a HGVS variant
-    WHEN we append this variant to an existing Description
-    THEN the Description should be updated
-    """
-    transcript = f"ENST00000375549.8:c.{existing}"
-    d = Description(transcript)
-    _init_model(d)
-    append_mutation(d, novel)
-
-    # Test the first 10 aa of the protein as readout
-    assert d.output()["protein"]["predicted"][:10] == protein
-
-
-APPEND_OVERLAPPING_VARIANT = [
-    # Transcript variant, new variant
-    # Add another variant at the same location
-    ("10C>T", "10del"),
-    # Both variants we want to add overlap
-    ("=", "[10del;10C>T]"),
-    # Both variants already in the description overlap
-    ("[10del;10C>T]", "15del"),
-    # Overlap with an inversion
-    ("10_15inv", "12C>T"),
-    ("10_15inv", "12G>T"),
-    ("10_15inv", "10C>T"),
-]
-
-
-@pytest.mark.parametrize("existing, novel", APPEND_OVERLAPPING_VARIANT)
-def test_appending_overlapping_variants(
-    existing: CdotVariant, novel: CdotVariant
-) -> None:
-    """
-    GIVEN a transcript with existing variant(s)
-    WHEN we attempt to add novel variant which overlaps the existing variants
-    THEN we should throw a ValueError
-    """
-    transcript = f"ENST00000375549.8:c.{existing}"
-    d = Description(transcript)
-    _init_model(d)
-
-    with pytest.raises(ValueError):
-        append_mutation(d, novel)
 
 
 PARSE_VARIANT = [

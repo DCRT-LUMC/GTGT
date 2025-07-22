@@ -1,4 +1,4 @@
-from copy import deepcopy, copy
+from copy import deepcopy
 import dataclasses
 
 from mutalyzer.description import Description
@@ -9,7 +9,6 @@ from mutalyzer.converter.to_internal_indexing import to_internal_indexing
 from mutalyzer.description_model import get_reference_id, variants_to_description
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
-from mutalyzer.checker import is_overlap
 from mutalyzer.util import get_inserted_sequence, get_location_length
 from mutalyzer.converter.variants_de_to_hgvs import (
     delins_to_del,
@@ -29,7 +28,7 @@ from pydantic import BaseModel, model_validator
 
 import Levenshtein
 
-from typing import Any, Iterable, Optional, Tuple, List, Dict, TypeVar, Union, Sequence
+from typing import Any, Tuple, List, Dict, TypeVar, Union, Sequence
 from typing_extensions import NewType
 
 import logging
@@ -625,33 +624,6 @@ def variant_to_model(variant: CdotVariant) -> List[Variant_Dict]:
     else:
         results = [mutalyzer_hgvs_parser.to_model(variant, "variant")]
     return results
-
-
-def append_mutation(description: Description, mutation: CdotVariant) -> None:
-    """
-    Add mutation to the Description, re-using the Description object
-    """
-    # Get the variant model in c.
-    c_variants = variant_to_model(mutation)
-
-    # Convert the c. variant to i.
-    model = deepcopy(description.corrected_model)
-    # Add the c_variant to the variant(s) which are already there
-    model["variants"] += c_variants
-    model = to_internal_coordinates(model, description.references)
-    model = to_internal_indexing(model)
-
-    if is_overlap(model["variants"]):
-        msg = f"Variant {mutation} overlaps {description.input_description}"
-        raise ValueError(msg)
-
-    # Replace the variant in the description
-    description.de_hgvs_internal_indexing_model["variants"] = model["variants"]
-
-    # Update the internal description models
-    description.construct_de_hgvs_coordinates_model()
-    description.construct_normalized_description()
-    description.construct_protein_description()
 
 
 def get_exons(
