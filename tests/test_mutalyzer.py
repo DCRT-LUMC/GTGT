@@ -1,19 +1,14 @@
 from collections.abc import Sequence
 import pytest
-from pathlib import Path
 from gtgt.mutalyzer import (
     CdotVariant,
     append_mutation,
     cds_to_internal_positions,
-    combine_variants_deletion,
     changed_protein_positions,
     get_exons,
-    mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
-    Variant,
     skip_adjacent_exons,
-    to_cdot_hgvs,
     sliding_window,
     _exon_string,
 )
@@ -25,60 +20,7 @@ from gtgt.models import TranscriptModel
 import json
 
 from itertools import zip_longest
-from typing import Any, List, Tuple
-
-
-# Setup fixtures for mutalyzer retriever
-def _retrieve_raw(
-    reference_id: str,
-    reference_source: Any = None,
-    reference_type: Any = None,
-    size_off: bool = True,
-    configuration_path: Any = None,
-    timeout: int = 1,
-) -> Tuple[str, str, str]:
-    if reference_type == "fasta":
-        return _get_content("data/" + reference_id + ".fasta"), "fasta", "ncbi"
-    elif reference_id.startswith("LRG_"):
-        return _get_content("data/" + reference_id), "lrg", "lrg"
-    else:
-        return _get_content("data/" + reference_id + ".gff3"), "gff3", "ncbi"
-
-
-def _get_cds_to_mrna(cds_id: Any, timeout: Any = 10) -> None:
-    return None
-
-
-def _get_content(relative_location: str) -> str:
-    data_file = Path(__file__).parent.joinpath(relative_location)
-    try:
-        with open(str(data_file), "r") as file:
-            content = file.read()
-    except FileNotFoundError:
-        raise RuntimeError({}, [])
-    return content
-
-
-@pytest.fixture(autouse=True)
-def mock_env(monkeypatch: Any) -> None:
-    monkeypatch.setattr("mutalyzer_retriever.retriever.retrieve_raw", _retrieve_raw)
-    monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", _get_cds_to_mrna)
-
-
-@pytest.fixture()
-def SDHD_description() -> Description:
-    """SDHD, on the forward strand"""
-    d = Description("ENST00000375549.8:c.=")
-    _init_model(d)
-    return d
-
-
-@pytest.fixture()
-def WT1_description() -> Description:
-    """WT1, on the reverse strand"""
-    d = Description("ENST00000452863.10:c.=")
-    _init_model(d)
-    return d
+from typing import List, Tuple
 
 
 def test_one_adjacent_exonskip_SDHD() -> None:
