@@ -7,11 +7,6 @@ INVALID_INPUTS = [
     ("A", "Not a valid HGVS description"),
     # Not an ensemble transcript
     ("NM_0001:c.10del", "Not an ensembl transcript"),
-    # Ensemble, g.
-    (
-        "ENST0001:g.400del",
-        "Only variants using 'c.' and 'r.' coordinates are supported",
-    ),
 ]
 
 

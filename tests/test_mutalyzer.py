@@ -154,23 +154,45 @@ def test_analyze_transcript(WT: Transcript) -> None:
 
     results = WT.analyze(variant)
 
+    # Test the content of the 'wildtype' result
     wildtype = results[0]
+    assert wildtype.therapy.name == "Wildtype"
     coding_exons = wildtype.comparison[1]
     assert coding_exons.name == "coding_exons"
     assert coding_exons.percentage == 1.0
 
+    input = results[1]
+    assert input.therapy.name == "Input"
+    assert input.therapy.hgvs == variant
+    coding_exons = input.comparison[1]
+    # basepairs are not a float, so easier to match than .percentage
+    assert coding_exons.basepairs == "18845/46303"
 
+
+@pytest.mark.xfail
 def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
-    """Test analyzing a transcript using the r. coordinate system"""
+    """Test analyzing a transcript using the r. coordinate system
+
+    Note, this test should pass, but r. variant are currently not supported
+    """
     # In frame deletion that creates a STOP codon
     variant = "ENST00000452863.10:r.970del"
 
     results = WT.analyze(variant)
 
+    # Test the content of the 'wildtype' result
     wildtype = results[0]
+    assert wildtype.therapy.name == "Wildtype"
     coding_exons = wildtype.comparison[1]
     assert coding_exons.name == "coding_exons"
     assert coding_exons.percentage == 1.0
+
+    input = results[1]
+    assert input.therapy.name == "Input"
+    assert input.therapy.hgvs == variant
+    coding_exons = input.comparison[1]
+    # basepairs are not a float, so easier to match than .percentage
+    assert coding_exons.basepairs == "18845/46303"
 
 
 APPEND_VARIANT = [

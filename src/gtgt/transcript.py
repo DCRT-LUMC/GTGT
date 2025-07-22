@@ -119,6 +119,13 @@ class Transcript:
 
     def analyze(self, hgvs: str) -> List[Result]:
         """Analyze the transcript based on the specified HGVS description"""
+
+        # r. notations are not supported
+        coordinate_system = hgvs.split(":")[1][0:1]
+        if coordinate_system != "c":
+            raise NotImplementedError(
+                f"Coordinate system '{coordinate_system}' is not supported"
+            )
         # Initialize the input HGVS description
         d = Description(hgvs, stop_on_error=True)
         _init_model(d)

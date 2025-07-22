@@ -26,7 +26,7 @@ def validate_user_input(input: str) -> Dict[str, str]:
 
     # Test if the variant is valid HGVS
     try:
-        model = mutalyzer_hgvs_parser.to_model(input)
+        mutalyzer_hgvs_parser.to_model(input)
     except hgvs_error as e:
         error["summary"] = "Not a valid HGVS description"
         error["details"] = str(e)
@@ -35,14 +35,6 @@ def validate_user_input(input: str) -> Dict[str, str]:
     if not input.startswith("ENST"):
         error["summary"] = "Not an ensembl transcript"
         error["details"] = "Currently, only ensembl transcripts (ENST) are supported"
-        return error
-
-    supported_coordinate_system = ["c", "r"]
-    or_ = " or ".join(f"'{x}.'" for x in supported_coordinate_system)
-    and_ = " and ".join(f"'{x}.'" for x in supported_coordinate_system)
-    if model["coordinate_system"] not in supported_coordinate_system:
-        error["summary"] = f"Only variants using {and_} coordinates are supported"
-        error["details"] = f"Please convert your variant to the {or_} coordinate system"
         return error
 
     return error
