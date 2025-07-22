@@ -9,7 +9,6 @@ from gtgt.mutalyzer import _init_model
 # Setup fixtures for mutalyzer retriever
 
 
-
 def _retrieve_raw(
     reference_id: str,
     reference_source: Any = None,
