@@ -255,6 +255,17 @@ def test_two_adjacent_exonskip_SDHD() -> None:
         assert output.hgvs == expected
 
 
+def test_no_possible_exonskip_SDHD() -> None:
+    """
+    GIVEN a transcript with 4 exons (2 can be skipped)
+    WHEN we try to skip 3 adjacent exons
+    THEN we should get an empty list of therapies
+    """
+    d = Description("ENST00000375549.8:c.=")
+    _init_model(d)
+    assert skip_adjacent_exons(d, number_to_skip=3) == list()
+
+
 def test_one_adjacent_exonskip_WT1() -> None:
     d = Description("ENST00000452863.10:c.=")
     _init_model(d)
