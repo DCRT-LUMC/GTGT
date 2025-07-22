@@ -5,9 +5,9 @@ from .mutalyzer import (
     CdotVariant,
     Therapy,
     Variant,
+    generate_therapies,
     mutation_to_cds_effect,
     HGVS,
-    exonskip,
     _init_model,
 )
 from mutalyzer.description import Description
@@ -151,18 +151,16 @@ class Transcript:
         patient.mutate(d, input.variants)
         results.append(Result(input, patient.compare(self)))
 
-        # Generate the exon skips
-        for skip in exonskip(d):
-            logger.debug(f"Skipping {skip.name}")
+        # Generate all possible therapies
+        for therapy in generate_therapies(d):
+            logger.debug(f"{therapy.name}")
 
             # Apply the combination to the wildtype transcript
-            therapy = deepcopy(self)
-            therapy.mutate(d, skip.variants)
-            results.append(Result(skip, therapy.compare(self)))
+            modified_transcript = deepcopy(self)
+            modified_transcript.mutate(d, therapy.variants)
+            results.append(Result(therapy, modified_transcript.compare(self)))
 
         # Order the results
         wt_patient = results[:2]
         rest = sorted(results[2:], reverse=True)
         return wt_patient + rest
-
-        return results

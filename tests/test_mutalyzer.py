@@ -7,14 +7,16 @@ from gtgt.mutalyzer import (
     append_mutation,
     cds_to_internal_positions,
     combine_variants_deletion,
-    exonskip,
     changed_protein_positions,
     get_exons,
     mutation_to_cds_effect,
     _cdot_to_internal_delins,
     _init_model,
     Variant,
+    skip_adjacent_exons,
     to_cdot_hgvs,
+    sliding_window,
+    _exon_string,
 )
 from gtgt.mutalyzer import Variant_Dict, variant_to_model
 from mutalyzer.description import Description
@@ -230,29 +232,30 @@ def test_unsupported_descriptions(description: str) -> None:
         HGVS_to_genome_range(d)
 
 
-def test_exonskip_SDHD() -> None:
+def test_one_adjacent_exonskip_SDHD() -> None:
     d = Description("ENST00000375549.8:c.=")
     _init_model(d)
     results = [
         "ENST00000375549.8:c.53_169del",
         "ENST00000375549.8:c.170_314del",
     ]
-    for output, expected in zip_longest(exonskip(d), results):
+    for output, expected in zip_longest(skip_adjacent_exons(d), results):
         assert output.hgvs == expected
 
 
-def test_new_exonskip_SDHD() -> None:
+def test_two_adjacent_exonskip_SDHD() -> None:
     d = Description("ENST00000375549.8:c.=")
     _init_model(d)
     results = [
-        "ENST00000375549.8:c.53_169del",
-        "ENST00000375549.8:c.170_314del",
+        "ENST00000375549.8:c.53_314del",
     ]
-    for output, expected in zip_longest(exonskip(d), results):
+    for output, expected in zip_longest(
+        skip_adjacent_exons(d, number_to_skip=2), results
+    ):
         assert output.hgvs == expected
 
 
-def test_exonskip_WT1() -> None:
+def test_one_adjacent_exonskip_WT1() -> None:
     d = Description("ENST00000452863.10:c.=")
     _init_model(d)
     results = [
@@ -265,8 +268,42 @@ def test_exonskip_WT1() -> None:
         "ENST00000452863.10:c.1265_1354del",
         "ENST00000452863.10:c.1355_1447del",
     ]
-    for output, expected in zip_longest(exonskip(d), results):
+    # for output, expected in zip_longest(skip_adjacent_exons(d), results):
+    for output, expected in zip_longest(skip_adjacent_exons(d), results):
         assert output.hgvs == expected
+
+
+def test_two_adjacent_exonskip_WT1() -> None:
+    d = Description("ENST00000452863.10:c.=")
+    _init_model(d)
+    results = [
+        "ENST00000452863.10:c.662_887del",
+        "ENST00000452863.10:c.785_965del",
+        "ENST00000452863.10:c.888_1016del",
+        "ENST00000452863.10:c.966_1113del",
+        "ENST00000452863.10:c.1017_1264del",
+        "ENST00000452863.10:c.1114_1354del",
+        "ENST00000452863.10:c.1265_1447del",
+    ]
+    for output, expected in zip_longest(skip_adjacent_exons(d, 2), results):
+        assert output.hgvs == expected
+
+
+def test_sliding_window_size_one() -> None:
+    s = "ABCDEF"
+    # assert list(sliding_window(s, 1)) == [[x] for x in "A B C D E F".split()]
+    assert list(sliding_window(s, 1)) == [["A"], ["B"], ["C"], ["D"], ["E"], ["F"]]
+
+
+def test_sliding_window_size_2() -> None:
+    s = "ABCDEF"
+    assert list(sliding_window(s, 2)) == [
+        ["A", "B"],
+        ["B", "C"],
+        ["C", "D"],
+        ["D", "E"],
+        ["E", "F"],
+    ]
 
 
 # fmt: off
@@ -1077,3 +1114,15 @@ def test_cds_to_internal_positions_out_of_range() -> None:
         cds_to_internal_positions(9, exons)
     with pytest.raises(ValueError):
         cds_to_internal_positions(9, exons, reverse=True)
+
+
+EXON_DESCRIPTION = [
+    ([2], "exon 2"),
+    ([3, 5], "exons 3 and 5"),
+    ([3, 4, 5, 6], "exons 3, 4, 5 and 6"),
+]
+
+
+@pytest.mark.parametrize("exons, expected", EXON_DESCRIPTION)
+def test_exon_string(exons: Sequence[int], expected: str) -> None:
+    assert _exon_string(exons) == expected

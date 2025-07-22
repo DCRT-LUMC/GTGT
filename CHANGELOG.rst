@@ -6,6 +6,10 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+v0.2.3-dev
+------
++ Add support for skipping two adjacent exons
+
 v0.2.2
 ------
 + Update the analysis results to give more information on proposed Therapies

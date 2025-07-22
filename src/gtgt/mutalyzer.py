@@ -29,7 +29,7 @@ from pydantic import BaseModel, model_validator
 
 import Levenshtein
 
-from typing import Any, Optional, Tuple, List, Dict, Union, Sequence
+from typing import Any, Iterable, Optional, Tuple, List, Dict, TypeVar, Union, Sequence
 from typing_extensions import NewType
 
 import logging
@@ -441,37 +441,88 @@ def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     return hgvs
 
 
-def exonskip(d: Description) -> List[Therapy]:
-    """Generate all possible exon skips for the specified Description"""
-    exon_skips = list()
+T = TypeVar("T")
 
-    exons = get_exons(d, in_transcript_order=True)
+
+def sliding_window(items: Sequence[T], size: int = 1) -> List[List[T]]:
+    adj: List[List[T]] = list()
+    for i in range(len(items) - size + 1):
+        adj.append([x for x in items[i : i + size]])
+    return adj
+
+
+def _exon_string(exon_numbers: Sequence[int]) -> str:
+    """Format the exon names for a variable number of exons"""
+    if len(exon_numbers) == 1:
+        return f"exon {exon_numbers[0]}"
+    elif len(exon_numbers) == 2:
+        return f"exons {exon_numbers[0]} and {exon_numbers[1]}"
+    else:
+        t = ", ".join((str(x) for x in exon_numbers[:-1]))
+        return f"exons {t} and {exon_numbers[-1]}"
+
+
+def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> List[Therapy]:
+    """Skipp all possible adjacent exons the specified Description"""
+    exon_skips: List[Therapy] = list()
+
+    skippable_exons = get_exons(d, in_transcript_order=True)[1:-1]
     variants = [Variant.from_model(v) for v in d.delins_model["variants"]]
     logger.debug(f"{variants=}")
 
-    for exon_nr, exon in enumerate(exons[1:-1], 2):
-        start, end = exon
+    logger.debug(f"{skippable_exons=}")
+    for i, exons in enumerate(sliding_window(skippable_exons, size=number_to_skip), 2):
+        # Generate the string of exon numbers
+        exons_description = _exon_string(range(i, i + number_to_skip))
+        logger.debug(f"{exons_description=}")
+        logger.debug(f"{exons=}")
+
+        if d.is_inverted():
+            # Start of the first exon to skip
+            start = exons[-1][0]
+            # End of the last exon to skip
+            end = exons[0][-1]
+
+        else:
+            start = exons[0][0]
+            end = exons[-1][-1]
+
         exon_skip = Variant(start, end)
         logger.debug(f"{exon_skip=}")
+
         # Combine the existing variants with the exon skip
         try:
             combined = combine_variants_deletion(variants, exon_skip)
         except ValueError as e:
-            msg = f"Cannot skip exon {exon_nr}: {e}"
+            if number_to_skip == 1:
+                msg = f"Cannot skip exon {exons_description}: {e}"
+            else:
+                msg = f"Cannot skip exons {exons_description}: {e}"
             logger.warn(msg)
             continue
         logger.debug(f"{combined=}")
 
+        description = f"The annotations based on the supplied variants, in combination with skipping {exons_description}."
         # Convert to c. notation (user facing)
-        name = f"Skip exon {exon_nr}"
+        name = f"Skip {exons_description}"
         selector = d.get_selector_id()
         cdot_variants = to_cdot_hgvs(d, combined)
         hgvs = f"{selector}:c.{cdot_variants}"
-        description = f"The annotations based on the supplied variants, in combination with skipping exon {exon_nr}."
+        description = description
         t = Therapy(name, hgvs, description, combined)
         exon_skips.append(t)
 
     return exon_skips
+
+
+def generate_therapies(d: Description) -> List[Therapy]:
+    """Wrapper around the different therapies"""
+    therapies: List[Therapy] = list()
+    # Skip a single exon
+    therapies += skip_adjacent_exons(d, number_to_skip=1)
+    # Skip two adjacent exons
+    therapies += skip_adjacent_exons(d, number_to_skip=2)
+    return therapies
 
 
 def _init_model(d: Description) -> None:

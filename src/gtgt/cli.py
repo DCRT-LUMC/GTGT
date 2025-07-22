@@ -6,7 +6,7 @@ without executing side effects
 from .wrappers import lookup_transcript
 from .variant_validator import lookup_variant
 from .provider import Provider
-from .mutalyzer import exonskip
+from .mutalyzer import generate_therapies
 from .mutalyzer import _init_model
 from mutalyzer.description import Description
 
@@ -111,7 +111,7 @@ def main() -> None:
         desc = f"{args.transcript_id}:c.="
         d = Description(desc)
         _init_model(d)
-        for therapy in exonskip(d):
+        for therapy in generate_therapies(d):
             print(f"{therapy.name}: {therapy.hgvs}")
     elif args.command == "analyze":
         transcript_id = args.hgvs.split(":")[0]
