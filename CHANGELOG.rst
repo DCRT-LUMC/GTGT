@@ -7,7 +7,7 @@ Changelog
 .. that users understand how the changes affect the new version.
 
 v0.2.3-dev
-------
+----------
 + Add support for skipping two adjacent exons
 
 v0.2.2
