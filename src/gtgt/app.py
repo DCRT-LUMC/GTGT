@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Mapping, Sequence
 
 import uvicorn as uvicorn
 from fastapi import Body, FastAPI, HTTPException
@@ -23,7 +23,7 @@ async def redirect() -> RedirectResponse:
 
 
 @app.post("/links")
-async def get_links(variant: HGVS) -> Dict[str, str]:
+async def get_links(variant: HGVS) -> Mapping[str, str]:
     """Lookup external references for the specified variant"""
     try:
         reply = lookup_variant(provider, variant.description).url_dict()
@@ -77,7 +77,7 @@ async def compare(
         ),
     ],
     other: TranscriptModel,
-) -> List[Comparison]:
+) -> Sequence[Comparison]:
     """Compare two transcripts"""
     s = self.to_transcript()
     o = other.to_transcript()
@@ -86,7 +86,7 @@ async def compare(
 
 
 @app.post("/hgvs/analyze", response_model=None)
-async def analyze(hgvs: HGVS) -> List[Result]:
+async def analyze(hgvs: HGVS) -> Sequence[Result]:
     """Analyze all possible exons skips for the spcified HGVS variant"""
     transcript_id = hgvs.description.split(":")[0]
     transcript_model = lookup_transcript(provider, transcript_id)

@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Dict, List, Optional, Sequence, Union
+from typing import Optional, Sequence
 
 from mutalyzer.description import Description
 
@@ -16,8 +16,6 @@ from .mutalyzer import (
 
 logger = logging.getLogger(__name__)
 
-TranscriptComparison = Dict[str, Dict[str, Union[float, str]]]
-
 
 @dataclasses.dataclass
 class Comparison:
@@ -31,7 +29,7 @@ class Result:
     """To hold results for separate mutations of a transcript"""
 
     therapy: Therapy
-    comparison: List[Comparison]
+    comparison: Sequence[Comparison]
 
     def __gt__(self, other: "Result") -> bool:
         """Sort Result based on the sum of the percentage"""
@@ -53,7 +51,7 @@ class Transcript:
         else:
             self.coding_exons = coding_exons
 
-    def records(self) -> List[Bed]:
+    def records(self) -> Sequence[Bed]:
         """Return the Bed records that make up the Transcript"""
         return [self.exons, self.coding_exons]
 
@@ -78,7 +76,7 @@ class Transcript:
         exons_to_skip.overlap(selector)
         self.subtract(exons_to_skip)
 
-    def compare(self, other: object) -> List[Comparison]:
+    def compare(self, other: object) -> Sequence[Comparison]:
         """Compare the size of each record in the transcripts"""
         if not isinstance(other, Transcript):
             raise NotImplementedError
@@ -114,7 +112,7 @@ class Transcript:
         # Subtract that region from the annotations
         self.subtract(deleted)
 
-    def analyze(self, hgvs: str) -> List[Result]:
+    def analyze(self, hgvs: str) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
 
         # r. notations are not supported

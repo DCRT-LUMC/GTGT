@@ -2,11 +2,11 @@ import json
 import logging
 import os
 import urllib.request
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 
-payload = Dict[str, Any]
+payload = dict[str, Any]
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class Provider:
         data = response.read()
 
         try:
-            js: Dict[str, Any] = json.loads(data)
+            js: payload = json.loads(data)
         except Exception as e:
             logger.error(data)
             raise e

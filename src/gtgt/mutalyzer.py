@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Sequence, Tuple, TypeVar, Union
+from typing import Any, Mapping, Sequence, TypeVar, Union
 
 import Levenshtein
 import mutalyzer_hgvs_parser
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 # Variant string in HGVS c. format
 CdotVariant = NewType("CdotVariant", str)
 # Mutalyzer Variant dictionary
-Variant_Dict = NewType("Variant_Dict", Dict[str, Any])
+Variant_Dict = NewType("Variant_Dict", Mapping[str, Any])
 InternalVariant = NewType("InternalVariant", dict[str, Any])
 
 
@@ -104,7 +104,7 @@ class Variant:
         return self.start < other.start
 
     @classmethod
-    def from_model(cls, model: Dict[str, Any]) -> "Variant":
+    def from_model(cls, model: Mapping[str, Any]) -> "Variant":
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
 
@@ -123,7 +123,7 @@ class Variant:
         else:
             return Variant(start, end, inserted if inserted else "")
 
-    def to_model(self) -> Dict[str, Any]:
+    def to_model(self) -> Mapping[str, Any]:
         """Convert Variant to mutalyzer delins model"""
 
         # Specification of the location
@@ -205,7 +205,7 @@ class HGVS(BaseModel):
 
 def combine_variants_deletion(
     variants: Sequence[Variant], deletion: Variant
-) -> List[Variant]:
+) -> Sequence[Variant]:
     """Combine variants and a deletion, any variants that are contained in
     the deletion are discarded
 
@@ -235,7 +235,7 @@ def combine_variants_deletion(
     return combined
 
 
-def de_to_hgvs(variants: Any, sequences: Any) -> List[Variant_Dict]:
+def de_to_hgvs(variants: Any, sequences: Any) -> Sequence[Variant_Dict]:
     """
     Convert the description extractor variants to an HGVS format (e.g., a
     deletion insertion of one nucleotide is converted to a substitution).
@@ -302,8 +302,8 @@ def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
 T = TypeVar("T")
 
 
-def sliding_window(items: Sequence[T], size: int = 1) -> List[List[T]]:
-    adj: List[List[T]] = list()
+def sliding_window(items: Sequence[T], size: int = 1) -> Sequence[Sequence[T]]:
+    adj: list[Sequence[T]] = list()
     for i in range(len(items) - size + 1):
         adj.append([x for x in items[i : i + size]])
     return adj
@@ -320,9 +320,9 @@ def _exon_string(exon_numbers: Sequence[int]) -> str:
         return f"exons {t} and {exon_numbers[-1]}"
 
 
-def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> List[Therapy]:
+def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[Therapy]:
     """Skipp all possible adjacent exons the specified Description"""
-    exon_skips: List[Therapy] = list()
+    exon_skips: list[Therapy] = list()
 
     skippable_exons = get_exons(d, in_transcript_order=True)[1:-1]
     variants = [Variant.from_model(v) for v in d.delins_model["variants"]]
@@ -373,9 +373,9 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> List[Therapy
     return exon_skips
 
 
-def generate_therapies(d: Description) -> List[Therapy]:
+def generate_therapies(d: Description) -> Sequence[Therapy]:
     """Wrapper around the different therapies"""
-    therapies: List[Therapy] = list()
+    therapies: list[Therapy] = list()
     # Skip a single exon
     therapies += skip_adjacent_exons(d, number_to_skip=1)
     # Skip two adjacent exons
@@ -398,20 +398,20 @@ def _init_model(d: Description) -> None:
     d.construct_protein_description()
 
 
-def _get_genome_annotations(references: Dict[str, Any]) -> Dict[str, Any]:
+def _get_genome_annotations(references: Mapping[str, Any]) -> Mapping[str, Any]:
     """
     The sequence is removed. It should work with conversions, as long as there
     are no sequence slices involved, which will not be the case here.
     """
 
-    def _apply_offset(location: Dict[str, Any], offset: int) -> None:
+    def _apply_offset(location: Mapping[str, Any], offset: int) -> None:
         if isinstance(location, dict) and location.get("type") == "range":
             if "start" in location and "position" in location["start"]:
                 location["start"]["position"] += offset
             if "end" in location and "position" in location["end"]:
                 location["end"]["position"] += offset
 
-    def _walk_features(features: List[Dict[str, Any]], offset: int) -> None:
+    def _walk_features(features: Sequence[Mapping[str, Any]], offset: int) -> None:
         for feature in features:
             loc = feature.get("location")
             if loc:
@@ -438,7 +438,9 @@ def _get_genome_annotations(references: Dict[str, Any]) -> Dict[str, Any]:
     return output
 
 
-def _description_model(ref_id: str, variants: List[Variant_Dict]) -> Dict[str, Any]:
+def _description_model(
+    ref_id: str, variants: Sequence[Variant_Dict]
+) -> Mapping[str, Any]:
     """
     To be used only locally with ENSTs.
     """
@@ -451,22 +453,22 @@ def _description_model(ref_id: str, variants: List[Variant_Dict]) -> Dict[str, A
 
 
 def _c_variants_to_delins_variants(
-    variants: List[Variant_Dict], ref_id: str, references: Dict[str, Any]
-) -> List[InternalVariant]:
+    variants: Sequence[Variant_Dict], ref_id: str, references: Mapping[str, Any]
+) -> Sequence[InternalVariant]:
     """
     The variants can be of any type (substitutions, duplications, etc.).
     """
     model = _description_model(ref_id, variants)
     # logger.debug(f"{model=}")
-    delins: List[InternalVariant] = variants_to_delins(
+    delins: Sequence[InternalVariant] = variants_to_delins(
         to_internal_indexing(to_internal_coordinates(model, references))["variants"]
     )
     return delins
 
 
 def _internal_to_internal_genome(
-    variants: List[InternalVariant], offset: int
-) -> List[InternalVariant]:
+    variants: Sequence[InternalVariant], offset: int
+) -> Sequence[InternalVariant]:
     output = deepcopy(variants)
 
     for variant in output:
@@ -481,7 +483,7 @@ def _internal_to_internal_genome(
 
 
 def _get_ensembl_offset(
-    references: Dict[str, Any], ref_id: str = "reference"
+    references: Mapping[str, Any], ref_id: str = "reference"
 ) -> Union[int, None]:
     offset: Union[int, None] = (
         references.get(ref_id, {})
@@ -492,7 +494,9 @@ def _get_ensembl_offset(
     return offset
 
 
-def changed_protein_positions(reference: str, observed: str) -> List[Tuple[int, int]]:
+def changed_protein_positions(
+    reference: str, observed: str
+) -> Sequence[tuple[int, int]]:
     """
     Extract the change protein positions (0 based)
     """
@@ -516,7 +520,7 @@ def changed_protein_positions(reference: str, observed: str) -> List[Tuple[int, 
 
 def _cdot_to_internal_delins(
     d: Description, variants: CdotVariant
-) -> List[InternalVariant]:
+) -> Sequence[InternalVariant]:
     """Convert a list of cdot variants to internal indels"""
     #  Get stuf we need
     ref_id = get_reference_id(d.corrected_model)
@@ -538,7 +542,7 @@ def _cdot_to_internal_delins(
 
 def mutation_to_cds_effect(
     d: Description, variants: Sequence[Variant]
-) -> List[Tuple[int, int]]:
+) -> Sequence[tuple[int, int]]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome
 
@@ -610,11 +614,11 @@ def mutation_to_cds_effect(
     return changed_genomic
 
 
-def variant_to_model(variant: CdotVariant) -> List[Variant_Dict]:
+def variant_to_model(variant: CdotVariant) -> Sequence[Variant_Dict]:
     """
     Parse the specified variant into a variant model
     """
-    results: List[Variant_Dict]
+    results: Sequence[Variant_Dict]
     if "[" in variant:
         results = mutalyzer_hgvs_parser.to_model(variant, "variants")
     else:
@@ -624,12 +628,12 @@ def variant_to_model(variant: CdotVariant) -> List[Variant_Dict]:
 
 def get_exons(
     description: Description, in_transcript_order: bool
-) -> List[Tuple[int, int]]:
+) -> Sequence[tuple[int, int]]:
     """Get exons from a Mutalyzer Description object
 
     Positions are in the internal coordinate system
     """
-    exons: List[Tuple[int, int]] = description.get_selector_model()["exon"]
+    exons: Sequence[tuple[int, int]] = description.get_selector_model()["exon"]
     if in_transcript_order and description.is_inverted():
         return exons[::-1]
 
@@ -638,7 +642,7 @@ def get_exons(
 
 def cds_to_internal_positions(
     position: int,
-    exons: Sequence[Tuple[int, int]],
+    exons: Sequence[tuple[int, int]],
     cds_offset: int = 0,
     reverse: bool = False,
 ) -> int:

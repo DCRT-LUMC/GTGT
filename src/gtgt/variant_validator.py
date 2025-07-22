@@ -1,14 +1,14 @@
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Mapping, Sequence, Union, cast
 
 from pydantic import BaseModel
 
 from .provider import Provider
 
-Payload = Dict[str, Any]
+Payload = Mapping[str, Any]
 
 
 class Links(BaseModel):
-    omim_ids: List[str]
+    omim_ids: Sequence[str]
     gene_symbol: str
     ensembl_gene_id: str
     uniprot: str
@@ -17,7 +17,7 @@ class Links(BaseModel):
     hgnc: str
     ucsc: str
 
-    databases: List[str] = [
+    databases: Sequence[str] = [
         "omim",
         "lovd",
         "gtex",
@@ -30,7 +30,7 @@ class Links(BaseModel):
         "stringdb",
     ]
 
-    def url(self, field: str) -> Union[str, List[str]]:
+    def url(self, field: str) -> Union[str, Sequence[str]]:
         if field == "omim":
             urls = list()
             for id in self.omim_ids:
@@ -58,7 +58,7 @@ class Links(BaseModel):
         else:
             raise NotImplementedError(f"Unknown field: '{field}'")
 
-    def url_dict(self) -> Dict[str, str]:
+    def url_dict(self) -> Mapping[str, str]:
         """Create a flat dict with urls to all databases"""
         d = dict()
 
@@ -116,7 +116,7 @@ def extract_variant(payload: Payload, variant: str) -> Payload:
         raise ValueError(msg)
 
 
-def parse_payload(payload: Payload, variant: str, assembly: str) -> Payload:
+def parse_payload(payload: Payload, variant: str, assembly: str) -> dict[str, Any]:
     # Check the flag to see if the reply is valid
     flag = payload["flag"]
     if flag == "warning":

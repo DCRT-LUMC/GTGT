@@ -1,6 +1,6 @@
-from typing import List, Tuple
+from typing import Sequence
 
-Range = Tuple[int, int]
+Range = tuple[int, int]
 
 
 def overlap(a: Range, b: Range) -> bool:
@@ -11,7 +11,7 @@ def overlap(a: Range, b: Range) -> bool:
     return False
 
 
-def intersect(a: Range, b: Range) -> List[Range]:
+def intersect(a: Range, b: Range) -> Sequence[Range]:
     """Determine the intersection between ranges a and b"""
     start = max(a[0], b[0])
     end = min(a[1], b[1])
@@ -22,7 +22,7 @@ def intersect(a: Range, b: Range) -> List[Range]:
         return [(start, end)]
 
 
-def subtract(a: List[Range], b: List[Range]) -> List[Range]:
+def subtract(a: Sequence[Range], b: Sequence[Range]) -> Sequence[Range]:
     """
     Subtract the regions in b from a
     """
@@ -34,7 +34,7 @@ def subtract(a: List[Range], b: List[Range]) -> List[Range]:
     A = next(a_iter)
     B = next(b_iter)
 
-    results: List[Tuple[int, int]] = list()
+    results: list[tuple[int, int]] = list()
 
     while True:
         # If we exhaust A or B we are done

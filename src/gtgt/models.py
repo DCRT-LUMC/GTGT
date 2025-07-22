@@ -1,12 +1,12 @@
 from enum import Enum
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Union
 
 from pydantic import BaseModel, Field, model_validator
 
 from .bed import Bed
 from .transcript import Transcript
 
-Range = Tuple[int, int]
+Range = tuple[int, int]
 
 
 class Assembly(Enum):
@@ -28,7 +28,7 @@ class BedModel(BaseModel):
     """Pydantic wrapper for BED objects"""
 
     chrom: str
-    blocks: List[Range]
+    blocks: list[Range]
     name: str = ""
     score: int = 0
     strand: str = "."
@@ -55,8 +55,8 @@ class BedModel(BaseModel):
         return self
 
     @classmethod
-    def from_ucsc(cls, ucsc: Dict[str, Union[str, int]]) -> "BedModel":
-        fields: Dict[str, Any] = ucsc.copy()
+    def from_ucsc(cls, ucsc: dict[str, Union[str, int]]) -> "BedModel":
+        fields: dict[str, Any] = ucsc.copy()
 
         # Note that UCSC calls the "blockStarts" field "chromStarts"
         block_starts = Bed._csv_to_int(fields["chromStarts"])

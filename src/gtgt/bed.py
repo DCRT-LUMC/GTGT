@@ -1,9 +1,9 @@
-from typing import Any, Iterator, List, Optional, Tuple
+from typing import Any, Iterator, Optional, Sequence
 
 from .range import Range, intersect, overlap, subtract
 
 # colorRgb field from Bed
-color = Tuple[int, ...]
+color = tuple[int, ...]
 
 
 class Bed:
@@ -19,8 +19,8 @@ class Bed:
         thickEnd: Optional[int] = None,
         itemRgb: color = (0, 0, 0),
         blockCount: Optional[int] = None,
-        blockSizes: Optional[List[int]] = None,
-        blockStarts: Optional[List[int]] = None,
+        blockSizes: Optional[list[int]] = None,
+        blockStarts: Optional[list[int]] = None,
         **ignored: Any,
     ) -> None:
         # Required attributes for .bed files
@@ -99,7 +99,7 @@ class Bed:
         if block_end != self.chromEnd:
             raise ValueError(f"Last block({block_end=}) must end at {self.chromEnd=}")
 
-    def blocks(self) -> Iterator[Tuple[int, int]]:
+    def blocks(self) -> Iterator[tuple[int, int]]:
         """Iterate over all blocks in the Bed record"""
         for size, start in zip(self.blockSizes, self.blockStarts):
             block_start = self.chromStart + start
@@ -174,7 +174,7 @@ class Bed:
         self.blockSizes = self.blockStarts = [0]
 
     @staticmethod
-    def _csv_to_int(csv: str) -> List[int]:
+    def _csv_to_int(csv: str) -> list[int]:
         """Convert a csv list to a list of integers"""
         integers = list()
         for num in csv.split(","):
@@ -247,7 +247,7 @@ class Bed:
             return
 
         # Determine all intersected ranges
-        intersected: List[Range] = list()
+        intersected: list[Range] = list()
 
         for range1 in self.blocks():
             for intersector in other.blocks():
@@ -296,7 +296,7 @@ class Bed:
         Raises a ValueError if chrom, name or strand are not identical
         """
 
-        def get_properties(bed: Bed) -> Tuple[str, ...]:
+        def get_properties(bed: Bed) -> tuple[str, ...]:
             """Return a tuple of the properties that must match"""
             return (bed.chrom, bed.name, bed.strand)
 
@@ -325,7 +325,7 @@ class Bed:
         Raises a ValueError if chrom, name or strand are not identical
         """
 
-        def get_properties(bed: Bed) -> Tuple[str, ...]:
+        def get_properties(bed: Bed) -> tuple[str, ...]:
             """Return a tuple of the properties that must match"""
             return (bed.chrom, bed.name, bed.strand)
 
@@ -347,7 +347,7 @@ class Bed:
 
         return f"{self.size}/{other.size}"
 
-    def update(self, ranges: List[Range]) -> None:
+    def update(self, ranges: Sequence[Range]) -> None:
         """Update a Bed object with a list of ranges"""
         # Check that thickStart/thickEnd have not been set
         if self.thickStart != self.chromStart or self.thickEnd != self.chromEnd:
@@ -384,7 +384,7 @@ class Bed:
         return sum(self.blockSizes)
 
 
-def _range_to_size_start(range: Range, offset: int) -> Tuple[int, int]:
+def _range_to_size_start(range: Range, offset: int) -> tuple[int, int]:
     """Convert a range to size, start
 
     BED format uses blockSizes and blockStarts to represent ranges

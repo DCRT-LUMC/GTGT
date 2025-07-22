@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Mapping, Optional
 
 import mutalyzer_hgvs_parser
 from flask import Flask, render_template
@@ -16,7 +16,7 @@ app = Flask(__name__)
 provider = Provider()
 
 
-def validate_user_input(input: str) -> Dict[str, str]:
+def validate_user_input(input: str) -> Mapping[str, str]:
     """
     Validate the user input
 

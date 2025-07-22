@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict
+from typing import Any, Mapping
 
 from .models import Assembly, EnsemblTranscript
 from .provider import Provider
@@ -33,7 +33,7 @@ def ucsc_url(transcript: EnsemblTranscript, track: str = "knownGene") -> str:
 
 def lookup_knownGene(
     provider: Provider, transcript: EnsemblTranscript, track_name: str
-) -> Dict[str, Any]:
+) -> Mapping[str, Any]:
     url = ucsc_url(transcript, track_name)
     track = provider.get(url)
     ts = f"{transcript.id}.{transcript.version}"
