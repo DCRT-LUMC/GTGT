@@ -29,7 +29,8 @@ from itertools import zip_longest
 from typing import Any, List, Tuple
 
 
-def retrieve_raw(
+# Setup fixtures for mutalyzer retriever
+def _retrieve_raw(
     reference_id: str,
     reference_source: Any = None,
     reference_type: Any = None,
@@ -45,7 +46,7 @@ def retrieve_raw(
         return _get_content("data/" + reference_id + ".gff3"), "gff3", "ncbi"
 
 
-def get_cds_to_mrna(cds_id: Any, timeout: Any = 10) -> None:
+def _get_cds_to_mrna(cds_id: Any, timeout: Any = 10) -> None:
     return None
 
 
@@ -61,8 +62,8 @@ def _get_content(relative_location: str) -> str:
 
 @pytest.fixture(autouse=True)
 def mock_env(monkeypatch: Any) -> None:
-    monkeypatch.setattr("mutalyzer_retriever.retriever.retrieve_raw", retrieve_raw)
-    monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", get_cds_to_mrna)
+    monkeypatch.setattr("mutalyzer_retriever.retriever.retrieve_raw", _retrieve_raw)
+    monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", _get_cds_to_mrna)
 
 
 @pytest.fixture()
