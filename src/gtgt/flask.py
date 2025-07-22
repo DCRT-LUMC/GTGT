@@ -1,11 +1,11 @@
-from .variant_validator import lookup_variant
-from .provider import Provider
-from .wrappers import lookup_transcript
-
-from flask import Flask, render_template
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import mutalyzer_hgvs_parser
+from flask import Flask, render_template
+
+from .provider import Provider
+from .variant_validator import lookup_variant
+from .wrappers import lookup_transcript
 
 hgvs_error = (
     mutalyzer_hgvs_parser.exceptions.UnexpectedCharacter,

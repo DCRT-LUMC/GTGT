@@ -1,6 +1,6 @@
-from typing import Any, Dict, Optional, Iterator, List, Tuple
-from .range import Range, overlap, intersect, subtract
-from typing import Union
+from typing import Any, Iterator, List, Optional, Tuple
+
+from .range import Range, intersect, overlap, subtract
 
 # colorRgb field from Bed
 color = Tuple[int, ...]

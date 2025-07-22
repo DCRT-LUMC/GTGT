@@ -1,12 +1,13 @@
+from typing import Any, Dict
+
 import pytest
-from typing import Dict, Any
-from gtgt.models import EnsemblTranscript, Assembly
+
 from gtgt.ensembl import (
     _check_transcript,
-    payload_to_ensemble_transcript,
     lookup_transcript,
+    payload_to_ensemble_transcript,
 )
-
+from gtgt.models import Assembly, EnsemblTranscript
 
 INVALID = [
     ({"version": 10}, 11, ValueError),

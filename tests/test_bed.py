@@ -1,6 +1,6 @@
-import pytest
+from typing import Any, List, Tuple
 
-from typing import Any, Dict, List, Tuple
+import pytest
 
 from gtgt import Bed
 from gtgt.bed import _range_to_size_start

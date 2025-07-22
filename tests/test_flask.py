@@ -1,6 +1,6 @@
-from gtgt.flask import validate_user_input
 import pytest
 
+from gtgt.flask import validate_user_input
 
 INVALID_INPUTS = [
     # Non-HGVS input

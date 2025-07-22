@@ -1,10 +1,10 @@
-from typing import Any, Dict, Optional
 import json
+import logging
+import os
 import urllib.request
+from typing import Any, Dict, Optional
 from urllib.error import HTTPError
 from urllib.parse import urlparse
-import os
-import logging
 
 payload = Dict[str, Any]
 

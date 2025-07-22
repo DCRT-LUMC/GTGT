@@ -1,9 +1,7 @@
-from copy import copy, deepcopy
-from .models import TranscriptModel, BedModel
-from .provider import Provider
 from .ensembl import lookup_transcript as lookup_transcript_ens
+from .models import BedModel, TranscriptModel
+from .provider import Provider
 from .ucsc import lookup_knownGene
-from . import Bed
 
 
 def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel:

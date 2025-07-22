@@ -1,11 +1,10 @@
-from gtgt.models import BedModel, TranscriptModel
 import pytest
-from gtgt import Bed
-from gtgt.transcript import Comparison, Transcript
-from gtgt.app import app
-
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
+from gtgt import Bed
+from gtgt.app import app
+from gtgt.models import BedModel, TranscriptModel
+from gtgt.transcript import Transcript
 
 
 @pytest.fixture

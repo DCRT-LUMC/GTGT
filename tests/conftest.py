@@ -1,11 +1,13 @@
+from pathlib import Path
+from typing import Any, Tuple
+
 import pytest
+from mutalyzer.description import Description
+
+from gtgt.mutalyzer import _init_model
 
 # Setup fixtures for mutalyzer retriever
 
-from pathlib import Path
-from typing import Any, Tuple
-from mutalyzer.description import Description
-from gtgt.mutalyzer import _init_model
 
 
 def _retrieve_raw(

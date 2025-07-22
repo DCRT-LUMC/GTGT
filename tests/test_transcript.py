@@ -1,12 +1,11 @@
-import pytest
 import json
-from pydantic.tools import parse_obj_as
-import copy
+
+import pytest
 
 from gtgt import Bed
+from gtgt.models import TranscriptModel
 from gtgt.mutalyzer import Therapy
 from gtgt.transcript import Comparison, Result, Transcript
-from gtgt.models import TranscriptModel
 
 
 @pytest.fixture

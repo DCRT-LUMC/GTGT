@@ -1,16 +1,17 @@
+from typing import List, Sequence, Tuple
+
 import pytest
 from mutalyzer.description import Description
+
 from gtgt.mutalyzer import (
-    Variant,
     CdotVariant,
-    combine_variants_deletion,
-    _init_model,
-    mutation_to_cds_effect,
+    Variant,
     _cdot_to_internal_delins,
+    _init_model,
+    combine_variants_deletion,
+    mutation_to_cds_effect,
     to_cdot_hgvs,
 )
-
-from typing import List, Sequence, Tuple
 
 
 def test_Variant_class_str() -> None:

@@ -1,21 +1,18 @@
-from copy import deepcopy
 import dataclasses
+import logging
+from copy import deepcopy
+from typing import Dict, List, Optional, Sequence, Union
 
+from mutalyzer.description import Description
+
+from .bed import Bed
 from .mutalyzer import (
-    CdotVariant,
     Therapy,
     Variant,
+    _init_model,
     generate_therapies,
     mutation_to_cds_effect,
-    HGVS,
-    _init_model,
 )
-from mutalyzer.description import Description
-from .bed import Bed
-
-from typing import List, Dict, Optional, Sequence, Union
-import logging
-
 
 logger = logging.getLogger(__name__)
 

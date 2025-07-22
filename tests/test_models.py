@@ -1,10 +1,12 @@
-from gtgt.models import BedModel, TranscriptId, TranscriptModel, TranscriptModel
-from gtgt.mutalyzer import HGVS
-from gtgt.bed import Bed
-from gtgt.transcript import Transcript
+from typing import Dict, Union
+
 import pytest
-from typing import Dict, Union, Tuple
 from pydantic import ValidationError
+
+from gtgt.bed import Bed
+from gtgt.models import BedModel, TranscriptId, TranscriptModel
+from gtgt.mutalyzer import HGVS
+from gtgt.transcript import Transcript
 
 payload = Dict[str, Union[str, int]]
 

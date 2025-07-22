@@ -1,12 +1,8 @@
 import logging
-import urllib.request
-from urllib.error import HTTPError
-import json
-
-from .models import Assembly, EnsemblTranscript
-from .provider import Provider
-
 from typing import Any, Dict
+
+from .models import EnsemblTranscript
+from .provider import Provider
 
 logger = logging.getLogger(__name__)
 

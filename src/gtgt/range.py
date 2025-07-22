@@ -1,4 +1,4 @@
-from typing import Tuple, List, Set, cast
+from typing import List, Tuple
 
 Range = Tuple[int, int]
 

@@ -1,10 +1,11 @@
 import pytest
+
 from gtgt.variant_validator import (
     Links,
     Payload,
     extract_variant,
-    parse_payload,
     guess_refseq_ensembl,
+    parse_payload,
 )
 
 

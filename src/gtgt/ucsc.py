@@ -1,7 +1,8 @@
-from .models import Assembly, EnsemblTranscript
-from .provider import Provider
 import logging
 from typing import Any, Dict
+
+from .models import Assembly, EnsemblTranscript
+from .provider import Provider
 
 logger = logging.getLogger(__name__)
 

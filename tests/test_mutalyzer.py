@@ -1,25 +1,26 @@
+import json
 from collections.abc import Sequence
+from itertools import zip_longest
+from typing import List, Tuple
+
 import pytest
+from mutalyzer.description import Description
+from mutalyzer.description_model import variants_to_description
+
+from gtgt.models import TranscriptModel
 from gtgt.mutalyzer import (
     CdotVariant,
+    Variant_Dict,
+    _cdot_to_internal_delins,
+    _exon_string,
     cds_to_internal_positions,
     changed_protein_positions,
     get_exons,
-    _cdot_to_internal_delins,
-    _init_model,
     skip_adjacent_exons,
     sliding_window,
-    _exon_string,
+    variant_to_model,
 )
-from gtgt.mutalyzer import Variant_Dict, variant_to_model
-from mutalyzer.description import Description
-from mutalyzer.description_model import variants_to_description
 from gtgt.transcript import Transcript
-from gtgt.models import TranscriptModel
-import json
-
-from itertools import zip_longest
-from typing import List, Tuple
 
 
 def test_one_adjacent_exonskip_forward(SDHD_description: Description) -> None:

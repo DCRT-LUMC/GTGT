@@ -1,37 +1,33 @@
-from copy import deepcopy
 import dataclasses
+import logging
+from copy import deepcopy
+from typing import Any, Dict, List, Sequence, Tuple, TypeVar, Union
 
-from mutalyzer.description import Description
-from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
+import Levenshtein
+import mutalyzer_hgvs_parser
 from mutalyzer.converter.to_delins import variants_to_delins
+from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
 from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
 from mutalyzer.converter.to_internal_indexing import to_internal_indexing
+from mutalyzer.converter.variants_de_to_hgvs import (
+    delins_to_del,
+    delins_to_delins,
+    delins_to_duplication,
+    delins_to_insertion,
+    delins_to_repeat,
+    delins_to_substitution,
+    get_end,
+    get_start,
+    is_duplication,
+    is_repeat,
+)
+from mutalyzer.description import Description
 from mutalyzer.description_model import get_reference_id, variants_to_description
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
-from mutalyzer.converter.variants_de_to_hgvs import (
-    delins_to_del,
-    delins_to_substitution,
-    delins_to_repeat,
-    delins_to_insertion,
-    delins_to_duplication,
-    delins_to_delins,
-    is_repeat,
-    is_duplication,
-    get_start,
-    get_end,
-)
-import mutalyzer_hgvs_parser
-
 from pydantic import BaseModel, model_validator
-
-import Levenshtein
-
-from typing import Any, Tuple, List, Dict, TypeVar, Union, Sequence
 from typing_extensions import NewType
-
-import logging
 
 logger = logging.getLogger(__name__)
 

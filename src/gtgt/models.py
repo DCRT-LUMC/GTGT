@@ -1,12 +1,10 @@
-from pydantic import BaseModel, model_validator
 from enum import Enum
 from typing import Any, Dict, List, Tuple, Union
+
+from pydantic import BaseModel, Field, model_validator
+
 from .bed import Bed
 from .transcript import Transcript
-
-from pydantic import Field
-
-import mutalyzer_hgvs_parser
 
 Range = Tuple[int, int]
 

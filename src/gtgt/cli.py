@@ -3,21 +3,19 @@ Module that contains the command line app, so we can still import __main__
 without executing side effects
 """
 
-from .wrappers import lookup_transcript
-from .variant_validator import lookup_variant
-from .provider import Provider
-from .mutalyzer import generate_therapies
-from .mutalyzer import _init_model
-from mutalyzer.description import Description
-
-import secrets
 import argparse
+import dataclasses
 import json
 import logging
 import os
-import dataclasses
+import secrets
 
-import logging
+from mutalyzer.description import Description
+
+from .mutalyzer import _init_model, generate_therapies
+from .provider import Provider
+from .variant_validator import lookup_variant
+from .wrappers import lookup_transcript
 
 
 def set_logging(level: str) -> None:
