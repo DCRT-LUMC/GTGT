@@ -23,9 +23,8 @@ from itertools import zip_longest
 from typing import List, Tuple
 
 
-def test_one_adjacent_exonskip_SDHD() -> None:
-    d = Description("ENST00000375549.8:c.=")
-    _init_model(d)
+def test_one_adjacent_exonskip_forward(SDHD_description: Description) -> None:
+    d = SDHD_description
     results = [
         "ENST00000375549.8:c.53_169del",
         "ENST00000375549.8:c.170_314del",
@@ -34,9 +33,8 @@ def test_one_adjacent_exonskip_SDHD() -> None:
         assert output.hgvs == expected
 
 
-def test_two_adjacent_exonskip_SDHD() -> None:
-    d = Description("ENST00000375549.8:c.=")
-    _init_model(d)
+def test_two_adjacent_exonskip_SDHD(SDHD_description: Description) -> None:
+    d = SDHD_description
     results = [
         "ENST00000375549.8:c.53_314del",
     ]
@@ -46,20 +44,18 @@ def test_two_adjacent_exonskip_SDHD() -> None:
         assert output.hgvs == expected
 
 
-def test_no_possible_exonskip_SDHD() -> None:
+def test_no_possible_exonskip_SDHD(SDHD_description: Description) -> None:
     """
     GIVEN a transcript with 4 exons (2 can be skipped)
     WHEN we try to skip 3 adjacent exons
     THEN we should get an empty list of therapies
     """
-    d = Description("ENST00000375549.8:c.=")
-    _init_model(d)
+    d = SDHD_description
     assert skip_adjacent_exons(d, number_to_skip=3) == list()
 
 
-def test_one_adjacent_exonskip_WT1() -> None:
-    d = Description("ENST00000452863.10:c.=")
-    _init_model(d)
+def test_one_adjacent_exonskip_WT1(WT1_description: Description) -> None:
+    d = WT1_description
     results = [
         "ENST00000452863.10:c.662_784del",
         "ENST00000452863.10:c.785_887del",
@@ -75,9 +71,8 @@ def test_one_adjacent_exonskip_WT1() -> None:
         assert output.hgvs == expected
 
 
-def test_two_adjacent_exonskip_WT1() -> None:
-    d = Description("ENST00000452863.10:c.=")
-    _init_model(d)
+def test_two_adjacent_exonskip_WT1(WT1_description: Description) -> None:
+    d = WT1_description
     results = [
         "ENST00000452863.10:c.662_887del",
         "ENST00000452863.10:c.785_965del",
@@ -120,14 +115,15 @@ CDOT_MUTATIONS = [
 
 
 @pytest.mark.parametrize("cdot, internal_delins", CDOT_MUTATIONS)
-def test_cdot_to_indel(cdot: CdotVariant, internal_delins: str) -> None:
+def test_cdot_to_indel(
+    SDHD_description: Description, cdot: CdotVariant, internal_delins: str
+) -> None:
     """
     GIVEN a list of c. mutations a string
     WHEN we convert them to internal i. indels
     THEN we should get a list of internal variants
     """
-    d = Description("ENST00000375549.8:c.=")
-    _init_model(d)
+    d = SDHD_description
     indels = _cdot_to_internal_delins(d, cdot)
     assert variants_to_description(indels) == internal_delins
 

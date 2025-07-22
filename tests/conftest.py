@@ -44,7 +44,7 @@ def mock_env(monkeypatch: Any) -> None:
     monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", _get_cds_to_mrna)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def SDHD_description() -> Description:
     """SDHD, on the forward strand"""
     d = Description("ENST00000375549.8:c.=")
@@ -52,7 +52,7 @@ def SDHD_description() -> Description:
     return d
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def WT1_description() -> Description:
     """WT1, on the reverse strand"""
     d = Description("ENST00000452863.10:c.=")
