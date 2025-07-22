@@ -8,7 +8,8 @@ Changelog
 
 v0.2.3-dev
 ----------
-+ Add support for skipping two adjacent exons
++ Enable skipping two adjacent exons by default
++ Explicitly check that the variants are specified in ``c.`` format.
 
 v0.2.2
 ------
