@@ -18,11 +18,6 @@ def Exons() -> Bed:
 
 
 @pytest.fixture
-def cds() -> Bed:
-    return Bed("chr1", 23, 72, name="cds")
-
-
-@pytest.fixture
 def coding_exons() -> Bed:
     coding_exons = [(23, 40), (50, 60), (70, 72)]
     bed = Bed.from_blocks("chr1", *coding_exons)
