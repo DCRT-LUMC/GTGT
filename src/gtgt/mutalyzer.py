@@ -398,46 +398,6 @@ def _init_model(d: Description) -> None:
     d.construct_protein_description()
 
 
-def _get_genome_annotations(references: Mapping[str, Any]) -> Mapping[str, Any]:
-    """
-    The sequence is removed. It should work with conversions, as long as there
-    are no sequence slices involved, which will not be the case here.
-    """
-
-    def _apply_offset(location: Mapping[str, Any], offset: int) -> None:
-        if isinstance(location, dict) and location.get("type") == "range":
-            if "start" in location and "position" in location["start"]:
-                location["start"]["position"] += offset
-            if "end" in location and "position" in location["end"]:
-                location["end"]["position"] += offset
-
-    def _walk_features(features: Sequence[Mapping[str, Any]], offset: int) -> None:
-        for feature in features:
-            loc = feature.get("location")
-            if loc:
-                _apply_offset(loc, offset)
-            if "features" in feature:
-                _walk_features(feature["features"], offset)
-
-    output = {}
-
-    for key, entry in references.items():
-        annotations = deepcopy(entry.get("annotations"))
-        if not annotations:
-            continue
-
-        qualifiers = annotations.get("qualifiers", {})
-        offset = qualifiers.pop("location_offset", None)
-
-        if offset is not None:
-            _apply_offset(annotations.get("location", {}), offset)
-            _walk_features(annotations.get("features", []), offset)
-
-        output[key] = {"annotations": annotations}
-
-    return output
-
-
 def _description_model(
     ref_id: str, variants: Sequence[Variant_Dict]
 ) -> Mapping[str, Any]:
