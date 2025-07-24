@@ -27,7 +27,7 @@ from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
 from pydantic import BaseModel, model_validator
-from schema import And, Optional, Or, Schema, Use
+from schema import And, Optional, Or, Schema, SchemaError, Use
 from typing_extensions import NewType
 
 logger = logging.getLogger(__name__)
@@ -152,8 +152,36 @@ class Variant:
 
         schema.validate(model)
 
+    @staticmethod
+    def _model_is_repeat(model: Mapping[str, Any]) -> bool:
+        """Determine if model is a repeat"""
+        # Determine if the model is a repeat
+        repeat_schema = Schema(
+            And( # Inserted must be 0 or 1 items
+                lambda n: len(n) <= 1,
+                [
+                    {
+                        "sequence": str,
+                        "repeat_number": {
+                            "type": "point",
+                            "value": int
+                        },
+                        "source": "description"
+                    }
+                ]
+            )
+        )
+
+        inserted = model.get("inserted")
+        is_repeat: bool = repeat_schema.is_valid(inserted)
+
+        return is_repeat
+
     @classmethod
     def from_model(cls, model: Mapping[str, Any]) -> "Variant":
+        # Determine if the model is a repeat
+        if Variant._model_is_repeat(model):
+            raise SchemaError("Repeats are not supported")
         cls._validate_schema(model)
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
