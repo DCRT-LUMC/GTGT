@@ -499,6 +499,8 @@ COMPLEX_VARIANTS = [
     ("10C[3]", Variant(44, 45, inserted="CCC")),
     # Equivalent to 10_13delinsCTCTCTCT
     ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT")),
+    # Equivalent to 10_10delinsC
+    ("10dup", Variant(44, 45, inserted="CC")),
 ]
 
 
@@ -514,7 +516,10 @@ def test_delins_complex_Variant(
     delins_model = _cdot_to_internal_delins(
         SDHD_description, CdotVariant(variant_description)
     )[0]
-    assert Variant.from_model(delins_model) == expected
+    # First 50bp of the SDHD transcript, this is required to convert
+    # duplications and inversions to a pure delins
+    sequence = "GGGTTGGTGGATGACCTTGAGCCCTCAGGAACGAGATGGCGGTTCTCTGG"
+    assert Variant.from_model(delins_model, sequence=sequence) == expected
 
 
 TO_HGVS = [
@@ -537,8 +542,6 @@ def test_Variant_to_hgvs(
 
 
 NOT_SUPPORTED = [
-    # Duplication
-    "10dup",
     # Inversion
     "10_11inv",
     # Uncertain repeat size

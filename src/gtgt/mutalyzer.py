@@ -161,9 +161,9 @@ class Variant:
                 lambda n: len(n) == 1,
                 [
                     {
+                        "source": "description",
                         "sequence": str,
                         "repeat_number": {"type": "point", "value": int},
-                        "source": "description",
                     }
                 ],
             )
@@ -189,8 +189,73 @@ class Variant:
         new_model["inserted"] = [{"sequence": new_sequence, "source": "description"}]
         return new_model
 
+    @staticmethod
+    def _model_is_duplication(model: Mapping[str, Any]) -> bool:
+        """Determine if model is a duplication"""
+        # Determine if the model is a repeat
+        location_schema = Schema(
+            {
+                "type": "range",
+                "start": {
+                    "type": "point",
+                    "position": int,
+                },
+                "end": {
+                    "type": "point",
+                    "position": int,
+                },
+            }
+        )
+        duplication_schema = Schema(
+            And(  # An empty list would be a deletion, not a repeat
+                lambda n: len(n) == 1,
+                [
+                    {
+                        "source": "reference",
+                        "location": location_schema,
+                        "repeat_number": {"type": "point", "value": int},
+                    }
+                ],
+            )
+        )
+
+        inserted = model.get("inserted")
+        is_duplication: bool = duplication_schema.is_valid(inserted)
+
+        return is_duplication
+
+    @staticmethod
+    def _model_duplication_to_delins(
+        model: Mapping[str, Any], sequence: str
+    ) -> dict[str, Any]:
+        """Convert a duplication model to a delins model"""
+        if not sequence:
+            raise ValueError("Variant: specify sequence to handle duplications")
+        new_model = {k: v for k, v in model.items()}
+
+        # Determine the start and end on the sequence
+        inserted = model["inserted"][0]
+        start = inserted["location"]["start"]["position"]
+        end = inserted["location"]["end"]["position"]
+        repeats = inserted["repeat_number"].get("value", 1)
+
+        # Expand the new sequence
+        new_sequence = sequence[start:end]
+
+        new_model["inserted"] = [
+            {
+                "sequence": new_sequence,
+                "repeat_number": {"type": "point", "value": repeats},
+                "source": "description",
+            }
+        ]
+        return new_model
+
     @classmethod
-    def from_model(cls, model: Mapping[str, Any]) -> "Variant":
+    def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> "Variant":
+        # Determine if the model is a duplication
+        if Variant._model_is_duplication(model):
+            model = Variant._model_duplication_to_delins(model, sequence)
         # Determine if the model is a repeat
         if Variant._model_is_repeat(model):
             model = Variant._model_repeat_to_delins(model)
