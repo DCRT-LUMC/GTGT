@@ -2,7 +2,6 @@ import dataclasses
 import logging
 from copy import deepcopy
 from typing import Any, Mapping, Sequence, TypeVar, Union
-from schema import Schema, Use, And, Or, Optional
 
 import Levenshtein
 import mutalyzer_hgvs_parser
@@ -28,6 +27,7 @@ from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
 from pydantic import BaseModel, model_validator
+from schema import And, Optional, Or, Schema, Use
 from typing_extensions import NewType
 
 logger = logging.getLogger(__name__)
@@ -111,41 +111,41 @@ class Variant:
         This can be very complex, and we only support the most common cases.
         """
         # fmt: off
+        # Schema for the location specification of the indel model
+        location_schema = Schema(
+            {
+                "type": "range",
+                "start": {
+                    "type": "point",
+                    "position": int,
+                },
+                "end": {
+                    "type": "point",
+                    "position": int,
+                },
+            }
+        )
+        # Schema for the inserted/deleted entries of the indel model
+        inserted_deleted_schema = Schema(
+            And( # Inserted must be 0 or 1 items
+                lambda n: len(n) <= 1,
+                [
+                    {
+                        "sequence": Or(str, []),
+                        "source": "description"
+                    },
+                ],
+            ),
+        )
+
+        # Full schema for the indel model
         schema = Schema(
             {
                 "type": "deletion_insertion",
                 "source": "reference",
-                "location": {
-                    "type": "range",
-                    "start": {
-                        "type": "point",
-                        "position": int,
-                    },
-                    "end": {
-                        "type": "point",
-                        "position": int,
-                    },
-                },
-                Optional("inserted"): And(
-                    # Inserted must be 0 or 1 items
-                    lambda n: len(n) <= 1,
-                    [
-                        {
-                            "sequence": Or(str, []),
-                            "source": "description"
-                        },
-                    ],
-                ),
-                Optional("deleted"): And(
-                    # Deleted must be 0 or 1 items
-                    lambda n: len(n) <= 1,
-                    [
-                        {
-                            "sequence": Or(str, []),
-                            "source": "description"
-                        }
-                    ],
-                ),
+                "location": location_schema,
+                Optional("inserted"): inserted_deleted_schema,
+                Optional("deleted"): inserted_deleted_schema,
             }
         )
         # fmt: on
