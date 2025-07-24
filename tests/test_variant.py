@@ -547,13 +547,15 @@ NOT_SUPPORTED = [
     # Uncertain repeat size
     "8_9T[4_5]",
     # Uncertain repeat start
-    # "(6_8)_9T[4]",
+    "(6_8)_9T[4]",
     # Uncertain repeat end
-    # "8_(9_10)T[4]",
+    "8_(9_10)T[4]",
     # Uncertain start position
-    # "(9_15)insA",
+    "(9_15)insA",
     # Uncertain end position
-    # "8_(9_10)del"
+    "8_(9_10)del"
+    # Insertion of a range
+    "9_10ins14_20",
 ]
 
 
