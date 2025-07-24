@@ -113,7 +113,7 @@ class Variant:
             inserted = ""
         elif len(inserted) > 1:
             raise NotImplementedError("Complex Variant not supported")
-        elif "sequence" not in inserted[0]:
+        elif "sequence" not in inserted[0] or "repeat_number" in inserted[0]:
             raise NotImplementedError("Complex Variant not supported")
         else:
             inserted = inserted[0]["sequence"]

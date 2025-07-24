@@ -455,7 +455,8 @@ def test_mutation_to_cds_effect_reverse_new(
     assert mutation_to_cds_effect(d, variants) == [expected]
 
 
-RT_VARIANTS = [
+# Variants where the delins model can be used to initialise Variant.from_model
+SUPPORTED_VARIANTS = [
     "10C>T",
     "10del",
     "10_11insA",
@@ -463,7 +464,7 @@ RT_VARIANTS = [
 ]
 
 
-@pytest.mark.parametrize("variant", RT_VARIANTS)
+@pytest.mark.parametrize("variant", SUPPORTED_VARIANTS)
 def test_Variant_hgvs_round_trip_forward(
     SDHD_description: Description, variant: str
 ) -> None:
@@ -493,11 +494,27 @@ def test_Variant_to_hgvs(
 
 
 NOT_SUPPORTED = [
+    # Duplication
     "10dup",
-    "10_11inv"
+    # Inversion
+    "10_11inv",
+    # Repeat
+    "8_9T[4]",
+    # Uncertain repeat size
+    "8_9T[4_5]",
+    # Uncertain repeat start
+    # "(6_8)_9T[4]",
+    # Uncertain repeat end
+    # "8_(9_10)T[4]",
+    # Uncertain start position
+    # "(9_15)insA",
+    # Uncertain end position
+    # "8_(9_10)del"
 ]
+
+
 @pytest.mark.parametrize("variant", NOT_SUPPORTED)
-def test_variant_not_supported(SDHD_description: Description, variant:str) -> None:
+def test_variant_not_supported(SDHD_description: Description, variant: str) -> None:
     """Test that we throw a NotImplemented error for complex variants"""
     delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[0]
     with pytest.raises(NotImplementedError):
