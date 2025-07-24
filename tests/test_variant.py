@@ -474,6 +474,14 @@ def test_Variant_hgvs_round_trip_forward(
     assert v.to_model() == delins_model
 
 
+@pytest.mark.parametrize("variant", SUPPORTED_VARIANTS)
+def test_delins_schema_Variant(SDHD_description: Description, variant: str) -> None:
+    """Validate the delins model using the supported schema"""
+    delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[0]
+    Variant._validate_schema(delins_model)
+    assert True
+
+
 TO_HGVS = [
     # SNP
     (Variant(44, 45, "T", "C"), "10C>T"),

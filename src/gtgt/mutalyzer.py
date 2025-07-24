@@ -2,6 +2,7 @@ import dataclasses
 import logging
 from copy import deepcopy
 from typing import Any, Mapping, Sequence, TypeVar, Union
+from schema import Schema, Use, And, Or, Optional
 
 import Levenshtein
 import mutalyzer_hgvs_parser
@@ -102,6 +103,54 @@ class Variant:
             raise ValueError(msg)
 
         return self.start < other.start
+
+    @staticmethod
+    def _validate_schema(model: Mapping[str, Any]) -> None:
+        """Validate the structure of the mutalyzer delins model
+
+        This can be very complex, and we only support the most common cases.
+        """
+        # fmt: off
+        schema = Schema(
+            {
+                "type": "deletion_insertion",
+                "source": "reference",
+                "location": {
+                    "type": "range",
+                    "start": {
+                        "type": "point",
+                        "position": int,
+                    },
+                    "end": {
+                        "type": "point",
+                        "position": int,
+                    },
+                },
+                Optional("inserted"): And(
+                    # Inserted must be 0 or 1 items
+                    lambda n: len(n) <= 1,
+                    [
+                        {
+                            "sequence": str,
+                            "source": "description"
+                        },
+                    ],
+                ),
+                Optional("deleted"): And(
+                    # Deleted must be 0 or 1 items
+                    lambda n: len(n) <= 1,
+                    [
+                        {
+                            "sequence": str,
+                            "source": "description"
+                        }
+                    ],
+                ),
+            }
+        )
+        # fmt: on
+
+        schema.validate(model)
 
     @classmethod
     def from_model(cls, model: Mapping[str, Any]) -> "Variant":
