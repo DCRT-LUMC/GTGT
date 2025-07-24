@@ -251,9 +251,71 @@ class Variant:
         ]
         return new_model
 
+    @staticmethod
+    def _model_is_inversion(model: Mapping[str, Any]) -> bool:
+        """Determine if model is an inversion"""
+        # Determine if the model is a repeat
+        location_schema = Schema(
+            {
+                "type": "range",
+                "start": {
+                    "type": "point",
+                    "position": int,
+                },
+                "end": {
+                    "type": "point",
+                    "position": int,
+                },
+            }
+        )
+        duplication_schema = Schema(
+            And(  # An empty list would be a deletion, not a repeat
+                lambda n: len(n) == 1,
+                [
+                    {
+                        "source": "reference",
+                        "location": location_schema,
+                        "inverted": True,
+                    }
+                ],
+            )
+        )
+
+        inserted = model.get("inserted")
+        is_duplication: bool = duplication_schema.is_valid(inserted)
+
+        return is_duplication
+
+    @staticmethod
+    def _model_inversion_to_delins(
+        model: Mapping[str, Any], sequence: str
+    ) -> dict[str, Any]:
+        """Convert an inversion model to a delins model"""
+        if not sequence:
+            raise ValueError("Variant: specify sequence to handle inversions")
+        new_model = {k: v for k, v in model.items()}
+
+        # Determine the start and end on the sequence
+        inserted = model["inserted"][0]
+        start = inserted["location"]["start"]["position"]
+        end = inserted["location"]["end"]["position"]
+
+        # Expand the new sequence
+        complement = {"A": "T", "T": "A", "G": "C", "C": "G"}
+        new_sequence = "".join((complement[nt] for nt in reversed(sequence[start:end])))
+
+        new_model["inserted"] = [
+            {
+                "sequence": new_sequence,
+                "source": "description",
+            }
+        ]
+        return new_model
+
     @classmethod
     def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> "Variant":
-        # Determine if the model is a duplication
+        if Variant._model_is_inversion(model):
+            model = Variant._model_inversion_to_delins(model, sequence)
         if Variant._model_is_duplication(model):
             model = Variant._model_duplication_to_delins(model, sequence)
         # Determine if the model is a repeat

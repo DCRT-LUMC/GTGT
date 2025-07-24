@@ -501,6 +501,8 @@ COMPLEX_VARIANTS = [
     ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT")),
     # Equivalent to 10_10delinsC
     ("10dup", Variant(44, 45, inserted="CC")),
+    # Equivalent to 10_11delinsAG
+    ("10_11inv", Variant(44, 46, inserted="AG")),
 ]
 
 
@@ -542,8 +544,6 @@ def test_Variant_to_hgvs(
 
 
 NOT_SUPPORTED = [
-    # Inversion
-    "10_11inv",
     # Uncertain repeat size
     "8_9T[4_5]",
     # Uncertain repeat start
