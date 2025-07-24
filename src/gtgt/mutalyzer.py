@@ -157,18 +157,15 @@ class Variant:
         """Determine if model is a repeat"""
         # Determine if the model is a repeat
         repeat_schema = Schema(
-            And( # Inserted must be 0 or 1 items
-                lambda n: len(n) <= 1,
+            And(  # An empty list would be a deletion, not a repeat
+                lambda n: len(n) == 1,
                 [
                     {
                         "sequence": str,
-                        "repeat_number": {
-                            "type": "point",
-                            "value": int
-                        },
-                        "source": "description"
+                        "repeat_number": {"type": "point", "value": int},
+                        "source": "description",
                     }
-                ]
+                ],
             )
         )
 
@@ -177,12 +174,30 @@ class Variant:
 
         return is_repeat
 
+    @staticmethod
+    def _model_repeat_to_delins(model: Mapping[str, Any]) -> dict[str, Any]:
+        """Convert a repeat model to a delins model"""
+        new_model = {k: v for k, v in model.items()}
+
+        # Determine the sequence and repeats
+        old_sequence = model["inserted"][0]["sequence"]
+        repeats = model["inserted"][0]["repeat_number"].get("value", 1)
+
+        # Expand the new sequence
+        new_sequence = old_sequence * repeats
+
+        new_model["inserted"] = [{"sequence": new_sequence, "source": "description"}]
+        return new_model
+
     @classmethod
     def from_model(cls, model: Mapping[str, Any]) -> "Variant":
         # Determine if the model is a repeat
         if Variant._model_is_repeat(model):
-            raise SchemaError("Repeats are not supported")
+            model = Variant._model_repeat_to_delins(model)
+
+        # Validate the delins model
         cls._validate_schema(model)
+
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
 

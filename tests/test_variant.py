@@ -491,12 +491,30 @@ def test_Variant_hgvs_round_trip_forward(
     assert v.to_model() == delins_model
 
 
-@pytest.mark.parametrize("variant", SUPPORTED_VARIANTS)
-def test_delins_schema_Variant(SDHD_description: Description, variant: str) -> None:
-    """Validate the delins model using the supported schema"""
-    delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[0]
-    Variant._validate_schema(delins_model)
-    assert True
+# Variant that are not simple delins in mutalyzer
+COMPLEX_VARIANTS = [
+    # Equivalent to delins 8_9delinsTTTT
+    ("8_9T[4]", Variant(42, 44, inserted="TTTT")),
+    # Equivalent to 10_10delinsCCC
+    ("10C[3]", Variant(44, 45, inserted="CCC")),
+    # Equivalent to 10_13delinsCTCTCTCT
+    ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT")),
+]
+
+
+@pytest.mark.parametrize("variant_description, expected", COMPLEX_VARIANTS)
+def test_delins_complex_Variant(
+    SDHD_description: Description, variant_description: str, expected: Variant
+) -> None:
+    """Convert a complex variant into a Variant
+
+    Here, a complex variant is defined as a variant that is not represented as
+    a simple delins model in Mutalyzer
+    """
+    delins_model = _cdot_to_internal_delins(
+        SDHD_description, CdotVariant(variant_description)
+    )[0]
+    assert Variant.from_model(delins_model) == expected
 
 
 TO_HGVS = [
@@ -523,8 +541,6 @@ NOT_SUPPORTED = [
     "10dup",
     # Inversion
     "10_11inv",
-    # Repeat
-    "8_9T[4]",
     # Uncertain repeat size
     "8_9T[4_5]",
     # Uncertain repeat start
