@@ -109,14 +109,21 @@ class Variant:
         end = model["location"]["end"]["position"]
 
         inserted = model.get("inserted", [])
-        if inserted:
-            inserted = inserted[0]["sequence"]
-        else:
+        if not inserted:
             inserted = ""
+        elif len(inserted) > 1:
+            raise NotImplementedError("Complex Variant not supported")
+        elif "sequence" not in inserted[0]:
+            raise NotImplementedError("Complex Variant not supported")
+        else:
+            inserted = inserted[0]["sequence"]
 
         deleted = model.get("deleted")
         if deleted is not None:
-            deleted = deleted[0]["sequence"]
+            try:
+                deleted = deleted[0]["sequence"]
+            except KeyError:
+                raise NotImplementedError("Complex Variant not supported")
 
         if deleted:
             return Variant(start, end, inserted if inserted else "", deleted)
@@ -487,7 +494,7 @@ def _cdot_to_internal_delins(
 
     # Parse the c. string into mutalyzer variant dictionary
     parsed_variants = variant_to_model(variants)
-    # logger.debug(f"{parsed_variants=}")
+    print(f"_cdot_to_internal: {parsed_variants=}")
 
     # Convert the variant dicts into internal delins
     internal_delins = _c_variants_to_delins_variants(
@@ -496,6 +503,7 @@ def _cdot_to_internal_delins(
         d.references,
     )
 
+    print(f"_cdot_to_internal, internal delins: {parsed_variants=}")
     # logger.debug(f"{internal_delins=}")
     return internal_delins
 

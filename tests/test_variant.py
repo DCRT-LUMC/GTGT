@@ -490,3 +490,15 @@ def test_Variant_to_hgvs(
     SDHD_description: Description, variant: Variant, expected: str
 ) -> None:
     assert to_cdot_hgvs(SDHD_description, [variant]) == expected
+
+
+NOT_SUPPORTED = [
+    "10dup",
+    "10_11inv"
+]
+@pytest.mark.parametrize("variant", NOT_SUPPORTED)
+def test_variant_not_supported(SDHD_description: Description, variant:str) -> None:
+    """Test that we throw a NotImplemented error for complex variants"""
+    delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[0]
+    with pytest.raises(NotImplementedError):
+        Variant.from_model(delins_model)
