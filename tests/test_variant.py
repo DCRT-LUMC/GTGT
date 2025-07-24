@@ -2,6 +2,7 @@ from typing import List, Sequence, Tuple
 
 import pytest
 from mutalyzer.description import Description
+from schema import SchemaError
 
 from gtgt.mutalyzer import (
     CdotVariant,
@@ -191,16 +192,24 @@ def test_Variant_from_model() -> None:
     """Test creating a variant from a mutalyzer delins model"""
     # fmt: off
     delins_model = {
+        "type": "deletion_insertion",
+        "source": "reference",
         "location": {
+            "type": "range",
             "start": {
+                "type": "point",
                 "position": 0
             },
             "end": {
+                "type": "point",
                 "position": 2
             }
         },
         "inserted": [
-            {"sequence": "ATC"}
+            {
+                "sequence": "ATC",
+                "source": "description"
+            }
         ]
     }
     # fmt: on
@@ -218,16 +227,24 @@ def test_Variant_from_model_deletion() -> None:
     """
     # fmt: off
     delins_model = {
+        "type": "deletion_insertion",
+        "source": "reference",
         "location": {
+            "type": "range",
             "start": {
+                "type": "point",
                 "position": 0
             },
             "end": {
+                "type": "point",
                 "position": 2
             }
         },
         "inserted": [
-            {"sequence": []}
+            {
+                "sequence": [],
+                "source": "description"
+            }
         ]
     }
     # fmt: on
@@ -525,5 +542,5 @@ NOT_SUPPORTED = [
 def test_variant_not_supported(SDHD_description: Description, variant: str) -> None:
     """Test that we throw a NotImplemented error for complex variants"""
     delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[0]
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(SchemaError):
         Variant.from_model(delins_model)

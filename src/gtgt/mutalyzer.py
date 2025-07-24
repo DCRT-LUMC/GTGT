@@ -131,7 +131,7 @@ class Variant:
                     lambda n: len(n) <= 1,
                     [
                         {
-                            "sequence": str,
+                            "sequence": Or(str, []),
                             "source": "description"
                         },
                     ],
@@ -141,7 +141,7 @@ class Variant:
                     lambda n: len(n) <= 1,
                     [
                         {
-                            "sequence": str,
+                            "sequence": Or(str, []),
                             "source": "description"
                         }
                     ],
@@ -154,6 +154,7 @@ class Variant:
 
     @classmethod
     def from_model(cls, model: Mapping[str, Any]) -> "Variant":
+        cls._validate_schema(model)
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
 
