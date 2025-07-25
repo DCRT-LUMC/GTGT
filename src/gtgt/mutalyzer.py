@@ -1,7 +1,9 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Any, Mapping, Sequence, TypeVar, Union
+from typing import Any, Mapping
+from typing import Optional as OptionalType
+from typing import Sequence, TypeVar, Union
 
 import Levenshtein
 import mutalyzer_hgvs_parser
@@ -27,7 +29,7 @@ from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
 from pydantic import BaseModel, model_validator
-from schema import And, Optional, Or, Schema, SchemaError, Use
+from schema import And, Optional, Or, Schema
 from typing_extensions import NewType
 
 logger = logging.getLogger(__name__)
@@ -43,12 +45,20 @@ InternalVariant = NewType("InternalVariant", dict[str, Any])
 class Variant:
     """Class to store delins variants"""
 
-    def __init__(self, start: int, end: int, inserted: str = "", deleted: str = ""):
+    def __init__(
+        self,
+        start: int,
+        end: int,
+        inserted: str = "",
+        deleted: str = "",
+        inverted: bool = False,
+    ):
         if start > end:
             raise ValueError(f"End ({end}) must be after start ({start})")
         self.start = start  # zero based
         self.end = end  # exclusive
         self.inserted = inserted
+        self.inverted = inverted
 
         if len(deleted) > 1:
             raise ValueError("deleted sequence is only defined for SNPS, not indels")
@@ -62,7 +72,8 @@ class Variant:
         end = self.end
         inserted = self.inserted
         deleted = self.deleted
-        return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted})"
+        inverted = self.inverted
+        return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted}, inverted={inverted})"
 
     def before(self, other: "Variant") -> bool:
         return self.end <= other.start
@@ -132,7 +143,8 @@ class Variant:
                 [
                     {
                         "sequence": Or(str, []),
-                        "source": "description"
+                        "source": "description",
+                        Optional("inverted") : True
                     },
                 ],
             ),
@@ -328,6 +340,10 @@ class Variant:
         start = model["location"]["start"]["position"]
         end = model["location"]["end"]["position"]
 
+        # Store if the inserted and deleted sequences were inverted
+        ins_inverted: OptionalType[bool] = None
+        del_inverted: OptionalType[bool] = None
+
         inserted = model.get("inserted", [])
         if not inserted:
             inserted = ""
@@ -336,19 +352,32 @@ class Variant:
         elif "sequence" not in inserted[0] or "repeat_number" in inserted[0]:
             raise NotImplementedError("Complex Variant not supported")
         else:
+            print(f"{inserted=}")
+            ins_inverted = inserted[0].get("inverted", False)
             inserted = inserted[0]["sequence"]
 
         deleted = model.get("deleted")
         if deleted is not None:
             try:
+                del_inverted = deleted[0].get("inverted", False)
                 deleted = deleted[0]["sequence"]
             except KeyError:
                 raise NotImplementedError("Complex Variant not supported")
 
-        if deleted:
-            return Variant(start, end, inserted if inserted else "", deleted)
-        else:
-            return Variant(start, end, inserted if inserted else "")
+        if ins_inverted is not None and del_inverted is not None:
+            if ins_inverted != del_inverted:
+                msg = "strand difference between inserted and deleted sequences are not supported"
+                raise NotImplementedError(msg)
+
+        is_inverted = any((ins_inverted, del_inverted))
+
+        return Variant(
+            start=start,
+            end=end,
+            inserted=inserted if inserted else "",
+            deleted=deleted if deleted else "",
+            inverted=is_inverted,
+        )
 
     def to_model(self) -> Mapping[str, Any]:
         """Convert Variant to mutalyzer delins model"""
@@ -368,13 +397,15 @@ class Variant:
         }
 
         # Specification of the inserted sequence
+        inserted_obj: dict[str, Any] = {
+            "sequence": self.inserted,
+            "source": "description"
+        }
+        if self.inverted:
+            inserted_obj["inverted"] = True
+
         if self.inserted:
-            inserted = [
-                {
-                    "sequence": self.inserted,
-                    "source": "description"
-                }
-            ]
+            inserted = [inserted_obj]
         else:
             inserted = []
         # fmt: on
@@ -386,9 +417,14 @@ class Variant:
             "inserted": inserted,
         }
 
+        deletion_object: dict[str, Any] = {
+            "sequence": self.deleted,
+            "source": "description",
+        }
+        if self.inverted:
+            deletion_object["inverted"] = True
         if self.deleted:
-            deleted = [{"sequence": self.deleted, "source": "description"}]
-            model["deleted"] = deleted
+            model["deleted"] = [deletion_object]
 
         return model
 

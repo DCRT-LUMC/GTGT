@@ -18,14 +18,14 @@ from gtgt.mutalyzer import (
 def test_Variant_class_str() -> None:
     """Test converting a Variant to string"""
     v = Variant(10, 11, "ATG")
-    assert str(v) == "Variant(start=10, end=11, inserted=ATG, deleted=)"
+    assert str(v) == "Variant(start=10, end=11, inserted=ATG, deleted=, inverted=False)"
 
 
 def test_Variant_class_str_snp() -> None:
     """SNPS are special, since they contain the inserted sequence"""
     # 10A>T
     v = Variant(10, 11, "T", "A")
-    assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A)"
+    assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A, inverted=False)"
 
 
 def test_Variant_class_to_model_positions() -> None:
@@ -474,19 +474,33 @@ def test_mutation_to_cds_effect_reverse_new(
 
 # Variants where the delins model can be used to initialise Variant.from_model
 SUPPORTED_VARIANTS = [
-    "10C>T",
-    "10del",
-    "10_11insA",
-    "10_11delinsGG",
+    ("10C>T", "forward"),
+    ("10del", "forward"),
+    ("10_11insA", "forward"),
+    ("10_11delinsGG", "forward"),
+    ("10G>T", "reverse"),
+    ("10del", "reverse"),
+    ("10_11insA", "reverse"),
+    ("10_11delinsGG", "reverse"),
 ]
 
 
-@pytest.mark.parametrize("variant", SUPPORTED_VARIANTS)
+@pytest.mark.parametrize("variant, strand", SUPPORTED_VARIANTS)
 def test_Variant_hgvs_round_trip_forward(
-    SDHD_description: Description, variant: str
+    SDHD_description: Description,
+    WT1_description: Description,
+    variant: str,
+    strand: str,
 ) -> None:
     """Test converting between mutalyzer delins model and Variant"""
-    delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[0]
+    if strand == "forward":
+        delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[
+            0
+        ]
+    if strand == "reverse":
+        delins_model = _cdot_to_internal_delins(WT1_description, CdotVariant(variant))[
+            0
+        ]
     v = Variant.from_model(delins_model)
     assert v.to_model() == delins_model
 
