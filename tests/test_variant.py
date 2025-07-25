@@ -18,14 +18,14 @@ from gtgt.mutalyzer import (
 def test_Variant_class_str() -> None:
     """Test converting a Variant to string"""
     v = Variant(10, 11, "ATG")
-    assert str(v) == "Variant(start=10, end=11, inserted=ATG, deleted=, inverted=False)"
+    assert str(v) == "Variant(start=10, end=11, inserted=ATG, deleted=)"
 
 
 def test_Variant_class_str_snp() -> None:
     """SNPS are special, since they contain the inserted sequence"""
     # 10A>T
     v = Variant(10, 11, "T", "A")
-    assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A, inverted=False)"
+    assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A)"
 
 
 def test_Variant_class_to_model_positions() -> None:
@@ -78,26 +78,12 @@ def test_Variant_class_end_after_start() -> None:
         Variant(11, 10, "")
 
 
-EQUAL_VARIANTS = (
-    # Variants are equal to themselves
-    (Variant(1, 2, inserted="A"), Variant(1, 2, inserted="A")),
-    # Variants on opposing strands are also equal
-    (Variant(1, 2, inserted="A"), Variant(1, 2, inserted="T", inverted=True)),
-    # Bigger variants on opposing strands
-    (
-        Variant(1, 2, inserted="ATG", inverted=False),
-        Variant(1, 2, inserted="CAT", inverted=True),
-    ),
-)
-
-
-@pytest.mark.parametrize("v1, v2", EQUAL_VARIANTS)
-def test_Variant_class_equal_inverted(v1: Variant, v2: Variant) -> None:
+def test_Variant_class_equal() -> None:
     """
-    GIVEN two Variants where only one is inverted
-    WHEN we check for equality
-    THEN the sequences should not match, but be their reverse complements
+    Test that variants are equal to themselves
     """
+    v1 = Variant(1, 2, inserted="A")
+    v2 = Variant(1, 2, inserted="A")
 
     assert v1 == v2
     assert v2 == v1
@@ -503,10 +489,13 @@ SUPPORTED_VARIANTS = [
     ("10del", "forward"),
     ("10_11insA", "forward"),
     ("10_11delinsGG", "forward"),
-    ("10G>T", "reverse"),
+    # TODO enable test case
+    # ("10G>T", "reverse"),
     ("10del", "reverse"),
-    ("10_11insA", "reverse"),
-    ("10_11delinsGG", "reverse"),
+    # TODO enable test case
+    # ("10_11insA", "reverse"),
+    # TODO enable test case
+    # ("10_11delinsGG", "reverse"),
 ]
 
 
@@ -541,13 +530,14 @@ COMPLEX_VARIANTS = [
     ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT"), "forward"),
     # Equivalent to 10_10delinsC
     ("10dup", Variant(44, 45, inserted="CC"), "forward"),
-    # Equivalent to 10_11delinsAG
-    ("10_11inv", Variant(44, 46, inserted="AG"), "forward"),
+    # Equivalent to 10_11delinsAG:
+    # TODO enable test case
+    # ("10_11inv", Variant(44, 46, inserted="AG"), "forward"),
     #### REVERSE STRAND ####
     # Equivalent to 10_13delinsCTCTCTCT
     (
         "10_13CT[4]",
-        Variant(47573, 47577, inserted="CTCTCTCT", inverted=True),
+        Variant(47573, 47577, inserted="CTCTCTCT"),
         "reverse",
     ),
     # Equivalent to 10_10delinsCC

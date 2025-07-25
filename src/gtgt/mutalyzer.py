@@ -93,17 +93,12 @@ class Variant:
         end: int,
         inserted: str = "",
         deleted: str = "",
-        inverted: bool = False,
     ):
         if start > end:
             raise ValueError(f"End ({end}) must be after start ({start})")
         self.start = start  # zero based
         self.end = end  # exclusive
         self.inserted = inserted
-        # Inverted exclusively applies to the source of the inserted sequence,
-        # whether it has been reverse-complemented relative to the `sequence`
-        # of the mutalyzer Description object
-        self.inverted = inverted
 
         if len(deleted) > 1:
             raise ValueError("deleted sequence is only defined for SNPS, not indels")
@@ -117,8 +112,7 @@ class Variant:
         end = self.end
         inserted = self.inserted
         deleted = self.deleted
-        inverted = self.inverted
-        return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted}, inverted={inverted})"
+        return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted})"
 
     def before(self, other: "Variant") -> bool:
         return self.end <= other.start
@@ -146,24 +140,11 @@ class Variant:
         if not isinstance(other, Variant):
             raise NotImplementedError
 
-        # If only one of the variants is inverted, compare the reverse
-        # complement of the inserted sequence
-        if (self.inverted and not other.inverted) or (
-            not self.inverted and other.inverted
-        ):
-            return (
-                self.start == other.start
-                and self.end == other.end
-                and self.inserted == Variant._reverse_complement(other.inserted)
-                and self.deleted == other.deleted
-            )
-
         return (
             self.start == other.start
             and self.end == other.end
             and self.inserted == other.inserted
             and self.deleted == other.deleted
-            and self.inverted == other.inverted
         )
 
     def __lt__(self, other: "Variant") -> bool:
@@ -401,14 +382,11 @@ class Variant:
                 msg = "strand difference between inserted and deleted sequences are not supported"
                 raise NotImplementedError(msg)
 
-        is_inverted = any((ins_inverted, del_inverted))
-
         return Variant(
             start=start,
             end=end,
             inserted=inserted if inserted else "",
             deleted=deleted if deleted else "",
-            inverted=is_inverted,
         )
 
     def to_model(self) -> Mapping[str, Any]:
@@ -433,8 +411,6 @@ class Variant:
             "sequence": self.inserted,
             "source": "description"
         }
-        if self.inverted:
-            inserted_obj["inverted"] = True
 
         if self.inserted:
             inserted = [inserted_obj]
@@ -453,8 +429,6 @@ class Variant:
             "sequence": self.deleted,
             "source": "description",
         }
-        if self.inverted:
-            deletion_object["inverted"] = True
         if self.deleted:
             model["deleted"] = [deletion_object]
 

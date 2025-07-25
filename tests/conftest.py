@@ -18,11 +18,11 @@ def _retrieve_raw(
     timeout: int = 1,
 ) -> Tuple[str, str, str]:
     if reference_type == "fasta":
-        return _get_content("data/" + reference_id + ".fasta"), "fasta", "ncbi"
+        return _get_content("tests/data/" + reference_id + ".fasta"), "fasta", "ncbi"
     elif reference_id.startswith("LRG_"):
-        return _get_content("data/" + reference_id), "lrg", "lrg"
+        return _get_content("tests/data/" + reference_id), "lrg", "lrg"
     else:
-        return _get_content("data/" + reference_id + ".gff3"), "gff3", "ncbi"
+        return _get_content("tests/data/" + reference_id + ".gff3"), "gff3", "ncbi"
 
 
 def _get_cds_to_mrna(cds_id: Any, timeout: Any = 10) -> None:
