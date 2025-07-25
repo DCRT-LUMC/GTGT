@@ -45,6 +45,48 @@ InternalVariant = NewType("InternalVariant", dict[str, Any])
 class Variant:
     """Class to store delins variants"""
 
+    # fmt: off
+    # Schema for the location specification of the indel model
+    location_schema = Schema(
+        {
+            "type": "range",
+            "start": {
+                "type": "point",
+                "position": int,
+            },
+            "end": {
+                "type": "point",
+                "position": int,
+            },
+        }
+    )
+
+    # Schema for the inserted/deleted entries of the indel model
+    inserted_deleted_schema = Schema(
+        And( # Inserted must be 0 or 1 items
+            lambda n: len(n) <= 1,
+            [
+                {
+                    "sequence": Or(str, []),
+                    "source": "description",
+                    Optional("inverted") : True
+                },
+            ],
+        ),
+    )
+
+    # Full schema for the indel model
+    schema = Schema(
+        {
+            "type": "deletion_insertion",
+            "source": "reference",
+            "location": location_schema,
+            Optional("inserted"): inserted_deleted_schema,
+            Optional("deleted"): inserted_deleted_schema,
+        }
+    )
+    # fmt: on
+
     def __init__(
         self,
         start: int,
@@ -121,48 +163,8 @@ class Variant:
 
         This can be very complex, and we only support the most common cases.
         """
-        # fmt: off
-        # Schema for the location specification of the indel model
-        location_schema = Schema(
-            {
-                "type": "range",
-                "start": {
-                    "type": "point",
-                    "position": int,
-                },
-                "end": {
-                    "type": "point",
-                    "position": int,
-                },
-            }
-        )
-        # Schema for the inserted/deleted entries of the indel model
-        inserted_deleted_schema = Schema(
-            And( # Inserted must be 0 or 1 items
-                lambda n: len(n) <= 1,
-                [
-                    {
-                        "sequence": Or(str, []),
-                        "source": "description",
-                        Optional("inverted") : True
-                    },
-                ],
-            ),
-        )
 
-        # Full schema for the indel model
-        schema = Schema(
-            {
-                "type": "deletion_insertion",
-                "source": "reference",
-                "location": location_schema,
-                Optional("inserted"): inserted_deleted_schema,
-                Optional("deleted"): inserted_deleted_schema,
-            }
-        )
-        # fmt: on
-
-        schema.validate(model)
+        Variant.schema.validate(model)
 
     @staticmethod
     def _model_is_repeat(model: Mapping[str, Any]) -> bool:

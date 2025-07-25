@@ -507,6 +507,7 @@ def test_Variant_hgvs_round_trip_forward(
 
 # Variant that are not simple delins in mutalyzer
 COMPLEX_VARIANTS = [
+    #### FORWARD STRAND ####
     # Equivalent to delins 8_9delinsTTTT
     ("8_9T[4]", Variant(42, 44, inserted="TTTT")),
     # Equivalent to 10_10delinsCCC
@@ -517,21 +518,33 @@ COMPLEX_VARIANTS = [
     ("10dup", Variant(44, 45, inserted="CC")),
     # Equivalent to 10_11delinsAG
     ("10_11inv", Variant(44, 46, inserted="AG")),
+    #### REVERSE STRAND ####
+    # Equivalent to 9_10insCTCT
+    # ("10_13CT[4]", Variant(47577, 47577, inserted="CTCT", inverted=True))
 ]
 
 
 @pytest.mark.parametrize("variant_description, expected", COMPLEX_VARIANTS)
 def test_delins_complex_Variant(
-    SDHD_description: Description, variant_description: str, expected: Variant
+    SDHD_description: Description,
+    WT1_description: Description,
+    variant_description: str,
+    expected: Variant,
 ) -> None:
     """Convert a complex variant into a Variant
 
     Here, a complex variant is defined as a variant that is not represented as
     a simple delins model in Mutalyzer
     """
-    delins_model = _cdot_to_internal_delins(
-        SDHD_description, CdotVariant(variant_description)
-    )[0]
+    if expected.inverted:
+        delins_model = _cdot_to_internal_delins(
+            WT1_description, CdotVariant(variant_description)
+        )[0]
+    else:
+        # Variant is on the forward strand
+        delins_model = _cdot_to_internal_delins(
+            SDHD_description, CdotVariant(variant_description)
+        )[0]
     # First 50bp of the SDHD transcript, this is required to convert
     # duplications and inversions to a pure delins
     sequence = "GGGTTGGTGGATGACCTTGAGCCCTCAGGAACGAGATGGCGGTTCTCTGG"
