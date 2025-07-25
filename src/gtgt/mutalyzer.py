@@ -100,6 +100,9 @@ class Variant:
         self.start = start  # zero based
         self.end = end  # exclusive
         self.inserted = inserted
+        # Inverted exclusively applies to the source of the inserted sequence,
+        # whether it has been reverse-complemented relative to the `sequence`
+        # of the mutalyzer Description object
         self.inverted = inverted
 
         if len(deleted) > 1:
@@ -142,6 +145,19 @@ class Variant:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Variant):
             raise NotImplementedError
+
+        # If only one of the variants is inverted, compare the reverse
+        # complement of the inserted sequence
+        if (self.inverted and not other.inverted) or (
+            not self.inverted and other.inverted
+        ):
+            return (
+                self.start == other.start
+                and self.end == other.end
+                and self.inserted == Variant._reverse_complement(other.inserted)
+                and self.deleted == other.deleted
+            )
+
         return (
             self.start == other.start
             and self.end == other.end

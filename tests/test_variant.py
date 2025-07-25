@@ -78,6 +78,31 @@ def test_Variant_class_end_after_start() -> None:
         Variant(11, 10, "")
 
 
+EQUAL_VARIANTS = (
+    # Variants are equal to themselves
+    (Variant(1, 2, inserted="A"), Variant(1, 2, inserted="A")),
+    # Variants on opposing strands are also equal
+    (Variant(1, 2, inserted="A"), Variant(1, 2, inserted="T", inverted=True)),
+    # Bigger variants on opposing strands
+    (
+        Variant(1, 2, inserted="ATG", inverted=False),
+        Variant(1, 2, inserted="CAT", inverted=True),
+    ),
+)
+
+
+@pytest.mark.parametrize("v1, v2", EQUAL_VARIANTS)
+def test_Variant_class_equal_inverted(v1: Variant, v2: Variant) -> None:
+    """
+    GIVEN two Variants where only one is inverted
+    WHEN we check for equality
+    THEN the sequences should not match, but be their reverse complements
+    """
+
+    assert v1 == v2
+    assert v2 == v1
+
+
 ORDERING = [
     # Ends are touching
     (Variant(1, 3), Variant(3, 5)),
@@ -520,7 +545,11 @@ COMPLEX_VARIANTS = [
     ("10_11inv", Variant(44, 46, inserted="AG"), "forward"),
     #### REVERSE STRAND ####
     # Equivalent to 10_13delinsCTCTCTCT
-    ("10_13CT[4]", Variant(47573, 47577, inserted="CTCTCTCT", inverted=True), "reverse"),
+    (
+        "10_13CT[4]",
+        Variant(47573, 47577, inserted="CTCTCTCT", inverted=True),
+        "reverse",
+    ),
     # Equivalent to 10_10delinsCC
     # Note that for duplications, inverted is NOT set in the delins model
     # ("10dup", Variant(47576, 47577, inserted="CC", inverted=False), "reverse")
