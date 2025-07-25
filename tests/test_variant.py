@@ -519,8 +519,8 @@ COMPLEX_VARIANTS = [
     # Equivalent to 10_11delinsAG
     ("10_11inv", Variant(44, 46, inserted="AG")),
     #### REVERSE STRAND ####
-    # Equivalent to 9_10insCTCT
-    # ("10_13CT[4]", Variant(47577, 47577, inserted="CTCT", inverted=True))
+    # Equivalent to 10_13delinsCTCTCTCT
+    ("10_13CT[4]", Variant(47573, 47577, inserted="CTCTCTCT", inverted=True)),
 ]
 
 

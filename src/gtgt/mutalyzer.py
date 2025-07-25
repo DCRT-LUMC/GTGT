@@ -146,6 +146,8 @@ class Variant:
             self.start == other.start
             and self.end == other.end
             and self.inserted == other.inserted
+            and self.deleted == other.deleted
+            and self.inverted == other.inverted
         )
 
     def __lt__(self, other: "Variant") -> bool:
@@ -178,6 +180,7 @@ class Variant:
                         "source": "description",
                         "sequence": str,
                         "repeat_number": {"type": "point", "value": int},
+                        Optional("inverted"): True,
                     }
                 ],
             )
@@ -200,7 +203,14 @@ class Variant:
         # Expand the new sequence
         new_sequence = old_sequence * repeats
 
-        new_model["inserted"] = [{"sequence": new_sequence, "source": "description"}]
+        inserted = {"sequence": new_sequence, "source": "description"}
+
+        # If the model is defined on the reverse strand
+        inverted = model["inserted"][0].get("inverted", False)
+        if inverted:
+            inserted["inverted"] = True
+
+        new_model["inserted"] = [inserted]
         return new_model
 
     @staticmethod
