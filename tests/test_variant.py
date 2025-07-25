@@ -509,45 +509,53 @@ def test_Variant_hgvs_round_trip_forward(
 COMPLEX_VARIANTS = [
     #### FORWARD STRAND ####
     # Equivalent to delins 8_9delinsTTTT
-    ("8_9T[4]", Variant(42, 44, inserted="TTTT")),
+    ("8_9T[4]", Variant(42, 44, inserted="TTTT"), "forward"),
     # Equivalent to 10_10delinsCCC
-    ("10C[3]", Variant(44, 45, inserted="CCC")),
+    ("10C[3]", Variant(44, 45, inserted="CCC"), "forward"),
     # Equivalent to 10_13delinsCTCTCTCT
-    ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT")),
+    ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT"), "forward"),
     # Equivalent to 10_10delinsC
-    ("10dup", Variant(44, 45, inserted="CC")),
+    ("10dup", Variant(44, 45, inserted="CC"), "forward"),
     # Equivalent to 10_11delinsAG
-    ("10_11inv", Variant(44, 46, inserted="AG")),
+    ("10_11inv", Variant(44, 46, inserted="AG"), "forward"),
     #### REVERSE STRAND ####
     # Equivalent to 10_13delinsCTCTCTCT
-    ("10_13CT[4]", Variant(47573, 47577, inserted="CTCTCTCT", inverted=True)),
+    ("10_13CT[4]", Variant(47573, 47577, inserted="CTCTCTCT", inverted=True), "reverse"),
+    # Equivalent to 10_10delinsCC
+    # Note that for duplications, inverted is NOT set in the delins model
+    # ("10dup", Variant(47576, 47577, inserted="CC", inverted=False), "reverse")
 ]
 
 
-@pytest.mark.parametrize("variant_description, expected", COMPLEX_VARIANTS)
+@pytest.mark.parametrize("variant_description, expected, strand", COMPLEX_VARIANTS)
 def test_delins_complex_Variant(
     SDHD_description: Description,
     WT1_description: Description,
     variant_description: str,
     expected: Variant,
+    strand: str,
 ) -> None:
     """Convert a complex variant into a Variant
 
     Here, a complex variant is defined as a variant that is not represented as
     a simple delins model in Mutalyzer
     """
-    if expected.inverted:
+    if strand == "reverse":
         delins_model = _cdot_to_internal_delins(
             WT1_description, CdotVariant(variant_description)
         )[0]
+        # Extract the sequence from the Description object
+        _id = WT1_description.input_model["reference"]["id"]
+        sequence = WT1_description.references[_id]["sequence"]["seq"]
     else:
         # Variant is on the forward strand
         delins_model = _cdot_to_internal_delins(
             SDHD_description, CdotVariant(variant_description)
         )[0]
-    # First 50bp of the SDHD transcript, this is required to convert
-    # duplications and inversions to a pure delins
-    sequence = "GGGTTGGTGGATGACCTTGAGCCCTCAGGAACGAGATGGCGGTTCTCTGG"
+        # Extract the sequence from the Description object
+        _id = SDHD_description.input_model["reference"]["id"]
+        sequence = SDHD_description.references[_id]["sequence"]["seq"]
+
     assert Variant.from_model(delins_model, sequence=sequence) == expected
 
 

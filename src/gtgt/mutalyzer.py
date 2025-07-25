@@ -311,6 +311,11 @@ class Variant:
         return is_duplication
 
     @staticmethod
+    def _reverse_complement(seq: str) -> str:
+        complement = {"A": "T", "T": "A", "G": "C", "C": "G"}
+        return "".join((complement[nt] for nt in reversed(seq)))
+
+    @staticmethod
     def _model_inversion_to_delins(
         model: Mapping[str, Any], sequence: str
     ) -> dict[str, Any]:
@@ -325,8 +330,7 @@ class Variant:
         end = inserted["location"]["end"]["position"]
 
         # Expand the new sequence
-        complement = {"A": "T", "T": "A", "G": "C", "C": "G"}
-        new_sequence = "".join((complement[nt] for nt in reversed(sequence[start:end])))
+        new_sequence = Variant._reverse_complement(sequence[start:end])
 
         new_model["inserted"] = [
             {
