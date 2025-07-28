@@ -63,21 +63,30 @@ class TestForward():
     empty_transcript=_init_d(f"{transcript}:c.=")
 
     VARIANTS = [
+        # A SNP
         ("10C>T", Variant(44, 45, inserted="T", deleted="C")),
+        # A deletion
         ("10del", Variant(44, 45, inserted="")),
+        # An insertion
         ("10_11insA", Variant(45, 45, inserted="A")),
         # Delins version of 10C>T (Note that the deleted part is lost)
         ("10_10delinsT", Variant(44, 45, inserted="T")),
+        # A duplication
         ("10dup", Variant(45, 45, inserted="C")),
+        # The same duplication, with Variant as a delins (the deleted part is
+        # implicit)
         ("10dup", Variant(44, 45, inserted="CC")),
-        # Variant is an insertion
+        # A duplication
         ("10_11dup", Variant(44, 44, inserted="CT")),
-        # Variant deletes the first "CT", and then inserts it twice
+        # The same duplication, where Variant deletes the first "CT", and then
+        # inserts it twice
         ("10_11dup", Variant(44, 46, inserted="CTCT")),
-        # Inversion, 10C>G
+        # Inversion, equivalent to 10C>G
         ("10_10inv", Variant(44, 45, inserted="G")),
-        # Inversion, 10_11delinsAG
+        ("10C>G", Variant(44, 45, inserted="G")),
+        # Inversion, equivalent to 10_11delinsAG
         ("10_11inv", Variant(44, 46, inserted="AG")),
+        ("10_11delinsAG", Variant(44, 46, inserted="AG")),
         # Inversion, not symetrical
         ("18_20inv", Variant(52, 55, inserted="AGC")),
         ("18_20delinsAGC", Variant(52, 55, inserted="AGC")),
@@ -92,9 +101,8 @@ class TestForward():
 
         assert variant_protein == description_protein
 
-
 def manual(variant):
-    tf = TestForward()
+    tf = TestReverse()
     hgvs = f"{tf.transcript}:c.{variant}"
     d = _init_d(hgvs)
 
