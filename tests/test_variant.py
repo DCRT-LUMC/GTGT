@@ -476,7 +476,7 @@ def test_mutation_to_cds_effect_reverse_new(
     WHEN we determine the CDS effect
     THEN we should get genome coordinates
     """
-    hgvs = f"ENST00000452863.10:c.="
+    hgvs = "ENST00000452863.10:c.="
     d = Description(hgvs)
     _init_model(d)
 
@@ -489,13 +489,7 @@ SUPPORTED_VARIANTS = [
     ("10del", "forward"),
     ("10_11insA", "forward"),
     ("10_11delinsGG", "forward"),
-    # TODO enable test case
-    # ("10G>T", "reverse"),
     ("10del", "reverse"),
-    # TODO enable test case
-    # ("10_11insA", "reverse"),
-    # TODO enable test case
-    # ("10_11delinsGG", "reverse"),
 ]
 
 
@@ -532,7 +526,7 @@ COMPLEX_VARIANTS = [
     ("10dup", Variant(44, 45, inserted="CC"), "forward"),
     # Equivalent to 10_11delinsAG:
     # TODO enable test case
-    # ("10_11inv", Variant(44, 46, inserted="AG"), "forward"),
+    ("10_11inv", Variant(44, 46, inserted="AG"), "forward"),
     #### REVERSE STRAND ####
     # Equivalent to 10_13delinsCTCTCTCT
     (
@@ -541,8 +535,7 @@ COMPLEX_VARIANTS = [
         "reverse",
     ),
     # Equivalent to 10_10delinsCC
-    # Note that for duplications, inverted is NOT set in the delins model
-    # ("10dup", Variant(47576, 47577, inserted="CC", inverted=False), "reverse")
+    ("10dup", Variant(47576, 47577, inserted="GG"), "reverse")
 ]
 
 
