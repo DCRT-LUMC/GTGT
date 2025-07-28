@@ -101,6 +101,29 @@ class TestForward():
 
         assert variant_protein == description_protein
 
+    VARIANTS = [
+        ("10C>T", Variant(44, 45, inserted="T", deleted="C")),
+        ("10del", Variant(44, 45, inserted="")),
+        ("10_11insA", Variant(45, 45, inserted="A")),
+        ("10_10delinsT", Variant(44, 45, inserted="T")),
+        ("10dup", Variant(44, 45, inserted="CC")),
+        ("10_11dup", Variant(44, 46, inserted="CTCT")),
+        ("10_10inv", Variant(44, 45, inserted="G")),
+        ("10_11inv", Variant(44, 46, inserted="AG")),
+        ("18_20inv", Variant(52, 55, inserted="AGC")),
+    ]
+    @pytest.mark.parametrize("hgvs, variant", VARIANTS)
+    def test_hgvs_Variant_delins_model(self, hgvs: str, variant:Variant):
+        """Test hgvs and Variant delins model equivalence directly"""
+        d = _init_d(f"{self.transcript}:c.{hgvs}")
+        delins_model = delins_from_description(d)
+
+        seq = sequence_from_description(d)
+        variant_model = Variant.from_model(delins_model, sequence=seq)
+        assert variant_model == variant
+
+        # assert delins_model == variant_model
+
 class TestReverse():
     """Test equivalent models on the reverse strand"""
     # SDHD, forward strand
@@ -149,18 +172,26 @@ class TestReverse():
 
 
 def manual(variant):
-    tf = TestReverse()
+    tf = TestForward()
+    # tf = TestReverse()
     hgvs = f"{tf.transcript}:c.{variant}"
     d = _init_d(hgvs)
 
     delins_model = delins_from_description(d)
+    print("="*10, "DELINS MODEL", "="*10)
+    pprint(delins_model)
 
     seq = sequence_from_description(d)
     v = Variant.from_model(delins_model, sequence=seq)
 
+    print("="*10, "VARIANT MODEL", "="*10)
+    pprint(v.to_model())
+    exit()
+
     variant_protein = protein_from_variant(v, tf.empty_transcript)
     description_protein = protein_from_description(d)
 
+    print(f"{d.is_inverted()=}")
     print(variant_protein, v)
     print(description_protein, d)
     print(v)
