@@ -94,7 +94,11 @@ class TestForward():
 
     @pytest.mark.parametrize("hgvs,variant", VARIANTS)
     def test_hgvs_Variant_equivalence_via_protein(self, hgvs: str, variant: Variant):
-        """Test hgvs and Variant equivalence by comparing the protein prediction"""
+        """Test hgvs and Variant equivalence by comparing the protein prediction
+
+        The goal here is to verify that the model representation of the Variant
+        is usable by mutalyzer in the same way as the original HGVS description
+        """
         d = _init_d(f"{self.transcript}:c.{hgvs}")
         variant_protein = protein_from_variant(variant, self.empty_transcript)
         description_protein = protein_from_description(d)
@@ -114,7 +118,12 @@ class TestForward():
     ]
     @pytest.mark.parametrize("hgvs, variant", VARIANTS)
     def test_hgvs_Variant_delins_model(self, hgvs: str, variant:Variant):
-        """Test hgvs and Variant delins model equivalence directly"""
+        """Test hgvs and Variant delins model equivalence directly
+
+        The goal here is to verify that the Variant.from_model structure is
+        always a simple delins model, even for duplications, repeats and
+        inversions.
+        """
         d = _init_d(f"{self.transcript}:c.{hgvs}")
         delins_model = delins_from_description(d)
 
@@ -163,7 +172,11 @@ class TestReverse():
 
     @pytest.mark.parametrize("hgvs,variant", VARIANTS)
     def test_hgvs_Variant_equivalence_via_protein(self, hgvs: str, variant: Variant):
-        """Test hgvs and Variant equivalence by comparing the protein prediction"""
+        """Test hgvs and Variant equivalence by comparing the protein prediction
+
+        The goal here is to verify that the model representation of the Variant
+        is usable by mutalyzer in the same way as the original HGVS description
+        """
         d = _init_d(f"{self.transcript}:c.{hgvs}")
         variant_protein = protein_from_variant(variant, self.empty_transcript)
         description_protein = protein_from_description(d)
