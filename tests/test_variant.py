@@ -444,59 +444,39 @@ class TestVariantMutalyzerForward:
         assert v.to_model() == delins_model
 
     # Variant that are not simple delins in mutalyzer
-    COMPLEX_VARIANTS = [
-        #### FORWARD STRAND ####
+    REWRITE_VARIANTS = [
         # Equivalent to delins 8_9delinsTTTT
-        ("8_9T[4]", Variant(42, 44, inserted="TTTT"), "forward"),
+        ("8_9T[4]", Variant(42, 44, inserted="TTTT")),
         # Equivalent to 10_10delinsCCC
-        ("10C[3]", Variant(44, 45, inserted="CCC"), "forward"),
+        ("10C[3]", Variant(44, 45, inserted="CCC")),
         # Equivalent to 10_13delinsCTCTCTCT
-        ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT"), "forward"),
+        ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT")),
         # Equivalent to 10_10delinsC
-        ("10dup", Variant(44, 45, inserted="CC"), "forward"),
+        ("10dup", Variant(44, 45, inserted="CC")),
         # Equivalent to 10_11delinsAG:
-        # TODO enable test case
-        ("10_11inv", Variant(44, 46, inserted="AG"), "forward"),
-        #### REVERSE STRAND ####
-        # Equivalent to 10_13delinsCTCTCTCT
-        (
-            "10_13CT[4]",
-            Variant(47573, 47577, inserted="AGAGAGAG"),
-            "reverse",
-        ),
-        # Equivalent to 10_10delinsCC
-        ("10dup", Variant(47576, 47577, inserted="GG"), "reverse"),
+        ("10_11inv", Variant(44, 46, inserted="AG")),
     ]
 
-    @pytest.mark.parametrize("variant_description, expected, strand", COMPLEX_VARIANTS)
+    @pytest.mark.parametrize("variant_description, expected", REWRITE_VARIANTS)
     def test_delins_complex_Variant(
         self,
         SDHD_description: Description,
-        WT1_description: Description,
         variant_description: str,
         expected: Variant,
-        strand: str,
     ) -> None:
         """Convert a complex variant into a Variant
 
-        Here, a complex variant is defined as a variant that is not represented as
-        a simple delins model in Mutalyzer
+        Here, a complex variant is defined as a variant that is not represented
+        as a simple delins model in Mutalyzer. When creating a
+        Variant.from_model(), the variant representation from Mutalyzer is
+        converted to an equivalent (but not equal) delins representation
         """
-        if strand == "reverse":
-            delins_model = _cdot_to_internal_delins(
-                WT1_description, CdotVariant(variant_description)
-            )[0]
-            # Extract the sequence from the Description object
-            _id = WT1_description.input_model["reference"]["id"]
-            sequence = WT1_description.references[_id]["sequence"]["seq"]
-        else:
-            # Variant is on the forward strand
-            delins_model = _cdot_to_internal_delins(
-                SDHD_description, CdotVariant(variant_description)
-            )[0]
-            # Extract the sequence from the Description object
-            _id = SDHD_description.input_model["reference"]["id"]
-            sequence = SDHD_description.references[_id]["sequence"]["seq"]
+        delins_model = _cdot_to_internal_delins(
+            SDHD_description, CdotVariant(variant_description)
+        )[0]
+        # Extract the sequence from the Description object
+        _id = SDHD_description.input_model["reference"]["id"]
+        sequence = SDHD_description.references[_id]["sequence"]["seq"]
 
         assert Variant.from_model(delins_model, sequence=sequence) == expected
 
@@ -618,3 +598,66 @@ class TestVariantMutalyzerReverse:
         ]
         v = Variant.from_model(delins_model)
         assert v.to_model() == delins_model
+
+    # Variant that are not simple delins in mutalyzer
+    REWRITE_VARIANTS = [
+        # Equivalent to 10_13delinsCTCTCTCT
+        (
+            "10_13CT[4]",
+            Variant(47573, 47577, inserted="AGAGAGAG"),
+        ),
+        # Equivalent to 10_10delinsCC
+        ("10dup", Variant(47576, 47577, inserted="GG")),
+    ]
+
+    @pytest.mark.parametrize("variant_description, expected", REWRITE_VARIANTS)
+    def test_delins_complex_Variant(
+        self,
+        WT1_description: Description,
+        variant_description: str,
+        expected: Variant,
+    ) -> None:
+        """Convert a complex variant into a Variant
+
+        Here, a complex variant is defined as a variant that is not represented
+        as a simple delins model in Mutalyzer. When creating a
+        Variant.from_model(), the variant representation from Mutalyzer is
+        converted to an equivalent (but not equal) delins representation
+
+        Note that for transcripts on the reverse strand, only deletions are
+        represented by a pure delins in Mutalyzer
+        """
+        delins_model = _cdot_to_internal_delins(
+            WT1_description, CdotVariant(variant_description)
+        )[0]
+        # Extract the sequence from the Description object
+        _id = WT1_description.input_model["reference"]["id"]
+        sequence = WT1_description.references[_id]["sequence"]["seq"]
+
+        assert Variant.from_model(delins_model, sequence=sequence) == expected
+
+    NOT_SUPPORTED = [
+        # Uncertain repeat size
+        "8_9T[4_5]",
+        # Uncertain repeat start
+        "(6_8)_9T[4]",
+        # Uncertain repeat end
+        "8_(9_10)T[4]",
+        # Uncertain start position
+        "(9_15)insA",
+        # Uncertain end position
+        "8_(9_10)del"
+        # Insertion of a range
+        "9_10ins14_20",
+    ]
+
+    @pytest.mark.parametrize("variant", NOT_SUPPORTED)
+    def test_variant_not_supported(
+        self, WT1_description: Description, variant: str
+    ) -> None:
+        """Test that we throw a NotImplemented error for complex variants"""
+        delins_model = _cdot_to_internal_delins(WT1_description, CdotVariant(variant))[
+            0
+        ]
+        with pytest.raises(SchemaError):
+            Variant.from_model(delins_model)
