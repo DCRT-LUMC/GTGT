@@ -358,14 +358,19 @@ class Variant:
         del_inverted: OptionalType[bool] = None
 
         inserted = model.get("inserted", [])
-        if not inserted:
+
+        # Sanity check, complex variants should have been normalized into a
+        # delins representation
+        if len(inserted) == 0:
             inserted = ""
         elif len(inserted) > 1:
-            raise NotImplementedError("Complex Variant not supported")
-        elif "sequence" not in inserted[0] or "repeat_number" in inserted[0]:
-            raise NotImplementedError("Complex Variant not supported")
-        else:
-            print(f"{inserted=}")
+            raise NotImplementedError("Multiple records in 'inserted' are not supported")
+        else: # inserted contains 1 item, as is expected
+            if "sequence" not in inserted[0]:
+                raise NotImplementedError("Missing sequence in 'inserted' is not supported")
+            if "repeat_number" in inserted[0]:
+                raise NotImplementedError("Repeats in 'inserted' are not supported")
+
             ins_inverted = inserted[0].get("inverted", False)
             inserted = inserted[0]["sequence"]
 
@@ -377,10 +382,18 @@ class Variant:
             except KeyError:
                 raise NotImplementedError("Complex Variant not supported")
 
+        # Make sure inserted and deleted are both or neither inversed
         if ins_inverted is not None and del_inverted is not None:
             if ins_inverted != del_inverted:
                 msg = "strand difference between inserted and deleted sequences are not supported"
                 raise NotImplementedError(msg)
+
+        # If inserted or deleted are inverted, we need to reverse complement
+        # the inserted/deleted nucleotides
+        if inserted and ins_inverted:
+            inserted = cls._reverse_complement(inserted)
+        if deleted and del_inverted:
+            deleted = cls._reverse_complement(deleted)
 
         return Variant(
             start=start,

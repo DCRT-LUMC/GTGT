@@ -11,7 +11,7 @@ import json
 
 
 def pprint(thing):
-    print(json.dumps(thing, indent=True))
+    print(json.dumps(thing, indent=True, sort_keys=True))
 
 def _init_d(hgvs_description):
     """
@@ -125,6 +125,10 @@ class TestForward():
         ("10_10inv", Variant(44, 45, inserted="G")),
         ("10_11inv", Variant(44, 46, inserted="AG")),
         ("18_20inv", Variant(52, 55, inserted="AGC")),
+        # Repeat is a delins of the existing repeat units, and insertion of the
+        # new repeat
+        ("8_9T[4]", Variant(42, 44, inserted="TTTT")),
+        ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT")),
     ]
     @pytest.mark.parametrize("hgvs, variant", VARIANTS)
     def test_hgvs_Variant_delins_model(self, hgvs: str, variant:Variant):
@@ -164,11 +168,12 @@ class TestReverse():
         # The same duplication, with Variant as a delins (the deleted part is
         # implicit)
         ("10dup", Variant(47575, 47576, inserted="GG")),
-        ("10_10delinsCC", Variant(47575, 47576, inserted="GG")),
+        ("10_10delinsCC", Variant(47576, 47577, inserted="GG")),
         # A duplication, note that "AG" is the reverse complement of "CT"
         ("10_11dup", Variant(47575, 47575, inserted="AG")),
         ("11_12insCT", Variant(47575, 47575, inserted="AG")),
         ("12_13delinsCTCT", Variant(47575, 47577, inserted="AGAG")),
+        ("12_13delinsCTCT", Variant(47573, 47575, inserted="AGAG")),
         # Inversion, equivalent to 10C>G
         ("10_10inv", Variant(47576, 47577, inserted="C")),
         ("10C>G", Variant(47576, 47577, inserted="C")),
@@ -199,9 +204,48 @@ class TestReverse():
 
         assert variant_protein == description_protein
 
+    VARIANTS = [
+        ("10C>T", Variant(47576, 47577, inserted="A", deleted="G")),
+        ("10del", Variant(47576, 47577, inserted="")),
+        ("10_11insA", Variant(47576, 47576, inserted="T")),
+        ("10_10delinsT", Variant(47576, 47577, inserted="A")),
+        # Delete the original 'C', and insert CC (reverse complement)
+        ("10dup", Variant(47576, 47577, inserted="GG")),
+        ("10_10delinsCC", Variant(47576, 47577, inserted="GG")),
+        # Delete the original "TC", and insert CTCT (reverse complement)
+        ("10_11dup", Variant(47575, 47577, inserted="AGAG")),
+        ("12_13delinsCTCT", Variant(47573, 47575, inserted="AGAG")),
+        # Inversion, equivalent to 10C>G
+        ("10_10inv", Variant(47576, 47577, inserted="C")),
+        # Inversion, equivalent to 10_11delinsAG
+        ("10_11inv", Variant(47575, 47577, inserted="CT")),
+        # Inversion, not symetrical
+        ("18_20inv", Variant(47566, 47569, inserted="GCA")),
+        ("18_20delinsTGC", Variant(47566, 47569, inserted="GCA")),
+        # Small mononucleotide repeat
+        # 7_8T[4],  Variant representation = 7_8delinsTTTT
+        ("7_8T[4]", Variant(47578, 47580, inserted="AAAA")),
+        # Repeat of multiple distinct nucleotides
+        # 10_13CT[4], Variant representation = 10_13delinsCTCTCTCT
+        ("10_13CT[4]", Variant(47573, 47577, inserted="AGAGAGAG")),
+    ]
+    @pytest.mark.parametrize("hgvs, variant", VARIANTS)
+    def test_hgvs_Variant_delins_model(self, hgvs: str, variant:Variant):
+        """Test hgvs and Variant delins model equivalence directly
+
+        The goal here is to verify that the Variant.from_model structure is
+        always a simple delins model, even for duplications, repeats and
+        inversions.
+        """
+        d = _init_d(f"{self.transcript}:c.{hgvs}")
+        delins_model = delins_from_description(d)
+
+        seq = sequence_from_description(d)
+        variant_model = Variant.from_model(delins_model, sequence=seq)
+        assert variant_model == variant
 
 def manual(variant):
-    # tf = TestForward()
+    tf = TestForward()
     tf = TestReverse()
     hgvs = f"{tf.transcript}:c.{variant}"
     d = _init_d(hgvs)

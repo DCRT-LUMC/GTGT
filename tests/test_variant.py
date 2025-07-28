@@ -537,7 +537,7 @@ COMPLEX_VARIANTS = [
     # Equivalent to 10_13delinsCTCTCTCT
     (
         "10_13CT[4]",
-        Variant(47573, 47577, inserted="CTCTCTCT"),
+        Variant(47573, 47577, inserted="AGAGAGAG"),
         "reverse",
     ),
     # Equivalent to 10_10delinsCC
