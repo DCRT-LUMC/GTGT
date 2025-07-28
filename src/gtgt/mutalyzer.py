@@ -364,10 +364,14 @@ class Variant:
         if len(inserted) == 0:
             inserted = ""
         elif len(inserted) > 1:
-            raise NotImplementedError("Multiple records in 'inserted' are not supported")
-        else: # inserted contains 1 item, as is expected
+            raise NotImplementedError(
+                "Multiple records in 'inserted' are not supported"
+            )
+        else:  # inserted contains 1 item, as is expected
             if "sequence" not in inserted[0]:
-                raise NotImplementedError("Missing sequence in 'inserted' is not supported")
+                raise NotImplementedError(
+                    "Missing sequence in 'inserted' is not supported"
+                )
             if "repeat_number" in inserted[0]:
                 raise NotImplementedError("Repeats in 'inserted' are not supported")
 

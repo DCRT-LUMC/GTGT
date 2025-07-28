@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 
-import pytest
+import json
 import sys
-from gtgt.mutalyzer import Variant
+
+import pytest
 from mutalyzer.description import Description
+from mutalyzer.description_model import get_reference_id, variants_to_description
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
-from mutalyzer.description_model import get_reference_id, variants_to_description
-import json
+
+from gtgt.mutalyzer import Variant
 
 
 def pprint(thing):
     print(json.dumps(thing, indent=True, sort_keys=True))
+
 
 def _init_d(hgvs_description):
     """
@@ -26,20 +29,24 @@ def _init_d(hgvs_description):
     d.construct_protein_description()
     return d
 
+
 def delins_from_description(d):
-    """ Return the internal delins model from a Description object """
+    """Return the internal delins model from a Description object"""
     delins_models = d.de_hgvs_internal_indexing_model["variants"]
     assert len(delins_models) == 1
     return d.de_hgvs_internal_indexing_model["variants"][0]
+
 
 def protein_from_description(d):
     """Return the predicted protein sequence form a description"""
     return d.protein["predicted"]
 
+
 def sequence_from_description(d):
     """Return the sequence form a description"""
     _id = d.input_model["reference"]["id"]
     return d.references[_id]["sequence"]["seq"]
+
 
 def protein_from_variant(v, d):
     """Return the predicted protein sequence from a Variant"""
@@ -53,14 +60,18 @@ def protein_from_variant(v, d):
     # Get the sequence (needed for complex variants)
     delins_models = [v.to_model()]
 
-    desc, ref, predicted, *rest = get_protein_description(delins_models, d.references, selector_model)
+    desc, ref, predicted, *rest = get_protein_description(
+        delins_models, d.references, selector_model
+    )
     return predicted
 
-class TestForward():
+
+class TestForward:
     """Test equivalent models on the forward strand"""
+
     # SDHD, forward strand
-    transcript="ENST00000375549.8"
-    empty_transcript=_init_d(f"{transcript}:c.=")
+    transcript = "ENST00000375549.8"
+    empty_transcript = _init_d(f"{transcript}:c.=")
 
     VARIANTS = [
         # A SNP
@@ -130,8 +141,9 @@ class TestForward():
         ("8_9T[4]", Variant(42, 44, inserted="TTTT")),
         ("10_13CT[4]", Variant(44, 48, inserted="CTCTCTCT")),
     ]
+
     @pytest.mark.parametrize("hgvs, variant", VARIANTS)
-    def test_hgvs_Variant_delins_model(self, hgvs: str, variant:Variant):
+    def test_hgvs_Variant_delins_model(self, hgvs: str, variant: Variant):
         """Test hgvs and Variant delins model equivalence directly
 
         The goal here is to verify that the Variant.from_model structure is
@@ -147,11 +159,13 @@ class TestForward():
 
         # assert delins_model == variant_model
 
-class TestReverse():
+
+class TestReverse:
     """Test equivalent models on the reverse strand"""
+
     # SDHD, forward strand
-    transcript="ENST00000452863.10"
-    empty_transcript=_init_d(f"{transcript}:c.=")
+    transcript = "ENST00000452863.10"
+    empty_transcript = _init_d(f"{transcript}:c.=")
 
     # Note that on the Variant the nucleotides are (reverse?) complemented
     VARIANTS = [
@@ -229,8 +243,9 @@ class TestReverse():
         # 10_13CT[4], Variant representation = 10_13delinsCTCTCTCT
         ("10_13CT[4]", Variant(47573, 47577, inserted="AGAGAGAG")),
     ]
+
     @pytest.mark.parametrize("hgvs, variant", VARIANTS)
-    def test_hgvs_Variant_delins_model(self, hgvs: str, variant:Variant):
+    def test_hgvs_Variant_delins_model(self, hgvs: str, variant: Variant):
         """Test hgvs and Variant delins model equivalence directly
 
         The goal here is to verify that the Variant.from_model structure is
@@ -244,6 +259,7 @@ class TestReverse():
         variant_model = Variant.from_model(delins_model, sequence=seq)
         assert variant_model == variant
 
+
 def manual(variant):
     tf = TestForward()
     tf = TestReverse()
@@ -251,13 +267,13 @@ def manual(variant):
     d = _init_d(hgvs)
 
     delins_model = delins_from_description(d)
-    print("="*10, "DELINS MODEL", "="*10)
+    print("=" * 10, "DELINS MODEL", "=" * 10)
     pprint(delins_model)
 
     seq = sequence_from_description(d)
     v = Variant.from_model(delins_model, sequence=seq)
 
-    print("="*10, "VARIANT MODEL", "="*10)
+    print("=" * 10, "VARIANT MODEL", "=" * 10)
     pprint(v.to_model())
 
     variant_protein = protein_from_variant(v, tf.empty_transcript)
@@ -272,7 +288,6 @@ def manual(variant):
     print(protein_from_variant(v, self.empty_transcript))
     exit()
     pprint(v.to_model())
-
 
 
 if __name__ == "__main__":
