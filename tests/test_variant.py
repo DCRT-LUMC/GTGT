@@ -21,18 +21,18 @@ class TestVariant:
     Tests concerning the integration with mutalyzer are excluded
     """
 
-    def test_Variant_class_str(self) -> None:
+    def test_Variant_to_str(self) -> None:
         """Test converting a Variant to string"""
         v = Variant(10, 11, "ATG")
         assert str(v) == "Variant(start=10, end=11, inserted=ATG, deleted=)"
 
-    def test_Variant_class_str_snp(self) -> None:
+    def test_Variant_snp_to_str(self) -> None:
         """SNPS are special, since they contain the inserted sequence"""
         # 10A>T
         v = Variant(10, 11, "T", "A")
         assert str(v) == "Variant(start=10, end=11, inserted=T, deleted=A)"
 
-    def test_Variant_class_to_model_positions(self) -> None:
+    def test_Variant_to_model_positions(self) -> None:
         """Test converting a variant to model"""
         v = Variant(10, 11, "ATG")
         model = v.to_model()
@@ -44,7 +44,8 @@ class TestVariant:
         # Deleted entry is missing for deletions
         assert "deleted" not in model
 
-    def test_Variant_class_to_model_snp(self) -> None:
+    def test_Variant_to_model_snp(self) -> None:
+        """Test converting a snp Variant to model"""
         # 10 A>T
         v = Variant(10, 11, "T", "A")
         model = v.to_model()
@@ -61,26 +62,24 @@ class TestVariant:
             # 10_12delinsGG
             Variant(10, 12, "GG", "AT")
 
-    def test_Variant_class_no_inserted_sequence(self) -> None:
+    def test_Variant_no_inserted_sequence(self) -> None:
         """
         GIVEN a Variant with an empty inserted sequence
         WHEN we convert to a model
         THEN inserted should be an empty list
         """
-        v = Variant(10, 11, "")
+        v = Variant(10, 11)
         model = v.to_model()
 
         assert model["inserted"] == []
 
-    def test_Variant_class_end_after_start(self) -> None:
-        """Ensure that end is after start"""
+    def test_Variant_end_after_start(self) -> None:
+        """Raise an error when the end is after the start"""
         with pytest.raises(ValueError):
-            Variant(11, 10, "")
+            Variant(11, 10)
 
-    def test_Variant_class_equal(self) -> None:
-        """
-        Test that variants are equal to themselves
-        """
+    def test_Variant_equal(self) -> None:
+        """ Test that variants are equal to themselves """
         v1 = Variant(1, 2, inserted="A")
         v2 = Variant(1, 2, inserted="A")
 
@@ -95,7 +94,7 @@ class TestVariant:
     ]
 
     @pytest.mark.parametrize("a, b", ORDERING)
-    def test_Variant_class_relative_positions(self, a: Variant, b: Variant) -> None:
+    def test_Variant_relative_positions(self, a: Variant, b: Variant) -> None:
         """Variant a is before variant b"""
         assert a.before(b)
         assert b.after(a)
@@ -110,7 +109,7 @@ class TestVariant:
     ]
 
     @pytest.mark.parametrize("a, b", INSIDE)
-    def test_Variant_class_inside(self, a: Variant, b: Variant) -> None:
+    def test_Variant_a_inside_b(self, a: Variant, b: Variant) -> None:
         """Variant a is inside variant b"""
         assert a.inside(b)
 
@@ -128,7 +127,7 @@ class TestVariant:
     ]
 
     @pytest.mark.parametrize("a, b", NOT_INSIDE)
-    def test_Variant_class_not_inside(self, a: Variant, b: Variant) -> None:
+    def test_Variant_a_not_inside_b(self, a: Variant, b: Variant) -> None:
         """Variant a is not inside variant b"""
         assert not a.inside(b)
 
@@ -154,7 +153,7 @@ class TestVariant:
     ]
 
     @pytest.mark.parametrize("a, b", OVERLAP)
-    def test_Variant_class_overlap(self, a: Variant, b: Variant) -> None:
+    def test_Variant_a_overlaps_b(self, a: Variant, b: Variant) -> None:
         """Variant a and b overlap"""
         assert a.overlap(b)
         assert b.overlap(a)
@@ -167,25 +166,32 @@ class TestVariant:
     ]
 
     @pytest.mark.parametrize("a, b", NO_OVERLAP)
-    def test_Variant_class_no_overlap(self, a: Variant, b: Variant) -> None:
+    def test_Variant_a_does_not_overlap_b(self, a: Variant, b: Variant) -> None:
         """Variant a and b do not overlap"""
         assert not a.overlap(b)
         assert not b.overlap(a)
 
-    def test_Variant_class_order(self) -> None:
+    def test_Variant_ordering(self) -> None:
         """Test sorting variants by start position"""
         v1 = Variant(10, 11)
         v2 = Variant(0, 1)
         assert sorted([v1, v2]) == [v2, v1]
 
-    def test_Variant_class_order_error(self) -> None:
-        """Test error when sorting overlapping variants"""
+    def test_Variant_ordering_error(self) -> None:
+        """Overlapping variants cannot be sorted, and raise an error"""
         v1 = Variant(10, 11)
         v2 = Variant(10, 11)
         with pytest.raises(ValueError):
             sorted([v1, v2])
 
+class TestCombineVariantsDeletion():
+    """Test combining multiple variants with a deletion
+
+    This is used in the context of exon skipping, where variants that are fully
+    inside the deletion (exon skip) are removed
+    """
     def test_combine_variants_deletion_empty(self) -> None:
+        """If ther are no other variants, the results only contain the deletion"""
         variants: List[Variant] = list()
         deletion = Variant(0, 10)
         assert combine_variants_deletion(variants, deletion) == [deletion]
@@ -271,7 +277,10 @@ class TestVariant:
     def test_combine_variants_deletion_variants_partially_overlap_deletion(
         self,
     ) -> None:
-        """Test that we get a value error if one the variants partially overlaps the deletion"""
+        """
+        Test that we get a value error if one the variants partially overlaps
+        the deletion
+        """
         variants = [Variant(2, 4)]
         deletion = Variant(3, 11)
         with pytest.raises(ValueError):
