@@ -74,7 +74,13 @@ class TestForward():
         ("10_11dup", Variant(44, 44, inserted="CT")),
         # Variant deletes the first "CT", and then inserts it twice
         ("10_11dup", Variant(44, 46, inserted="CTCT")),
-        # ("10_11dup", Variant(44, 44, inserted="CT")),
+        # Inversion, 10C>G
+        ("10_10inv", Variant(44, 45, inserted="G")),
+        # Inversion, 10_11delinsAG
+        ("10_11inv", Variant(44, 46, inserted="AG")),
+        # Inversion, not symetrical
+        ("18_20inv", Variant(52, 55, inserted="AGC")),
+        ("18_20delinsAGC", Variant(52, 55, inserted="AGC")),
     ]
 
     @pytest.mark.parametrize("hgvs,variant", VARIANTS)
