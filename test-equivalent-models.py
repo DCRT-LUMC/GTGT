@@ -101,6 +101,53 @@ class TestForward():
 
         assert variant_protein == description_protein
 
+class TestReverse():
+    """Test equivalent models on the reverse strand"""
+    # SDHD, forward strand
+    transcript="ENST00000452863.10"
+    empty_transcript=_init_d(f"{transcript}:c.=")
+
+    # Note that on the Variant the nucleotides are (reverse?) complemented
+    VARIANTS = [
+        # A SNP,
+        ("10C>T", Variant(47576, 47577, inserted="A", deleted="G")),
+        # A deletion
+        ("10del", Variant(47576, 47577, inserted="")),
+        # An insertion
+        ("10_11insA", Variant(47576, 47576, inserted="T")),
+        # Delins version of 10C>T (Note that the deleted part is lost)
+        ("10_10delinsT", Variant(47576, 47577, inserted="A")),
+        # A duplication
+        ("10dup", Variant(47576, 47576, inserted="G")),
+        # The same duplication, with Variant as a delins (the deleted part is
+        # implicit)
+        ("10dup", Variant(47575, 47576, inserted="GG")),
+        ("10_10delinsCC", Variant(47575, 47576, inserted="GG")),
+        # A duplication, note that "AG" is the reverse complement of "CT"
+        ("10_11dup", Variant(47575, 47575, inserted="AG")),
+        ("11_12insCT", Variant(47575, 47575, inserted="AG")),
+        ("12_13delinsCTCT", Variant(47575, 47577, inserted="AGAG")),
+        # Inversion, equivalent to 10C>G
+        ("10_10inv", Variant(47576, 47577, inserted="C")),
+        ("10C>G", Variant(47576, 47577, inserted="C")),
+        # Inversion, equivalent to 10_11delinsAG
+        ("10_11inv", Variant(47575, 47577, inserted="CT")),
+        ("10_11delinsAG", Variant(47575, 47577, inserted="CT")),
+        # Inversion, not symetrical
+        ("18_20inv", Variant(47566, 47569, inserted="GCA")),
+        ("18_20delinsTGC", Variant(47566, 47569, inserted="GCA")),
+    ]
+
+    @pytest.mark.parametrize("hgvs,variant", VARIANTS)
+    def test_hgvs_Variant_equivalence_via_protein(self, hgvs: str, variant: Variant):
+        """Test hgvs and Variant equivalence by comparing the protein prediction"""
+        d = _init_d(f"{self.transcript}:c.{hgvs}")
+        variant_protein = protein_from_variant(variant, self.empty_transcript)
+        description_protein = protein_from_description(d)
+
+        assert variant_protein == description_protein
+
+
 def manual(variant):
     tf = TestReverse()
     hgvs = f"{tf.transcript}:c.{variant}"
