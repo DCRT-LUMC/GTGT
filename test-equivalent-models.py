@@ -5,7 +5,7 @@ import sys
 
 import pytest
 from mutalyzer.description import Description
-from mutalyzer.description_model import get_reference_id, variants_to_description
+from mutalyzer.description_model import get_reference_id
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 
@@ -157,8 +157,6 @@ class TestForward:
         variant_model = Variant.from_model(delins_model, sequence=seq)
         assert variant_model == variant
 
-        # assert delins_model == variant_model
-
 
 class TestReverse:
     """Test equivalent models on the reverse strand"""
@@ -283,11 +281,6 @@ def manual(variant):
     print(description_protein, d)
     print(v)
     print(variant_protein == description_protein)
-    exit()
-    print(protein_from_description(d))
-    print(protein_from_variant(v, self.empty_transcript))
-    exit()
-    pprint(v.to_model())
 
 
 if __name__ == "__main__":
