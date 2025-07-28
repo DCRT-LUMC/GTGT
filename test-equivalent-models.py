@@ -70,6 +70,11 @@ class TestForward():
         ("10_10delinsT", Variant(44, 45, inserted="T")),
         ("10dup", Variant(45, 45, inserted="C")),
         ("10dup", Variant(44, 45, inserted="CC")),
+        # Variant is an insertion
+        ("10_11dup", Variant(44, 44, inserted="CT")),
+        # Variant deletes the first "CT", and then inserts it twice
+        ("10_11dup", Variant(44, 46, inserted="CTCT")),
+        # ("10_11dup", Variant(44, 44, inserted="CT")),
     ]
 
     @pytest.mark.parametrize("hgvs,variant", VARIANTS)
