@@ -90,6 +90,16 @@ class TestForward():
         # Inversion, not symetrical
         ("18_20inv", Variant(52, 55, inserted="AGC")),
         ("18_20delinsAGC", Variant(52, 55, inserted="AGC")),
+        # Small mononucleotide repeat:
+        # ref: GGTT  CTCT
+        # obs: GGTTTTCTCT
+        # hgvs notation: 9_10insTT, 8_9T[4]
+        ("8_9T[4]", Variant(44, 44, inserted="TT")),
+        # Repeat of multiple distinct nucleotides
+        # ref: GGTTCTCT    GGA
+        # obs: GGTTCTCTCTCTGGA
+        # hgvs notation: 9_10insCTCT, 10_13CT[4]
+        ("10_13CT[4]", Variant(44, 44, inserted="CTCT")),
     ]
 
     @pytest.mark.parametrize("hgvs,variant", VARIANTS)
@@ -168,6 +178,12 @@ class TestReverse():
         # Inversion, not symetrical
         ("18_20inv", Variant(47566, 47569, inserted="GCA")),
         ("18_20delinsTGC", Variant(47566, 47569, inserted="GCA")),
+        # Small mononucleotide repeat
+        # 7_8T[4],  Variant representation = 7_8delinsTTTT
+        ("7_8T[4]", Variant(47578, 47580, inserted="AAAA")),
+        # Repeat of multiple distinct nucleotides
+        # 10_13CT[4], Variant representation = 10_13delinsCTCTCTCT
+        ("10_13CT[4]", Variant(47573, 47577, inserted="AGAGAGAG")),
     ]
 
     @pytest.mark.parametrize("hgvs,variant", VARIANTS)
@@ -185,8 +201,8 @@ class TestReverse():
 
 
 def manual(variant):
-    tf = TestForward()
-    # tf = TestReverse()
+    # tf = TestForward()
+    tf = TestReverse()
     hgvs = f"{tf.transcript}:c.{variant}"
     d = _init_d(hgvs)
 
@@ -199,12 +215,10 @@ def manual(variant):
 
     print("="*10, "VARIANT MODEL", "="*10)
     pprint(v.to_model())
-    exit()
 
     variant_protein = protein_from_variant(v, tf.empty_transcript)
     description_protein = protein_from_description(d)
 
-    print(f"{d.is_inverted()=}")
     print(variant_protein, v)
     print(description_protein, d)
     print(v)
