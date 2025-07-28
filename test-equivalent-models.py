@@ -36,6 +36,11 @@ def protein_from_description(d):
     """Return the predicted protein sequence form a description"""
     return d.protein["predicted"]
 
+def sequence_from_description(d):
+    """Return the sequence form a description"""
+    _id = d.input_model["reference"]["id"]
+    return d.references[_id]["sequence"]["seq"]
+
 def protein_from_variant(v, d):
     """Return the predicted protein sequence from a Variant"""
 
@@ -44,6 +49,8 @@ def protein_from_variant(v, d):
     selector_model = get_protein_selector_model(
         d.references[ref_id]["annotations"], ref_id
     )
+
+    # Get the sequence (needed for complex variants)
     delins_models = [v.to_model()]
 
     desc, ref, predicted, *rest = get_protein_description(delins_models, d.references, selector_model)
@@ -58,7 +65,11 @@ class TestForward():
     VARIANTS = [
         ("10C>T", Variant(44, 45, inserted="T", deleted="C")),
         ("10del", Variant(44, 45, inserted="")),
-        ("10_11insA", Variant(45, 45, inserted="A"))
+        ("10_11insA", Variant(45, 45, inserted="A")),
+        # Delins version of 10C>T (Note that the deleted part is lost)
+        ("10_10delinsT", Variant(44, 45, inserted="T")),
+        ("10dup", Variant(45, 45, inserted="C")),
+        ("10dup", Variant(44, 45, inserted="CC")),
     ]
 
     @pytest.mark.parametrize("hgvs,variant", VARIANTS)
@@ -78,7 +89,8 @@ def manual(variant):
 
     delins_model = delins_from_description(d)
 
-    v = Variant.from_model(delins_model)
+    seq = sequence_from_description(d)
+    v = Variant.from_model(delins_model, sequence=seq)
 
     variant_protein = protein_from_variant(v, tf.empty_transcript)
     description_protein = protein_from_description(d)
