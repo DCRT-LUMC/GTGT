@@ -129,7 +129,8 @@ class Transcript:
         # Extract the input variants as internal delins
         sequence = sequence_from_description(d)
         input_variants = [
-            Variant.from_model(delins, sequence=sequence) for delins in d.delins_model["variants"]
+            Variant.from_model(delins, sequence=sequence)
+            for delins in d.delins_model["variants"]
         ]
 
         results = list()
