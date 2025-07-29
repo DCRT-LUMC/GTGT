@@ -142,7 +142,6 @@ def WT() -> Transcript:
     return t.to_transcript()
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     "variant",
     "13T>A 970del 970_971insA 997_999delinsTAA 1000dup 10_11inv 994_996A[9]".split(),
@@ -152,7 +151,6 @@ def test_analyze_supported_variant_types(WT: Transcript, variant: str) -> None:
     WT.analyze(hgvs)
 
 
-@pytest.mark.slow
 def test_analyze_transcript(WT: Transcript) -> None:
     # In frame deletion that creates a STOP codon
     # variant = "ENST00000452863.10:c.87_89del"
