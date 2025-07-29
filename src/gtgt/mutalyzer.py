@@ -499,6 +499,7 @@ def combine_variants_deletion(
     """
     if deletion.inserted:
         raise ValueError(f"{Variant} is not a pure deletion")
+
     # Ensure the variants are sorted, and do not overlap
     sorted_variants = sorted(variants)
 
