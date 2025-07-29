@@ -28,11 +28,10 @@ from mutalyzer.description_model import get_reference_id, variants_to_descriptio
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
+from mutalyzer_crossmapper import Coding
 from pydantic import BaseModel, model_validator
 from schema import And, Optional, Or, Schema
 from typing_extensions import NewType
-
-from mutalyzer_crossmapper import Coding
 
 logger = logging.getLogger(__name__)
 
