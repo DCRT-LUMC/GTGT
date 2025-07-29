@@ -5,20 +5,14 @@ from typing import List, Tuple
 
 import pytest
 from mutalyzer.description import Description
-from mutalyzer.description_model import variants_to_description
 
 from gtgt.models import TranscriptModel
 from gtgt.mutalyzer import (
-    CdotVariant,
-    Variant_Dict,
-    _cdot_to_internal_delins,
     _exon_string,
-    cds_to_internal_positions,
     changed_protein_positions,
     get_exons,
     skip_adjacent_exons,
     sliding_window,
-    variant_to_model,
 )
 from gtgt.transcript import Transcript
 
@@ -103,31 +97,6 @@ def test_sliding_window_size_2() -> None:
     ]
 
 
-CDOT_MUTATIONS = [
-    # c. variant, i. delins variant
-    ("13T>A", "47_48delTinsA"),
-    ("-35_52del", "0_87delins"),
-    ("53_169del", "984_1101delins"),
-    ("315_*824del", "7932_8922delins"),
-    # Multiple variants
-    ("[13T>A;15_16delinsAT]", "[47_48delTinsA;49_51delinsAT]"),
-]
-
-
-@pytest.mark.parametrize("cdot, internal_delins", CDOT_MUTATIONS)
-def test_cdot_to_indel(
-    SDHD_description: Description, cdot: CdotVariant, internal_delins: str
-) -> None:
-    """
-    GIVEN a list of c. mutations a string
-    WHEN we convert them to internal i. indels
-    THEN we should get a list of internal variants
-    """
-    d = SDHD_description
-    indels = _cdot_to_internal_delins(d, cdot)
-    assert variants_to_description(indels) == internal_delins
-
-
 @pytest.fixture(scope="session")
 def WT() -> Transcript:
     """
@@ -200,47 +169,6 @@ def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
     assert coding_exons.basepairs == "18845/46303"
 
 
-PARSE_VARIANT = [
-    (
-        "10del",
-        [
-            {
-                "location": {"type": "point", "position": 10},
-                "type": "deletion",
-                "source": "reference",
-            }
-        ],
-    ),
-    (
-        "[10del; 16dup]",
-        [
-            {
-                "location": {"type": "point", "position": 10},
-                "type": "deletion",
-                "source": "reference",
-            },
-            {
-                "location": {"type": "point", "position": 16},
-                "type": "duplication",
-                "source": "reference",
-            },
-        ],
-    ),
-]
-
-
-@pytest.mark.parametrize("variant, variant_models", PARSE_VARIANT)
-def test_variant_to_model(
-    variant: CdotVariant, variant_models: List[Variant_Dict]
-) -> None:
-    """
-    GIVEN a string denoting a HGVS variant
-    WHEN we parse this into a Variant
-    THEN it should contain the expected values
-    """
-    assert variant_to_model(variant) == variant_models
-
-
 PROTEIN_EXTRACTOR = [
     # No protein description
     ("", "", []),
@@ -299,81 +227,6 @@ def test_exons_forward(WT1_description: Description) -> None:
         get_exons(WT1_description, in_transcript_order=False)[0]
         == expected_genomic_order
     )
-
-
-# fmt: off
-CDS_POSITIONS = [
-    (0, 0),
-    (4, 4),
-    (5, 11),
-    (7, 13),
-    (8, 100)
-]
-# fmt: on
-
-
-@pytest.mark.parametrize("position, expected", CDS_POSITIONS)
-def test_cds_to_internal_position_forward(position: int, expected: int) -> None:
-    exons = [(0, 5), (11, 14), (100, 120)]
-    assert cds_to_internal_positions(position, exons) == expected
-
-
-CDS_POSITIONS_REV = [
-    (0, 13),
-    (2, 11),
-    (3, 4),
-    (7, 0),
-]
-
-
-@pytest.mark.parametrize("position, expected", CDS_POSITIONS_REV)
-def test_cds_to_internal_position_reverse(position: int, expected: int) -> None:
-    exons = [(0, 5), (11, 14)]
-    assert cds_to_internal_positions(position, exons, reverse=True) == expected
-
-
-CDS_POSITIONS_OFFSET = [
-    # internal, forward, reverse
-    (0, 12, 39),
-    (1, 25, 38),
-    (2, 26, 37),
-    (3, 27, 29),
-    (5, 29, 27),
-    (6, 37, 26),
-    (7, 38, 25),
-    (8, 39, 12),
-]
-
-
-@pytest.mark.parametrize("position, forward, reverse", CDS_POSITIONS_OFFSET)
-def test_cds_to_internal_position(position: int, forward: int, reverse: int) -> None:
-    # coding exons that do not start at position 0
-    # Size:      1        4         2
-    exons = [(12, 13), (25, 30), (37, 40)]
-    assert cds_to_internal_positions(position, exons, reverse=False) == forward
-    assert cds_to_internal_positions(position, exons, reverse=True) == reverse
-
-
-def test_cds_to_internal_positions_out_of_range() -> None:
-    exons = [(0, 5)]
-
-    # position 4 is still in the exon
-    cds_to_internal_positions(4, exons)
-    cds_to_internal_positions(4, exons, reverse=True)
-
-    # position 5 is outside the exon
-    with pytest.raises(ValueError):
-        cds_to_internal_positions(5, exons)
-    with pytest.raises(ValueError):
-        cds_to_internal_positions(5, exons, reverse=True)
-
-    # CDS that does not start at o
-    exons = [(12, 13), (25, 30), (37, 40)]
-
-    with pytest.raises(ValueError):
-        cds_to_internal_positions(9, exons)
-    with pytest.raises(ValueError):
-        cds_to_internal_positions(9, exons, reverse=True)
 
 
 EXON_DESCRIPTION = [

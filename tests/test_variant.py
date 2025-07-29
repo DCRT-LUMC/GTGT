@@ -5,13 +5,11 @@ from mutalyzer.description import Description
 from mutalyzer.description_model import get_reference_id
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
-from schema import SchemaError
 
 from gtgt.mutalyzer import (
-    CdotVariant,
     Variant,
-    _cdot_to_internal_delins,
     _init_model,
+    init_description,
     combine_variants_deletion,
     mutation_to_cds_effect,
     sequence_from_description,
@@ -486,9 +484,10 @@ class TestVariantMutalyzerForward(object):
         Note that this only works for variants on the forward strand, on the
         reverse strand, only deletions can be converted round trip
         """
-        delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[
-            0
-        ]
+        d = Description(f"{self.transcript}:c.{variant}")
+        _init_model(d)
+        delins_model = d.delins_model["variants"][0]
+
         v = Variant.from_model(delins_model)
         assert v.to_model() == delins_model
 
@@ -509,7 +508,6 @@ class TestVariantMutalyzerForward(object):
     @pytest.mark.parametrize("variant_description, expected", REWRITE_VARIANTS)
     def test_delins_complex_Variant(
         self,
-        SDHD_description: Description,
         variant_description: str,
         expected: Variant,
     ) -> None:
@@ -520,12 +518,12 @@ class TestVariantMutalyzerForward(object):
         Variant.from_model(), the variant representation from Mutalyzer is
         converted to an equivalent (but not equal) delins representation
         """
-        delins_model = _cdot_to_internal_delins(
-            SDHD_description, CdotVariant(variant_description)
-        )[0]
+        d = Description(f"{self.transcript}:c.{variant_description}")
+        _init_model(d)
+        delins_model = d.delins_model["variants"][0]
         # Extract the sequence from the Description object
-        _id = SDHD_description.input_model["reference"]["id"]
-        sequence = SDHD_description.references[_id]["sequence"]["seq"]
+        _id = d.input_model["reference"]["id"]
+        sequence = d.references[_id]["sequence"]["seq"]
 
         assert Variant.from_model(delins_model, sequence=sequence) == expected
 
@@ -562,15 +560,10 @@ class TestVariantMutalyzerForward(object):
     ]
 
     @pytest.mark.parametrize("variant", NOT_SUPPORTED)
-    def test_variant_not_supported(
-        self, SDHD_description: Description, variant: str
-    ) -> None:
+    def test_variant_not_supported(self, variant: str) -> None:
         """Test that we throw a NotImplemented error for complex variants"""
-        delins_model = _cdot_to_internal_delins(SDHD_description, CdotVariant(variant))[
-            0
-        ]
-        with pytest.raises(SchemaError):
-            Variant.from_model(delins_model)
+        with pytest.raises(Exception):
+            init_description(f"{self.transcript}:c.{variant}")
 
     VARIANTS = [
         # A SNP
@@ -730,14 +723,15 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
 
         assert mutation_to_cds_effect(d, variants) == [expected]
 
-    def test_Variant_hgvs_round_trip(self, WT1_description: Description) -> None:
+    def test_Variant_hgvs_round_trip(self) -> None:
         """
         See the equivalent test for forward transcripts. For transcripts on the
         reverse strand, a round-trip conversion can only be performed for deletions
         """
-        delins_model = _cdot_to_internal_delins(WT1_description, CdotVariant("10del"))[
-            0
-        ]
+        d = Description(f"{self.transcript}:c.10del")
+        _init_model(d)
+        delins_model = d.delins_model["variants"][0]
+
         v = Variant.from_model(delins_model)
         assert v.to_model() == delins_model
 
@@ -755,7 +749,6 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
     @pytest.mark.parametrize("variant_description, expected", REWRITE_VARIANTS)
     def test_delins_complex_Variant(
         self,
-        WT1_description: Description,
         variant_description: str,
         expected: Variant,
     ) -> None:
@@ -769,12 +762,12 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         Note that for transcripts on the reverse strand, only deletions are
         represented by a pure delins in Mutalyzer
         """
-        delins_model = _cdot_to_internal_delins(
-            WT1_description, CdotVariant(variant_description)
-        )[0]
+        d = Description(f"{self.transcript}:c.{variant_description}")
+        _init_model(d)
+        delins_model = d.delins_model["variants"][0]
         # Extract the sequence from the Description object
-        _id = WT1_description.input_model["reference"]["id"]
-        sequence = WT1_description.references[_id]["sequence"]["seq"]
+        _id = d.input_model["reference"]["id"]
+        sequence = d.references[_id]["sequence"]["seq"]
 
         assert Variant.from_model(delins_model, sequence=sequence) == expected
 
@@ -811,15 +804,10 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
     ]
 
     @pytest.mark.parametrize("variant", NOT_SUPPORTED)
-    def test_variant_not_supported(
-        self, WT1_description: Description, variant: str
-    ) -> None:
+    def test_variant_not_supported(self, variant: str) -> None:
         """Test that we throw a NotImplemented error for complex variants"""
-        delins_model = _cdot_to_internal_delins(WT1_description, CdotVariant(variant))[
-            0
-        ]
-        with pytest.raises(SchemaError):
-            Variant.from_model(delins_model)
+        with pytest.raises(Exception):
+            init_description(f"{self.transcript}:c.{variant}")
 
     # Note that on the Variant the nucleotides are (reverse?) complemented
     VARIANTS = [

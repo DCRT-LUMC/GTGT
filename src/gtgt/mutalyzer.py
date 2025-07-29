@@ -7,10 +7,7 @@ from typing import Sequence, TypeVar, Union
 
 import Levenshtein
 import mutalyzer_hgvs_parser
-from mutalyzer.converter.to_delins import variants_to_delins
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
-from mutalyzer.converter.to_internal_coordinates import to_internal_coordinates
-from mutalyzer.converter.to_internal_indexing import to_internal_indexing
 from mutalyzer.converter.variants_de_to_hgvs import (
     delins_to_del,
     delins_to_delins,
@@ -35,12 +32,8 @@ from typing_extensions import NewType
 
 logger = logging.getLogger(__name__)
 
-# Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
-# Variant string in HGVS c. format
-CdotVariant = NewType("CdotVariant", str)
 # Mutalyzer Variant dictionary
 Variant_Dict = NewType("Variant_Dict", Mapping[str, Any])
-InternalVariant = NewType("InternalVariant", dict[str, Any])
 
 
 def sequence_from_description(d: Description) -> str:
@@ -697,7 +690,6 @@ def _init_model(d: Description) -> None:
     Initialize the HGVS Description
 
     Don't normalize the positions
-    TODO: check that other sanity checks are still performed
     """
     d.to_delins()
     d.de_hgvs_internal_indexing_model = d.delins_model
@@ -707,48 +699,13 @@ def _init_model(d: Description) -> None:
     d.construct_protein_description()
 
 
-def _description_model(
-    ref_id: str, variants: Sequence[Variant_Dict]
-) -> Mapping[str, Any]:
+def init_description(hgvs: str) -> Description:
     """
-    To be used only locally with ENSTs.
+    Generate and initialize a Description for the specified HGVS
     """
-    return {
-        "type": "description_dna",
-        "reference": {"id": ref_id, "selector": {"id": ref_id}},
-        "coordinate_system": "c",
-        "variants": variants,
-    }
-
-
-def _c_variants_to_delins_variants(
-    variants: Sequence[Variant_Dict], ref_id: str, references: Mapping[str, Any]
-) -> Sequence[InternalVariant]:
-    """
-    The variants can be of any type (substitutions, duplications, etc.).
-    """
-    model = _description_model(ref_id, variants)
-    # logger.debug(f"{model=}")
-    delins: Sequence[InternalVariant] = variants_to_delins(
-        to_internal_indexing(to_internal_coordinates(model, references))["variants"]
-    )
-    return delins
-
-
-def _internal_to_internal_genome(
-    variants: Sequence[InternalVariant], offset: int
-) -> Sequence[InternalVariant]:
-    output = deepcopy(variants)
-
-    for variant in output:
-        location = variant.get("location", {})
-        if location.get("type") == "range":
-            if "start" in location and "position" in location["start"]:
-                location["start"]["position"] += offset
-            if "end" in location and "position" in location["end"]:
-                location["end"]["position"] += offset
-
-    return output
+    d = Description(hgvs, stop_on_error=True)
+    _init_model(d)
+    return d
 
 
 def _get_ensembl_offset(
@@ -785,27 +742,6 @@ def changed_protein_positions(
             deleted.append((ref_start, ref_end))
 
     return deleted
-
-
-def _cdot_to_internal_delins(
-    d: Description, variants: CdotVariant
-) -> Sequence[InternalVariant]:
-    """Convert a list of cdot variants to internal indels"""
-    #  Get stuf we need
-    ref_id = get_reference_id(d.corrected_model)
-
-    # Parse the c. string into mutalyzer variant dictionary
-    parsed_variants = variant_to_model(variants)
-
-    # Convert the variant dicts into internal delins
-    internal_delins = _c_variants_to_delins_variants(
-        parsed_variants,
-        ref_id,
-        d.references,
-    )
-
-    # logger.debug(f"{internal_delins=}")
-    return internal_delins
 
 
 def mutation_to_cds_effect(
@@ -886,18 +822,6 @@ def mutation_to_cds_effect(
     return changed_genomic
 
 
-def variant_to_model(variant: CdotVariant) -> Sequence[Variant_Dict]:
-    """
-    Parse the specified variant into a variant model
-    """
-    results: Sequence[Variant_Dict]
-    if "[" in variant:
-        results = mutalyzer_hgvs_parser.to_model(variant, "variants")
-    else:
-        results = [mutalyzer_hgvs_parser.to_model(variant, "variant")]
-    return results
-
-
 def get_exons(
     description: Description, in_transcript_order: bool
 ) -> Sequence[tuple[int, int]]:
@@ -910,26 +834,3 @@ def get_exons(
         return exons[::-1]
 
     return exons
-
-
-def cds_to_internal_positions(
-    position: int,
-    exons: Sequence[tuple[int, int]],
-    cds_offset: int = 0,
-    reverse: bool = False,
-) -> int:
-    """Convert CDS positions to internal"""
-    pos = position + cds_offset
-
-    # Iterate over the exons
-    iterator = iter(exons[::-1]) if reverse else iter(exons)
-
-    for start, end in iterator:
-        size = end - start
-        # If position is in the current exon
-        if pos < size:
-            return end - pos - 1 if reverse else pos + start
-        else:
-            pos -= size
-    else:
-        raise ValueError(f"{position=} outside {exons=}")
