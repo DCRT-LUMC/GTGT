@@ -32,6 +32,8 @@ from pydantic import BaseModel, model_validator
 from schema import And, Optional, Or, Schema
 from typing_extensions import NewType
 
+from mutalyzer_crossmapper import Coding
+
 logger = logging.getLogger(__name__)
 
 # Mutalyzer variant object, using the 'internal' coordinate system (0 based, half open)
@@ -839,36 +841,48 @@ def mutation_to_cds_effect(
     # Keep track of changed positions on the genome
     changed_genomic = list()
 
+    # Ensemble offset
+    ensembl_offset = _get_ensembl_offset(d.references, ref_id)
+    if ensembl_offset is None:
+        raise RuntimeError("Missing ensemble offset")
+
+    # Create crossmapper
+    exons = d.get_selector_model()["exon"]
+    cds = d.get_selector_model()["cds"]
+    assert len(cds) == 1
+    crossmap = Coding(exons, cds[0], inverted=d.is_inverted())
+
     for start, end in changed_protein_positions(reference, observed):
         # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
-        start_pos = start * 3 + 1
-        end_pos = end * 3
+        logger.debug(f"({start=}, {end=})")
 
-        cdot_mutation = CdotVariant(f"{start_pos}_{end_pos}del")
+        logger.debug(f"p.{start+1}_{end}")
 
-        # Convert cdot to delins
-        positions_delins = _cdot_to_internal_delins(d, cdot_mutation)
-        ensembl_offset = _get_ensembl_offset(d.references, ref_id)
-
-        # logger.debug(f"{positions_delins=}")
-        # logger.debug(f"{ensembl_offset=}")
-
-        if ensembl_offset is None:
-            raise RuntimeError("Missing ensemble offset")
-
-        genome_positions = _internal_to_internal_genome(
-            positions_delins, ensembl_offset
+        # Internal coordinate positions
+        i_start = crossmap.protein_to_coordinate(
+            # nth amino acid, first nt of codon
+            (start + 1, 1, 0, 0, 0)
+        )
+        i_end = (
+            # nth amino acid, last nt of codon
+            crossmap.protein_to_coordinate((end, 3, 0, 0, 0))
+            + 1
         )
 
-        assert len(genome_positions) == 1
-        g_start = genome_positions[0]["location"]["start"]["position"]
-        g_end = genome_positions[0]["location"]["end"]["position"]
+        # Genomic internal coordinate positions
+        gi_start = i_start + ensembl_offset
+        gi_end = i_end + ensembl_offset
+
+        if gi_end < gi_start:
+            gi_start, gi_end = gi_end, gi_start
+            gi_start -= 1
+            gi_end += 1
 
         logger.debug(
-            f"protein difference: p.{start}-{end}, c.{cdot_mutation}, genomic {g_start:_}-{g_end:_} (size={g_end-g_start})"
+            f"protein difference: p.{start}-{end}, i.{i_start}_{i_end}, gi.{gi_start:_}-{gi_end:_} (size={gi_end-gi_start})"
         )
-        assert g_end > g_start
-        changed_genomic.append((g_start, g_end))
+
+        changed_genomic.append((gi_start, gi_end))
 
     return changed_genomic
 
