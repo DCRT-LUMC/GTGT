@@ -143,7 +143,10 @@ def WT() -> Transcript:
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("variant", "970del 13T>A 1000dup 10_11inv 994_996A[9]".split())
+@pytest.mark.parametrize(
+    "variant",
+    "13T>A 970del 970_971insA 997_999delinsTAA 1000dup 10_11inv 994_996A[9]".split(),
+)
 def test_analyze_supported_variant_types(WT: Transcript, variant: str) -> None:
     hgvs = f"ENST00000452863.10:c.{variant}"
     WT.analyze(hgvs)
