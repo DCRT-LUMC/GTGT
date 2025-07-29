@@ -781,15 +781,20 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
 
     TO_HGVS = [
         # SNP
+        (Variant(47573, 47574, inserted="T", deleted="A"), "13T>A"),
         # Deletion
+        (Variant(start=47576, end=47577), "10del"),
         # Insertion
+        (Variant(start=47577, end=47577, inserted="CTA"), "9_10insTAG"),
         # Insertion/deletion
+        (Variant(47566, 47569, inserted="GCA"), "18_20delinsTGC"),
     ]
+
     @pytest.mark.parametrize("variant, expected", TO_HGVS)
     def test_Variant_to_hgvs(
-        self, SDHD_description: Description, variant: Variant, expected: str
+        self, WT1_description: Description, variant: Variant, expected: str
     ) -> None:
-        assert to_cdot_hgvs(SDHD_description, [variant]) == expected
+        assert to_cdot_hgvs(WT1_description, [variant]) == expected
 
     NOT_SUPPORTED = [
         # Uncertain repeat size

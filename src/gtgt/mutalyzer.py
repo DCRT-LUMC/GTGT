@@ -563,6 +563,15 @@ def de_to_hgvs(variants: Any, sequences: Any) -> Sequence[Variant_Dict]:
 def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
     delins_model = [v.to_model() for v in variants]
+
+    # Invert the deleted sequence if the transcript is on the reverse strand
+    if d.is_inverted():
+        for delins in delins_model:
+            if "deleted" in delins:
+                _del = delins["deleted"][0]
+                _del["sequence"] = Variant._reverse_complement(_del["sequence"])
+                _del["inverted"] = True
+
     variant_models = de_to_hgvs(delins_model, d.get_sequences())
 
     ref_id = get_reference_id(d.corrected_model)
