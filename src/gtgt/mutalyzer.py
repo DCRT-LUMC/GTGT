@@ -41,6 +41,11 @@ CdotVariant = NewType("CdotVariant", str)
 Variant_Dict = NewType("Variant_Dict", Mapping[str, Any])
 InternalVariant = NewType("InternalVariant", dict[str, Any])
 
+def sequence_from_description(d: Description) -> str:
+    """Return the sequence form a description"""
+    _id = d.input_model["reference"]["id"]
+    sequence: str = d.references[_id]["sequence"]["seq"]
+    return sequence
 
 class Variant:
     """Class to store delins variants"""
@@ -623,7 +628,8 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
     exon_skips: list[Therapy] = list()
 
     skippable_exons = get_exons(d, in_transcript_order=True)[1:-1]
-    variants = [Variant.from_model(v) for v in d.delins_model["variants"]]
+    sequence = sequence_from_description(d)
+    variants = [Variant.from_model(v, sequence=sequence) for v in d.delins_model["variants"]]
     logger.debug(f"{variants=}")
 
     logger.debug(f"{skippable_exons=}")

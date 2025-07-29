@@ -14,6 +14,7 @@ from gtgt.mutalyzer import (
     _init_model,
     combine_variants_deletion,
     mutation_to_cds_effect,
+    sequence_from_description,
     to_cdot_hgvs,
 )
 
@@ -382,9 +383,7 @@ class TestVariantMutalyzerForward(object):
 
     def sequence_from_description(self, d: Description) -> str:
         """Return the sequence form a description"""
-        _id = d.input_model["reference"]["id"]
-        sequence: str = d.references[_id]["sequence"]["seq"]
-        return sequence
+        return sequence_from_description(d)
 
     def protein_from_variant(self, v: Variant, d: Description) -> str:
         """Return the predicted protein sequence from a Variant"""

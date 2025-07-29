@@ -12,6 +12,7 @@ from .mutalyzer import (
     _init_model,
     generate_therapies,
     mutation_to_cds_effect,
+    sequence_from_description,
 )
 
 logger = logging.getLogger(__name__)
@@ -126,8 +127,9 @@ class Transcript:
         _init_model(d)
 
         # Extract the input variants as internal delins
+        sequence = sequence_from_description(d)
         input_variants = [
-            Variant.from_model(delins) for delins in d.delins_model["variants"]
+            Variant.from_model(delins, sequence=sequence) for delins in d.delins_model["variants"]
         ]
 
         results = list()

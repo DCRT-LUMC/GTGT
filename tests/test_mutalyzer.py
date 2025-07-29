@@ -128,7 +128,7 @@ def test_cdot_to_indel(
     assert variants_to_description(indels) == internal_delins
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def WT() -> Transcript:
     """
     Transcript for WT1, using real genomic positions
@@ -142,6 +142,21 @@ def WT() -> Transcript:
     return t.to_transcript()
 
 
+SUPPORTED_VARIANT_TYPES = [
+    "970del",
+    "13T>A",
+    "1000dup",
+    "10_11inv",
+    "994_996A[9]"
+]
+
+@pytest.mark.slow
+@pytest.mark.parametrize("variant", SUPPORTED_VARIANT_TYPES)
+def test_analyze_transcript_supported(WT: Transcript, variant: str) -> None:
+    hgvs = f"ENST00000452863.10:c.{variant}"
+    WT.analyze(hgvs)
+
+@pytest.mark.slow
 def test_analyze_transcript(WT: Transcript) -> None:
     # In frame deletion that creates a STOP codon
     # variant = "ENST00000452863.10:c.87_89del"
