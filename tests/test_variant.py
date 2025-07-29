@@ -192,6 +192,12 @@ class TestCombineVariantsDeletion:
     inside the deletion (exon skip) are removed
     """
 
+    def test_combine_variants_deletion_error(self) -> None:
+        """Test that a value error is raised if the Variant is not a deletion"""
+        indel = Variant(10, 15, inserted="ATC")
+        with pytest.raises(ValueError):
+            combine_variants_deletion(list(), indel)
+
     def test_combine_variants_deletion_empty(self) -> None:
         """If ther are no other variants, the results only contain the deletion"""
         variants: List[Variant] = list()
