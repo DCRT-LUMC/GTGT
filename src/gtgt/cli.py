@@ -12,7 +12,7 @@ import secrets
 
 from mutalyzer.description import Description
 
-from .mutalyzer import _init_model, generate_therapies
+from .mutalyzer import generate_therapies, init_description
 from .provider import Provider
 from .variant_validator import lookup_variant
 from .wrappers import lookup_transcript
@@ -107,8 +107,7 @@ def main() -> None:
         uvicorn.run(app, host=args.host)
     elif args.command == "mutate":
         desc = f"{args.transcript_id}:c.="
-        d = Description(desc)
-        _init_model(d)
+        d = init_description(desc)
         for therapy in generate_therapies(d):
             print(f"{therapy.name}: {therapy.hgvs}")
     elif args.command == "analyze":

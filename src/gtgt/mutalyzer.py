@@ -685,12 +685,14 @@ def generate_therapies(d: Description) -> Sequence[Therapy]:
     return therapies
 
 
-def _init_model(d: Description) -> None:
+def init_description(hgvs: str) -> Description:
     """
-    Initialize the HGVS Description
+    Generate and initialize a Description for the specified HGVS
 
-    Don't normalize the positions
+    Doesn't normalize the positions
     """
+    d = Description(hgvs, stop_on_error=True)
+
     d.to_delins()
     d.de_hgvs_internal_indexing_model = d.delins_model
     d.construct_de_hgvs_internal_indexing_model()
@@ -698,13 +700,6 @@ def _init_model(d: Description) -> None:
     d.construct_normalized_description()
     d.construct_protein_description()
 
-
-def init_description(hgvs: str) -> Description:
-    """
-    Generate and initialize a Description for the specified HGVS
-    """
-    d = Description(hgvs, stop_on_error=True)
-    _init_model(d)
     return d
 
 

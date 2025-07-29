@@ -4,7 +4,7 @@ from typing import Any, Tuple
 import pytest
 from mutalyzer.description import Description
 
-from gtgt.mutalyzer import _init_model
+from gtgt.mutalyzer import init_description
 
 # Setup fixtures for mutalyzer retriever
 
@@ -48,14 +48,10 @@ def mock_env(monkeypatch: Any) -> None:
 @pytest.fixture(scope="session")
 def SDHD_description() -> Description:
     """SDHD, on the forward strand"""
-    d = Description("ENST00000375549.8:c.=")
-    _init_model(d)
-    return d
+    return init_description("ENST00000375549.8:c.=")
 
 
 @pytest.fixture(scope="session")
 def WT1_description() -> Description:
     """WT1, on the reverse strand"""
-    d = Description("ENST00000452863.10:c.=")
-    _init_model(d)
-    return d
+    return init_description("ENST00000452863.10:c.=")

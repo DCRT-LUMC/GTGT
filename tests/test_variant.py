@@ -8,9 +8,8 @@ from mutalyzer.reference import get_protein_selector_model
 
 from gtgt.mutalyzer import (
     Variant,
-    _init_model,
-    init_description,
     combine_variants_deletion,
+    init_description,
     mutation_to_cds_effect,
     sequence_from_description,
     to_cdot_hgvs,
@@ -364,8 +363,7 @@ class TestVariantMutalyzerForward(object):
 
     # SDHD, forward strand
     transcript = "ENST00000375549.8"
-    empty_transcript = Description(f"{transcript}:c.=")
-    _init_model(empty_transcript)
+    empty_transcript = init_description(f"{transcript}:c.=")
 
     def delins_from_description(self, d: Description) -> dict[str, Any]:
         """Return the internal delins model from a Description object"""
@@ -453,8 +451,7 @@ class TestVariantMutalyzerForward(object):
         THEN we should get genome coordinates
         """
         hgvs = "ENST00000375549.8:c.="
-        d = Description(hgvs)
-        _init_model(d)
+        d = init_description(hgvs)
 
         if not isinstance(expected, list):
             e = [expected]
@@ -484,8 +481,7 @@ class TestVariantMutalyzerForward(object):
         Note that this only works for variants on the forward strand, on the
         reverse strand, only deletions can be converted round trip
         """
-        d = Description(f"{self.transcript}:c.{variant}")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.{variant}")
         delins_model = d.delins_model["variants"][0]
 
         v = Variant.from_model(delins_model)
@@ -518,8 +514,7 @@ class TestVariantMutalyzerForward(object):
         Variant.from_model(), the variant representation from Mutalyzer is
         converted to an equivalent (but not equal) delins representation
         """
-        d = Description(f"{self.transcript}:c.{variant_description}")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.{variant_description}")
         delins_model = d.delins_model["variants"][0]
         # Extract the sequence from the Description object
         _id = d.input_model["reference"]["id"]
@@ -614,8 +609,7 @@ class TestVariantMutalyzerForward(object):
         The goal here is to verify that the model representation of the Variant
         is usable by mutalyzer in the same way as the original HGVS description
         """
-        d = Description(f"{self.transcript}:c.{hgvs}")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.{hgvs}")
         variant_protein = self.protein_from_variant(variant, self.empty_transcript)
         description_protein = self.protein_from_description(d)
 
@@ -645,8 +639,7 @@ class TestVariantMutalyzerForward(object):
         always a simple delins model, even for duplications, repeats and
         inversions.
         """
-        d = Description(f"{self.transcript}:c.{hgvs}")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.{hgvs}")
         delins_model = self.delins_from_description(d)
 
         seq = self.sequence_from_description(d)
@@ -659,8 +652,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
 
     # SDHD, forward strand
     transcript = "ENST00000452863.10"
-    empty_transcript = Description(f"{transcript}:c.=")
-    _init_model(empty_transcript)
+    empty_transcript = init_description(f"{transcript}:c.=")
 
     # fmt: off
     MUTATIONS_VARIANT = [
@@ -718,8 +710,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         THEN we should get genome coordinates
         """
         hgvs = "ENST00000452863.10:c.="
-        d = Description(hgvs)
-        _init_model(d)
+        d = init_description(hgvs)
 
         assert mutation_to_cds_effect(d, variants) == [expected]
 
@@ -728,8 +719,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         See the equivalent test for forward transcripts. For transcripts on the
         reverse strand, a round-trip conversion can only be performed for deletions
         """
-        d = Description(f"{self.transcript}:c.10del")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.10del")
         delins_model = d.delins_model["variants"][0]
 
         v = Variant.from_model(delins_model)
@@ -762,8 +752,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         Note that for transcripts on the reverse strand, only deletions are
         represented by a pure delins in Mutalyzer
         """
-        d = Description(f"{self.transcript}:c.{variant_description}")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.{variant_description}")
         delins_model = d.delins_model["variants"][0]
         # Extract the sequence from the Description object
         _id = d.input_model["reference"]["id"]
@@ -856,8 +845,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         The goal here is to verify that the model representation of the Variant
         is usable by mutalyzer in the same way as the original HGVS description
         """
-        d = Description(f"{self.transcript}:c.{hgvs}")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.{hgvs}")
         variant_protein = self.protein_from_variant(variant, self.empty_transcript)
         description_protein = self.protein_from_description(d)
 
@@ -897,8 +885,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         always a simple delins model, even for duplications, repeats and
         inversions.
         """
-        d = Description(f"{self.transcript}:c.{hgvs}")
-        _init_model(d)
+        d = init_description(f"{self.transcript}:c.{hgvs}")
         delins_model = self.delins_from_description(d)
 
         seq = self.sequence_from_description(d)

@@ -9,8 +9,8 @@ from .bed import Bed
 from .mutalyzer import (
     Therapy,
     Variant,
-    _init_model,
     generate_therapies,
+    init_description,
     mutation_to_cds_effect,
     sequence_from_description,
 )
@@ -123,8 +123,7 @@ class Transcript:
                 f"Coordinate system '{coordinate_system}' is not supported"
             )
         # Initialize the input HGVS description
-        d = Description(hgvs, stop_on_error=True)
-        _init_model(d)
+        d = init_description(hgvs)
 
         # Extract the input variants as internal delins
         sequence = sequence_from_description(d)
