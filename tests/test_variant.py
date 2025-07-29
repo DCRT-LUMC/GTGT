@@ -676,13 +676,13 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         # A simple missense that changes a single amino acids
         (
             "13T>A",
-            [Variant(start=47573, end=47574, inserted="A", deleted="T")],
+            [Variant(start=47573, end=47574, inserted="T", deleted="A")],
             (32435345, 32435348)
         ),
         # A stop mutation which destroys most of the protein
         (
             "9_10insTAG",
-            [Variant(start=47577, end=47577, inserted="TAG")],
+            [Variant(start=47577, end=47577, inserted="CTA")],
             (32389060, 32435351)
         ),
         # # # A frameshift that is restored by an insertion
@@ -690,7 +690,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
             "[10del;20_21insA]",
             [
                 Variant(start=47576, end=47577),
-                Variant(start=47566, end=47566, inserted="A"),
+                Variant(start=47566, end=47566, inserted="T"),
             ],
             (32435339, 32435351)
         ),
@@ -698,7 +698,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         (
             "[10del;20_21insATCGAATATGGGG]",
             [
-                Variant(start=47566, end=47566, inserted="ATCGAATATGGGG"),
+                Variant(start=47566, end=47566, inserted="CCCCATATTCGAT"),
                 Variant(start=47576, end=47577),
             ],
             (32435339, 32435351)),
@@ -778,6 +778,18 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         sequence = WT1_description.references[_id]["sequence"]["seq"]
 
         assert Variant.from_model(delins_model, sequence=sequence) == expected
+
+    TO_HGVS = [
+        # SNP
+        # Deletion
+        # Insertion
+        # Insertion/deletion
+    ]
+    @pytest.mark.parametrize("variant, expected", TO_HGVS)
+    def test_Variant_to_hgvs(
+        self, SDHD_description: Description, variant: Variant, expected: str
+    ) -> None:
+        assert to_cdot_hgvs(SDHD_description, [variant]) == expected
 
     NOT_SUPPORTED = [
         # Uncertain repeat size

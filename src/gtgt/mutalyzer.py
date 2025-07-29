@@ -776,7 +776,6 @@ def _cdot_to_internal_delins(
 
     # Parse the c. string into mutalyzer variant dictionary
     parsed_variants = variant_to_model(variants)
-    print(f"_cdot_to_internal: {parsed_variants=}")
 
     # Convert the variant dicts into internal delins
     internal_delins = _c_variants_to_delins_variants(
@@ -785,7 +784,6 @@ def _cdot_to_internal_delins(
         d.references,
     )
 
-    print(f"_cdot_to_internal, internal delins: {parsed_variants=}")
     # logger.debug(f"{internal_delins=}")
     return internal_delins
 
@@ -814,14 +812,6 @@ def mutation_to_cds_effect(
 
     # Convert the Variants to their delins model representation
     delins = [v.to_model() for v in variants]
-
-    # Add inverted into the delins model, this is required for the protein prediction
-    inverted = selector_model["inverted"]
-    for variant in delins:
-        if "inserted" in variant and variant["inserted"]:
-            variant["inserted"][0]["inverted"] = inverted
-        if "deleted" in variant and variant["deleted"]:
-            variant["deleted"][0]["inverted"] = inverted
 
     # Determine the protein positions that were changed
     protein = get_protein_description(delins, d.references, selector_model)
