@@ -5,14 +5,15 @@
 {% endif %}
     <h5>Specify variant</h5>
     <p>
-      Welcome to the Genetic Therapy Generator Toolkit, please specify an Ensembl transcript:
+      Welcome to the Genetic Therapy Generator Toolkit, please specify a variant description below:
     </p>
-    <p>(The input must be an allele in HGVS format, for example <a class="link" href="/ENST00000375549.8:c.100del">ENST00000375549.8:c.100del</a>)</p>
-    <div class="field border round small" style="margin-bottom:3em;">
+    <div class="field border round small" style="margin-bottom:1em;">
       <input id="variant_input" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
+    </div>
+    <div>
+      <progress id="submitSpinner" style="visibility:hidden"></progress>
       <button id="submitBtn" class="center" type="button" onclick="redirect()" >Submit</button>
     </div>
-    <progress id="submitSpinner" style="visibility:hidden"></progress>
 
     {% if error is defined %}
     <div id="error" class="active">
@@ -27,8 +28,28 @@
           <code>{{ error["details"] }}</code>
         </details>
       </article>
-
     </div>
     {% endif %}
+
+    <h5>Examples</h5>
+    <p>The input must be an allele in HGVS format, describing variants on an Ensembl transcript.
+    <table>
+      <thead>
+        <tr>
+          <th>Variant</th>
+          <th>Explanation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a class="link" onclick="fillSearchField('ENST00000375549.8:c.100del')">ENST00000375549.8:c.100del</a></td>
+          <td>Frameshift deletion in exon 2 of SHDH</td>
+        </tr>
+        <tr>
+          <td><a class="link" onclick="fillSearchField('ENST00000357033.9:c.2500del')">ENST00000357033.9:c.2500del</a></td>
+          <td>Frameshift deletion in exon 20 of DMD</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 

@@ -39,8 +39,16 @@
       document.getElementById('submitSpinner').style.visibility='visible';
 
       // Redirect to the results page
-      var url = document.getElementById('variant_input').value
-      window.location = "/" + url
+      var url = document.getElementById('variant_input').value;
+      window.location = "/" + url;
+    }
+
+    function fillSearchField(value)
+    {
+      // Set the value in the text search field
+      document.getElementById('variant_input').value=value;
+      // Scroll to the top
+      window.scrollTo({top: 0, behaviour: 'smooth'})
     }
 
     // Also trigger submit when the user presses enter in the text field
