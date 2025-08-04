@@ -1,0 +1,50 @@
+{% if results is defined %}
+  <div id="analysis" class="page padding active">
+    <h4> Analysis results for {{ variant }}</h4>
+    {% for result in results %}
+      <article>
+        <details>
+          <summary class="none">
+            <div class="row">
+              <div class="max">
+                <h5>{{ result.therapy.name }}</h5>
+              </div>
+              <i>arrow_drop_down</i>
+            </div>
+          </summary>
+          <h6>HGVS</h6>
+          <code>{{ result.therapy.hgvs }}</code>
+          <h6>Therapy description</h6>
+          <p>{{ result.therapy.description}}
+          <h6>Annotation overview</h6>
+          <table>
+            <thead>
+              <tr>
+                <th>Annotation</th>
+                <th>Remaining</th>
+                <th>Basepairs</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for comp in result.comparison %}
+              {% set value = (comp.percentage * 100) | round(precision=1) %}
+              <tr>
+                <td>{{ comp.name }}</td>
+                <td>{{ value }}% </td>
+                <td>{{ comp.basepairs }}
+                <td><progress value="{{value}}" max="100"></progress></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </details>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div id="analysis" class="page padding">
+    <h5> Analysis results for {{ variant }}</h5>
+    Please specify a variant to analyze.
+  </div>
+{% endif %}

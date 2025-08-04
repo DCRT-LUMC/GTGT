@@ -1,0 +1,49 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="google" content="notranslate">
+  <title>{{'GTGT analysis results for ' + variant if variant else 'Genetic Therapy Generator Toolkit'}}</title>
+  <link href="https://cdn.jsdelivr.net/npm/beercss@3.9.6/dist/cdn/beer.min.css" rel="stylesheet">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.9.6/dist/cdn/beer.min.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js"></script>
+  <script type="text/javascript">
+    function activate_info() {
+      // set all pages to inactive
+      let pages = Array.from(document.getElementsByClassName('page'))
+      for (index in pages) {
+        let element = pages[index];
+        element.classList.remove('active');
+      }
+
+      // set all information pages (help, github, disclaimer) to active
+      let page_names = ['disclaimer', 'documentation', 'github'];
+      for (index in page_names) {
+        let element = document.getElementById(page_names[index]);
+        element.classList.add('active');
+      }
+
+      // unset the selected color from the nav menu
+      let nav_elements = Array.from(document.querySelectorAll('nav a'));
+        for (index in nav_elements) {
+          let element = nav_elements[index];
+          element.classList.remove('active');
+        }
+    }
+  </script>
+  <script>
+    function redirect()
+    {
+      var url = document.getElementById('test').value
+      window.location = "/" + url
+    }
+
+    // Also trigger submit when the user presses enter in the text field
+    document.addEventListener("keyup", function(event) {
+      if (event.keyCode === 13) { //13 is enter}
+        event.preventDefault();
+        redirect();
+      }
+    });
+  </script>
+</head>

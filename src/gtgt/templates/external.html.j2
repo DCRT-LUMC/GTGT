@@ -1,0 +1,19 @@
+<div id="external-resources" class="page padding">
+  <h5>External resources</h5>
+  {% if links is defined %}
+    <div class="grid">
+      {% for dbname, link in links.items() %}
+        <div class="s12 m6 l3">
+          <a href={{ link }} target="_blank">
+            <article>
+              <h5>{{ dbname | upper}}</h5>
+              <p>This is a description of the {{ dbname }} database</p>
+            </article>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+  Please specify a variant to discover links to external resources.
+  {% endif %}
+</div>

@@ -1,0 +1,33 @@
+{% if results is defined %}
+  <div id="home" class="page padding">
+{% else %}
+  <div id="home" class="page padding active">
+{% endif %}
+    <h5>Specify variant</h5>
+    <p>
+      Welcome to the Genetic Therapy Generator Toolkit, please specify an Ensembl transcript:
+    </p>
+    <p>(The input must be an allele in HGVS format, for example <a class="link" href="/ENST00000375549.8:c.100del">ENST00000375549.8:c.100del</a>)</p>
+    <div class="field border round small" style="margin-bottom:3em;">
+      <input id="test" type="text" {{'value=' + variant if variant else ''}} autofocus>
+      <button class="center" type="button" onclick="redirect()" >Submit</button>
+    </div>
+
+    {% if error is defined %}
+    <div id="error" class="active">
+      <article>
+        <details>
+          <summary>
+            <p>
+              <i>error</i>
+              {{ error["summary"]}}
+            </p>
+          </summary>
+          <code>{{ error["details"] }}</code>
+        </details>
+      </article>
+
+    </div>
+    {% endif %}
+  </div>
+
