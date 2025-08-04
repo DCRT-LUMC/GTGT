@@ -34,7 +34,12 @@
   <script>
     function redirect()
     {
-      var url = document.getElementById('test').value
+      // Hide the submit button and show the spinner
+      document.getElementById('submitBtn').style.visibility='hidden';
+      document.getElementById('submitSpinner').style.visibility='visible';
+
+      // Redirect to the results page
+      var url = document.getElementById('variant_input').value
       window.location = "/" + url
     }
 
