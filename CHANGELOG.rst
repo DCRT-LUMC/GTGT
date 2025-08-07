@@ -9,9 +9,10 @@ Changelog
 v0.2.3
 ------
 + Enable skipping two adjacent exons by default
-+ Explicitly check that the variants are specified in ``c.`` format.
++ Explicitly check that the variants are specified in ``c.`` format
 + Refactor internal representation of variants
 + Reduce analysis time
++ Add ``gtgt export`` to the command line interface
 
 v0.2.2
 ------

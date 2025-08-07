@@ -12,7 +12,12 @@ import secrets
 
 from mutalyzer.description import Description
 
-from .mutalyzer import generate_therapies, init_description
+from .mutalyzer import (
+    Variant,
+    generate_therapies,
+    init_description,
+    sequence_from_description,
+)
 from .provider import Provider
 from .variant_validator import lookup_variant
 from .wrappers import lookup_transcript
@@ -81,6 +86,14 @@ def main() -> None:
     analyze_parser.add_argument(
         "hgvs", help="HGVS description of the transcript of interest"
     )
+
+    export_parser = subparsers.add_parser(
+        "export", help="Export the specified Transcript to BED format"
+    )
+    export_parser.add_argument(
+        "hgvs", help="HGVS description of the transcript of interest"
+    )
+
     args = parser.parse_args()
 
     set_logging(args.log)
@@ -128,6 +141,23 @@ def main() -> None:
         if not flask_app.config.get("SECRET_KEY"):
             flask_app.secret_key = secrets.token_hex()
         flask_app.run(args.host, debug=args.debug)
+    elif args.command == "export":
+        # Get the transcript
+        transcript_id = args.hgvs.split(":")[0]
+        transcript_model = lookup_transcript(provider, transcript_id)
+        transcript = transcript_model.to_transcript()
+
+        # Mutate the transcript
+        d = init_description(args.hgvs)
+        sequence = sequence_from_description(d)
+        input_variants = [
+            Variant.from_model(delins, sequence=sequence)
+            for delins in d.delins_model["variants"]
+        ]
+        transcript.mutate(d, input_variants)
+
+        for record in transcript.records():
+            print(record)
     else:
         raise NotImplementedError()
 
