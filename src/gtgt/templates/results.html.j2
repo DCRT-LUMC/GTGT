@@ -1,5 +1,5 @@
 {% if results is defined %}
-  <div id="analysis" class="page padding active">
+  <div id="results" class="page padding active">
     <h4> Analysis results for {{ variant }}</h4>
     {% for result in results %}
       <article>
@@ -43,7 +43,7 @@
     {% endfor %}
   </div>
 {% else %}
-  <div id="analysis" class="page padding">
+  <div id="results" class="page padding">
     <h5> Analysis results for {{ variant }}</h5>
     Please specify a variant to analyze.
   </div>
