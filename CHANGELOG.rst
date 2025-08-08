@@ -6,13 +6,20 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+v0.2.4
+------
++ Add spinner to show progress to html
++ Add clickable examples to the html
++ Add ``gtgt export`` to the command line interface
++ Add separate mRNA and protein features to the Transcript
++ Extend documentation sections of the html
+
 v0.2.3
 ------
 + Enable skipping two adjacent exons by default
 + Explicitly check that the variants are specified in ``c.`` format
 + Refactor internal representation of variants
 + Reduce analysis time
-+ Add ``gtgt export`` to the command line interface
 
 v0.2.2
 ------
