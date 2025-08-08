@@ -1,7 +1,15 @@
 <div id="documentation" class="page padding">
-  <h5>Help</h5>
-  <p>The documentation for this website is still under construction.</p>
-  <p>The technical documentation for this tool can be found on <a class="link" href="https://gtgt.readthedocs.io/en/latest/">https://gtgt.readthedocs.io</a>.
+  <h5>Documentation</h5>
+  <h6>Introduction</h6>
+  <p>The Genetic Therapy Generator Toolkit helps users determine whether a given variant (or set of variants) can be corrected with a genetic therapy. Rather than relying on explicit guidelines about which kinds of variants can be treated, GTGT simulates the effect of every possible therapy and ranks the therapies based on how many of the transcript features are restored.</p>
+  <p>Because of this unique approach, GTGT can identify possible therapies when it appears none are available, for example by skipping upstream or downstream exons to restore the reading frame, or by skipping adjacent exons (experimental).</p>
+  <h6>Interpreting results</h6>
+  <p>The first two entries on the results page will always be the analysis of the <em>Wildtype</em> and <em>Input</em> versions of the transcript. Each entry contains the name, HGVS notation and short description of the therapy. The most important section is the <em>Annotation overview</em>, which lists the percentage of each feature of the transcript that remains after the mutations (and therapy) have been applied.
+
+  The <em>Exons</em> feature refers to all bases that make up the exon. When GTGT skips an exon, the bases of the exon will be removed from the <em>Exons</em> feature, which can be seen from the percentage and the remaining basepairs.
+
+  The <em>Coding exons</em> refer to the bases that make up the coding sequence of the transcript. Changes in the <em>Coding exons</em> take the actual predicted protein changes in the transcript into account. For example, in the case of a frameshift variant all bases after the frameshift will be removed from the <em>Coding exons</em> feature, but not from the <em>Exons</em>.
+  <p>The extended documentation for this tool can be found on <a class="link" href="https://gtgt.readthedocs.io/en/latest/">https://gtgt.readthedocs.io</a>.</p>
 </div>
 
 <div id="development" class="page padding">
