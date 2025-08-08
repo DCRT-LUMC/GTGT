@@ -56,6 +56,14 @@ class Transcript:
         """Return the Bed records that make up the Transcript"""
         return [self.exons, self.coding_exons]
 
+    def rna_records(self) -> Sequence[Bed]:
+        """Return the Bed records that contain RNA features"""
+        return [self.exons]
+
+    def protein_records(self) -> Sequence[Bed]:
+        """Return the Bed records that contain protein features"""
+        return [self.coding_exons]
+
     def intersect(self, selector: Bed) -> None:
         """Update transcript to only contain features that intersect the selector"""
         for record in self.records():
@@ -107,11 +115,21 @@ class Transcript:
 
     def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
         """Mutate the transcript based on the specified variants"""
-        deleted = Bed.from_blocks(
+        # Update protein features
+        protein_changes = Bed.from_blocks(
             self.coding_exons.chrom, *mutation_to_cds_effect(d, variants)
         )
-        # Subtract that region from the annotations
-        self.subtract(deleted)
+        for record in self.protein_records():
+            record.subtract(protein_changes)
+
+        # Update RNA features
+        print(variants)
+        print(*(v.genomic_coordinates(d) for v in variants))
+        rna_changes = Bed.from_blocks(
+            self.exons.chrom, *[v.genomic_coordinates(d) for v in variants]
+        )
+        for record in self.rna_records():
+            self.subtract(rna_changes)
 
     def analyze(self, hgvs: str) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""

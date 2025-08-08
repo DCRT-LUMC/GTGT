@@ -230,6 +230,11 @@ class Bed:
         # Ensure the blocks are sorted in ascending order
         sorted_blocks = sorted(blocks, key=lambda x: x[0])
         bed.update(sorted_blocks)
+
+        # Set the thickStart, thickEnd to the entire range
+        bed.thickStart = bed.chromStart
+        bed.thickEnd = bed.chromEnd
+
         return bed
 
     def intersect(self, other: object) -> None:
