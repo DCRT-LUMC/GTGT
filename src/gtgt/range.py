@@ -3,6 +3,11 @@ from typing import Sequence
 Range = tuple[int, int]
 
 
+def empty(a: Range) -> bool:
+    """Determine if range a is empty"""
+    return a[0] == a[1]
+
+
 def overlap(a: Range, b: Range) -> bool:
     """Determine if ranges a and b overlap"""
     # A and B overlap wether the intersection is not empty
@@ -37,15 +42,25 @@ def subtract(a: Sequence[Range], b: Sequence[Range]) -> Sequence[Range]:
     results: list[tuple[int, int]] = list()
 
     while True:
-        # If we exhaust A or B we are done
+        # If we exhaust A
         if A is None:
             break
+        # If A is empty, we skip it
+        if empty(A):
+            A = next(a_iter)
+            continue
+
+        # If we exhaust B
         if B is None:
             # Get the values for A still waiting to be processed
             # Remove the None value
             left_over = [x for x in a_iter if x is not None]
             results += [A] + left_over
             break
+        # if B is empty, we skip it
+        if empty(B):
+            B = next(b_iter)
+            continue
 
         # A before B
         if A[1] <= B[0]:
