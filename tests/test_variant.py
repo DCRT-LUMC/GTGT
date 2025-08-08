@@ -647,15 +647,17 @@ class TestVariantMutalyzerForward(object):
         assert variant_model == variant
 
     COORDINATES = [
-        (Variant(47, 50), (112_086_919,112_086_922)),
-        (Variant(53, 56), (112_086_925,112_086_928)),
-        (Variant(44, 8095), (112_086_916,112_094_967)),
-        (Variant(47, 56), (112_086_919,112_086_928)),
-        (Variant(47, 8095), (112_086_919,112_094_967)),
-
+        (Variant(47, 50), (112_086_919, 112_086_922)),
+        (Variant(53, 56), (112_086_925, 112_086_928)),
+        (Variant(44, 8095), (112_086_916, 112_094_967)),
+        (Variant(47, 56), (112_086_919, 112_086_928)),
+        (Variant(47, 8095), (112_086_919, 112_094_967)),
     ]
+
     @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
-    def test_Variant_to_genomic_coordinates(self, variant: Variant, genomic_coordinates: Tuple[int, int]) -> None:
+    def test_Variant_to_genomic_coordinates(
+        self, variant: Variant, genomic_coordinates: Tuple[int, int]
+    ) -> None:
         """Test converting Variant coordinates to genomic coordinates"""
         d = init_description(f"{self.transcript}:c.=")
         assert variant.genomic_coordinates(d) == genomic_coordinates
@@ -905,17 +907,20 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         seq = self.sequence_from_description(d)
         variant_model = Variant.from_model(delins_model, sequence=seq)
         assert variant_model == variant
-    COORDINATES = [
-        (Variant(47571,47574), (32_435_345,32_435_348)),
-        (Variant(1286 ,47577), (32_389_060,32_435_351)),
-        (Variant(47565,47577), (32_435_339,32_435_351)),
-        (Variant(47565,47577), (32_435_339,32_435_351)),
-        (Variant(47568,47577), (32_435_342,32_435_351)),
-        (Variant(1286 ,47502), (32_389_060,32_435_276)),
 
+    COORDINATES = [
+        (Variant(47571, 47574), (32_435_345, 32_435_348)),
+        (Variant(1286, 47577), (32_389_060, 32_435_351)),
+        (Variant(47565, 47577), (32_435_339, 32_435_351)),
+        (Variant(47565, 47577), (32_435_339, 32_435_351)),
+        (Variant(47568, 47577), (32_435_342, 32_435_351)),
+        (Variant(1286, 47502), (32_389_060, 32_435_276)),
     ]
+
     @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
-    def test_Variant_to_genomic_coordinates(self, variant: Variant, genomic_coordinates: Tuple[int, int]) -> None:
+    def test_Variant_to_genomic_coordinates(
+        self, variant: Variant, genomic_coordinates: Tuple[int, int]
+    ) -> None:
         """Test converting Variant coordinates to genomic coordinates"""
         d = init_description(f"{self.transcript}:c.=")
         assert variant.genomic_coordinates(d) == genomic_coordinates

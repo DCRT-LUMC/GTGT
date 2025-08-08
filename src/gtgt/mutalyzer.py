@@ -451,7 +451,7 @@ class Variant:
             model["deleted"] = [deletion_object]
 
         return model
-    
+
     def genomic_coordinates(self, d: Description) -> Tuple[int, int]:
         """Return genomic coordinates for Variant"""
         ref_id = get_reference_id(d.corrected_model)
@@ -781,11 +781,6 @@ def mutation_to_cds_effect(
     # Keep track of changed positions on the genome
     changed_genomic = list()
 
-    # Ensemble offset
-    ensembl_offset = _get_ensembl_offset(d.references, ref_id)
-    if ensembl_offset is None:
-        raise RuntimeError("Missing ensembl offset")
-
     # Create crossmapper
     exons = d.get_selector_model()["exon"]
     cds = d.get_selector_model()["cds"]
@@ -794,35 +789,26 @@ def mutation_to_cds_effect(
 
     for start, end in changed_protein_positions(reference, observed):
         # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
-        logger.debug(f"({start=}, {end=})")
 
         logger.debug(f"p.{start+1}_{end}")
 
         # Internal coordinate positions
-        i_start = crossmap.protein_to_coordinate(
+        start = crossmap.protein_to_coordinate(
             # nth amino acid, first nt of codon
             (start + 1, 1, 0, 0, 0)
         )
-        i_end = (
+        end = (
             # nth amino acid, last nt of codon
             crossmap.protein_to_coordinate((end, 3, 0, 0, 0))
             + 1
         )
 
-        # Genomic internal coordinate positions
-        gi_start = i_start + ensembl_offset
-        gi_end = i_end + ensembl_offset
+        if end < start:
+            start, end = end - 1, start + 1
 
-        if gi_end < gi_start:
-            gi_start, gi_end = gi_end, gi_start
-            gi_start -= 1
-            gi_end += 1
+        v = Variant(start, end)
 
-        logger.debug(
-            f"protein difference: p.{start}-{end}, i.{i_start}_{i_end}, gi.{gi_start:_}-{gi_end:_} (size={gi_end-gi_start})"
-        )
-
-        changed_genomic.append((gi_start, gi_end))
+        changed_genomic.append(v.genomic_coordinates(d))
 
     return changed_genomic
 
