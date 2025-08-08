@@ -3,7 +3,7 @@ import logging
 from copy import deepcopy
 from typing import Any, Mapping
 from typing import Optional as OptionalType
-from typing import Sequence, TypeVar, Union
+from typing import Sequence, Tuple, TypeVar, Union
 
 import Levenshtein
 import mutalyzer_hgvs_parser
@@ -451,6 +451,16 @@ class Variant:
             model["deleted"] = [deletion_object]
 
         return model
+    
+    def genomic_coordinates(self, d: Description) -> Tuple[int, int]:
+        """Return genomic coordinates for Variant"""
+        ref_id = get_reference_id(d.corrected_model)
+        offset = _get_ensembl_offset(d.references, ref_id)
+
+        if offset is None:
+            raise RuntimeError("Missing ensembl offset")
+
+        return self.start + offset, self.end + offset
 
 
 @dataclasses.dataclass
@@ -774,7 +784,7 @@ def mutation_to_cds_effect(
     # Ensemble offset
     ensembl_offset = _get_ensembl_offset(d.references, ref_id)
     if ensembl_offset is None:
-        raise RuntimeError("Missing ensemble offset")
+        raise RuntimeError("Missing ensembl offset")
 
     # Create crossmapper
     exons = d.get_selector_model()["exon"]
