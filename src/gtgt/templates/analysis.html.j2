@@ -3,9 +3,9 @@
 {% else %}
   <div id="home" class="page padding active">
 {% endif %}
-    <h5>Specify variant</h5>
+    <h5>Analyze variant(s)</h5>
     <p>
-      Welcome to the Genetic Therapy Generator Toolkit, please specify a variant description below:
+    Welcome to the Genetic Therapy Generator Toolkit, please specify one or more variants in a single <a href="https://hgvs-nomenclature.org" class="link" target="_blank">HGVS description</a> below:
     </p>
     <div class="field border round small" style="margin-bottom:1em;">
       <input id="variant_input" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
