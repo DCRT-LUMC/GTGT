@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import secrets
+from gtgt.transcript import Result
 
 from mutalyzer.description import Description
 
@@ -168,10 +169,19 @@ def main() -> None:
         for record in transcript.records():
             print(record)
     elif args.command == "render":
-        results = []
+        # if args.results:
+        #     with open(args.results) as fin:
+        #         results = [Result.from_dict(x) for x in json.load(fin)]
+        # else:
+        #     results = []
+        #
 
         template_file = "templates/index.html.j2"
-        # print(render(template_file, variant=args.variant, results=results, error=args.error))
+        # print(
+        #     render(
+        #         template_file, variant=args.variant, results=results, error=args.error
+        #     )
+        # )
     else:
         raise NotImplementedError()
 

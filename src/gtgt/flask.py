@@ -1,6 +1,6 @@
 import os
 from collections.abc import Sequence
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, Union
 
 import mutalyzer_hgvs_parser
 from flask import Flask
@@ -50,6 +50,50 @@ def render(
         d["error"] = error
 
     return template.render(**d)
+
+
+def organize_results(
+    results: Sequence[Result],
+) -> dict[str, Union[list[Result], Result]]:
+    """
+    The Results are grouped in a dict with the following keys
+    - input, which contains the Result for the input
+    - modified, which contains the Results where one or more of the input
+      varianst have been changed
+    - all, which contains all other Results, including the wildtype etc, in
+      the original order
+    """
+
+    # Keep track of the Results we still have to precess
+    todo = [x for x in results]
+
+    # Extract the input and wildtype results, wich are special
+    input_ = next((x for x in results if x.therapy.name == "Input"))
+    wildtype = next((x for x in results if x.therapy.name == "Wildtype"))
+    todo.remove(input_)
+    todo.remove(wildtype)
+
+    # Extract the variants from the input
+    input_variants = input_.therapy.variants
+
+    # Find all Results where one or more of the input variants are modified or removed
+    modified = list()
+    for result in todo:
+        for variant in input_variants:
+            if variant not in result.therapy.variants:
+                modified.append(result)
+                break
+
+    # Exclude the Results that modify the input variant
+    todo = [x for x in todo if x not in modified]
+    # Add the wildtype Result back in
+    todo.insert(0, wildtype)
+
+    return {
+        "input": input_,
+        "modified": modified,
+        "all": todo,
+    }
 
 
 def validate_user_input(input: str) -> Mapping[str, str]:
