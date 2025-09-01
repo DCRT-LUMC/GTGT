@@ -1,9 +1,8 @@
-from gtgt.mutalyzer import Variant
-from gtgt.mutalyzer import Therapy
-from gtgt.transcript import Comparison, Result
 import pytest
 
 from gtgt.flask import organize_results, validate_user_input
+from gtgt.mutalyzer import Therapy, Variant
+from gtgt.transcript import Comparison, Result
 
 INVALID_INPUTS = [
     # Non-HGVS input

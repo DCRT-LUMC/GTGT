@@ -9,11 +9,11 @@ import json
 import logging
 import os
 import secrets
-from gtgt.transcript import Result
 
 from mutalyzer.description import Description
 
 from gtgt.flask import render
+from gtgt.transcript import Result
 
 from .mutalyzer import (
     Variant,
@@ -178,7 +178,10 @@ def main() -> None:
         template_file = "templates/index.html.j2"
         print(
             render(
-                template_file, variant=args.variant, results=file_payload, error=args.error
+                template_file,
+                variant=args.variant,
+                results=file_payload,
+                error=args.error,
             )
         )
     else:
