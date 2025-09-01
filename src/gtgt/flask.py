@@ -43,7 +43,7 @@ def render(
     if variant:
         d["variant"] = variant
     if results:
-        d["results"] = results
+        d["results"] = organize_results(results)
     if links:
         d["links"] = links
     if error:

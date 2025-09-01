@@ -169,19 +169,18 @@ def main() -> None:
         for record in transcript.records():
             print(record)
     elif args.command == "render":
-        # if args.results:
-        #     with open(args.results) as fin:
-        #         results = [Result.from_dict(x) for x in json.load(fin)]
-        # else:
-        #     results = []
-        #
+        if args.results:
+            with open(args.results) as fin:
+                file_payload = [Result.from_dict(x) for x in json.load(fin)]
+        else:
+            file_payload = []
 
         template_file = "templates/index.html.j2"
-        # print(
-        #     render(
-        #         template_file, variant=args.variant, results=results, error=args.error
-        #     )
-        # )
+        print(
+            render(
+                template_file, variant=args.variant, results=file_payload, error=args.error
+            )
+        )
     else:
         raise NotImplementedError()
 

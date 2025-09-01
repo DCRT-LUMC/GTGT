@@ -1,9 +1,93 @@
 {% if results is defined %}
   <div id="results" class="page padding active">
     <h4> Analysis results for {{ variant }}</h4>
-    {% for result in results %}
+      <p> This section contains the predicted transcript based on the input variant(s).</p>
+      {% set result = results.input %}
       <article>
-        <details>
+        <details open>
+          <summary class="none">
+            <div class="row">
+              <div class="max">
+                <h5>{{ result.therapy.name }}</h5>
+              </div>
+              <i>arrow_drop_down</i>
+            </div>
+          </summary>
+          <h6>HGVS</h6>
+          <code>{{ result.therapy.hgvs }}</code>
+          <h6>Therapy description</h6>
+          <p>{{ result.therapy.description}}
+          <h6>Annotation overview</h6>
+          <table>
+            <thead>
+              <tr>
+                <th>Annotation</th>
+                <th>Remaining</th>
+                <th>Basepairs</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for comp in result.comparison %}
+              {% set value = (comp.percentage * 100) | round(precision=1) %}
+              <tr>
+                <td>{{ comp.name }}</td>
+                <td>{{ value }}% </td>
+                <td>{{ comp.basepairs }}
+                <td><progress value="{{value}}" max="100"></progress></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </details>
+      </article>
+    <h4>Variant-modifying therapies</h4>
+    <p>This section contains analysis results for therapies which directly modify or remove the specified input variants.</p>
+    {% for result in results.modified %}
+      <article>
+        <details open>
+          <summary class="none">
+            <div class="row">
+              <div class="max">
+                <h5>{{ result.therapy.name }}</h5>
+              </div>
+              <i>arrow_drop_down</i>
+            </div>
+          </summary>
+          <h6>HGVS</h6>
+          <code>{{ result.therapy.hgvs }}</code>
+          <h6>Therapy description</h6>
+          <p>{{ result.therapy.description}}
+          <h6>Annotation overview</h6>
+          <table>
+            <thead>
+              <tr>
+                <th>Annotation</th>
+                <th>Remaining</th>
+                <th>Basepairs</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for comp in result.comparison %}
+              {% set value = (comp.percentage * 100) | round(precision=1) %}
+              <tr>
+                <td>{{ comp.name }}</td>
+                <td>{{ value }}% </td>
+                <td>{{ comp.basepairs }}
+                <td><progress value="{{value}}" max="100"></progress></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </details>
+      </article>
+    {% endfor %}
+    <h4>Other therapies</h4>
+    <p>This section contains therapies which do not directly change any of the specified input variants.</p>
+    {% for result in results.all %}
+      <article>
+        <details open>
           <summary class="none">
             <div class="row">
               <div class="max">
