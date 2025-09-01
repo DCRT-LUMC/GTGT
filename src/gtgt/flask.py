@@ -1,5 +1,7 @@
+from collections.abc import Sequence
 import os
 from typing import Any, Mapping, Optional
+from gtgt.transcript import Result
 
 import mutalyzer_hgvs_parser
 from flask import Flask
@@ -24,7 +26,7 @@ payload = Optional[dict[str, Any]]
 def render(
     template_file: str,
     variant: Optional[str] = None,
-    results: Any = None,
+    results: Sequence[Result] = [],
     links: Optional[Mapping[str, str]] = None,
     error: Optional[Mapping[str, str]] = None,
 ) -> str:
@@ -94,7 +96,7 @@ def result(variant: Optional[str] = None) -> str:
         results = transcript.analyze(variant)
     except Exception as e:
         error = {"summary": "Analysis failed", "details": str(e)}
-        results = None
+        results = []
 
     # Get external links
     try:
