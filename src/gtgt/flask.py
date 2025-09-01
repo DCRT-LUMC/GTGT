@@ -1,7 +1,9 @@
-from typing import Mapping, Optional
+import os
+from typing import Any, Mapping, Optional
 
 import mutalyzer_hgvs_parser
-from flask import Flask, render_template
+from flask import Flask
+from jinja2 import Environment, FileSystemLoader
 
 from .provider import Provider
 from .variant_validator import lookup_variant
@@ -14,6 +16,37 @@ hgvs_error = (
 
 app = Flask(__name__)
 provider = Provider()
+
+
+payload = Optional[dict[str, Any]]
+
+
+def render(
+    template_file: str,
+    variant: Optional[str] = None,
+    results: Any = None,
+    links: Optional[Mapping[str, str]] = None,
+    error: Optional[Mapping[str, str]] = None,
+) -> str:
+    """Render the html template using jinja2 directly"""
+    root = os.path.dirname(__file__)
+    template_file = os.path.join(root, template_file)
+    template_folder = os.path.dirname(template_file)
+    environment = Environment(loader=FileSystemLoader(template_folder))
+    template = environment.get_template(os.path.basename(template_file))
+
+    # Exclude any payloads that are not set
+    d: dict[str, Any] = dict()
+    if variant:
+        d["variant"] = variant
+    if results:
+        d["results"] = results
+    if links:
+        d["links"] = links
+    if error:
+        d["error"] = error
+
+    return template.render(**d)
 
 
 def validate_user_input(input: str) -> Mapping[str, str]:
@@ -43,15 +76,15 @@ def validate_user_input(input: str) -> Mapping[str, str]:
 @app.route("/")
 @app.route("/<variant>")
 def result(variant: Optional[str] = None) -> str:
-    template_file = "index.html.j2"
+    template_file = "templates/index.html.j2"
 
     # If no variant was specified
     if not variant:
-        return render_template(template_file)
+        return render(template_file)
 
     # Invalid user input
     if error := validate_user_input(variant):
-        return render_template(template_file, variant=variant, error=error)
+        return render(template_file, variant=variant, error=error)
 
     # Analyze the transcript
     try:
@@ -70,8 +103,6 @@ def result(variant: Optional[str] = None) -> str:
         links = dict()
 
     if error:
-        return render_template(template_file, variant=variant, error=error)
+        return render(template_file, variant=variant, error=error)
     else:
-        return render_template(
-            template_file, results=results, links=links, variant=variant
-        )
+        return render(template_file, results=results, links=links, variant=variant)
