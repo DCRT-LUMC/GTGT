@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import secrets
+from gtgt.flask import render
 
 from mutalyzer.description import Description
 
@@ -94,6 +95,13 @@ def main() -> None:
         "hgvs", help="HGVS description of the transcript of interest"
     )
 
+    render_parser= subparsers.add_parser(
+        "render", help="Render the HTML template (helper)"
+    )
+
+    render_parser.add_argument("--results", type=str, default="")
+    render_parser.add_argument("--error", "-e", help="Error payload")
+    render_parser.add_argument("--variant", type=str, default="10A>T")
     args = parser.parse_args()
 
     set_logging(args.log)
@@ -158,6 +166,15 @@ def main() -> None:
 
         for record in transcript.records():
             print(record)
+    elif args.command == "render":
+        if args.results:
+            with open(args.results) as fin:
+                results = json.load(fin)
+        else:
+            results = []
+
+        template_file = "templates/index.html.j2"
+        print(render(template_file, variant=args.variant, results=results, error=args.error))
     else:
         raise NotImplementedError()
 
