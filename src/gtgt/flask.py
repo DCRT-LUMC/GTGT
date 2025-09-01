@@ -1,11 +1,12 @@
-from collections.abc import Sequence
 import os
+from collections.abc import Sequence
 from typing import Any, Mapping, Optional
-from gtgt.transcript import Result
 
 import mutalyzer_hgvs_parser
 from flask import Flask
 from jinja2 import Environment, FileSystemLoader
+
+from gtgt.transcript import Result
 
 from .provider import Provider
 from .variant_validator import lookup_variant

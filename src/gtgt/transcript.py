@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Optional, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 from mutalyzer.description import Description
 
@@ -24,6 +24,11 @@ class Comparison:
     percentage: float
     basepairs: str
 
+    @classmethod
+    def from_dict(cls, dict: Mapping[str, Any]) -> "Comparison":
+        """Create a Variant object from a dict representation of a Variant"""
+        return cls(**dict)
+
 
 @dataclasses.dataclass
 class Result:
@@ -41,6 +46,13 @@ class Result:
         total_self = sum(c.percentage for c in self.comparison)
         total_other = sum(c.percentage for c in other.comparison)
         return total_self > total_other
+
+    @classmethod
+    def from_dict(cls, dict: Mapping[str, Any]) -> "Result":
+        return cls(
+            therapy=Therapy.from_dict(dict["therapy"]),
+            comparison=[Comparison.from_dict(x) for x in dict["comparison"]],
+        )
 
 
 class Transcript:

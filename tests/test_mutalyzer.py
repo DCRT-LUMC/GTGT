@@ -8,6 +8,8 @@ from mutalyzer.description import Description
 
 from gtgt.models import TranscriptModel
 from gtgt.mutalyzer import (
+    Therapy,
+    Variant,
     _exon_string,
     changed_protein_positions,
     get_exons,
@@ -239,3 +241,20 @@ EXON_DESCRIPTION = [
 @pytest.mark.parametrize("exons, expected", EXON_DESCRIPTION)
 def test_exon_string(exons: Sequence[int], expected: str) -> None:
     assert _exon_string(exons) == expected
+
+
+def test_Therapy_from_dict() -> None:
+    """Test creating a Therapy from a dict"""
+    variants = [Variant(10, 11, inserted="A", deleted="T")]
+    therapy = Therapy(
+        "Wildtype", hgvs="ENST:c.=", description="free text", variants=variants
+    )
+
+    d = {
+        "name": "Wildtype",
+        "hgvs": "ENST:c.=",
+        "description": "free text",
+        "variants": [{"start": 10, "end": 11, "inserted": "A", "deleted": "T"}],
+    }
+
+    assert Therapy.from_dict(d) == therapy

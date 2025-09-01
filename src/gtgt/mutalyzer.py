@@ -407,6 +407,11 @@ class Variant:
             deleted=deleted if deleted else "",
         )
 
+    @classmethod
+    def from_dict(cls, dict: Mapping[str, Any]) -> "Variant":
+        """Create a Variant object from a dict representation of a Variant"""
+        return cls(**dict)
+
     def to_model(self) -> Mapping[str, Any]:
         """Convert Variant to mutalyzer delins model"""
 
@@ -471,6 +476,17 @@ class Therapy:
     hgvs: str
     description: str
     variants: Sequence[Variant]
+
+    @classmethod
+    def from_dict(cls, dict: Mapping[str, Any]) -> "Therapy":
+        """Create a Therapy object from a dict representation of a Therapy"""
+        v = [Variant.from_dict(x) for x in dict["variants"]]
+        return cls(
+            name=dict["name"],
+            hgvs=dict["hgvs"],
+            description=dict["description"],
+            variants=v,
+        )
 
 
 class HGVS(BaseModel):

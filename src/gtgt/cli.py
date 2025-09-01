@@ -9,9 +9,10 @@ import json
 import logging
 import os
 import secrets
-from gtgt.flask import render
 
 from mutalyzer.description import Description
+
+from gtgt.flask import render
 
 from .mutalyzer import (
     Variant,
@@ -95,7 +96,7 @@ def main() -> None:
         "hgvs", help="HGVS description of the transcript of interest"
     )
 
-    render_parser= subparsers.add_parser(
+    render_parser = subparsers.add_parser(
         "render", help="Render the HTML template (helper)"
     )
 
@@ -167,14 +168,10 @@ def main() -> None:
         for record in transcript.records():
             print(record)
     elif args.command == "render":
-        if args.results:
-            with open(args.results) as fin:
-                results = json.load(fin)
-        else:
-            results = []
+        results = []
 
         template_file = "templates/index.html.j2"
-        print(render(template_file, variant=args.variant, results=results, error=args.error))
+        # print(render(template_file, variant=args.variant, results=results, error=args.error))
     else:
         raise NotImplementedError()
 

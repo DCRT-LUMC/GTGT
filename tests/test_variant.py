@@ -185,6 +185,13 @@ class TestVariant:
         with pytest.raises(ValueError):
             sorted([v1, v2])
 
+    def test_Variant_from_dict(self) -> None:
+        """Test creating a Variant from a dict"""
+        v = Variant(10, 22, inserted="ATCGG", deleted="")
+        d = {"start": 10, "end": 22, "inserted": "ATCGG", "deleted": ""}
+
+        assert Variant.from_dict(d) == v
+
 
 class TestCombineVariantsDeletion:
     """Test combining multiple variants with a deletion

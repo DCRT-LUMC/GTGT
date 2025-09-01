@@ -502,3 +502,38 @@ def test_mutate_reverse(
 
     assert list(WT1.exons.blocks()) == exon_blocks
     assert list(WT1.coding_exons.blocks()) == coding_exon_blocks
+
+
+def test_Comparison_from_dict() -> None:
+    """Test creating a Comparison from a dict"""
+    c = Comparison("Wildtype", percentage=100, basepairs="100/100")
+
+    d = {"name": "Wildtype", "percentage": 100, "basepairs": "100/100"}
+
+    assert Comparison.from_dict(d) == c
+
+
+def test_Result_from_dict() -> None:
+    """Test  creating a Result from a dict"""
+
+    r = Result(
+        therapy=Therapy(
+            name="wildtype",
+            hgvs="ENST:c.=",
+            description="Free text",
+            variants=[Variant(10, 12, inserted="ATG")],
+        ),
+        comparison=[Comparison("Exons", percentage=100, basepairs="120/120")],
+    )
+
+    therapy = {
+        "name": "wildtype",
+        "hgvs": "ENST:c.=",
+        "description": "Free text",
+        "variants": [{"start": 10, "end": 12, "inserted": "ATG", "deleted": ""}],
+    }
+    comparison = [{"name": "Exons", "percentage": 100, "basepairs": "120/120"}]
+
+    d = {"therapy": therapy, "comparison": comparison}
+
+    assert Result.from_dict(d) == r
