@@ -1,6 +1,6 @@
 {% if results is defined %}
   <div id="results" class="page padding active">
-    <h4> Analysis results for {{ variant }}</h4>
+    <h2> Analysis results for {{ variant }}</h2>
       <p> This section contains the predicted transcript based on the input variant(s).</p>
       {% set result = results.input %}
       <article>
@@ -41,7 +41,7 @@
           </table>
         </details>
       </article>
-    <h4>Variant-modifying therapies</h4>
+    <h2>Variant-modifying therapies</h2>
     <p>This section contains analysis results for therapies which directly modify or remove the specified input variants.</p>
     {% for result in results.modified %}
       <article>
@@ -83,7 +83,7 @@
         </details>
       </article>
     {% endfor %}
-    <h4>Other therapies</h4>
+    <h2>Other therapies</h2>
     <p>This section contains therapies which do not directly change any of the specified input variants.</p>
     {% for result in results.all %}
       <article>
