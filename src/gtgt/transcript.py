@@ -123,8 +123,6 @@ class Transcript:
             record.subtract(protein_changes)
 
         # Update RNA features
-        print(variants)
-        print(*(v.genomic_coordinates(d) for v in variants))
         rna_changes = Bed.from_blocks(
             self.exons.chrom, *[v.genomic_coordinates(d) for v in variants]
         )
