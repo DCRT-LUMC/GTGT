@@ -473,7 +473,9 @@ class Therapy:
     """Class to store genetic therapies"""
 
     name: str
-    hgvs: str
+    hgvsc: str
+    hgvsr: str
+    hgvsp: str
     description: str
     variants: Sequence[Variant]
 
@@ -483,7 +485,9 @@ class Therapy:
         v = [Variant.from_dict(x) for x in dict["variants"]]
         return cls(
             name=dict["name"],
-            hgvs=dict["hgvs"],
+            hgvsc=dict["hgvsc"],
+            hgvsr=dict["hgvsr"],
+            hgvsp=dict["hgvsp"],
             description=dict["description"],
             variants=v,
         )
@@ -792,6 +796,7 @@ def mutation_to_cds_effect(
 
     # Determine the protein positions that were changed
     protein = get_protein_description(delins, d.references, selector_model)
+    print(f"{protein=}")
     reference, observed = protein[1], protein[2]
 
     # Keep track of changed positions on the genome
