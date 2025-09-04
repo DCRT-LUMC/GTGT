@@ -765,6 +765,25 @@ def changed_protein_positions(
     return deleted
 
 
+def protein_prediction(
+    d: Description, variants: Sequence[Variant]
+) -> tuple[str, str, str, int, int, int]:
+    """Call mutalyzer get_protein_description on a Description and list of Variants"""
+    # Get required data structures from the Description
+    ref_id = get_reference_id(d.corrected_model)
+    selector_model = get_protein_selector_model(
+        d.references[ref_id]["annotations"], ref_id
+    )
+
+    # Convert the Variants to their delins model representation
+    delins = [v.to_model() for v in variants]
+
+    protein: tuple[str, str, str, int, int, int] = get_protein_description(
+        delins, d.references, selector_model
+    )
+    return protein
+
+
 def mutation_to_cds_effect(
     d: Description, variants: Sequence[Variant]
 ) -> Sequence[tuple[int, int]]:
@@ -780,18 +799,8 @@ def mutation_to_cds_effect(
     NOTE that the genome range is similar to the UCSC annotations on the genome,
     i.e. 0 based, half open. Not to be confused with hgvs g. positions
     """
-
-    # Get required data structures from the Description
-    ref_id = get_reference_id(d.corrected_model)
-    selector_model = get_protein_selector_model(
-        d.references[ref_id]["annotations"], ref_id
-    )
-
-    # Convert the Variants to their delins model representation
-    delins = [v.to_model() for v in variants]
-
     # Determine the protein positions that were changed
-    protein = get_protein_description(delins, d.references, selector_model)
+    protein = protein_prediction(d, variants)
     reference, observed = protein[1], protein[2]
 
     # Keep track of changed positions on the genome
