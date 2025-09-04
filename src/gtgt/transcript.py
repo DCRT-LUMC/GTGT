@@ -162,10 +162,13 @@ class Transcript:
 
         results = list()
 
+        identifier = hgvs.split(":c.")[0]
         # Store the wildtype
         wt = Therapy(
             name="Wildtype",
-            hgvs=hgvs.split("c.")[0] + "c.=",
+            hgvsc=f"{identifier}:c.=",
+            hgvsr=f"{identifier}:r.=",
+            hgvsp=f"{identifier}:p.=",
             description="These are the annotations as defined on the reference. They are always 100% by definition.",
             variants=list(),
         )
@@ -175,7 +178,9 @@ class Transcript:
         # Store the input variants as Therapy
         input = Therapy(
             name="Input",
-            hgvs=hgvs,
+            hgvsc=hgvs,
+            hgvsr="TODO",
+            hgvsp="TODO",
             description="The annotations based on the supplied input variants.",
             variants=input_variants,
         )

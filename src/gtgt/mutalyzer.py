@@ -697,9 +697,10 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
         name = f"Skip {exons_description}"
         selector = d.get_selector_id()
         cdot_variants = to_cdot_hgvs(d, combined)
-        hgvs = f"{selector}:c.{cdot_variants}"
+        hgvsc = f"{selector}:c.{cdot_variants}"
+        hgvsr = f"{selector}:r.{cdot_variants}"
         description = description
-        t = Therapy(name, hgvs, description, combined)
+        t = Therapy(name, hgvsc, hgvsr, "TODO", description, combined)
         exon_skips.append(t)
 
     return exon_skips
