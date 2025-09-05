@@ -16,6 +16,16 @@ from gtgt.mutalyzer import (
 )
 
 
+def SDHD_description() -> Description:
+    """SDHD, on the forward strand"""
+    return init_description("ENST00000375549.8:c.=")
+
+
+def WT1_description() -> Description:
+    """WT1, on the reverse strand"""
+    return init_description("ENST00000452863.10:c.=")
+
+
 class TestVariant:
     """Test the functionality of the Variant class
 
@@ -368,9 +378,11 @@ class TestVariantMutalyzerIntegration:
 class TestVariantMutalyzerForward(object):
     """Test the interaction between Variants and mutalyzer for transcripts on the forward strand"""
 
-    # SDHD, forward strand
     transcript = "ENST00000375549.8"
-    empty_transcript = init_description(f"{transcript}:c.=")
+
+    # SDHD, forward strand
+    def get_empty_transcript(self) -> Description:
+        return init_description(f"{self.transcript}:c.=")
 
     def delins_from_description(self, d: Description) -> dict[str, Any]:
         """Return the internal delins model from a Description object"""
@@ -478,7 +490,6 @@ class TestVariantMutalyzerForward(object):
     @pytest.mark.parametrize("variant", ROUND_TRIP_VARIANTS)
     def test_Variant_hgvs_round_trip(
         self,
-        SDHD_description: Description,
         variant: str,
     ) -> None:
         """
@@ -541,10 +552,9 @@ class TestVariantMutalyzerForward(object):
     ]
 
     @pytest.mark.parametrize("variant, expected", TO_HGVS)
-    def test_Variant_to_hgvs(
-        self, SDHD_description: Description, variant: Variant, expected: str
-    ) -> None:
-        assert to_cdot_hgvs(SDHD_description, [variant]) == expected
+    def test_Variant_to_hgvs(self, variant: Variant, expected: str) -> None:
+        d = SDHD_description()
+        assert to_cdot_hgvs(d, [variant]) == expected
 
     NOT_SUPPORTED = [
         # Uncertain repeat size
@@ -617,7 +627,9 @@ class TestVariantMutalyzerForward(object):
         is usable by mutalyzer in the same way as the original HGVS description
         """
         d = init_description(f"{self.transcript}:c.{hgvs}")
-        variant_protein = self.protein_from_variant(variant, self.empty_transcript)
+        variant_protein = self.protein_from_variant(
+            variant, self.get_empty_transcript()
+        )
         description_protein = self.protein_from_description(d)
 
         assert variant_protein == description_protein
@@ -673,9 +685,8 @@ class TestVariantMutalyzerForward(object):
 class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
     """Test the interaction between Variants and mutalyzer for transcripts on the reverse strand"""
 
-    # SDHD, forward strand
+    # WT1, reverse strand
     transcript = "ENST00000452863.10"
-    empty_transcript = init_description(f"{transcript}:c.=")
 
     # fmt: off
     MUTATIONS_VARIANT = [
@@ -737,12 +748,13 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
 
         assert mutation_to_cds_effect(d, variants) == [expected]
 
-    def test_Variant_hgvs_round_trip(self) -> None:
+    @pytest.mark.parametrize("variant", ["10del"])
+    def test_Variant_hgvs_round_trip(self, variant: str) -> None:
         """
         See the equivalent test for forward transcripts. For transcripts on the
         reverse strand, a round-trip conversion can only be performed for deletions
         """
-        d = init_description(f"{self.transcript}:c.10del")
+        d = init_description(f"{self.transcript}:c.{variant}")
         delins_model = d.delins_model["variants"][0]
 
         v = Variant.from_model(delins_model)
@@ -795,10 +807,9 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
     ]
 
     @pytest.mark.parametrize("variant, expected", TO_HGVS)
-    def test_Variant_to_hgvs(
-        self, WT1_description: Description, variant: Variant, expected: str
-    ) -> None:
-        assert to_cdot_hgvs(WT1_description, [variant]) == expected
+    def test_Variant_to_hgvs(self, variant: Variant, expected: str) -> None:
+        d = WT1_description()
+        assert to_cdot_hgvs(d, [variant]) == expected
 
     NOT_SUPPORTED = [
         # Uncertain repeat size
@@ -869,7 +880,9 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         is usable by mutalyzer in the same way as the original HGVS description
         """
         d = init_description(f"{self.transcript}:c.{hgvs}")
-        variant_protein = self.protein_from_variant(variant, self.empty_transcript)
+        variant_protein = self.protein_from_variant(
+            variant, self.get_empty_transcript()
+        )
         description_protein = self.protein_from_description(d)
 
         assert variant_protein == description_protein

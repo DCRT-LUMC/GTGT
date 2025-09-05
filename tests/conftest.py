@@ -43,15 +43,3 @@ def _get_content(relative_location: str) -> str:
 def mock_env(monkeypatch: Any) -> None:
     monkeypatch.setattr("mutalyzer_retriever.retriever.retrieve_raw", _retrieve_raw)
     monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", _get_cds_to_mrna)
-
-
-@pytest.fixture(scope="session")
-def SDHD_description() -> Description:
-    """SDHD, on the forward strand"""
-    return init_description("ENST00000375549.8:c.=")
-
-
-@pytest.fixture(scope="session")
-def WT1_description() -> Description:
-    """WT1, on the reverse strand"""
-    return init_description("ENST00000452863.10:c.=")

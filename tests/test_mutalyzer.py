@@ -13,14 +13,25 @@ from gtgt.mutalyzer import (
     _exon_string,
     changed_protein_positions,
     get_exons,
+    init_description,
     skip_adjacent_exons,
     sliding_window,
 )
 from gtgt.transcript import Transcript
 
 
-def test_one_adjacent_exonskip_forward(SDHD_description: Description) -> None:
-    d = SDHD_description
+def SDHD_description() -> Description:
+    """SDHD, on the forward strand"""
+    return init_description("ENST00000375549.8:c.=")
+
+
+def WT1_description() -> Description:
+    """WT1, on the reverse strand"""
+    return init_description("ENST00000452863.10:c.=")
+
+
+def test_one_adjacent_exonskip_forward() -> None:
+    d = SDHD_description()
     results = [
         "ENST00000375549.8:c.53_169del",
         "ENST00000375549.8:c.170_314del",
@@ -29,8 +40,8 @@ def test_one_adjacent_exonskip_forward(SDHD_description: Description) -> None:
         assert output.hgvs == expected
 
 
-def test_two_adjacent_exonskip_SDHD(SDHD_description: Description) -> None:
-    d = SDHD_description
+def test_two_adjacent_exonskip_SDHD() -> None:
+    d = SDHD_description()
     results = [
         "ENST00000375549.8:c.53_314del",
     ]
@@ -40,18 +51,18 @@ def test_two_adjacent_exonskip_SDHD(SDHD_description: Description) -> None:
         assert output.hgvs == expected
 
 
-def test_no_possible_exonskip_SDHD(SDHD_description: Description) -> None:
+def test_no_possible_exonskip_SDHD() -> None:
     """
     GIVEN a transcript with 4 exons (2 can be skipped)
     WHEN we try to skip 3 adjacent exons
     THEN we should get an empty list of therapies
     """
-    d = SDHD_description
+    d = SDHD_description()
     assert skip_adjacent_exons(d, number_to_skip=3) == list()
 
 
-def test_one_adjacent_exonskip_WT1(WT1_description: Description) -> None:
-    d = WT1_description
+def test_one_adjacent_exonskip_WT1() -> None:
+    d = WT1_description()
     results = [
         "ENST00000452863.10:c.662_784del",
         "ENST00000452863.10:c.785_887del",
@@ -67,8 +78,8 @@ def test_one_adjacent_exonskip_WT1(WT1_description: Description) -> None:
         assert output.hgvs == expected
 
 
-def test_two_adjacent_exonskip_WT1(WT1_description: Description) -> None:
-    d = WT1_description
+def test_two_adjacent_exonskip_WT1() -> None:
+    d = WT1_description()
     results = [
         "ENST00000452863.10:c.662_887del",
         "ENST00000452863.10:c.785_965del",
@@ -208,27 +219,23 @@ def test_changed_protein_positions(
     assert changed_protein_positions(reference, observed) == expected
 
 
-def test_get_exons_forward(SDHD_description: Description) -> None:
+def test_get_exons_forward() -> None:
     """Text extracting exons from a Description object"""
+    d = SDHD_description()
     expected = (0, 87)
 
-    assert get_exons(SDHD_description, in_transcript_order=True)[0] == expected
-    assert get_exons(SDHD_description, in_transcript_order=False)[0] == expected
+    assert get_exons(d, in_transcript_order=True)[0] == expected
+    assert get_exons(d, in_transcript_order=False)[0] == expected
 
 
-def test_exons_forward(WT1_description: Description) -> None:
+def test_exons_forward() -> None:
     """Text extracting exons from a Description object"""
+    d = WT1_description()
     expected_transcript_order = (46925, 47765)
     expected_genomic_order = (0, 1405)
 
-    assert (
-        get_exons(WT1_description, in_transcript_order=True)[0]
-        == expected_transcript_order
-    )
-    assert (
-        get_exons(WT1_description, in_transcript_order=False)[0]
-        == expected_genomic_order
-    )
+    assert get_exons(d, in_transcript_order=True)[0] == expected_transcript_order
+    assert get_exons(d, in_transcript_order=False)[0] == expected_genomic_order
 
 
 EXON_DESCRIPTION = [
