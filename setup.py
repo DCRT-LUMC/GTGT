@@ -62,6 +62,7 @@ setup(
         "pydantic",
         "setuptools",
         "mutalyzer>=3.1.1",
+        "exonviz",
     ],
     extras_require={
         "api_server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"],

@@ -6,6 +6,7 @@ from typing import Any, Mapping, Optional, Sequence
 from mutalyzer.description import Description
 
 from .bed import Bed
+from .exonviz import draw
 from .mutalyzer import (
     Therapy,
     Variant,
