@@ -84,9 +84,9 @@ def test_organize_results() -> None:
 
     # Expected organized version of the results
     expected = {
-        "input": input_,
+        "input": [input_, wildtype],
         "modified": [skip_variant_exon],
-        "all": [wildtype, skip_exon_before_variant, skip_exon_after_variant],
+        "all": [skip_exon_before_variant, skip_exon_after_variant],
     }
 
     assert organize_results(results) == expected
