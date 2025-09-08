@@ -41,9 +41,10 @@
 {% if results is defined %}
   <div id="results" class="page padding active">
     <h2> Analysis results for {{ variant }}</h2>
-      <p> This section contains the predicted transcript based on the input variant(s).</p>
-      {% set result = results.input %}
-      {{ render(result) }}
+    <p> GTGT analysis results for both the input variants and the wildtype version of the transcript. By definition, the <em>Remaining</em> percentage of the wildtype transcript is always 100%.</p>
+      {% for result in results.input%}
+        {{ render(result) }}
+      {% endfor %}
     <h2>Variant-modifying therapies</h2>
     <p>This section contains analysis results for therapies which directly modify or remove the specified input variants.</p>
     {% for result in results.modified %}
