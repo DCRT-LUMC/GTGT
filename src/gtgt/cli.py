@@ -132,7 +132,7 @@ def main() -> None:
         desc = f"{args.transcript_id}:c.="
         d = init_description(desc)
         for therapy in generate_therapies(d):
-            print(f"{therapy.name}: {therapy.hgvs}")
+            print(f"{therapy.name}: {therapy.hgvsc}")
     elif args.command == "analyze":
         transcript_id = args.hgvs.split(":")[0]
         transcript_model = lookup_transcript(provider, transcript_id)

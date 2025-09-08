@@ -176,7 +176,7 @@ def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
 
     input = results[1]
     assert input.therapy.name == "Input"
-    assert input.therapy.hgvs == variant
+    assert input.therapy.hgvsc == variant
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
     assert coding_exons.basepairs == "18845/46303"

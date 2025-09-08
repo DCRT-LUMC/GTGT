@@ -11,6 +11,12 @@
       </summary>
       <h6>Variant description</h6>
       <p>DNA: <a class="link" target="_blank" href="https://mutalyzer.nl/normalizer/{{ result.therapy.hgvsc}}">{{ result.therapy.hgvsc }}</a></p>
+      {% if result.therapy.hgvsr is not none %}
+      <p>RNA: <a class="link" target="_blank" href="https://mutalyzer.nl/normalizer/{{ result.therapy.hgvsr}}">{{ result.therapy.hgvsr }}</a></p>
+      {% endif %}
+      {% if result.therapy.hgvsp is not none %}
+      <p>Protein: <a class="link" target="_blank" href="https://mutalyzer.nl/normalizer/{{ result.therapy.hgvsp}}">{{ result.therapy.hgvsp }}</a></p>
+      {% endif %}
       <h6>Therapy description</h6>
       <p>{{ result.therapy.description}}
       {% if result.therapy.figure is not none %}

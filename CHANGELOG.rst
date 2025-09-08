@@ -10,6 +10,7 @@ v0.2.5-dev
 ----------
 + Group Therapies together in the html
 + Show a figure of the input variants in the html
++ Add RNA and protein variant descriptions
 
 v0.2.4
 ------
