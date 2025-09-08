@@ -519,7 +519,7 @@ def test_Result_from_dict() -> None:
     r = Result(
         therapy=Therapy(
             name="wildtype",
-            hgvs="ENST:c.=",
+            hgvsc="ENST:c.=",
             description="Free text",
             variants=[Variant(10, 12, inserted="ATG")],
         ),
@@ -528,7 +528,7 @@ def test_Result_from_dict() -> None:
 
     therapy = {
         "name": "wildtype",
-        "hgvs": "ENST:c.=",
+        "hgvsc": "ENST:c.=",
         "description": "Free text",
         "variants": [{"start": 10, "end": 12, "inserted": "ATG", "deleted": ""}],
     }

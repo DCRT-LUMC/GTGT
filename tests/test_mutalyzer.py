@@ -37,7 +37,7 @@ def test_one_adjacent_exonskip_forward() -> None:
         "ENST00000375549.8:c.170_314del",
     ]
     for output, expected in zip_longest(skip_adjacent_exons(d), results):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_two_adjacent_exonskip_SDHD() -> None:
@@ -48,7 +48,7 @@ def test_two_adjacent_exonskip_SDHD() -> None:
     for output, expected in zip_longest(
         skip_adjacent_exons(d, number_to_skip=2), results
     ):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_no_possible_exonskip_SDHD() -> None:
@@ -75,7 +75,7 @@ def test_one_adjacent_exonskip_WT1() -> None:
     ]
     # for output, expected in zip_longest(skip_adjacent_exons(d), results):
     for output, expected in zip_longest(skip_adjacent_exons(d), results):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_two_adjacent_exonskip_WT1() -> None:
@@ -90,7 +90,7 @@ def test_two_adjacent_exonskip_WT1() -> None:
         "ENST00000452863.10:c.1265_1447del",
     ]
     for output, expected in zip_longest(skip_adjacent_exons(d, 2), results):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_sliding_window_size_one() -> None:
@@ -150,7 +150,7 @@ def test_analyze_transcript(WT: Transcript) -> None:
 
     input = results[1]
     assert input.therapy.name == "Input"
-    assert input.therapy.hgvs == variant
+    assert input.therapy.hgvsc == variant
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
     assert coding_exons.basepairs == "18845/46303"
@@ -254,12 +254,12 @@ def test_Therapy_from_dict() -> None:
     """Test creating a Therapy from a dict"""
     variants = [Variant(10, 11, inserted="A", deleted="T")]
     therapy = Therapy(
-        "Wildtype", hgvs="ENST:c.=", description="free text", variants=variants
+        "Wildtype", hgvsc="ENST:c.=", description="free text", variants=variants
     )
 
     d = {
         "name": "Wildtype",
-        "hgvs": "ENST:c.=",
+        "hgvsc": "ENST:c.=",
         "description": "free text",
         "variants": [{"start": 10, "end": 11, "inserted": "A", "deleted": "T"}],
     }

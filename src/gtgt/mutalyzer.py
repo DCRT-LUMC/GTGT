@@ -473,7 +473,7 @@ class Therapy:
     """Class to store genetic therapies"""
 
     name: str
-    hgvs: str
+    hgvsc: str
     description: str
     variants: Sequence[Variant]
     figure: OptionalType[str] = None
@@ -484,7 +484,7 @@ class Therapy:
         v = [Variant.from_dict(x) for x in dict["variants"]]
         return cls(
             name=dict["name"],
-            hgvs=dict["hgvs"],
+            hgvsc=dict["hgvsc"],
             description=dict["description"],
             variants=v,
             figure=dict.get("figure"),
