@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+import svg
 from exonviz.draw import draw_exons
 from exonviz.mutalyzer import build_exons
 from mutalyzer.description import Description
@@ -29,5 +30,15 @@ def draw(d: Description) -> str:
         config=config,
     )
 
-    svg: str = draw_exons(exons, config=config)
-    return svg
+    fig = draw_exons(exons, config=config)
+
+    # Make the figure scalable with CSS by resetting the width and height
+    # and setting a viewBox
+    width = fig.width
+    height = fig.height
+    fig.viewBox = svg.ViewBoxSpec(0, 0, width, height)
+
+    fig.width = None
+    fig.height = None
+
+    return str(fig)

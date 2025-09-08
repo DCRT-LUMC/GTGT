@@ -13,6 +13,11 @@
       <p>HGVS: <a class="link" target="_blank" href="https://mutalyzer.nl/normalizer/{{ result.therapy.hgvs}}">{{ result.therapy.hgvs }}</a></p>
       <h6>Therapy description</h6>
       <p>{{ result.therapy.description}}
+      {% if result.therapy.figure is not none %}
+        <h6>Transcript visualization</h6>
+        Visualization of the input variants and exons (with reading frames), generated with <a href="https://exonviz.rnatherapy.nl" class="link" target="_blank">ExonViz</a>.
+        {{ result.therapy.figure }}
+      {% endif %}
       <h6>Annotation overview</h6>
       <table>
         <thead>

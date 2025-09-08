@@ -476,6 +476,7 @@ class Therapy:
     hgvs: str
     description: str
     variants: Sequence[Variant]
+    figure: OptionalType[str] = None
 
     @classmethod
     def from_dict(cls, dict: Mapping[str, Any]) -> "Therapy":
@@ -486,6 +487,7 @@ class Therapy:
             hgvs=dict["hgvs"],
             description=dict["description"],
             variants=v,
+            figure=dict.get("figure"),
         )
 
 

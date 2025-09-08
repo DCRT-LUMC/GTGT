@@ -179,6 +179,7 @@ class Transcript:
             hgvs=hgvs,
             description="The annotations based on the supplied input variants.",
             variants=input_variants,
+            figure=draw(d),
         )
         patient = deepcopy(self)
         patient.mutate(d, input.variants)
