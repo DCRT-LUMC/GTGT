@@ -22,7 +22,7 @@ from mutalyzer.converter.variants_de_to_hgvs import (
 )
 from mutalyzer.description import Description
 from mutalyzer.description_model import get_reference_id, variants_to_description
-from mutalyzer.protein import get_protein_description
+from mutalyzer.protein import get_protein_description, in_frame_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
 from mutalyzer_crossmapper import Coding
@@ -781,7 +781,7 @@ def changed_protein_positions(
 
 def protein_prediction(
     d: Description, variants: Sequence[Variant]
-) -> tuple[str, str, str, int, int, int]:
+) -> tuple[str, str, str]:
     """Call mutalyzer get_protein_description on a Description and list of Variants"""
     # Get required data structures from the Description
     ref_id = get_reference_id(d.corrected_model)
@@ -792,10 +792,17 @@ def protein_prediction(
     # Convert the Variants to their delins model representation
     delins = [v.to_model() for v in variants]
 
-    protein: tuple[str, str, str, int, int, int] = get_protein_description(
+    description, reference, predicted, *rest = get_protein_description(
         delins, d.references, selector_model
     )
-    return protein
+
+    # If mutalyzer puts in an unknown protein prediction, we overwrite it
+    if description.endswith(":p.?"):
+        id = description.split(":p.?")[0]
+        desc = in_frame_description(reference, predicted)[0]
+        description = f"{id}:p.{desc}"
+
+    return description, reference, predicted
 
 
 def mutation_to_cds_effect(

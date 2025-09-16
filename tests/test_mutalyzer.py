@@ -14,6 +14,7 @@ from gtgt.mutalyzer import (
     changed_protein_positions,
     get_exons,
     init_description,
+    protein_prediction,
     skip_adjacent_exons,
     sliding_window,
 )
@@ -265,3 +266,19 @@ def test_Therapy_from_dict() -> None:
     }
 
     assert Therapy.from_dict(d) == therapy
+
+
+def test_protein_prediction_unknown() -> None:
+    """Test overwriting unknown protein prediction
+
+    Sometimes, mutalyzer will only generate :p.? as a protein prediction
+    If that happens, we use in_frame_description overwrite the protein
+    description
+    """
+    d = SDHD_description()
+    # Variants that give rise to a :p.? prediction from mutalyzer
+    variants = [Variant(start=1031, end=1032), Variant(start=1994, end=2139)]
+
+    id = "ENST00000375549.8(ENSP00000364699)"
+    p_variant = "Leu35_Leu159delinsPheArgThrAspLeuSerGlnAsnGlyValGluCysSerThrTyrThrCysHisArgAlaThrIleGlyProTrpThrSerCysTyr"
+    assert protein_prediction(d, variants)[0] == f"{id}:p.{p_variant}"
