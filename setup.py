@@ -18,7 +18,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='gtgt',
-    version='0.2.5',
+    version='0.2.6',
     license='AGPL-3.0',
     description='Genetic Therapy Generator Toolkit',
     long_description=long_description,
@@ -62,7 +62,7 @@ setup(
         "pydantic",
         "setuptools",
         "mutalyzer>=3.1.1",
-        "exonviz",
+        "exonviz>=0.2.15",
     ],
     extras_require={
         "api_server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"],

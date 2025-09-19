@@ -8,6 +8,11 @@ Changelog
 .. that users understand how the changes affect the new version.
 
 ------
+v0.2.6
+------
++ Fix circular import with exonviz
+
+------
 v0.2.5
 ------
 + Group Therapies together in the html
