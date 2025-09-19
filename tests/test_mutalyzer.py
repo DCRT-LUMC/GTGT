@@ -14,6 +14,7 @@ from gtgt.mutalyzer import (
     changed_protein_positions,
     get_exons,
     init_description,
+    protein_prediction,
     skip_adjacent_exons,
     sliding_window,
 )
@@ -37,7 +38,7 @@ def test_one_adjacent_exonskip_forward() -> None:
         "ENST00000375549.8:c.170_314del",
     ]
     for output, expected in zip_longest(skip_adjacent_exons(d), results):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_two_adjacent_exonskip_SDHD() -> None:
@@ -48,7 +49,7 @@ def test_two_adjacent_exonskip_SDHD() -> None:
     for output, expected in zip_longest(
         skip_adjacent_exons(d, number_to_skip=2), results
     ):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_no_possible_exonskip_SDHD() -> None:
@@ -75,7 +76,7 @@ def test_one_adjacent_exonskip_WT1() -> None:
     ]
     # for output, expected in zip_longest(skip_adjacent_exons(d), results):
     for output, expected in zip_longest(skip_adjacent_exons(d), results):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_two_adjacent_exonskip_WT1() -> None:
@@ -90,7 +91,7 @@ def test_two_adjacent_exonskip_WT1() -> None:
         "ENST00000452863.10:c.1265_1447del",
     ]
     for output, expected in zip_longest(skip_adjacent_exons(d, 2), results):
-        assert output.hgvs == expected
+        assert output.hgvsc == expected
 
 
 def test_sliding_window_size_one() -> None:
@@ -150,7 +151,7 @@ def test_analyze_transcript(WT: Transcript) -> None:
 
     input = results[1]
     assert input.therapy.name == "Input"
-    assert input.therapy.hgvs == variant
+    assert input.therapy.hgvsc == variant
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
     assert coding_exons.basepairs == "18845/46303"
@@ -176,7 +177,7 @@ def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
 
     input = results[1]
     assert input.therapy.name == "Input"
-    assert input.therapy.hgvs == variant
+    assert input.therapy.hgvsc == variant
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
     assert coding_exons.basepairs == "18845/46303"
@@ -254,14 +255,30 @@ def test_Therapy_from_dict() -> None:
     """Test creating a Therapy from a dict"""
     variants = [Variant(10, 11, inserted="A", deleted="T")]
     therapy = Therapy(
-        "Wildtype", hgvs="ENST:c.=", description="free text", variants=variants
+        "Wildtype", hgvsc="ENST:c.=", description="free text", variants=variants
     )
 
     d = {
         "name": "Wildtype",
-        "hgvs": "ENST:c.=",
+        "hgvsc": "ENST:c.=",
         "description": "free text",
         "variants": [{"start": 10, "end": 11, "inserted": "A", "deleted": "T"}],
     }
 
     assert Therapy.from_dict(d) == therapy
+
+
+def test_protein_prediction_unknown() -> None:
+    """Test overwriting unknown protein prediction
+
+    Sometimes, mutalyzer will only generate :p.? as a protein prediction
+    If that happens, we use in_frame_description overwrite the protein
+    description
+    """
+    d = SDHD_description()
+    # Variants that give rise to a :p.? prediction from mutalyzer
+    variants = [Variant(start=1031, end=1032), Variant(start=1994, end=2139)]
+
+    id = "ENST00000375549.8(ENSP00000364699)"
+    p_variant = "Leu35_Leu159delinsPheArgThrAspLeuSerGlnAsnGlyValGluCysSerThrTyrThrCysHisArgAlaThrIleGlyProTrpThrSerCysTyr"
+    assert protein_prediction(d, variants)[0] == f"{id}:p.{p_variant}"

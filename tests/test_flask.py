@@ -26,7 +26,7 @@ def test_organize_results() -> None:
     input_ = Result(
         therapy=Therapy(
             name="Input",
-            hgvs="",
+            hgvsc="",
             description="",
             variants=[input_variant],
         ),
@@ -36,7 +36,7 @@ def test_organize_results() -> None:
     wildtype = Result(
         therapy=Therapy(
             name="Wildtype",
-            hgvs="",
+            hgvsc="",
             description="",
             variants=[],
         ),
@@ -46,7 +46,7 @@ def test_organize_results() -> None:
     skip_variant_exon = Result(
         therapy=Therapy(
             name="Skip exon 3",
-            hgvs="",
+            hgvsc="",
             description="Skip exon with variant",
             variants=[Variant(5, 15, inserted="")],
         ),
@@ -56,7 +56,7 @@ def test_organize_results() -> None:
     skip_exon_before_variant = Result(
         therapy=Therapy(
             name="Skip exon 2",
-            hgvs="",
+            hgvsc="",
             description="Skip exon before variant",
             variants=[Variant(2, 5, inserted=""), input_variant],
         ),
@@ -66,7 +66,7 @@ def test_organize_results() -> None:
     skip_exon_after_variant = Result(
         therapy=Therapy(
             name="Skip exon 4",
-            hgvs="",
+            hgvsc="",
             description="Skip exon after the variant",
             variants=[input_variant, Variant(15, 25, inserted="")],
         ),
@@ -84,9 +84,9 @@ def test_organize_results() -> None:
 
     # Expected organized version of the results
     expected = {
-        "input": input_,
+        "input": [input_, wildtype],
         "modified": [skip_variant_exon],
-        "all": [wildtype, skip_exon_before_variant, skip_exon_after_variant],
+        "all": [skip_exon_before_variant, skip_exon_after_variant],
     }
 
     assert organize_results(results) == expected

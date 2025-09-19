@@ -26,7 +26,7 @@ class Provider:
         try:
             response = urllib.request.urlopen(url)
         except HTTPError as e:
-            raise RuntimeError(e)
+            raise RuntimeError(str(e))
 
         data = response.read()
 

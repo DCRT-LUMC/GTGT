@@ -86,11 +86,9 @@ def organize_results(
 
     # Exclude the Results that modify the input variant
     todo = [x for x in todo if x not in modified]
-    # Add the wildtype Result back in
-    todo.insert(0, wildtype)
 
     return {
-        "input": input_,
+        "input": [input_, wildtype],
         "modified": modified,
         "all": todo,
     }

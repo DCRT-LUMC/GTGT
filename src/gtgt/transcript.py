@@ -6,12 +6,14 @@ from typing import Any, Mapping, Optional, Sequence
 from mutalyzer.description import Description
 
 from .bed import Bed
+from .exonviz import draw
 from .mutalyzer import (
     Therapy,
     Variant,
     generate_therapies,
     init_description,
     mutation_to_cds_effect,
+    protein_prediction,
     sequence_from_description,
 )
 
@@ -165,7 +167,9 @@ class Transcript:
         # Store the wildtype
         wt = Therapy(
             name="Wildtype",
-            hgvs=hgvs.split("c.")[0] + "c.=",
+            hgvsc=hgvs.split("c.")[0] + "c.=",
+            hgvsr=hgvs.split("c.")[0] + "r.=",
+            hgvsp=protein_prediction(d, [])[0],
             description="These are the annotations as defined on the reference. They are always 100% by definition.",
             variants=list(),
         )
@@ -175,9 +179,12 @@ class Transcript:
         # Store the input variants as Therapy
         input = Therapy(
             name="Input",
-            hgvs=hgvs,
+            hgvsc=hgvs,
+            hgvsr=hgvs.replace(":c.", ":r."),
+            hgvsp=protein_prediction(d, input_variants)[0],
             description="The annotations based on the supplied input variants.",
             variants=input_variants,
+            figure=draw(d),
         )
         patient = deepcopy(self)
         patient.mutate(d, input.variants)
