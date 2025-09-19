@@ -1,3 +1,4 @@
+=========
 Changelog
 =========
 
@@ -6,12 +7,14 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
-v0.2.5-dev
-----------
+------
+v0.2.5
+------
 + Group Therapies together in the html
 + Show a figure of the input variants in the html
 + Add RNA and protein variant descriptions
 
+------
 v0.2.4
 ------
 + Add spinner to show progress to html
@@ -20,6 +23,7 @@ v0.2.4
 + Add separate mRNA and protein features to the Transcript
 + Extend documentation sections of the html
 
+------
 v0.2.3
 ------
 + Enable skipping two adjacent exons by default
@@ -27,6 +31,7 @@ v0.2.3
 + Refactor internal representation of variants
 + Reduce analysis time
 
+------
 v0.2.2
 ------
 + Update the analysis results to give more information on proposed Therapies
@@ -34,6 +39,7 @@ v0.2.2
 + Reduce the analysis time by 50% per exon
 + Fix a bug where the number of changed amino acids was overestimated
 
+------
 v0.2.1
 ------
 + Re-use mutalyzer Description object to reduce load on Ensembl API
@@ -46,19 +52,22 @@ v0.2.1
 + Check user input for errors in web interface
 + Rename module from GTGT to gtgt
 
+------
 v0.2.0
 ------
 + Rename python package from GTGT to gtgt
 
+------
 v0.1.1
-----------
+------
 + Add support for re-using mutalyzer Descriptions
 + Add support for small deletions
 + Fix a bug parsing VariantValidator payload
 + Add web interface using Flask
 
+------
 v0.1.0
-----------
+------
 + Change the transcript endpoint to use POST and a TranscriptId model
 + Use genomic location for ClinVar link
 + Add support for Ensembl transcripts on the links endpoint
@@ -71,6 +80,7 @@ v0.1.0
 + Drop support for Python 3.8
 + Add support for python 3.13
 
+------
 v0.0.2
 ------
 + Add FastAPI endpoint for transcripts and links
@@ -80,6 +90,7 @@ v0.0.2
 + Fetch knownGene track from UCSC
 + Fetch transcript information from Ensembl
 
+------
 v0.0.1
 ------
 + Add class for Transcripts

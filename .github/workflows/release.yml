@@ -23,6 +23,9 @@ jobs:
             grep ${RELEASE_VERSION#v} ${fname}
           done
 
+      - name: Check that the -dev prefix is not present
+        run: grep -vz ${RELEASE_VERSION}-dev CHANGELOG.rst
+
   release:
     name: Create a github release
     runs-on: ubuntu-latest
@@ -40,8 +43,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          python3 release_notes.py CHANGELOG.rst ${{ env.RELEASE_VERSION }} > release-notes.rst
+
           gh release create \
             ${{ env.RELEASE_VERSION}} \
+            --notes-file release-notes.rst \
             --generate-notes
 
   publish:
