@@ -23,6 +23,9 @@ jobs:
             grep ${RELEASE_VERSION#v} ${fname}
           done
 
+      - name: Check that the -dev prefix is not present
+        run: grep -vz ${RELEASE_VERSION}-dev CHANGELOG.rst
+
   release:
     name: Create a github release
     runs-on: ubuntu-latest
