@@ -62,6 +62,7 @@ setup(
         "pydantic",
         "setuptools",
         "mutalyzer>=3.1.1",
+        "lark==1.2.2",
         "exonviz>=0.2.15",
     ],
     extras_require={
