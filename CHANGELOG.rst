@@ -7,6 +7,11 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+----------
+v0.2.7-dev
+----------
++ Fix a bug where the ExonViz figure cannot be drawn at the default scale
+
 ------
 v0.2.6
 ------

@@ -30,6 +30,10 @@ def draw(d: Description) -> str:
         config=config,
     )
 
+    # Determine the minimum scale at which we can draw every exon
+    min_scale = max([e.min_scale() for e in exons])
+    config["scale"] = max(min_scale, 1)
+
     fig = draw_exons(exons, config=config)
 
     # Make the figure scalable with CSS by resetting the width and height
