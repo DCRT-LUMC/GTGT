@@ -3,8 +3,11 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![Documentation Status](https://readthedocs.org/projects/gtgt/badge/?version=latest)](https://gtgt.readthedocs.io/en/latest/?badge=latest)
 
-# Python project
+# Genetic Therapy Generator Toolkit
 ------------------------------------------------------------------------
+## GTGT website
+Try out GTGT via the website of the Dutch Center for RNA Therapeutics:
+[https://gtgt.rnatherapy.nl](https://gtgt.rnatherapy.nl).
 
 ## Documentation
 The documentation is available on [http://gtgt.readthedocs.io/](http://gtgt.readthedocs.io/).
