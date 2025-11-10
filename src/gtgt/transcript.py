@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, Mapping, Sequence
 
 from mutalyzer.description import Description
 
@@ -58,7 +58,7 @@ class Result:
 
 
 class Transcript:
-    def __init__(self, exons: Bed, coding_exons: Optional[Bed] = None):
+    def __init__(self, exons: Bed, coding_exons: Bed | None = None):
         self.exons = exons
 
         if coding_exons is None:

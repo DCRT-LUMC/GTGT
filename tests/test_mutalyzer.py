@@ -1,7 +1,6 @@
 import json
 from collections.abc import Sequence
 from itertools import zip_longest
-from typing import List, Tuple
 
 import pytest
 from mutalyzer.description import Description
@@ -210,7 +209,7 @@ PROTEIN_EXTRACTOR = [
 
 @pytest.mark.parametrize("reference, observed, expected", PROTEIN_EXTRACTOR)
 def test_changed_protein_positions(
-    reference: str, observed: str, expected: List[Tuple[int, int]]
+    reference: str, observed: str, expected: list[tuple[int, int]]
 ) -> None:
     """
     GIVEN a referene and observed sequence

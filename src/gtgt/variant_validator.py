@@ -1,4 +1,4 @@
-from typing import Any, Mapping, Sequence, Union, cast
+from typing import Any, Mapping, Sequence, cast
 
 from pydantic import BaseModel
 
@@ -30,7 +30,7 @@ class Links(BaseModel):
         "stringdb",
     ]
 
-    def url(self, field: str) -> Union[str, Sequence[str]]:
+    def url(self, field: str) -> str | Sequence[str]:
         if field == "omim":
             urls = list()
             for id in self.omim_ids:

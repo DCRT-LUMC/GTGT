@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import urllib.request
-from typing import Any, Optional
+from typing import Any
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Provider:
-    def __init__(self, cache_dir: Optional[str] = None):
+    def __init__(self, cache_dir: str | None = None):
         self.cache_dir = cache_dir
 
     def get(self, url: str) -> payload:

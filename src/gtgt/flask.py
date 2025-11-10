@@ -1,6 +1,6 @@
 import os
 from collections.abc import Sequence
-from typing import Any, Mapping, Optional, Union
+from typing import Any, Mapping
 
 import mutalyzer_hgvs_parser
 from flask import Flask
@@ -21,15 +21,15 @@ app = Flask(__name__)
 provider = Provider()
 
 
-payload = Optional[dict[str, Any]]
+payload = dict[str, Any] | None
 
 
 def render(
     template_file: str,
-    variant: Optional[str] = None,
+    variant: str | None = None,
     results: Sequence[Result] = [],
-    links: Optional[Mapping[str, str]] = None,
-    error: Optional[Mapping[str, str]] = None,
+    links: Mapping[str, str] | None = None,
+    error: Mapping[str, str] | None = None,
 ) -> str:
     """Render the html template using jinja2 directly"""
     root = os.path.dirname(__file__)
@@ -54,7 +54,7 @@ def render(
 
 def organize_results(
     results: Sequence[Result],
-) -> dict[str, Union[list[Result], Result]]:
+) -> dict[str, list[Result] | Result]:
     """
     The Results are grouped in a dict with the following keys
     - input, which contains the Result for the input
@@ -120,7 +120,7 @@ def validate_user_input(input: str) -> Mapping[str, str]:
 
 @app.route("/")
 @app.route("/<variant>")
-def result(variant: Optional[str] = None) -> str:
+def result(variant: str | None = None) -> str:
     template_file = "templates/index.html.j2"
 
     # If no variant was specified

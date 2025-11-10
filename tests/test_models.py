@@ -1,5 +1,3 @@
-from typing import Dict, Union
-
 import pytest
 from pydantic import ValidationError
 
@@ -8,7 +6,7 @@ from gtgt.models import BedModel, TranscriptId, TranscriptModel
 from gtgt.mutalyzer import HGVS
 from gtgt.transcript import Transcript
 
-payload = Dict[str, Union[str, int]]
+payload = dict[str, str | int]
 
 
 @pytest.fixture

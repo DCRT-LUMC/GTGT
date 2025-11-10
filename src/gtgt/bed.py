@@ -1,4 +1,4 @@
-from typing import Any, Iterator, Optional, Sequence
+from typing import Any, Iterator, Sequence
 
 from .range import Range, intersect, overlap, subtract
 
@@ -9,18 +9,18 @@ color = tuple[int, ...]
 class Bed:
     def __init__(
         self,
-        chrom: Optional[str] = None,
-        chromStart: Optional[int] = None,
-        chromEnd: Optional[int] = None,
+        chrom: str | None = None,
+        chromStart: int | None = None,
+        chromEnd: int | None = None,
         name: str = ".",
         score: int = 0,
         strand: str = ".",
-        thickStart: Optional[int] = None,
-        thickEnd: Optional[int] = None,
+        thickStart: int | None = None,
+        thickEnd: int | None = None,
         itemRgb: color = (0, 0, 0),
-        blockCount: Optional[int] = None,
-        blockSizes: Optional[list[int]] = None,
-        blockStarts: Optional[list[int]] = None,
+        blockCount: int | None = None,
+        blockSizes: list[int] | None = None,
+        blockStarts: list[int] | None = None,
         **ignored: Any,
     ) -> None:
         # Required attributes for .bed files

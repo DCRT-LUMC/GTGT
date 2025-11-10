@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple
+from typing import Any
 
 import pytest
 
@@ -139,7 +139,7 @@ bedfile_lines = [
 
 
 @pytest.mark.parametrize("columns", bedfile_lines)
-def test_from_bedfile(columns: Tuple[Any, ...]) -> None:
+def test_from_bedfile(columns: tuple[Any, ...]) -> None:
     Bed.from_bedfile("\t".join(map(str, columns)))
 
 
@@ -242,7 +242,7 @@ def test_update_bed_empty_ranges(bed: Bed) -> None:
     When we update a Bed record with the empty list
     The Bed record should be zeroed out
     """
-    ranges: List[Range] = list()
+    ranges: list[Range] = list()
     bed.update(ranges)
 
     # Test that the Bed record has been zeroed out
@@ -257,14 +257,14 @@ def test_update_bed_with_ranges_thick() -> None:
     Then we raise a NotImplementedError
     """
     record = Bed("chr1", 0, 10, thickStart=2, thickEnd=9)
-    ranges: List[Range] = [(4, 8)]
+    ranges: list[Range] = [(4, 8)]
     with pytest.raises(NotImplementedError):
         record.update(ranges)
 
 
 def test_update_bed_with_ranges(bed: Bed) -> None:
     """Test updating a Bed record by providing a list of ranges"""
-    ranges: List[Range] = [(1, 4), (5, 6), (7, 9)]
+    ranges: list[Range] = [(1, 4), (5, 6), (7, 9)]
     bed.update(ranges)
 
     assert bed.chromStart == 1
@@ -467,7 +467,7 @@ csv = [
 
 
 @pytest.mark.parametrize("csv, numbers", csv)
-def test_csv_to_int(csv: str, numbers: List[int]) -> None:
+def test_csv_to_int(csv: str, numbers: list[int]) -> None:
     assert Bed._csv_to_int(csv) == numbers
 
 

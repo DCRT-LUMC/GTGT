@@ -1,5 +1,4 @@
 import json
-from typing import List, Tuple
 
 import pytest
 
@@ -291,7 +290,7 @@ MUTATE = [
     ),
 ]
 
-Ranges = List[Tuple[int, int]]
+Ranges = list[tuple[int, int]]
 
 
 @pytest.mark.parametrize("variant, exon_blocks, coding_exon_blocks", MUTATE)

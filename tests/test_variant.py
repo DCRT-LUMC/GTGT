@@ -1,4 +1,4 @@
-from typing import Any, List, Sequence, Tuple
+from typing import Any, Sequence
 
 import pytest
 from mutalyzer.description import Description
@@ -218,7 +218,7 @@ class TestCombineVariantsDeletion:
 
     def test_combine_variants_deletion_empty(self) -> None:
         """If ther are no other variants, the results only contain the deletion"""
-        variants: List[Variant] = list()
+        variants: list[Variant] = list()
         deletion = Variant(0, 10)
         assert combine_variants_deletion(variants, deletion) == [deletion]
 
@@ -462,7 +462,7 @@ class TestVariantMutalyzerForward(object):
     # fmt: on
     @pytest.mark.parametrize("cdot, variants, expected", MUTATIONS_VARIANT)
     def test_mutation_to_cds_effect(
-        self, cdot: str, variants: Sequence[Variant], expected: Tuple[int, int]
+        self, cdot: str, variants: Sequence[Variant], expected: tuple[int, int]
     ) -> None:
         """
         GIVEN a HGVS transcript description for a transcript on the reverse strand
@@ -675,7 +675,7 @@ class TestVariantMutalyzerForward(object):
 
     @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
     def test_Variant_to_genomic_coordinates(
-        self, variant: Variant, genomic_coordinates: Tuple[int, int]
+        self, variant: Variant, genomic_coordinates: tuple[int, int]
     ) -> None:
         """Test converting Variant coordinates to genomic coordinates"""
         d = init_description(f"{self.transcript}:c.=")
@@ -736,7 +736,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
     # fmt: on
     @pytest.mark.parametrize("cdot, variants, expected", MUTATIONS_VARIANT)
     def test_mutation_to_cds_effect(
-        self, cdot: str, variants: Sequence[Variant], expected: Tuple[int, int]
+        self, cdot: str, variants: Sequence[Variant], expected: tuple[int, int]
     ) -> None:
         """
         GIVEN a HGVS transcript description for a transcript on the reverse strand
@@ -939,7 +939,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
 
     @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
     def test_Variant_to_genomic_coordinates(
-        self, variant: Variant, genomic_coordinates: Tuple[int, int]
+        self, variant: Variant, genomic_coordinates: tuple[int, int]
     ) -> None:
         """Test converting Variant coordinates to genomic coordinates"""
         d = init_description(f"{self.transcript}:c.=")

@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -16,7 +16,7 @@ INVALID = [
 
 @pytest.mark.parametrize("payload, transcript_version, error", INVALID)
 def test_invalid_payload(
-    payload: Dict[str, Any], transcript_version: int, error: Any
+    payload: dict[str, Any], transcript_version: int, error: Any
 ) -> None:
     with pytest.raises(error):
         _check_transcript(payload, transcript_version)

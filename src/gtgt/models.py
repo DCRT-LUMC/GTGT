@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -55,7 +55,7 @@ class BedModel(BaseModel):
         return self
 
     @classmethod
-    def from_ucsc(cls, ucsc: dict[str, Union[str, int]]) -> "BedModel":
+    def from_ucsc(cls, ucsc: dict[str, str | int]) -> "BedModel":
         fields: dict[str, Any] = ucsc.copy()
 
         # Note that UCSC calls the "blockStarts" field "chromStarts"

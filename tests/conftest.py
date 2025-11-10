@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any
 
 import pytest
 from mutalyzer.description import Description
@@ -16,7 +16,7 @@ def _retrieve_raw(
     size_off: bool = True,
     configuration_path: Any = None,
     timeout: int = 1,
-) -> Tuple[str, str, str]:
+) -> tuple[str, str, str]:
     if reference_type == "fasta":
         return _get_content("data/" + reference_id + ".fasta"), "fasta", "ncbi"
     elif reference_id.startswith("LRG_"):

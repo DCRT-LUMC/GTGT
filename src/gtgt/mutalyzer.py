@@ -1,9 +1,7 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Any, Mapping
-from typing import Optional as OptionalType
-from typing import Sequence, Tuple, TypeVar, Union
+from typing import Any, Mapping, Sequence, TypeVar
 
 import Levenshtein
 import mutalyzer_hgvs_parser
@@ -355,8 +353,8 @@ class Variant:
         end = model["location"]["end"]["position"]
 
         # Store if the inserted and deleted sequences were inverted
-        ins_inverted: OptionalType[bool] = None
-        del_inverted: OptionalType[bool] = None
+        ins_inverted: bool | None = None
+        del_inverted: bool | None = None
 
         inserted = model.get("inserted", [])
 
@@ -457,7 +455,7 @@ class Variant:
 
         return model
 
-    def genomic_coordinates(self, d: Description) -> Tuple[int, int]:
+    def genomic_coordinates(self, d: Description) -> tuple[int, int]:
         """Return genomic coordinates for Variant"""
         ref_id = get_reference_id(d.corrected_model)
         offset = _get_ensembl_offset(d.references, ref_id)
@@ -476,9 +474,9 @@ class Therapy:
     hgvsc: str
     description: str
     variants: Sequence[Variant]
-    figure: OptionalType[str] = None
-    hgvsr: OptionalType[str] = None
-    hgvsp: OptionalType[str] = None
+    figure: str | None = None
+    hgvsr: str | None = None
+    hgvsp: str | None = None
 
     @classmethod
     def from_dict(cls, dict: Mapping[str, Any]) -> "Therapy":
@@ -745,8 +743,8 @@ def init_description(hgvs: str) -> Description:
 
 def _get_ensembl_offset(
     references: Mapping[str, Any], ref_id: str = "reference"
-) -> Union[int, None]:
-    offset: Union[int, None] = (
+) -> int | None:
+    offset: int | None = (
         references.get(ref_id, {})
         .get("annotations", {})
         .get("qualifiers", {})
