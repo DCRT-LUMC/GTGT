@@ -7,10 +7,12 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
-----------
-v0.2.7-dev
-----------
+------
+v0.2.7
+------
 + Fix a bug where the ExonViz figure cannot be drawn at the default scale
++ Drop support for python 3.9
++ Add support for python 3.14
 
 ------
 v0.2.6
