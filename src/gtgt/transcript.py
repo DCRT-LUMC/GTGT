@@ -11,6 +11,10 @@ from .mutalyzer import (
     Therapy,
     Variant,
     generate_therapies,
+    get_ensembl_chrom_name,
+    get_ensembl_offset,
+    get_ensembl_strand,
+    get_exons,
     init_description,
     mutation_to_cds_effect,
     protein_prediction,
@@ -65,6 +69,45 @@ class Transcript:
             self.coding_exons = Bed()
         else:
             self.coding_exons = coding_exons
+
+    @classmethod
+    def from_description(cls, d: Description) -> "Transcript":
+        """Create a Transcript object from a mutalyzer Description"""
+        # Get ensembl offset
+        offset = get_ensembl_offset(d)
+
+        # Get exons and add the offset
+        selector_model = d.get_selector_model()
+        exons = selector_model["exon"]
+        exons = [(start + offset, end + offset) for start, end in exons]
+
+        # Get CDS and add the offset
+        cds = selector_model["cds"][0]
+        cds = cds[0] + offset, cds[1] + offset
+
+        # Get the strand and chromosome name
+        chrom = get_ensembl_chrom_name(d)
+        strand = get_ensembl_strand(d)
+
+        if not chrom:
+            raise RuntimeError(f"Unable to determine chromosome name for {d}")
+        chrom = f"chr{chrom}"
+
+        # Convert to Bed to intersect the exons with the CDS to get the coding
+        # exons
+        exon_bed = Bed.from_blocks(chrom, *exons)
+        exon_bed.name = "Exons"
+        exon_bed.strand = strand
+
+        cds_bed = Bed.from_blocks(chrom, cds)
+        cds_bed.strand = strand
+
+        # Make a copy to intersect
+        coding_exons = deepcopy(exon_bed)
+        coding_exons.intersect(cds_bed)
+        coding_exons.name = "Coding exons"
+
+        return cls(exon_bed, coding_exons)
 
     def records(self) -> Sequence[Bed]:
         """Return the Bed records that make up the Transcript"""

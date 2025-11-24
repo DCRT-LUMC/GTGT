@@ -751,6 +751,27 @@ def get_ensembl_offset(d: Description) -> int | None:
     return offset
 
 
+def get_ensembl_chrom_name(d: Description) -> str | None:
+    ref_id = get_reference_id(d.corrected_model)
+    chrom_name: str | None = (
+        d.references.get(ref_id, {})
+        .get("annotations", {})
+        .get("qualifiers", {})
+        .get("chromosome_number")
+    )
+    return chrom_name
+
+
+def get_ensembl_strand(d: Description) -> str:
+    strand = d.get_selector_model()["location"]["strand"]
+    if strand == 1:
+        return "+"
+    elif strand == -1:
+        return "-"
+    else:
+        raise ValueError(f"Unknown strand for Description object {d}")
+
+
 def changed_protein_positions(
     reference: str, observed: str
 ) -> Sequence[tuple[int, int]]:
