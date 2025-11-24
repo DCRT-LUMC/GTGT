@@ -281,3 +281,45 @@ def test_protein_prediction_unknown() -> None:
     id = "ENST00000375549.8(ENSP00000364699)"
     p_variant = "Leu35_Leu159delinsPheArgThrAspLeuSerGlnAsnGlyValGluCysSerThrTyrThrCysHisArgAlaThrIleGlyProTrpThrSerCysTyr"
     assert protein_prediction(d, variants)[0] == f"{id}:p.{p_variant}"
+
+
+def test_transcript_from_description_WT1() -> None:
+    """Test creating a Transcript from a Mutalyzer Description"""
+    d = WT1_description()
+    t = Transcript.from_description(d)
+    # Manually verified block starts for the exons of WT1
+    assert t.exons.blockStarts == [
+        0,
+        4197,
+        4891,
+        8482,
+        12173,
+        28715,
+        29802,
+        40181,
+        40722,
+        46925,
+    ]
+    # Manually verified block starts for the coding exons of WT1
+    assert t.coding_exons.blockStarts == [
+        0,
+        2914,
+        3608,
+        7199,
+        10890,
+        27432,
+        28519,
+        38898,
+        39439,
+        45642,
+    ]
+
+
+def test_transcript_from_description_SDHD() -> None:
+    """Test creating a Transcript from a Mutalyzer Description"""
+    d = SDHD_description()
+    t = Transcript.from_description(d)
+    # Manually verified block starts for the exons of SDHD
+    assert t.exons.blockStarts == [0, 984, 1994, 7932]
+    # Manually verified block starts for the coding exons of SDHD
+    assert t.coding_exons.blockStarts == [0, 949, 1959, 7897]
