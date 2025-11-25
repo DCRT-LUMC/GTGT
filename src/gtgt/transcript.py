@@ -13,8 +13,9 @@ from .mutalyzer import (
     generate_therapies,
     get_ensembl_chrom_name,
     get_ensembl_offset,
-    get_ensembl_strand,
     get_exons,
+    get_ncbi_chrom_name,
+    get_strand,
     init_description,
     mutation_to_cds_effect,
     protein_prediction,
@@ -73,8 +74,25 @@ class Transcript:
     @classmethod
     def from_description(cls, d: Description) -> "Transcript":
         """Create a Transcript object from a mutalyzer Description"""
+        # Check if we can use this Description to initialize a Transcript
+        ref = d.input_model["reference"]
+        if ref["id"].startswith("ENST"):
+            ensembl = True
+        elif ref["id"].startswith("NM") and "selector" not in ref["id"]:
+            raise ValueError(
+                f"Bare transcript {d} cannot be used to initialize a Transcript."
+                " Please use the NC(NM) notation"
+            )
+        elif ref["selector"]["id"]:
+            ensembl = False
+        else:
+            raise ValueError(f"Unknown description type: {d}")
+
         # Get ensembl offset
-        offset = get_ensembl_offset(d)
+        if ensembl:
+            offset = get_ensembl_offset(d)
+        else:
+            offset = 0
 
         # Get exons and add the offset
         selector_model = d.get_selector_model()
@@ -86,8 +104,8 @@ class Transcript:
         cds = cds[0] + offset, cds[1] + offset
 
         # Get the strand and chromosome name
-        chrom = get_ensembl_chrom_name(d)
-        strand = get_ensembl_strand(d)
+        chrom = get_ensembl_chrom_name(d) if ensembl else get_ncbi_chrom_name(d)
+        strand = get_strand(d)
 
         if not chrom:
             raise RuntimeError(f"Unable to determine chromosome name for {d}")
