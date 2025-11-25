@@ -323,3 +323,41 @@ def test_transcript_from_description_SDHD() -> None:
     assert t.exons.blockStarts == [0, 984, 1994, 7932]
     # Manually verified block starts for the coding exons of SDHD
     assert t.coding_exons.blockStarts == [0, 949, 1959, 7897]
+
+
+def test_transcript_from_NC_NM_forward() -> None:
+    """Test creating a forward Transcript from a Mutalyzer NC(NM) description
+
+    IMPORTANT: This test will fail if you have set MUTALYSER_SETTINGS in your
+    env and enabled the cache, since it will take precedence over the cache
+    pytest uses
+    """
+    d = init_description("NC_000011.10(NM_003002.4):c.=")
+    t = Transcript.from_description(d)
+
+    assert list(t.exons.blocks()) == [
+        (5026, 5113),
+        (6010, 6127),
+        (7020, 7165),
+        (12958, 13948),
+    ]
+    assert list(t.coding_exons.blocks()) == [
+        (5061, 5113),
+        (6010, 6127),
+        (7020, 7165),
+        (12958, 13124),
+    ]
+
+
+def test_transcript_from_NC_NM_reverse() -> None:
+    """Test creating a reverse Transcript from a Mutalyzer NC(NM) description
+
+    IMPORTANT: This test will fail if you have set MUTALYSER_SETTINGS in your
+    env and enabled the cache, since it will take precedence over the cache
+    pytest uses
+    """
+    d = init_description("NC_000011.10(NM_012459.4):c.=")
+    t = Transcript.from_description(d)
+
+    assert list(t.exons.blocks()) == [(2953, 3616), (4793, 4910)]
+    assert list(t.coding_exons.blocks()) == [(3448, 3616), (4793, 4877)]
