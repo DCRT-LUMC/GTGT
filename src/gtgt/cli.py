@@ -10,10 +10,9 @@ import logging
 import os
 import secrets
 
-from mutalyzer.description import Description
-
 from gtgt.flask import render
-from gtgt.transcript import Result
+from gtgt.models import TranscriptModel
+from gtgt.transcript import Result, Transcript
 
 from .mutalyzer import (
     Variant,
@@ -23,7 +22,6 @@ from .mutalyzer import (
 )
 from .provider import Provider
 from .variant_validator import lookup_variant
-from .wrappers import lookup_transcript
 
 
 def set_logging(level: str) -> None:
@@ -112,7 +110,9 @@ def main() -> None:
     provider = Provider(args.cachedir)
 
     if args.command == "transcript":
-        ts = lookup_transcript(provider, args.transcript_id)
+        d = init_description(f"{args.transcript_id}:c.=")
+        t = Transcript.from_description(d)
+        ts = TranscriptModel.from_transcript(t)
         print(ts.model_dump_json())
     elif args.command == "links":
         logger.debug(args)
@@ -134,9 +134,8 @@ def main() -> None:
         for therapy in generate_therapies(d):
             print(f"{therapy.name}: {therapy.hgvsc}")
     elif args.command == "analyze":
-        transcript_id = args.hgvs.split(":")[0]
-        transcript_model = lookup_transcript(provider, transcript_id)
-        transcript = transcript_model.to_transcript()
+        d = init_description(args.hgvs)
+        transcript = Transcript.from_description(d)
         # Convert Result objects to dict
         results = [dataclasses.asdict(x) for x in transcript.analyze(args.hgvs)]
         print(json.dumps(results, indent=True, default=vars))
@@ -153,9 +152,7 @@ def main() -> None:
         flask_app.run(args.host, debug=args.debug)
     elif args.command == "export":
         # Get the transcript
-        transcript_id = args.hgvs.split(":")[0]
-        transcript_model = lookup_transcript(provider, transcript_id)
-        transcript = transcript_model.to_transcript()
+        transcript = Transcript.from_description(init_description(args.hgvs))
 
         # Mutate the transcript
         d = init_description(args.hgvs)
