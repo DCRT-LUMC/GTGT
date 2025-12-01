@@ -380,8 +380,8 @@ bed_overlap = [
 
 @pytest.mark.parametrize("before, selector, after", bed_overlap)
 def test_bed_overlap(before: Bed, selector: Bed, after: Bed) -> None:
-    before.overlap(selector)
-    assert before == after
+    new = before.overlap(selector)
+    assert new == after
 
 
 bed_subtract = [

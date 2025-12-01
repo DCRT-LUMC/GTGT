@@ -265,28 +265,32 @@ class Bed:
         new.update(intersected)
         return new
 
-    def overlap(self, other: object) -> None:
+    def overlap(self, other: object) -> "Bed":
         """All blocks from self that (partially) overlap blocks from other"""
         if not isinstance(other, Bed):
             raise NotImplementedError
 
+        new = copy.deepcopy(self)
         # If other is on a different chromosome, there can be no overlap
-        if self.chrom != other.chrom:
-            self._zero_out()
+        if new.chrom != other.chrom:
+            new._zero_out()
+            return new
 
         # Calculating overlap on different strands is not supported
-        if self.strand != other.strand:
+        if new.strand != other.strand:
             raise ValueError(
                 "Calculating overlap on different strands is not supported"
             )
 
         blocks_to_keep = list()
-        for block in self.blocks():
+        for block in new.blocks():
             for other_block in other.blocks():
                 if overlap(block, other_block):
                     blocks_to_keep.append(block)
                     break  # Go to the next block once we find overlap
-        self.update(blocks_to_keep)
+        new.update(blocks_to_keep)
+
+        return new
 
     def subtract(self, other: object) -> None:
         """Subtract the blocks in other from blocks in self"""

@@ -145,8 +145,8 @@ class Transcript:
 
     def overlap(self, selector: Bed) -> None:
         """Update transcript to only contain features that overlap the selector"""
-        for record in self.records():
-            record.overlap(selector)
+        self.exons = self.exons.overlap(selector)
+        self.coding_exons = self.exons.overlap(selector)
 
     def subtract(self, selector: Bed) -> None:
         """Remove all features from transcript that intersect the selector"""
@@ -155,8 +155,7 @@ class Transcript:
 
     def exon_skip(self, selector: Bed) -> None:
         """Remove the exon(s) that overlap the selector from the transcript"""
-        exons_to_skip = deepcopy(self.exons)
-        exons_to_skip.overlap(selector)
+        exons_to_skip = self.exons.overlap(selector)
         self.subtract(exons_to_skip)
 
     def compare(self, other: object) -> Sequence[Comparison]:
