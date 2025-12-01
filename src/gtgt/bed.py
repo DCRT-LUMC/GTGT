@@ -80,7 +80,7 @@ class Bed:
         # Initialise with the end of the first block
         prev_end = self.chromStart + self.blockStarts[0] + self.blockSizes[0]
         prev_start = self.blockStarts[0]
-        blocks = list(self.blocks())[1:]
+        blocks = self.blocks()[1:]
         for start, end in blocks:
             if start < prev_start:
                 raise ValueError("Blocks must be in ascending order")
@@ -99,12 +99,14 @@ class Bed:
         if block_end != self.chromEnd:
             raise ValueError(f"Last block({block_end=}) must end at {self.chromEnd=}")
 
-    def blocks(self) -> Iterator[tuple[int, int]]:
+    def blocks(self) -> list[Range]:
         """Iterate over all blocks in the Bed record"""
+        blocks = list()
         for size, start in zip(self.blockSizes, self.blockStarts):
             block_start = self.chromStart + start
             block_end = block_start + size
-            yield (block_start, block_end)
+            blocks.append((block_start, block_end))
+        return blocks
 
     def __str__(self) -> str:
         return "\t".join(
@@ -291,7 +293,7 @@ class Bed:
         if self.chrom != other.chrom:
             return
 
-        subtracted_blocks = subtract(list(self.blocks()), list(other.blocks()))
+        subtracted_blocks = subtract(self.blocks(), other.blocks())
         self.update(subtracted_blocks)
 
     def compare(self, other: object) -> float:

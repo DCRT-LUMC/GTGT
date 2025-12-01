@@ -335,13 +335,13 @@ def test_transcript_from_NC_NM_forward() -> None:
     d = init_description("NC_000011.10(NM_003002.4):c.=")
     t = Transcript.from_description(d)
 
-    assert list(t.exons.blocks()) == [
+    assert t.exons.blocks() == [
         (5026, 5113),
         (6010, 6127),
         (7020, 7165),
         (12958, 13948),
     ]
-    assert list(t.coding_exons.blocks()) == [
+    assert t.coding_exons.blocks() == [
         (5061, 5113),
         (6010, 6127),
         (7020, 7165),
@@ -359,5 +359,5 @@ def test_transcript_from_NC_NM_reverse() -> None:
     d = init_description("NC_000011.10(NM_012459.4):c.=")
     t = Transcript.from_description(d)
 
-    assert list(t.exons.blocks()) == [(2953, 3616), (4793, 4910)]
-    assert list(t.coding_exons.blocks()) == [(3448, 3616), (4793, 4877)]
+    assert t.exons.blocks() == [(2953, 3616), (4793, 4910)]
+    assert t.coding_exons.blocks() == [(3448, 3616), (4793, 4877)]

@@ -101,7 +101,7 @@ class BedModel(BaseModel):
     def from_bed(cls, bed: Bed) -> "BedModel":
         return cls(
             chrom=bed.chrom,
-            blocks=list(bed.blocks()),
+            blocks=bed.blocks(),
             name=bed.name,
             score=bed.score,
             strand=bed.strand,

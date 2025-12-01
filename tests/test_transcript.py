@@ -334,8 +334,8 @@ def test_mutate_forward(
     SDHD = Transcript(exons=exons, coding_exons=coding_exons)
     SDHD.mutate(d, v)
 
-    assert list(SDHD.exons.blocks()) == exon_blocks
-    assert list(SDHD.coding_exons.blocks()) == coding_exon_blocks
+    assert SDHD.exons.blocks() == exon_blocks
+    assert SDHD.coding_exons.blocks() == coding_exon_blocks
 
 
 MUTATE = [
@@ -499,8 +499,8 @@ def test_mutate_reverse(
     WT1 = Transcript(exons=exons, coding_exons=coding_exons)
     WT1.mutate(d, v)
 
-    assert list(WT1.exons.blocks()) == exon_blocks
-    assert list(WT1.coding_exons.blocks()) == coding_exon_blocks
+    assert WT1.exons.blocks() == exon_blocks
+    assert WT1.coding_exons.blocks() == coding_exon_blocks
 
 
 def test_Comparison_from_dict() -> None:
