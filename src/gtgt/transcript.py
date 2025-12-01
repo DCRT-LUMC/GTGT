@@ -101,7 +101,7 @@ class Transcript:
 
         # Get CDS and add the offset
         cds = selector_model["cds"][0]
-        cds = cds[0] + offset, cds[1] + offset
+        cds = (cds[0] + offset, cds[1] + offset)
 
         # Get the strand and chromosome name
         chrom = get_ensembl_chrom_name(d) if ensembl else get_ncbi_chrom_name(d)
@@ -113,11 +113,11 @@ class Transcript:
 
         # Convert to Bed to intersect the exons with the CDS to get the coding
         # exons
-        exon_bed = Bed.from_blocks(chrom, *exons)
+        exon_bed = Bed.from_blocks(chrom, exons)
         exon_bed.name = "Exons"
         exon_bed.strand = strand
 
-        cds_bed = Bed.from_blocks(chrom, cds)
+        cds_bed = Bed.from_blocks(chrom, [cds])
         cds_bed.strand = strand
 
         # Make a copy to intersect
@@ -192,14 +192,14 @@ class Transcript:
         """Mutate the transcript based on the specified variants"""
         # Update protein features
         protein_changes = Bed.from_blocks(
-            self.coding_exons.chrom, *mutation_to_cds_effect(d, variants)
+            self.coding_exons.chrom, mutation_to_cds_effect(d, variants)
         )
         for record in self.protein_records():
             record.subtract(protein_changes)
 
         # Update RNA features
         rna_changes = Bed.from_blocks(
-            self.exons.chrom, *[v.genomic_coordinates(d) for v in variants]
+            self.exons.chrom, [v.genomic_coordinates(d) for v in variants]
         )
         for record in self.rna_records():
             self.subtract(rna_changes)

@@ -225,7 +225,7 @@ class Bed:
         )
 
     @classmethod
-    def from_blocks(cls, chrom: str, *blocks: Range) -> "Bed":
+    def from_blocks(cls, chrom: str, blocks: Sequence[Range]) -> "Bed":
         """Create a Bed record from multiple Ranges"""
         bed = cls(chrom, 0, 0)
 

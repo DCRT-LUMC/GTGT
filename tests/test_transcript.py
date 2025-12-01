@@ -11,7 +11,7 @@ from gtgt.transcript import Comparison, Result, Transcript
 @pytest.fixture
 def Exons() -> Bed:
     exons = [(0, 10), (20, 40), (50, 60), (70, 100)]
-    bed = Bed.from_blocks("chr1", *exons)
+    bed = Bed.from_blocks("chr1", exons)
     bed.name = "exons"
 
     return bed
@@ -20,7 +20,7 @@ def Exons() -> Bed:
 @pytest.fixture
 def coding_exons() -> Bed:
     coding_exons = [(23, 40), (50, 60), (70, 72)]
-    bed = Bed.from_blocks("chr1", *coding_exons)
+    bed = Bed.from_blocks("chr1", coding_exons)
     bed.name = "coding_exons"
 
     return bed
@@ -200,7 +200,7 @@ def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
         (50, 60),
         (70, 100),
     ]
-    exons = Bed.from_blocks("chr1", *exon_blocks)
+    exons = Bed.from_blocks("chr1", exon_blocks)
     exons.name = "exons"
 
     coding_blocks = [
@@ -208,7 +208,7 @@ def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
         (50, 60),
         (70, 72),
     ]
-    coding_exons = Bed.from_blocks("chr1", *coding_blocks)
+    coding_exons = Bed.from_blocks("chr1", coding_blocks)
     coding_exons.name = "coding_exons"
 
     smaller = Transcript(exons, coding_exons)
@@ -305,17 +305,21 @@ def test_mutate_forward(
     # Exons and coding exons of SDHD
     exons = Bed.from_blocks(
         chrom,
-        (112086872, 112086959),
-        (112087856, 112087973),
-        (112088866, 112089011),
-        (112094804, 112095794),
+        [
+            (112086872, 112086959),
+            (112087856, 112087973),
+            (112088866, 112089011),
+            (112094804, 112095794),
+        ],
     )
     coding_exons = Bed.from_blocks(
         chrom,
-        (112086907, 112086959),
-        (112087856, 112087973),
-        (112088866, 112089011),
-        (112094804, 112094970),
+        [
+            (112086907, 112086959),
+            (112087856, 112087973),
+            (112088866, 112089011),
+            (112094804, 112094970),
+        ],
     )
 
     # Variant to test
@@ -458,29 +462,33 @@ def test_mutate_reverse(
     # Exons and coding exons of WT1
     exons = Bed.from_blocks(
         chrom,
-        (32387774, 32389179),
-        (32391971, 32392064),
-        (32392665, 32392755),
-        (32396256, 32396407),
-        (32399947, 32400044),
-        (32416489, 32416540),
-        (32417576, 32417654),
-        (32427955, 32428058),
-        (32428496, 32428619),
-        (32434699, 32435539),
+        [
+            (32387774, 32389179),
+            (32391971, 32392064),
+            (32392665, 32392755),
+            (32396256, 32396407),
+            (32399947, 32400044),
+            (32416489, 32416540),
+            (32417576, 32417654),
+            (32427955, 32428058),
+            (32428496, 32428619),
+            (32434699, 32435539),
+        ],
     )
     coding_exons = Bed.from_blocks(
         chrom,
-        (32389057, 32389179),
-        (32391971, 32392064),
-        (32392665, 32392755),
-        (32396256, 32396407),
-        (32399947, 32400044),
-        (32416489, 32416540),
-        (32417576, 32417654),
-        (32427955, 32428058),
-        (32428496, 32428619),
-        (32434699, 32435360),
+        [
+            (32389057, 32389179),
+            (32391971, 32392064),
+            (32392665, 32392755),
+            (32396256, 32396407),
+            (32399947, 32400044),
+            (32416489, 32416540),
+            (32417576, 32417654),
+            (32427955, 32428058),
+            (32428496, 32428619),
+            (32434699, 32435360),
+        ],
     )
 
     # Variant to test

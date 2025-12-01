@@ -58,13 +58,13 @@ def test_compare(client: TestClient) -> None:
     other             - -       - - - -
     """
     # One transcript, which is smaller
-    exons = Bed.from_blocks("chr1", (2, 4), (7, 11))
+    exons = Bed.from_blocks("chr1", [(2, 4), (7, 11)])
     exons.name = "exons"
     coding_exons = Bed("chr1", 3, 4, "coding_exons")
     self = Transcript(exons, coding_exons)
 
     # Other Transcript
-    exons = Bed.from_blocks("chr1", (2, 4), (5, 6), (7, 11))
+    exons = Bed.from_blocks("chr1", [(2, 4), (5, 6), (7, 11)])
     exons.name = "exons"
     coding_exons = Bed("chr1", 3, 4, "coding_exons")
     other = Transcript(exons, coding_exons)

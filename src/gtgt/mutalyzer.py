@@ -855,7 +855,7 @@ def protein_prediction(
 
 def mutation_to_cds_effect(
     d: Description, variants: Sequence[Variant]
-) -> Sequence[tuple[int, int]]:
+) -> list[tuple[int, int]]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome
 
