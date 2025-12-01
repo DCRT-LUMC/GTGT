@@ -1,3 +1,4 @@
+import copy
 from typing import Any, Iterator, Sequence
 
 from .range import Range, intersect, overlap, subtract
@@ -239,7 +240,7 @@ class Bed:
 
         return bed
 
-    def intersect(self, other: object) -> None:
+    def intersect(self, other: object) -> "Bed":
         """Update record to only contain features that overlap other"""
         if not isinstance(other, Bed):
             raise NotImplementedError
@@ -247,20 +248,22 @@ class Bed:
         if self.strand != other.strand:
             raise ValueError("Conflicting strands, intersection not possible")
 
+        new = copy.deepcopy(self)
         # If other is on a different chromosome, we zero out self since there
         # is no overlap
-        if self.chrom != other.chrom:
-            self._zero_out()
-            return
+        if new.chrom != other.chrom:
+            new._zero_out()
+            return new
 
         # Determine all intersected ranges
         intersected: list[Range] = list()
 
-        for range1 in self.blocks():
+        for range1 in new.blocks():
             for intersector in other.blocks():
                 intersected += intersect(range1, intersector)
 
-        self.update(intersected)
+        new.update(intersected)
+        return new
 
     def overlap(self, other: object) -> None:
         """All blocks from self that (partially) overlap blocks from other"""

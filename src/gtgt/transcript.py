@@ -121,8 +121,7 @@ class Transcript:
         cds_bed.strand = strand
 
         # Make a copy to intersect
-        coding_exons = deepcopy(exon_bed)
-        coding_exons.intersect(cds_bed)
+        coding_exons = exon_bed.intersect(cds_bed)
         coding_exons.name = "Coding exons"
 
         return cls(exon_bed, coding_exons)
@@ -141,8 +140,8 @@ class Transcript:
 
     def intersect(self, selector: Bed) -> None:
         """Update transcript to only contain features that intersect the selector"""
-        for record in self.records():
-            record.intersect(selector)
+        self.exons = self.exons.intersect(selector)
+        self.coding_exons = self.exons.intersect(selector)
 
     def overlap(self, selector: Bed) -> None:
         """Update transcript to only contain features that overlap the selector"""

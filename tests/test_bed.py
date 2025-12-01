@@ -221,8 +221,8 @@ intersect_bed = [
 
 @pytest.mark.parametrize("before, intersector, after", intersect_bed)
 def test_intersect_bed(before: Bed, intersector: Bed, after: Bed) -> None:
-    before.intersect(intersector)
-    assert before == after
+    new = before.intersect(intersector)
+    assert new == after
 
 
 def test_zero_bed_object() -> None:
