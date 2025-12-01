@@ -6,11 +6,12 @@ import mutalyzer_hgvs_parser
 from flask import Flask
 from jinja2 import Environment, FileSystemLoader
 
+from gtgt.mutalyzer import init_description
 from gtgt.transcript import Result
 
+from . import Transcript
 from .provider import Provider
 from .variant_validator import lookup_variant
-from .wrappers import lookup_transcript
 
 hgvs_error = (
     mutalyzer_hgvs_parser.exceptions.UnexpectedCharacter,
@@ -133,9 +134,7 @@ def result(variant: str | None = None) -> str:
 
     # Analyze the transcript
     try:
-        transcript_id = variant.split(":")[0]
-        transcript_model = lookup_transcript(provider, transcript_id)
-        transcript = transcript_model.to_transcript()
+        transcript = Transcript.from_description(init_description(variant))
         results = transcript.analyze(variant)
     except Exception as e:
         error = {"summary": "Analysis failed", "details": str(e)}
