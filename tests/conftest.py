@@ -1,5 +1,10 @@
+import os
 from pathlib import Path
 from typing import Any
+
+# Remove the mutalyzer environment variable to ensure we use the test data,
+# rather than the mutalyzer cache from the settings
+os.environ.pop("MUTALYZER_SETTINGS", None)
 
 import pytest
 from mutalyzer.description import Description

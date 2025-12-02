@@ -326,12 +326,7 @@ def test_transcript_from_description_SDHD() -> None:
 
 
 def test_transcript_from_NC_NM_forward() -> None:
-    """Test creating a forward Transcript from a Mutalyzer NC(NM) description
-
-    IMPORTANT: This test will fail if you have set MUTALYSER_SETTINGS in your
-    env and enabled the cache, since it will take precedence over the cache
-    pytest uses
-    """
+    """Test creating a forward Transcript from a Mutalyzer NC(NM) description"""
     d = init_description("NC_000011.10(NM_003002.4):c.=")
     t = Transcript.from_description(d)
 
@@ -350,12 +345,7 @@ def test_transcript_from_NC_NM_forward() -> None:
 
 
 def test_transcript_from_NC_NM_reverse() -> None:
-    """Test creating a reverse Transcript from a Mutalyzer NC(NM) description
-
-    IMPORTANT: This test will fail if you have set MUTALYSER_SETTINGS in your
-    env and enabled the cache, since it will take precedence over the cache
-    pytest uses
-    """
+    """Test creating a reverse Transcript from a Mutalyzer NC(NM) description"""
     d = init_description("NC_000011.10(NM_012459.4):c.=")
     t = Transcript.from_description(d)
 
