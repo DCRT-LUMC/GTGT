@@ -7,8 +7,6 @@ from gtgt.transcript import Comparison, Result
 INVALID_INPUTS = [
     # Non-HGVS input
     ("A", "Not a valid HGVS description"),
-    # Not an ensemble transcript
-    ("NM_0001:c.10del", "Not an ensembl transcript"),
 ]
 
 

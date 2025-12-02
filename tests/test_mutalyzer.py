@@ -344,6 +344,16 @@ def test_transcript_from_NC_NM_forward() -> None:
     ]
 
 
+def test_analyze_NC_NM_forward() -> None:
+    """Test mutating an NC(NM) transcript on the forward strand"""
+    hgvs = "NC_000011.10(NM_003002.4):c.102del"
+    d = init_description(hgvs)
+    t = Transcript.from_description(d)
+
+    results = t.analyze(hgvs)
+    assert results
+
+
 def test_transcript_from_NC_NM_reverse() -> None:
     """Test creating a reverse Transcript from a Mutalyzer NC(NM) description"""
     d = init_description("NC_000011.10(NM_012459.4):c.=")

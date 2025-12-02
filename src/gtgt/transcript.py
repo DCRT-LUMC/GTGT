@@ -12,9 +12,9 @@ from .mutalyzer import (
     Variant,
     generate_therapies,
     get_ensembl_chrom_name,
-    get_offset,
     get_exons,
     get_ncbi_chrom_name,
+    get_offset,
     get_strand,
     init_description,
     mutation_to_cds_effect,
@@ -78,15 +78,8 @@ class Transcript:
         ref = d.input_model["reference"]
         if ref["id"].startswith("ENST"):
             ensembl = True
-        elif ref["id"].startswith("NM") and "selector" not in ref["id"]:
-            raise ValueError(
-                f"Bare transcript {d} cannot be used to initialize a Transcript."
-                " Please use the NC(NM) notation"
-            )
-        elif ref["selector"]["id"]:
-            ensembl = False
         else:
-            raise ValueError(f"Unknown description type: {d}")
+            ensembl = False
 
         # Get ensembl offset
         if ensembl:
@@ -108,8 +101,9 @@ class Transcript:
         strand = get_strand(d)
 
         if not chrom:
-            raise RuntimeError(f"Unable to determine chromosome name for {d}")
-        chrom = f"chr{chrom}"
+            chrom = d.input_model["reference"]["id"]
+        else:
+            chrom = f"chr{chrom}"
 
         # Convert to Bed to intersect the exons with the CDS to get the coding
         # exons

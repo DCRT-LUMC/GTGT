@@ -111,11 +111,6 @@ def validate_user_input(input: str) -> Mapping[str, str]:
         error["details"] = str(e)
         return error
 
-    if not input.startswith("ENST"):
-        error["summary"] = "Not an ensembl transcript"
-        error["details"] = "Currently, only ensembl transcripts (ENST) are supported"
-        return error
-
     return error
 
 

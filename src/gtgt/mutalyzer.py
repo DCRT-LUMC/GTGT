@@ -19,7 +19,11 @@ from mutalyzer.converter.variants_de_to_hgvs import (
     is_repeat,
 )
 from mutalyzer.description import Description
-from mutalyzer.description_model import get_reference_id, get_selector_id, variants_to_description
+from mutalyzer.description_model import (
+    get_reference_id,
+    get_selector_id,
+    variants_to_description,
+)
 from mutalyzer.protein import get_protein_description, in_frame_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
@@ -795,7 +799,10 @@ def get_ncbi_chrom_name(d: Description) -> str | None:
 
 
 def get_strand(d: Description) -> str:
-    strand = d.get_selector_model()["location"]["strand"]
+    # NM transcripts are on the forward strand by definition, and their strand
+    # is not defined in the selector model from mutalyzer. Therefore, we set 1
+    # as the default value.
+    strand = d.get_selector_model()["location"].get("strand", 1)
     if strand == 1:
         return "+"
     elif strand == -1:
