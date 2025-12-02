@@ -345,19 +345,106 @@ def test_transcript_from_NC_NM_forward() -> None:
 
 
 def test_analyze_NC_NM_forward() -> None:
-    """Test mutating an NC(NM) transcript on the forward strand"""
+    """Test mutating an NC(NM) transcript on the forward strand
+
+    NM_003002 is SDHD
+    """
     hgvs = "NC_000011.10(NM_003002.4):c.102del"
     d = init_description(hgvs)
     t = Transcript.from_description(d)
 
     results = t.analyze(hgvs)
-    assert results
+
+    # Look at the results for skipping exon 2
+    skip2 = results[2]
+    assert skip2.therapy.name == "Skip exon 2"
+    assert skip2.therapy.hgvsc == "NM_003002.4:c.53_169del"
+    assert skip2.therapy.hgvsp == "NC_000011.10(NP_002993.1):p.(Leu19_Ser57del)"
+
+    # Check the remaining basepairs for the exons
+    exons = skip2.comparison[0]
+    assert exons.basepairs == "1222/1339"
+
+    # Check the remaining basepairs for the coding exons
+    coding_exons = skip2.comparison[1]
+    assert coding_exons.basepairs == "361/480"
+
+
+def test_analyze_NM_forward() -> None:
+    """Test mutating an NM transcript on the forward strand
+
+    NM_003002 is SDHD
+    """
+    hgvs = "NM_003002.4:c.102del"
+    d = init_description(hgvs)
+    t = Transcript.from_description(d)
+
+    results = t.analyze(hgvs)
+
+    # Look at the results for skipping exon 2
+    skip2 = results[2]
+    assert skip2.therapy.name == "Skip exon 2"
+    assert skip2.therapy.hgvsc == "NM_003002.4:c.53_169del"
+    assert skip2.therapy.hgvsp == "NM_003002.4(NP_002993.1):p.(Leu19_Ser57del)"
+
+    # Check the remaining basepairs for the exons
+    exons = skip2.comparison[0]
+    assert exons.basepairs == "1222/1339"
+
+    # Check the remaining basepairs for the coding exons
+    coding_exons = skip2.comparison[1]
+    assert coding_exons.basepairs == "361/480"
 
 
 def test_transcript_from_NC_NM_reverse() -> None:
-    """Test creating a reverse Transcript from a Mutalyzer NC(NM) description"""
+    """Test creating a reverse Transcript from a Mutalyzer NC(NM) description
+
+    NM_012459.4 is TIMM8B
+    """
     d = init_description("NC_000011.10(NM_012459.4):c.=")
     t = Transcript.from_description(d)
 
     assert t.exons.blocks() == [(2953, 3616), (4793, 4910)]
     assert t.coding_exons.blocks() == [(3448, 3616), (4793, 4877)]
+
+
+def test_analyze_NC_NM_reverse() -> None:
+    """Test creating a reverse Transcript from a Mutalyzer NC(NM) description
+
+    NM_012459.4 is TIMM8B
+    """
+    hgvs = "NC_000011.10(NM_012459.4):c.100del"
+    d = init_description(hgvs)
+    t = Transcript.from_description(d)
+
+    results = t.analyze(hgvs)
+
+    # TIMM8B only has 2 exons, so there will be no exon skips proposed
+    assert len(results) == 2
+
+    # Look at the results for the input variant
+    input_results = results[1]
+    assert input_results.therapy.name == "Input"
+    assert (
+        input_results.therapy.hgvsp == "NC_000011.10(NP_036591.3):p.(Glu34SerfsTer15)"
+    )
+
+
+def test_analyze_NM_reverse() -> None:
+    """Test creating a reverse Transcript from a Mutalyzer NC(NM) description
+
+    NM_012459.4 is TIMM8B
+    """
+    hgvs = "NM_012459.4:c.100del"
+    d = init_description(hgvs)
+    t = Transcript.from_description(d)
+
+    results = t.analyze(hgvs)
+
+    # TIMM8B only has 2 exons, so there will be no exon skips proposed
+    assert len(results) == 2
+
+    # Look at the results for the input variant
+    input_results = results[1]
+    assert input_results.therapy.name == "Input"
+    assert input_results.therapy.hgvsp == "NM_012459.4(NP_036591.3):p.(Glu34SerfsTer15)"
