@@ -19,7 +19,7 @@ from mutalyzer.converter.variants_de_to_hgvs import (
     is_repeat,
 )
 from mutalyzer.description import Description
-from mutalyzer.description_model import get_reference_id, variants_to_description
+from mutalyzer.description_model import get_reference_id, get_selector_id, variants_to_description
 from mutalyzer.protein import get_protein_description, in_frame_description
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
@@ -605,9 +605,10 @@ def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     variant_models = de_to_hgvs(delins_model, d.get_sequences())
 
     ref_id = get_reference_id(d.corrected_model)
+    selector_id = get_selector_id(d.corrected_model)
 
     selector_model = get_protein_selector_model(
-        d.references[ref_id]["annotations"], ref_id
+        reference=d.references[ref_id]["annotations"], selector_id=selector_id
     )
 
     description_model = {
@@ -833,8 +834,9 @@ def protein_prediction(
     """Call mutalyzer get_protein_description on a Description and list of Variants"""
     # Get required data structures from the Description
     ref_id = get_reference_id(d.corrected_model)
+    selector_id = get_selector_id(d.corrected_model)
     selector_model = get_protein_selector_model(
-        d.references[ref_id]["annotations"], ref_id
+        d.references[ref_id]["annotations"], selector_id=selector_id
     )
 
     # Convert the Variants to their delins model representation
