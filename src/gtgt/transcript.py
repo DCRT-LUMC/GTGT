@@ -12,7 +12,7 @@ from .mutalyzer import (
     Variant,
     generate_therapies,
     get_ensembl_chrom_name,
-    get_ensembl_offset,
+    get_offset,
     get_exons,
     get_ncbi_chrom_name,
     get_strand,
@@ -90,7 +90,7 @@ class Transcript:
 
         # Get ensembl offset
         if ensembl:
-            offset = get_ensembl_offset(d)
+            offset = get_offset(d)
         else:
             offset = 0
 

@@ -457,7 +457,7 @@ class Variant:
 
     def genomic_coordinates(self, d: Description) -> tuple[int, int]:
         """Return genomic coordinates for Variant"""
-        offset = get_ensembl_offset(d)
+        offset = get_offset(d)
 
         if offset is None:
             raise RuntimeError("Missing ensembl offset")
@@ -741,13 +741,13 @@ def init_description(hgvs: str) -> Description:
     return d
 
 
-def get_ensembl_offset(d: Description) -> int | None:
+def get_offset(d: Description) -> int:
     ref_id = get_reference_id(d.corrected_model)
-    offset: int | None = (
+    offset: int = (
         d.references.get(ref_id, {})
         .get("annotations", {})
         .get("qualifiers", {})
-        .get("location_offset")
+        .get("location_offset", 0)
     )
     return offset
 
