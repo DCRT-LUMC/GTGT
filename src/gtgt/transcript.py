@@ -11,9 +11,8 @@ from .mutalyzer import (
     Therapy,
     Variant,
     generate_therapies,
-    get_ensembl_chrom_name,
+    get_chrom_name,
     get_exons,
-    get_ncbi_chrom_name,
     get_offset,
     get_strand,
     init_description,
@@ -97,13 +96,8 @@ class Transcript:
         cds = (cds[0] + offset, cds[1] + offset)
 
         # Get the strand and chromosome name
-        chrom = get_ensembl_chrom_name(d) if ensembl else get_ncbi_chrom_name(d)
+        chrom = get_chrom_name(d)
         strand = get_strand(d)
-
-        if not chrom:
-            chrom = d.input_model["reference"]["id"]
-        else:
-            chrom = f"chr{chrom}"
 
         # Convert to Bed to intersect the exons with the CDS to get the coding
         # exons

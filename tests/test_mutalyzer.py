@@ -11,6 +11,7 @@ from gtgt.mutalyzer import (
     Variant,
     _exon_string,
     changed_protein_positions,
+    get_chrom_name,
     get_exons,
     init_description,
     protein_prediction,
@@ -448,3 +449,29 @@ def test_analyze_NM_reverse() -> None:
     input_results = results[1]
     assert input_results.therapy.name == "Input"
     assert input_results.therapy.hgvsp == "NM_012459.4(NP_036591.3):p.(Glu34SerfsTer15)"
+
+
+@pytest.mark.parametrize(
+    "transcript, chromosome",
+    [
+        ##  SDHD on chromosome 11  ##
+        # ENST use chromosome numbers
+        ("ENST00000375549.8", "11"),
+        # NM transcripts are on their own 'chromosome'
+        ("NM_003002.4", "NM_003002.4"),
+        # NM on an NC should return the NC
+        ("NC_000011.10(NM_003002.4)", "NC_000011.10"),
+        ##  WT-1 on chromosome 11  ##
+        # ENST use chromosome numbers
+        ("ENST00000452863.10", "11"),
+        ##  TIMM8B on chromosome  ##
+        # NM transcripts are on their own 'chromosome'
+        ("NM_012459.4", "NM_012459.4"),
+        # NM on an NC should return the NC
+        ("NC_000011.10(NM_012459.4)", "NC_000011.10"),
+    ],
+)
+def test_chrom_name(transcript: str, chromosome: str) -> None:
+    """Test extracting the chromosome name from a Description object"""
+    d = init_description(f"{transcript}:c.=")
+    assert get_chrom_name(d) == chromosome
