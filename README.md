@@ -1,8 +1,11 @@
 [![PyPi](https://img.shields.io/pypi/v/gtgt.svg)](https://pypi.org/project/gtgt)
-[![Continous integration](https://github.com/DCRT-LUMC/GTGT/actions/workflows/ci.yml/badge.svg)](https://github.com/DCRT-LUMC/GTGT/actions/workflows/ci.yml)
+[![Release date](https://img.shields.io/github/release-date/DCRT-LUMC/GTGT.svg)](https://github.com/DCRT-LUMC/GTGT/releases)
+[![Last commit](https://img.shields.io/github/last-commit/DCRT-LUMC/GTGT.svg)](https://github.com/DCRT-LUMC/GTGT/graphs/commit-activity)
+[![Tests](https://github.com/DCRT-LUMC/GTGT/actions/workflows/ci.yml/badge.svg)](https://github.com/DCRT-LUMC/GTGT/actions/workflows/ci.yml)
+[![Docs](https://readthedocs.org/projects/gtgt/badge/?version=latest)](https://gtgt.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
-[![Documentation Status](https://readthedocs.org/projects/gtgt/badge/?version=latest)](https://gtgt.readthedocs.io/en/latest/?badge=latest)
+[![License](https://img.shields.io/github/license/DCRT-LUMC/GTGT.svg)](https://raw.githubusercontent.com/DCRT-LUMC/GTGT/main/LICENSE.md)
 
 # Genetic Therapy Generator Toolkit
 ------------------------------------------------------------------------
