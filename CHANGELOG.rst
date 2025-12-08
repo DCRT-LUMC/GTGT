@@ -8,6 +8,11 @@ Changelog
 .. that users understand how the changes affect the new version.
 
 ------
+v0.2.8
+------
++ Add support for refseq (NM) transcripts
+
+------
 v0.2.7
 ------
 + Fix a bug where the ExonViz figure cannot be drawn at the default scale
