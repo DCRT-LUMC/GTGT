@@ -4,7 +4,6 @@ import svg
 from exonviz.draw import draw_exons
 from exonviz.mutalyzer import build_exons
 from mutalyzer.description import Description
-from mutalyzer.viewer import view_variants
 
 config = {
     "width": 768,
@@ -22,11 +21,9 @@ config = {
 
 
 def draw(d: Description) -> str:
-    view = view_variants(d.input_description)
     exons, dropped_variants = build_exons(
-        transcript=d.input_description,
+        hgvs=d.input_description,
         mutalyzer=d.output()["selector_short"],
-        view_variants=view,
         config=config,
     )
 

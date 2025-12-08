@@ -63,7 +63,7 @@ setup(
         "setuptools",
         "mutalyzer>=3.1.1",
         "lark==1.2.2",
-        "exonviz>=0.2.15",
+        "exonviz>=0.2.16",
     ],
     extras_require={
         "api_server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"],
