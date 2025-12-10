@@ -74,17 +74,7 @@ class Transcript:
     def from_description(cls, d: Description) -> "Transcript":
         """Create a Transcript object from a mutalyzer Description"""
         # Check if we can use this Description to initialize a Transcript
-        ref = d.input_model["reference"]
-        if ref["id"].startswith("ENST"):
-            ensembl = True
-        else:
-            ensembl = False
-
-        # Get ensembl offset
-        if ensembl:
-            offset = get_offset(d)
-        else:
-            offset = 0
+        offset = get_offset(d)
 
         # Get exons and add the offset
         selector_model = d.get_selector_model()
