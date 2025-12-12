@@ -229,7 +229,6 @@ class Transcript:
 
         # Generate all possible therapies
         for therapy in generate_therapies(d):
-            logger.debug(f"{therapy.name}")
 
             # Apply the combination to the wildtype transcript
             modified_transcript = deepcopy(self)

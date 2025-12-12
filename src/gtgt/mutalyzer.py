@@ -662,14 +662,11 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
     variants = [
         Variant.from_model(v, sequence=sequence) for v in d.delins_model["variants"]
     ]
-    logger.debug(f"{variants=}")
+    logger.debug(f"Input variants: {variants}")
 
-    logger.debug(f"{skippable_exons=}")
     for i, exons in enumerate(sliding_window(skippable_exons, size=number_to_skip), 2):
         # Generate the string of exon numbers
         exons_description = _exon_string(range(i, i + number_to_skip))
-        logger.debug(f"{exons_description=}")
-        logger.debug(f"{exons=}")
 
         if d.is_inverted():
             # Start of the first exon to skip
@@ -682,7 +679,6 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
             end = exons[-1][-1]
 
         exon_skip = Variant(start, end)
-        logger.debug(f"{exon_skip=}")
 
         # Combine the existing variants with the exon skip
         try:
@@ -694,7 +690,7 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
                 msg = f"Cannot skip exons {exons_description}: {e}"
             logger.warn(msg)
             continue
-        logger.debug(f"{combined=}")
+        logger.debug(f"Skip {exons_description}({exons=}): {exon_skip=} {combined=}")
 
         description = f"The annotations based on the supplied variants, in combination with skipping {exons_description}."
         # Convert to c. notation (user facing)
@@ -880,8 +876,6 @@ def mutation_to_cds_effect(
 
     for start, end in changed_protein_positions(reference, observed):
         # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
-
-        logger.debug(f"p.{start+1}_{end}")
 
         # Internal coordinate positions
         start = crossmap.protein_to_coordinate(
