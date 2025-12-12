@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 def lookup_transcript(transcript_id: str) -> EnsemblTranscript:
     transcript, version = transcript_id.split(".")
     provider = Ensembl()
-    ts = provider.get(transcript_id)
+    ts = provider.get(transcript)
 
     _check_transcript(ts, int(version))
 
