@@ -66,7 +66,6 @@ setup(
         "exonviz>=0.2.16",
     ],
     extras_require={
-        "api_server": ["uvicorn", "fastapi", "mutalyzer-hgvs-parser", "httpx"],
         "webserver": ["flask"],
     },
     setup_requires=[

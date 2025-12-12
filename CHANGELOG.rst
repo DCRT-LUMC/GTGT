@@ -11,6 +11,7 @@ Changelog
 v0.2.9-dev
 ----------
 + Fix a bug with analyzing non-human Ensembl transcripts
++ Remove the API endpoints
 
 ------
 v0.2.8

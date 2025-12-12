@@ -120,12 +120,12 @@ class TranscriptModel(BaseModel):
                     "exons": {
                         "chrom": "chr1",
                         "blocks": [[0, 10], [20, 40], [50, 60], [70, 100]],
-                        "name": "exons",
+                        "name": "Exons",
                     },
                     "coding_exons": {
                         "chrom": "chr1",
                         "blocks": [[23, 72]],
-                        "name": "coding_exons",
+                        "name": "Coding exons",
                     },
                 },
                 # Skipped exon 2 ([20, 40])
@@ -140,7 +140,7 @@ class TranscriptModel(BaseModel):
                     "coding_exons": {
                         "chrom": "chr1",
                         "blocks": [[40, 72]],
-                        "name": "coding_exons",
+                        "name": "Coding exons",
                         "score": 0,
                         "strand": ".",
                     },

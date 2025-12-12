@@ -12,15 +12,15 @@ gtgt can be installed using pip:
 
    (.venv) $ pip install gtgt
 
-To install the requirements for `gtgt server`, you can install from pip using:
+To install the requirements for `gtgt webserver`, you can install from pip using:
 
 .. code-block:: console
 
-   (.venv) $ pip install gtgt[server]
+   (.venv) $ pip install gtgt[webserver]
 
 Transcript
 ----------
-You can fetch transcript information using the command below, or use the `/transcript` endpoint
+You can fetch transcript information using the command below.
 
 .. code-block:: console
 
@@ -28,7 +28,7 @@ You can fetch transcript information using the command below, or use the `/trans
 
 Links
 -----
-You can fetch links to external resources for a specified variant using the command below, or use the `/links` endpoint
+You can fetch links to external resources for a specified variant using the command below.
 
 .. code-block:: console
 

@@ -17,10 +17,10 @@ Try out GTGT via the website of the Dutch Center for RNA Therapeutics:
 The documentation is available on [http://gtgt.readthedocs.io/](http://gtgt.readthedocs.io/).
 
 ## Caching
-To speed up the tool, you can use caching by either specifying a folder using `--cachedir`, or by setting the `GTGT_CACHE` environment variable. This currently does not work with `gtgt api_server`.
+To speed up the tool, you can enable caching by setting the `GTGT_CACHE` environment variable.
 
 ## Human
-gtgt --cachedir cache transcript ENST00000241453.12 | jq .
+gtgt transcript ENST00000241453.12 | jq .
 
 
 ## Variant Information
