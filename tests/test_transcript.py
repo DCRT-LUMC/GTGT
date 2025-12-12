@@ -3,7 +3,6 @@ import json
 import pytest
 
 from gtgt import Bed
-from gtgt.models import TranscriptModel
 from gtgt.mutalyzer import Therapy, Variant, init_description
 from gtgt.transcript import Comparison, Result, Transcript
 
@@ -217,20 +216,6 @@ def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
 
     assert cmp[0].percentage == pytest.approx(0.71, abs=0.01)
     assert cmp[1].percentage == pytest.approx(0.41, abs=0.01)
-
-
-@pytest.fixture
-def WT() -> Transcript:
-    """
-    Transcript for WT1, using real genomic positions
-    """
-    path = "tests/data/ENST00000452863.10.Transcript.json"
-    with open(path) as fin:
-        js = json.load(fin)
-
-    t = TranscriptModel.model_validate(js)
-
-    return t.to_transcript()
 
 
 def test_Result_init() -> None:

@@ -11,7 +11,6 @@ import os
 import secrets
 
 from gtgt.flask import render
-from gtgt.models import TranscriptModel
 from gtgt.transcript import Result, Transcript
 
 from .mutalyzer import (
@@ -108,8 +107,7 @@ def main() -> None:
     if args.command == "transcript":
         d = init_description(f"{args.transcript_id}:c.=")
         t = Transcript.from_description(d)
-        ts = TranscriptModel.from_transcript(t)
-        print(ts.model_dump_json())
+        print(t)
     elif args.command == "links":
         logger.debug(args)
         links = lookup_variant(args.hgvs_variant).url_dict()

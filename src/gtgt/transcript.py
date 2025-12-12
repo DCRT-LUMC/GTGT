@@ -239,3 +239,6 @@ class Transcript:
         wt_patient = results[:2]
         rest = sorted(results[2:], reverse=True)
         return wt_patient + rest
+
+    def __str__(self) -> str:
+        return "\n".join(str(record) for record in self.records())

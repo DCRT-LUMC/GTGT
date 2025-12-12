@@ -5,7 +5,6 @@ from itertools import zip_longest
 import pytest
 from mutalyzer.description import Description
 
-from gtgt.models import TranscriptModel
 from gtgt.mutalyzer import (
     Therapy,
     Variant,
@@ -29,6 +28,11 @@ def SDHD_description() -> Description:
 def WT1_description() -> Description:
     """WT1, on the reverse strand"""
     return init_description("ENST00000452863.10:c.=")
+
+
+def WT_Transcript() -> Transcript:
+    d = WT1_description()
+    return Transcript.from_description(d)
 
 
 def test_one_adjacent_exonskip_forward() -> None:
@@ -111,34 +115,23 @@ def test_sliding_window_size_2() -> None:
     ]
 
 
-@pytest.fixture(scope="session")
-def WT() -> Transcript:
-    """
-    Transcript for WT1, using real genomic positions
-    """
-    path = "tests/data/ENST00000452863.10.Transcript.json"
-    with open(path) as fin:
-        js = json.load(fin)
-
-    t = TranscriptModel.model_validate(js)
-
-    return t.to_transcript()
-
-
 @pytest.mark.parametrize(
     "variant",
     "13T>A 970del 970_971insA 997_999delinsTAA 1000dup 10_11inv 994_996A[9]".split(),
 )
-def test_analyze_supported_variant_types(WT: Transcript, variant: str) -> None:
+def test_analyze_supported_variant_types(variant: str) -> None:
+    WT = WT_Transcript()
     hgvs = f"ENST00000452863.10:c.{variant}"
     WT.analyze(hgvs)
 
 
-def test_analyze_transcript(WT: Transcript) -> None:
+def test_analyze_transcript() -> None:
     # In frame deletion that creates a STOP codon
     # variant = "ENST00000452863.10:c.87_89del"
     # Frameshift in small in-frame exon 5
     variant = "ENST00000452863.10:c.970del"
+
+    WT = WT_Transcript()
 
     results = WT.analyze(variant)
 
@@ -146,7 +139,7 @@ def test_analyze_transcript(WT: Transcript) -> None:
     wildtype = results[0]
     assert wildtype.therapy.name == "Wildtype"
     coding_exons = wildtype.comparison[1]
-    assert coding_exons.name == "coding_exons"
+    assert coding_exons.name == "Coding exons"
     assert coding_exons.percentage == 1.0
 
     input = results[1]
@@ -154,7 +147,7 @@ def test_analyze_transcript(WT: Transcript) -> None:
     assert input.therapy.hgvsc == variant
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
-    assert coding_exons.basepairs == "18845/46303"
+    assert coding_exons.basepairs == "990/1569"
 
 
 @pytest.mark.xfail
