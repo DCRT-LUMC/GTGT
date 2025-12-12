@@ -62,13 +62,9 @@ class Result:
 
 
 class Transcript:
-    def __init__(self, exons: Bed, coding_exons: Bed | None = None):
-        self.exons = exons
-
-        if coding_exons is None:
-            self.coding_exons = Bed()
-        else:
-            self.coding_exons = coding_exons
+    def __init__(self, rna_features: list[Bed], protein_features: list[Bed]):
+        self.rna_features = rna_features
+        self.protein_features = protein_features
 
     @classmethod
     def from_description(cls, d: Description) -> "Transcript":
@@ -102,39 +98,34 @@ class Transcript:
         coding_exons = exon_bed.intersect(cds_bed)
         coding_exons.name = "Coding exons"
 
-        return cls(exon_bed, coding_exons)
+        return cls(rna_features=[exon_bed], protein_features=[coding_exons])
 
     def records(self) -> Sequence[Bed]:
         """Return the Bed records that make up the Transcript"""
-        return [self.exons, self.coding_exons]
+        return self.rna_features + self.protein_features
 
-    def rna_records(self) -> Sequence[Bed]:
+    def rna_records(self) -> list[Bed]:
         """Return the Bed records that contain RNA features"""
-        return [self.exons]
+        return self.rna_features
 
-    def protein_records(self) -> Sequence[Bed]:
+    def protein_records(self) -> list[Bed]:
         """Return the Bed records that contain protein features"""
-        return [self.coding_exons]
+        return self.protein_features
 
     def intersect(self, selector: Bed) -> None:
         """Update transcript to only contain features that intersect the selector"""
-        self.exons = self.exons.intersect(selector)
-        self.coding_exons = self.exons.intersect(selector)
+        for record in self.records():
+            record.intersect(selector)
 
     def overlap(self, selector: Bed) -> None:
         """Update transcript to only contain features that overlap the selector"""
-        self.exons = self.exons.overlap(selector)
-        self.coding_exons = self.exons.overlap(selector)
+        for record in self.records():
+            record.overlap(selector)
 
     def subtract(self, selector: Bed) -> None:
         """Remove all features from transcript that intersect the selector"""
         for record in self.records():
             record.subtract(selector)
-
-    def exon_skip(self, selector: Bed) -> None:
-        """Remove the exon(s) that overlap the selector from the transcript"""
-        exons_to_skip = self.exons.overlap(selector)
-        self.subtract(exons_to_skip)
 
     def compare(self, other: object) -> Sequence[Comparison]:
         """Compare the size of each record in the transcripts"""
@@ -168,14 +159,14 @@ class Transcript:
         """Mutate the transcript based on the specified variants"""
         # Update protein features
         protein_changes = Bed.from_blocks(
-            self.coding_exons.chrom, mutation_to_cds_effect(d, variants)
+            self.protein_features[0].chrom, mutation_to_cds_effect(d, variants)
         )
         for record in self.protein_records():
             record.subtract(protein_changes)
 
         # Update RNA features
         rna_changes = Bed.from_blocks(
-            self.exons.chrom, [v.genomic_coordinates(d) for v in variants]
+            self.rna_features[0].chrom, [v.genomic_coordinates(d) for v in variants]
         )
         for record in self.rna_records():
             self.subtract(rna_changes)
@@ -242,3 +233,29 @@ class Transcript:
 
     def __str__(self) -> str:
         return "\n".join(str(record) for record in self.records())
+
+    @property
+    def exons(self) -> Bed | None:
+        """Helper function to get the exons for Transcript
+
+        Note that this relies on the Bed record for the exons to be
+        named 'Exons'
+        """
+        for record in self.rna_features:
+            if record.name == "Exons":
+                return record
+        else:
+            return None
+
+    @property
+    def coding_exons(self) -> Bed | None:
+        """Helper function to get the coding exons for Transcript
+
+        Note that this relies on the Bed record for the coding exons to be
+        named 'Coding exons'
+        """
+        for record in self.protein_features:
+            if record.name == "Coding exons":
+                return record
+        else:
+            return None

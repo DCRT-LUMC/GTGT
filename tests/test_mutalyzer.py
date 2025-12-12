@@ -282,7 +282,7 @@ def test_transcript_from_description_WT1() -> None:
     d = WT1_description()
     t = Transcript.from_description(d)
     # Manually verified block starts for the exons of WT1
-    assert t.exons.blockStarts == [
+    assert t.exons and t.exons.blockStarts == [
         0,
         4197,
         4891,
@@ -295,7 +295,7 @@ def test_transcript_from_description_WT1() -> None:
         46925,
     ]
     # Manually verified block starts for the coding exons of WT1
-    assert t.coding_exons.blockStarts == [
+    assert t.coding_exons and t.coding_exons.blockStarts == [
         0,
         2914,
         3608,
@@ -314,9 +314,9 @@ def test_transcript_from_description_SDHD() -> None:
     d = SDHD_description()
     t = Transcript.from_description(d)
     # Manually verified block starts for the exons of SDHD
-    assert t.exons.blockStarts == [0, 984, 1994, 7932]
+    assert t.exons and t.exons.blockStarts == [0, 984, 1994, 7932]
     # Manually verified block starts for the coding exons of SDHD
-    assert t.coding_exons.blockStarts == [0, 949, 1959, 7897]
+    assert t.coding_exons and t.coding_exons.blockStarts == [0, 949, 1959, 7897]
 
 
 def test_transcript_from_NC_NM_forward() -> None:
@@ -324,13 +324,13 @@ def test_transcript_from_NC_NM_forward() -> None:
     d = init_description("NC_000011.10(NM_003002.4):c.=")
     t = Transcript.from_description(d)
 
-    assert t.exons.blocks() == [
+    assert t.exons and t.exons.blocks() == [
         (5026, 5113),
         (6010, 6127),
         (7020, 7165),
         (12958, 13948),
     ]
-    assert t.coding_exons.blocks() == [
+    assert t.coding_exons and t.coding_exons.blocks() == [
         (5061, 5113),
         (6010, 6127),
         (7020, 7165),
@@ -398,8 +398,8 @@ def test_transcript_from_NC_NM_reverse() -> None:
     d = init_description("NC_000011.10(NM_012459.4):c.=")
     t = Transcript.from_description(d)
 
-    assert t.exons.blocks() == [(2953, 3616), (4793, 4910)]
-    assert t.coding_exons.blocks() == [(3448, 3616), (4793, 4877)]
+    assert t.exons and t.exons.blocks() == [(2953, 3616), (4793, 4910)]
+    assert t.coding_exons and t.coding_exons.blocks() == [(3448, 3616), (4793, 4877)]
 
 
 def test_analyze_NC_NM_reverse() -> None:

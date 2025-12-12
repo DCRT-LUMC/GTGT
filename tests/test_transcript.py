@@ -8,10 +8,10 @@ from gtgt.transcript import Comparison, Result, Transcript
 
 
 @pytest.fixture
-def Exons() -> Bed:
+def exons() -> Bed:
     exons = [(0, 10), (20, 40), (50, 60), (70, 100)]
     bed = Bed.from_blocks("chr1", exons)
-    bed.name = "exons"
+    bed.name = "Exons"
 
     return bed
 
@@ -20,13 +20,13 @@ def Exons() -> Bed:
 def coding_exons() -> Bed:
     coding_exons = [(23, 40), (50, 60), (70, 72)]
     bed = Bed.from_blocks("chr1", coding_exons)
-    bed.name = "coding_exons"
+    bed.name = "Coding exons"
 
     return bed
 
 
 @pytest.fixture
-def transcript(Exons: Bed, coding_exons: Bed) -> Transcript:
+def transcript(exons: Bed, coding_exons: Bed) -> Transcript:
     """
     Bed records that make up a transcript
     Each positions shown here is 10x
@@ -36,12 +36,12 @@ def transcript(Exons: Bed, coding_exons: Bed) -> Transcript:
     exons         -   - -   -   - - -
     coding_exons      - -   -   -
     """
-    return Transcript(exons=Exons, coding_exons=coding_exons)
+    return Transcript(rna_features=[exons], protein_features=[coding_exons])
 
 
 def test_transcript_init(transcript: Transcript) -> None:
-    assert transcript.exons.name == "exons"
-    assert transcript.coding_exons.name == "coding_exons"
+    assert transcript.rna_features[0].name == "Exons"
+    assert transcript.protein_features[0].name == "Coding exons"
 
 
 intersect_selectors = [
@@ -52,7 +52,7 @@ intersect_selectors = [
             "chr1",
             0,
             100,
-            name="exons",
+            name="Exons",
             blockSizes=[10, 20, 10, 30],
             blockStarts=[0, 20, 50, 70],
         ),
@@ -67,8 +67,8 @@ intersect_selectors = [
 ]
 
 
-def test_transcript_init_no_coding(Exons: Bed) -> None:
-    t = Transcript(Exons)
+def test_transcript_init_no_coding(exons: Bed) -> None:
+    t = Transcript(rna_features=[exons], protein_features=[])
     assert not t.coding_exons
 
 
@@ -80,7 +80,7 @@ def test_intersect_transcript(
     transcript.intersect(selector)
 
     # Ensure the name matches, it's less typing to do that here
-    exons.name = "exons"
+    exons.name = "Exons"
     assert transcript.exons == exons
 
 
@@ -92,7 +92,7 @@ overlap_selectors = [
             "chr1",
             0,
             100,
-            name="exons",
+            name="Exons",
             blockSizes=[10, 20, 10, 30],
             blockStarts=[0, 20, 50, 70],
         ),
@@ -113,7 +113,7 @@ def test_overlap_transcript(selector: Bed, exons: Bed, transcript: Transcript) -
     transcript.overlap(selector)
 
     # Ensure the name matches, it's less typing to do that here
-    exons.name = "exons"
+    exons.name = "Exons"
     assert transcript.exons == exons
 
 
@@ -127,7 +127,7 @@ subtract_selectors = [
             "chr1",
             0,
             100,
-            name="exons",
+            name="Exons",
             blockSizes=[10, 20, 10, 30],
             blockStarts=[0, 20, 50, 70],
         ),
@@ -152,43 +152,7 @@ def test_subtract_transcript(selector: Bed, exons: Bed, transcript: Transcript) 
     transcript.subtract(selector)
 
     # Ensure the name matches, it's less typing to do that here
-    exons.name = "exons"
-    assert transcript.exons == exons
-
-
-exon_skip_selectors = [
-    # A selector on a different chromosome does nothing
-    (
-        Bed("chr2", 0, 100),
-        Bed("chr1", 0, 100, blockSizes=[10, 20, 10, 30], blockStarts=[0, 20, 50, 70]),
-    ),
-    # Remove the first exon
-    (
-        Bed("chr1", 0, 1),
-        Bed("chr1", 20, 100, blockSizes=[20, 10, 30], blockStarts=[0, 30, 50]),
-    ),
-    # Selector spans two exons
-    (
-        Bed("chr1", 9, 21),
-        Bed("chr1", 50, 100, blockSizes=[10, 30], blockStarts=[0, 20]),
-    ),
-    # Remove the last exon
-    (
-        Bed("chr1", 99, 100),
-        Bed("chr1", 0, 60, blockSizes=[10, 20, 10], blockStarts=[0, 20, 50]),
-    ),
-]
-
-
-@pytest.mark.parametrize("selector, exons", exon_skip_selectors)
-def test_exon_skip_transcript(
-    selector: Bed, exons: Bed, transcript: Transcript
-) -> None:
-    """Test if exon skipping updates the Transcript exons"""
-    transcript.exon_skip(selector)
-
-    # Ensure the name matches, it's less typing to do that here
-    exons.name = "exons"
+    exons.name = "Exons"
     assert transcript.exons == exons
 
 
@@ -200,7 +164,7 @@ def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
         (70, 100),
     ]
     exons = Bed.from_blocks("chr1", exon_blocks)
-    exons.name = "exons"
+    exons.name = "Exons"
 
     coding_blocks = [
         # (23, 40),  # Missing the second exon
@@ -208,9 +172,9 @@ def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
         (70, 72),
     ]
     coding_exons = Bed.from_blocks("chr1", coding_blocks)
-    coding_exons.name = "coding_exons"
+    coding_exons.name = "Coding exons"
 
-    smaller = Transcript(exons, coding_exons)
+    smaller = Transcript(rna_features=[exons], protein_features=[coding_exons])
 
     cmp = smaller.compare(transcript)
 
@@ -297,6 +261,8 @@ def test_mutate_forward(
             (112094804, 112095794),
         ],
     )
+    exons.name = "Exons"
+
     coding_exons = Bed.from_blocks(
         chrom,
         [
@@ -306,6 +272,7 @@ def test_mutate_forward(
             (112094804, 112094970),
         ],
     )
+    coding_exons.name = "Coding exons"
 
     # Variant to test
     d = init_description(f"{transcript}:c.{variant}")
@@ -320,11 +287,11 @@ def test_mutate_forward(
         (start + offset, end + offset) for start, end in coding_exon_blocks
     ]
 
-    SDHD = Transcript(exons=exons, coding_exons=coding_exons)
+    SDHD = Transcript(rna_features=[exons], protein_features=[coding_exons])
     SDHD.mutate(d, v)
 
-    assert SDHD.exons.blocks() == exon_blocks
-    assert SDHD.coding_exons.blocks() == coding_exon_blocks
+    assert SDHD.exons and SDHD.exons.blocks() == exon_blocks
+    assert SDHD.coding_exons and SDHD.coding_exons.blocks() == coding_exon_blocks
 
 
 MUTATE = [
@@ -460,6 +427,8 @@ def test_mutate_reverse(
             (32434699, 32435539),
         ],
     )
+    exons.name = "Exons"
+
     coding_exons = Bed.from_blocks(
         chrom,
         [
@@ -475,6 +444,7 @@ def test_mutate_reverse(
             (32434699, 32435360),
         ],
     )
+    coding_exons.name = "Coding exons"
 
     # Variant to test
     d = init_description(f"{transcript}:c.{variant}")
@@ -489,11 +459,11 @@ def test_mutate_reverse(
         (start + offset, end + offset) for start, end in coding_exon_blocks
     ]
 
-    WT1 = Transcript(exons=exons, coding_exons=coding_exons)
+    WT1 = Transcript(rna_features=[exons], protein_features=[coding_exons])
     WT1.mutate(d, v)
 
-    assert WT1.exons.blocks() == exon_blocks
-    assert WT1.coding_exons.blocks() == coding_exon_blocks
+    assert WT1.exons and WT1.exons.blocks() == exon_blocks
+    assert WT1.coding_exons and WT1.coding_exons.blocks() == coding_exon_blocks
 
 
 def test_Comparison_from_dict() -> None:
