@@ -157,16 +157,20 @@ class Transcript:
 
     def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
         """Mutate the transcript based on the specified variants"""
+        # Determine the chromosome the transcript is on
+        if self.records():
+            chrom = self.records()[0].chrom
+        else:
+            chrom = ""
+
         # Update protein features
-        protein_changes = Bed.from_blocks(
-            self.protein_features[0].chrom, mutation_to_cds_effect(d, variants)
-        )
+        protein_changes = Bed.from_blocks(chrom, mutation_to_cds_effect(d, variants))
         for record in self.protein_records():
             record.subtract(protein_changes)
 
         # Update RNA features
         rna_changes = Bed.from_blocks(
-            self.rna_features[0].chrom, [v.genomic_coordinates(d) for v in variants]
+            chrom, [v.genomic_coordinates(d) for v in variants]
         )
         for record in self.rna_records():
             self.subtract(rna_changes)

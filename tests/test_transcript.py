@@ -44,6 +44,25 @@ def test_transcript_init(transcript: Transcript) -> None:
     assert transcript.protein_features[0].name == "Coding exons"
 
 
+def test_empty_transcript() -> None:
+    """Test creating and working with an empty transcript"""
+    t = Transcript(rna_features=[], protein_features=[])
+
+    # Test if we can get the records
+    assert t.records() == []
+
+    # Test if intersect works
+    t.intersect(Bed("chr1", 10, 20))
+
+    # Test if subtraction works
+    t.subtract(Bed("chr1", 10, 20))
+
+    # Test if mutating the transcript works
+    d = init_description("ENST00000375549.8:c.10del")
+    t.mutate(d, variants=[])
+    assert t
+
+
 intersect_selectors = [
     # Selector spans all exons
     (
