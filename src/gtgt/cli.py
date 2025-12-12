@@ -20,7 +20,6 @@ from .mutalyzer import (
     init_description,
     sequence_from_description,
 )
-from .provider import Provider
 from .variant_validator import lookup_variant
 
 
@@ -45,7 +44,6 @@ def main() -> None:
     )
 
     subparsers = parser.add_subparsers(dest="command")
-    parser.add_argument("--cachedir", type=str, default=os.environ.get("GTGT_CACHE"))
 
     transcript_parser = subparsers.add_parser(
         "transcript", help="Transcript Information"
@@ -107,8 +105,6 @@ def main() -> None:
     set_logging(args.log)
     logger = logging.getLogger(__name__)
 
-    provider = Provider(args.cachedir)
-
     if args.command == "transcript":
         d = init_description(f"{args.transcript_id}:c.=")
         t = Transcript.from_description(d)
@@ -116,7 +112,7 @@ def main() -> None:
         print(ts.model_dump_json())
     elif args.command == "links":
         logger.debug(args)
-        links = lookup_variant(provider, args.hgvs_variant).url_dict()
+        links = lookup_variant(args.hgvs_variant).url_dict()
         for website, url in links.items():
             print(f"{website}: {url}")
     elif args.command == "api_server":

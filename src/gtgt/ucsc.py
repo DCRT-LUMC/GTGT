@@ -2,7 +2,7 @@ import logging
 from typing import Any, Mapping
 
 from .models import Assembly, EnsemblTranscript
-from .provider import Provider
+from .provider import UCSC
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +32,16 @@ def ucsc_url(transcript: EnsemblTranscript, track: str = "knownGene") -> str:
 
 
 def lookup_knownGene(
-    provider: Provider, transcript: EnsemblTranscript, track_name: str
+    transcript: EnsemblTranscript, track_name: str
 ) -> Mapping[str, Any]:
-    url = ucsc_url(transcript, track_name)
-    track = provider.get(url)
+    provider = UCSC()
+    track = provider.get(
+        genome="hg38",
+        chrom=chrom_to_uscs(transcript.seq_region_name),
+        start=transcript.start,
+        end=transcript.end,
+        track=track_name,
+    )
     ts = f"{transcript.id}.{transcript.version}"
     track[track_name] = [
         entry for entry in track[track_name] if entry.get("name") == ts

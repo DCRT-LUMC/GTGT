@@ -7,13 +7,11 @@ from typing_extensions import Annotated
 
 from .models import BedModel, TranscriptId, TranscriptModel
 from .mutalyzer import HGVS
-from .provider import Provider
 from .transcript import Comparison, Result
 from .variant_validator import lookup_variant
 from .wrappers import lookup_transcript
 
 app = FastAPI()
-provider = Provider()
 
 
 @app.get("/")
@@ -26,7 +24,7 @@ async def redirect() -> RedirectResponse:
 async def get_links(variant: HGVS) -> Mapping[str, str]:
     """Lookup external references for the specified variant"""
     try:
-        reply = lookup_variant(provider, variant.description).url_dict()
+        reply = lookup_variant(variant.description).url_dict()
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     return reply
@@ -36,7 +34,7 @@ async def get_links(variant: HGVS) -> Mapping[str, str]:
 async def get_transcript(transcript: TranscriptId) -> TranscriptModel:
     """Lookup the specified transcript"""
     try:
-        ts = lookup_transcript(provider, transcript.id)
+        ts = lookup_transcript(transcript.id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     return ts
@@ -89,6 +87,6 @@ async def compare(
 async def analyze(hgvs: HGVS) -> Sequence[Result]:
     """Analyze all possible exons skips for the spcified HGVS variant"""
     transcript_id = hgvs.description.split(":")[0]
-    transcript_model = lookup_transcript(provider, transcript_id)
+    transcript_model = lookup_transcript(transcript_id)
     transcript = transcript_model.to_transcript()
     return transcript.analyze(hgvs.description)

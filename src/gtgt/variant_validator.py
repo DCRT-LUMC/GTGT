@@ -2,7 +2,7 @@ from typing import Any, Mapping, Sequence, cast
 
 from pydantic import BaseModel
 
-from .provider import Provider
+from .provider import MyGene, VariantValidator
 
 Payload = Mapping[str, Any]
 
@@ -73,31 +73,21 @@ class Links(BaseModel):
         return d
 
 
-def guess_refseq_ensembl(variant: str) -> str:
-    """Guess if a transcript is RefSeq or Ensembl"""
-    if variant.startswith("ENS"):
-        return "ensembl"
-    else:
-        return "refseq"
-
-
-def lookup_variant(provider: Provider, variant: str, assembly: str = "hg38") -> Links:
-    if guess_refseq_ensembl(variant) == "ensembl":
-        url = f"https://rest.variantvalidator.org/VariantValidator/variantvalidator_ensembl/{assembly}/{variant}/mane_select?content-type=application/json"
-    else:
-        url = f"https://rest.variantvalidator.org/VariantValidator/variantvalidator/{assembly}/{variant}/mane_select?content-type=application/json"
-
-    payload = provider.get(url)
+def lookup_variant(variant: str, assembly: str = "hg38") -> Links:
+    provider = VariantValidator()
+    payload = provider.get(assembly, variant)
 
     d = parse_payload(payload, variant, assembly)
-    d["uniprot"] = lookup_uniprot(provider, d["ensembl_gene_id"])
+    d["uniprot"] = lookup_uniprot(d["ensembl_gene_id"])
 
     return Links(**d)
 
 
-def lookup_uniprot(provider: Provider, ensembl_gene_id: str) -> str:
-    url = f"https://mygene.info/v3/gene/{ensembl_gene_id}?fields=uniprot"
-    uniprot_id: str = provider.get(url)["uniprot"]["Swiss-Prot"]
+def lookup_uniprot(ensembl_gene_id: str) -> str:
+    provider = MyGene()
+
+    payload = provider.get(ensembl_gene_id)
+    uniprot_id: str = payload["uniprot"]["Swiss-Prot"]
     return uniprot_id
 
 

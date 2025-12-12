@@ -10,7 +10,6 @@ from gtgt.mutalyzer import init_description
 from gtgt.transcript import Result
 
 from . import Transcript
-from .provider import Provider
 from .variant_validator import lookup_variant
 
 hgvs_error = (
@@ -19,7 +18,6 @@ hgvs_error = (
 )
 
 app = Flask(__name__)
-provider = Provider()
 
 
 payload = dict[str, Any] | None
@@ -137,7 +135,7 @@ def result(variant: str | None = None) -> str:
 
     # Get external links
     try:
-        links = lookup_variant(provider, variant).url_dict()
+        links = lookup_variant(variant).url_dict()
     except Exception as e:
         links = dict()
 

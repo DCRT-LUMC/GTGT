@@ -1,15 +1,14 @@
 from .ensembl import lookup_transcript as lookup_transcript_ens
 from .models import BedModel, TranscriptModel
-from .provider import Provider
 from .ucsc import lookup_knownGene
 
 
-def lookup_transcript(provider: Provider, transcript_id: str) -> TranscriptModel:
-    r = lookup_transcript_ens(provider, transcript_id)
+def lookup_transcript(transcript_id: str) -> TranscriptModel:
+    r = lookup_transcript_ens(transcript_id)
     # track_name = "ncbiRefSeq"
     # track_name = "ensGene"
     track_name = "knownGene"
-    track = lookup_knownGene(provider, r, track_name)
+    track = lookup_knownGene(r, track_name)
     knownGene = track[track_name][0]
     exons = BedModel.from_ucsc(knownGene)
 

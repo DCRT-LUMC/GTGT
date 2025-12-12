@@ -2,27 +2,33 @@ import json
 import logging
 import os
 import urllib.request
+from abc import ABC, abstractmethod
 from typing import Any
 from urllib.error import HTTPError
-from urllib.parse import urlparse
 
 payload = dict[str, Any]
 
 logger = logging.getLogger(__name__)
 
 
-class Provider:
-    def __init__(self, cache_dir: str | None = None):
-        self.cache_dir = cache_dir
+class Provider(ABC):
+    def __init__(self) -> None:
+        cache = os.environ.get("GTGT_CACHE")
+        name = type(self).__name__
 
-    def get(self, url: str) -> payload:
-        if self.cache_dir is None:
-            return self._fetch_url(url)
-        else:
-            return self._fetch_cache(url)
+        # Put the cache for each Provider in a separate folder
+        if cache:
+            self.cache = f"{cache}/{name}"
+
+        # Ensure the cache folder exists
+        if self.cache:
+            os.makedirs(self.cache, exist_ok=True)
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__}(cache={self.cache})"
 
     def _fetch_url(self, url: str) -> payload:
-        logger.debug(f"Fetching {url=}")
+        logger.info(f"Fetching {url=}")
         try:
             response = urllib.request.urlopen(url)
         except HTTPError as e:
@@ -38,38 +44,70 @@ class Provider:
 
         return js
 
-    def _fetch_cache(self, url: str) -> payload:
-        """Fetch cache based on the provided url
+    @abstractmethod
+    def get(self, *args: Any) -> payload:
+        pass
 
-        If no cache exists, use self._fetch_url to get and store the data
-        """
-        fname = f"{self.cache_dir}/{self.url_to_filename(url)}"
-        data: payload = dict()
+    def _get(self, url: str, fname: str) -> payload:
+        """Get the requested data, from the filename or the url"""
+        # If the cache is not enabled
+        if not self.cache:
+            return self._fetch_url(url)
 
-        # Try to open the cache file
+        js: payload = dict()
+        # If the payload is already in the cache
         if os.path.exists(fname):
+            logger.info(f"Reading payload from {fname}")
             with open(fname) as fin:
-                data = json.load(fin)
-                logger.debug(f"Retrieved cache for {url=}")
+                js = json.load(fin)
         else:
-            data = self._fetch_url(url)
+            # If the payload is not in the cache
+            js = self._fetch_url(url)
+            with open(fname, "wt") as fout:
+                print(json.dumps(js), file=fout)
+        return js
 
-            # Ensure the folder exists
-            os.makedirs(self.cache_dir, exist_ok=True)  # type: ignore
 
-            with open(fname, "w") as fout:
-                logger.debug(f"Writing cache for {url=}")
-                print(json.dumps(data, indent=True), file=fout)
-        return data
+class MyGene(Provider):
+    def get(self, ensembl_gene_id: str) -> payload:
+        url = f"https://mygene.info/v3/gene/{ensembl_gene_id}?fields=uniprot"
+        fname = f"{self.cache}/{ensembl_gene_id}.json"
 
-    def url_to_filename(self, url: str) -> str:
-        fname = ""
-        parsed = urlparse(url)
-        fname += parsed.netloc
-        if len(parsed.path) > 1:
-            fname += parsed.path.replace("/", "_")
+        return self._get(url, fname)
 
-        if parsed.query:
-            fname += "_" + parsed.query.replace("/", "_")
 
-        return fname
+class VariantValidator(Provider):
+    def get(self, assembly: str, variant: str) -> payload:
+        prefix = "https://rest.variantvalidator.org/VariantValidator"
+        suffix = "mane_select?content-type=application/json"
+
+        if variant.startswith("ENS"):
+            url = f"{prefix}/variantvalidator_ensembl/{assembly}/{variant}/{suffix}"
+        else:
+            url = f"{prefix}/variantvalidator/{assembly}/{variant}/{suffix}"
+
+        fname = f"{self.cache}/{assembly}_{variant}.json"
+
+        return self._get(url, fname)
+
+
+class UCSC(Provider):
+    def get(self, genome: str, chrom: str, start: int, end: int, track: str) -> payload:
+        url = ";".join(
+            (
+                f"https://api.genome.ucsc.edu/getData/track?genome={genome}",
+                f"chrom={chrom}",
+                f"start={start}",
+                f"end={end}",
+                f"track={track}",
+            )
+        )
+        fname = f"{self.cache}/{genome}_{chrom}:{start}-{end}_{track}.json"
+        return self._get(url, fname)
+
+
+class Ensembl(Provider):
+    def get(self, transcript: str) -> payload:
+        url = f"http://rest.ensembl.org/lookup/id/{transcript}?content-type=application/json"
+        fname = f"{self.cache}/{transcript}.json"
+        return self._get(url, fname)

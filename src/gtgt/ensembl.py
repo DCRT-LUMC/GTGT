@@ -2,17 +2,15 @@ import logging
 from typing import Any, Mapping
 
 from .models import EnsemblTranscript
-from .provider import Provider
+from .provider import Ensembl
 
 logger = logging.getLogger(__name__)
 
 
-def lookup_transcript(provider: Provider, transcript_id: str) -> EnsemblTranscript:
+def lookup_transcript(transcript_id: str) -> EnsemblTranscript:
     transcript, version = transcript_id.split(".")
-    url = (
-        f"http://rest.ensembl.org/lookup/id/{transcript}?content-type=application/json"
-    )
-    ts = provider.get(url)
+    provider = Ensembl()
+    ts = provider.get(transcript_id)
 
     _check_transcript(ts, int(version))
 

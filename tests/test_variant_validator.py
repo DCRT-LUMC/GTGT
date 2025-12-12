@@ -4,7 +4,6 @@ from gtgt.variant_validator import (
     Links,
     Payload,
     extract_variant,
-    guess_refseq_ensembl,
     parse_payload,
 )
 
@@ -152,19 +151,3 @@ def test_parse_valid_payload() -> None:
     reply = parse_payload(payload, variant="100A>T", assembly="hg38")
 
     assert reply == expected
-
-
-TRANSCRIPTS = [
-    ("NM_", "refseq"),
-    ("ENST", "ensembl"),
-]
-
-
-@pytest.mark.parametrize("transcript,expected", TRANSCRIPTS)
-def test_guess_refseq_ensembl(transcript: str, expected: str) -> None:
-    """
-    GIVEN a transcript
-    WHEN we guess if it refseq or ensembl
-    THEN we should get the expected result
-    """
-    assert guess_refseq_ensembl(transcript) == expected
