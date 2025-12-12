@@ -62,6 +62,7 @@ setup(
         "pydantic",
         "setuptools",
         "mutalyzer>=3.1.1",
+        "mutalyzer_hgvs_parser",
         "lark==1.2.2",
         "exonviz>=0.2.16",
     ],
