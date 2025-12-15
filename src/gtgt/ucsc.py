@@ -1,6 +1,6 @@
 import logging
-from collections import namedtuple
-from typing import Any, Mapping
+from collections import defaultdict, namedtuple
+from typing import Any, Mapping, Sequence
 
 from mutalyzer.description import Description
 
@@ -11,9 +11,10 @@ from gtgt.mutalyzer import (
     get_offset,
     get_transcript_name,
 )
+from gtgt.variant_validator import parse_payload
 
 from .models import Assembly, EnsemblTranscript
-from .provider import UCSC, MyGene, Provider, payload
+from .provider import UCSC, MyGene, Provider, VariantValidator, payload
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ ENSEMBL_TO_UCSC = {
 }
 
 # Supported tracks which contain protein features
-PROTEIN_TRACKS: list[str] = []
+PROTEIN_TRACKS: list[str] = ["unipDomain"]
 # Supported tracks which contain RNA features
 RNA_TRACKS: list[str] = ["knownGene"]
 
@@ -43,10 +44,6 @@ def _lookup_track_payload(
         # Assembly as used in UCSC
         genome = "hg38"
 
-    # Is this track supported
-    if track not in PROTEIN_TRACKS and track not in RNA_TRACKS:
-        raise ValueError(f"Track {track} is not supported, please ask to have it added")
-
     # Determine the start and end of the transcript of interest
     offset = get_offset(d)
     exons = d.get_selector_model()["exon"]
@@ -64,11 +61,80 @@ def _lookup_track_payload(
     return ucsc.get(parameters)
 
 
+def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
+    """Convert a list of json track objects from UCSC into a list of Bed records
+
+    Note that trakcs with the same name will be merged into a single Bed record
+    """
+    # Store the resulting Bed records
+    records: list[Bed] = list()
+
+    # Ensure each track only contains a single block
+    for track in tracks:
+        if track["blockCount"] > 1:
+            raise NotImplementedError(tracks)
+    # Next, group the tracks by name
+    grouped = defaultdict(list)
+    for track in tracks:
+        grouped[track["name"]].append(track)
+
+    for tracks in grouped.values():
+        if not tracks:
+            raise RuntimeError(tracks)
+        # Look in the first record for all constant values
+        track = tracks[0]
+        # Get the blocks
+        blocks: list[tuple[int, int]] = list()
+        for track in tracks:
+            start = track["chromStart"]
+            end = track["chromEnd"]
+            blocks.append((start, end))
+        # Get the chromosome
+        chrom = track["chrom"]
+
+        bed = Bed.from_blocks(chrom, blocks)
+        # The color is stored in the 'reserved' field by UCSC
+        bed.itemRgb = tuple(map(int, track["reserved"].split(",")))
+        bed.score = track["score"]
+        bed.strand = track["strand"]
+        bed.name = track["name"]
+
+        records.append(bed)
+
+    return records
+
+
 def lookup_track(
-    d: Description, track: str, ucsc: Provider = UCSC(), mygene: Provider = MyGene()
+    d: Description,
+    track: str,
+    ucsc: Provider = UCSC(),
+    mygene: Provider = MyGene(),
+    variantvalidator: Provider = VariantValidator(),
 ) -> payload:
     """Lookup the specified track on UCSC"""
-    return _lookup_track_payload(d, track, ucsc)
+    # Required to match protein features to the correct transcript
+    uniprot_id = None
+
+    # Is this track supported
+    if track in PROTEIN_TRACKS:
+        # First, we look up the ENSG using VariantValidator
+        variant = str(d)
+        vv = variantvalidator.get(("hg38", variant))
+        ensg = parse_payload(vv, variant, "hg38")["ensembl_gene_id"]
+        assert ensg is not None
+
+        # Look up protein ID to match the correct transcript
+        uniprot_id = mygene.get((ensg,))["uniprot"]["Swiss-Prot"]
+    elif track in RNA_TRACKS:
+        pass
+    else:
+        raise ValueError(f"Track {track} is not supported, please ask to have it added")
+
+    payload = _lookup_track_payload(d, track, ucsc)
+    # Get only the tracks that match the specified uniprot ID
+    tracks = [track for track in payload[track] if track.get("uniProtId") == uniprot_id]
+    print(len(tracks))
+    return payload
 
 
 def chrom_to_uscs(seq_region_name: str) -> str:
