@@ -2,7 +2,7 @@ from typing import Any, Mapping, Sequence, cast
 
 from pydantic import BaseModel
 
-from .provider import MyGene, VariantValidator
+from .provider import MyGene, Provider, VariantValidator
 
 Payload = Mapping[str, Any]
 
@@ -74,8 +74,8 @@ class Links(BaseModel):
 
 
 def lookup_variant(variant: str, assembly: str = "hg38") -> Links:
-    provider = VariantValidator()
-    payload = provider.get(assembly, variant)
+    provider: Provider = VariantValidator()
+    payload = provider.get((assembly, variant))
 
     d = parse_payload(payload, variant, assembly)
     d["uniprot"] = lookup_uniprot(d["ensembl_gene_id"])
@@ -84,9 +84,9 @@ def lookup_variant(variant: str, assembly: str = "hg38") -> Links:
 
 
 def lookup_uniprot(ensembl_gene_id: str) -> str:
-    provider = MyGene()
+    provider: Provider = MyGene()
 
-    payload = provider.get(ensembl_gene_id)
+    payload = provider.get((ensembl_gene_id,))
     uniprot_id: str = payload["uniprot"]["Swiss-Prot"]
     return uniprot_id
 

@@ -3,15 +3,26 @@ import logging
 import os
 import urllib.request
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Protocol
 from urllib.error import HTTPError
 
 payload = dict[str, Any]
+parameters = tuple[Any, ...]
 
 logger = logging.getLogger(__name__)
 
 
-class Provider(ABC):
+class Provider(Protocol):
+    """Protocol for the Provider class
+
+    There is also an abstrac base class _Provider, which implements file system
+    caching of API calls and can be inherited from
+    """
+
+    def get(self, parameters: parameters) -> payload: ...
+
+
+class _Provider(ABC):
     def __init__(self) -> None:
         cache = os.environ.get("GTGT_CACHE")
         name = type(self).__name__
@@ -68,31 +79,35 @@ class Provider(ABC):
         return js
 
 
-class MyGene(Provider):
-    def get(self, ensembl_gene_id: str) -> payload:
+class MyGene(_Provider):
+    def get(self, parameters: parameters) -> payload:
+        ensembl_gene_id, *rest = parameters
         url = f"https://mygene.info/v3/gene/{ensembl_gene_id}?fields=uniprot"
-        fname = f"{self.cache}/{ensembl_gene_id}.json"
+
+        fname = f"{self.cache}/{'_'.join(parameters)}.json"
 
         return self._get(url, fname)
 
 
-class VariantValidator(Provider):
-    def get(self, assembly: str, variant: str) -> payload:
+class VariantValidator(_Provider):
+    def get(self, parameters: parameters) -> payload:
         prefix = "https://rest.variantvalidator.org/VariantValidator"
         suffix = "mane_select?content-type=application/json"
 
+        assembly, variant, *rest = parameters
         if variant.startswith("ENS"):
             url = f"{prefix}/variantvalidator_ensembl/{assembly}/{variant}/{suffix}"
         else:
             url = f"{prefix}/variantvalidator/{assembly}/{variant}/{suffix}"
 
-        fname = f"{self.cache}/{assembly}_{variant}.json"
+        fname = f"{self.cache}/{'_'.join(parameters)}.json"
 
         return self._get(url, fname)
 
 
-class UCSC(Provider):
-    def get(self, genome: str, chrom: str, start: int, end: int, track: str) -> payload:
+class UCSC(_Provider):
+    def get(self, parameters: parameters) -> payload:
+        genome, chrom, start, end, track = parameters
         url = ";".join(
             (
                 f"https://api.genome.ucsc.edu/getData/track?genome={genome}",
@@ -102,12 +117,13 @@ class UCSC(Provider):
                 f"track={track}",
             )
         )
-        fname = f"{self.cache}/{genome}_{chrom}:{start}-{end}_{track}.json"
+        fname = f"{self.cache}/{'_'.join(parameters)}.json"
         return self._get(url, fname)
 
 
-class Ensembl(Provider):
-    def get(self, transcript: str) -> payload:
+class Ensembl(_Provider):
+    def get(self, parameters: parameters) -> payload:
+        transcript, *rest = parameters
         url = f"http://rest.ensembl.org/lookup/id/{transcript}?content-type=application/json"
         fname = f"{self.cache}/{transcript}.json"
         return self._get(url, fname)
