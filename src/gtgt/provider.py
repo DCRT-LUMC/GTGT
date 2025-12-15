@@ -62,7 +62,7 @@ class _Provider(ABC):
 
     def _fname(self, parameters: parameters) -> str:
         """Generate file name for the cache based on the parameters"""
-        return f"{self.cache}/{'_'.join(parameters)}.json.gz"
+        return f"{self.cache}/{'_'.join(str(x) for x in parameters)}.json.gz"
 
     def _get(self, url: str, parameters: parameters) -> payload:
         """Get the requested data, from the filename or the url"""
