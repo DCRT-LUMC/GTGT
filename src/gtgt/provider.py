@@ -35,6 +35,10 @@ class _Provider(ABC):
         if self.cache:
             os.makedirs(self.cache, exist_ok=True)
 
+    @abstractmethod
+    def get(self, parameters: parameters) -> payload:
+        pass
+
     def __str__(self) -> str:
         return f"{type(self).__name__}(cache={self.cache})"
 
@@ -55,15 +59,18 @@ class _Provider(ABC):
 
         return js
 
-    @abstractmethod
-    def get(self, *args: Any) -> payload:
-        pass
+    def _fname(self, parameters: parameters) -> str:
+        """Generate file name for the cache based on the parameters"""
+        return f"{self.cache}/{'_'.join(parameters)}.json"
 
-    def _get(self, url: str, fname: str) -> payload:
+    def _get(self, url: str, parameters: parameters) -> payload:
         """Get the requested data, from the filename or the url"""
         # If the cache is not enabled
         if not self.cache:
             return self._fetch_url(url)
+
+        # Filename for the cached payload
+        fname = self._fname(parameters)
 
         js: payload = dict()
         # If the payload is already in the cache
@@ -84,9 +91,7 @@ class MyGene(_Provider):
         ensembl_gene_id, *rest = parameters
         url = f"https://mygene.info/v3/gene/{ensembl_gene_id}?fields=uniprot"
 
-        fname = f"{self.cache}/{'_'.join(parameters)}.json"
-
-        return self._get(url, fname)
+        return self._get(url, parameters)
 
 
 class VariantValidator(_Provider):
@@ -100,9 +105,7 @@ class VariantValidator(_Provider):
         else:
             url = f"{prefix}/variantvalidator/{assembly}/{variant}/{suffix}"
 
-        fname = f"{self.cache}/{'_'.join(parameters)}.json"
-
-        return self._get(url, fname)
+        return self._get(url, parameters)
 
 
 class UCSC(_Provider):
@@ -117,13 +120,11 @@ class UCSC(_Provider):
                 f"track={track}",
             )
         )
-        fname = f"{self.cache}/{'_'.join(parameters)}.json"
-        return self._get(url, fname)
+        return self._get(url, parameters)
 
 
 class Ensembl(_Provider):
     def get(self, parameters: parameters) -> payload:
         transcript, *rest = parameters
         url = f"http://rest.ensembl.org/lookup/id/{transcript}?content-type=application/json"
-        fname = f"{self.cache}/{transcript}.json"
-        return self._get(url, fname)
+        return self._get(url, parameters)
