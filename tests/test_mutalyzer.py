@@ -13,6 +13,7 @@ from gtgt.mutalyzer import (
     get_assembly_name,
     get_chrom_name,
     get_exons,
+    get_transcript_name,
     init_description,
     protein_prediction,
     skip_adjacent_exons,
@@ -496,3 +497,24 @@ def test_error_assembly_name_NM() -> None:
     d = init_description("NM_003002.4:c.=")
     with pytest.raises(ValueError):
         get_assembly_name(d)
+
+
+@pytest.mark.parametrize(
+    "transcript, expected",
+    [
+        ##  SDHD on chromosome 11  ##
+        # ENST use chromosome numbers
+        ("ENST00000375549.8", "ENST00000375549.8"),
+        # NM on an NC, we have a list of known chromsomes
+        ("NC_000011.10(NM_003002.4)", "NM_003002.4"),
+        ##  WT-1 on chromosome 11  ##
+        ("ENST00000452863.10", "ENST00000452863.10"),
+        ##  TIMM8B on chromosome  11 ##
+        # NM on an NC should return the NC
+        ("NC_000011.10(NM_012459.4)", "NM_012459.4"),
+    ],
+)
+def test_transcript_name(transcript: str, expected: str) -> None:
+    """Test extracting the chromosome name from a Description object"""
+    d = init_description(f"{transcript}:c.=")
+    assert get_transcript_name(d) == expected

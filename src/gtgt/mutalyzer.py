@@ -781,7 +781,7 @@ def get_offset(d: Description) -> int:
 
 
 def get_assembly_name(d: Description) -> str:
-    """Extract the assebmly name from a Description"""
+    """Extract the assembly name from a Description"""
     qualifiers = d.references["reference"]["annotations"]["qualifiers"]
     # ENS
     if "assembly_name" in qualifiers:
@@ -793,7 +793,16 @@ def get_assembly_name(d: Description) -> str:
         return CHROMOSOME_ASSEMBLY[id]
 
     # NM
-    raise ValueError("Unable to determine assembly for {d}")
+    raise ValueError(f"Unable to determine assembly for {d}")
+
+
+def get_transcript_name(d: Description) -> str:
+    """Extract the transcript name from a description"""
+    name = d.get_selector_model()["id"]
+    if name is None:
+        raise ValueError(f"Unable to determine transcript name for {d}")
+    else:
+        return str(name)
 
 
 def get_chrom_name(d: Description) -> str:
