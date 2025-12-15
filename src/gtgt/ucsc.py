@@ -110,12 +110,12 @@ def lookup_track(
     ucsc: Provider = UCSC(),
     mygene: Provider = MyGene(),
     variantvalidator: Provider = VariantValidator(),
-) -> payload:
+) -> list[Bed]:
     """Lookup the specified track on UCSC"""
     # Required to match protein features to the correct transcript
     uniprot_id = None
 
-    # Is this track supported
+    # For protein tracks, we have to lookup the uniprot_id
     if track in PROTEIN_TRACKS:
         # First, we look up the ENSG using VariantValidator
         variant = str(d)
@@ -132,9 +132,13 @@ def lookup_track(
 
     payload = _lookup_track_payload(d, track, ucsc)
     # Get only the tracks that match the specified uniprot ID
-    tracks = [track for track in payload[track] if track.get("uniProtId") == uniprot_id]
-    print(len(tracks))
-    return payload
+    if uniprot_id:
+        tracks = [
+            track for track in payload[track] if track.get("uniProtId") == uniprot_id
+        ]
+    else:
+        tracks = [track for track in payload[track]]
+    return _tracks_to_bed(tracks)
 
 
 def chrom_to_uscs(seq_region_name: str) -> str:
