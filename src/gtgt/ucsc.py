@@ -2,8 +2,11 @@ import logging
 from collections import namedtuple
 from typing import Any, Mapping
 
+from gtgt.bed import Bed
+
 from .models import Assembly, EnsemblTranscript
-from .provider import UCSC
+from .provider import UCSC, Provider
+from mutalyzer.description import Description
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +15,10 @@ ENSEMBL_TO_UCSC = {
     Assembly.RAT: "rn6",
 }
 
-Parameters = namedtuple("Parameters", ["genome", "chrom", "start", "end", "track"])
+
+def lookup_track(d: Description, track: str, provider: Provider = UCSC()) -> Bed:
+    """Lookup a track for the Description"""
+    return Bed()
 
 
 def chrom_to_uscs(seq_region_name: str) -> str:
@@ -22,7 +28,10 @@ def chrom_to_uscs(seq_region_name: str) -> str:
 def lookup_knownGene(
     transcript: EnsemblTranscript, track_name: str
 ) -> Mapping[str, Any]:
+
+    Parameters = namedtuple("Parameters", ["genome", "chrom", "start", "end", "track"])
     provider = UCSC()
+
     parameters = Parameters(
         genome="hg38",
         chrom=chrom_to_uscs(transcript.seq_region_name),

@@ -37,6 +37,34 @@ logger = logging.getLogger(__name__)
 # Mutalyzer Variant dictionary
 Variant_Dict = NewType("Variant_Dict", Mapping[str, Any])
 
+CHROMOSOME_ASSEMBLY = {
+    "NC_000001.11": "GRCh38",
+    "NC_000002.12": "GRCh38",
+    "NC_000003.12": "GRCh38",
+    "NC_000004.12": "GRCh38",
+    "NC_000005.10": "GRCh38",
+    "NC_000006.12": "GRCh38",
+    "NC_000007.14": "GRCh38",
+    "NC_000008.11": "GRCh38",
+    "NC_000009.12": "GRCh38",
+    "NC_000010.11": "GRCh38",
+    "NC_000011.10": "GRCh38",
+    "NC_000012.12": "GRCh38",
+    "NC_000013.11": "GRCh38",
+    "NC_000014.9": "GRCh38",
+    "NC_000015.10": "GRCh38",
+    "NC_000016.10": "GRCh38",
+    "NC_000017.11": "GRCh38",
+    "NC_000018.10": "GRCh38",
+    "NC_000019.10": "GRCh38",
+    "NC_000020.11": "GRCh38",
+    "NC_000021.9": "GRCh38",
+    "NC_000022.11": "GRCh38",
+    "NC_000023.11": "GRCh38",
+    "NC_000024.10": "GRCh38",
+    "NC_012920.1": "GRCh38",
+}
+
 
 def sequence_from_description(d: Description) -> str:
     """Return the sequence form a description"""
@@ -750,6 +778,22 @@ def get_offset(d: Description) -> int:
         .get("location_offset", 0)
     )
     return offset
+
+
+def get_assembly_name(d: Description) -> str:
+    """Extract the assebmly name from a Description"""
+    qualifiers = d.references["reference"]["annotations"]["qualifiers"]
+    # ENS
+    if "assembly_name" in qualifiers:
+        return str(qualifiers["assembly_name"])
+
+    # NC(NM)
+    id = d.references["reference"]["annotations"]["id"]
+    if id in CHROMOSOME_ASSEMBLY:
+        return CHROMOSOME_ASSEMBLY[id]
+
+    # NM
+    raise ValueError("Unable to determine assembly for {d}")
 
 
 def get_chrom_name(d: Description) -> str:
