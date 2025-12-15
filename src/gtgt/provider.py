@@ -1,3 +1,4 @@
+import gzip
 import json
 import logging
 import os
@@ -61,7 +62,7 @@ class _Provider(ABC):
 
     def _fname(self, parameters: parameters) -> str:
         """Generate file name for the cache based on the parameters"""
-        return f"{self.cache}/{'_'.join(parameters)}.json"
+        return f"{self.cache}/{'_'.join(parameters)}.json.gz"
 
     def _get(self, url: str, parameters: parameters) -> payload:
         """Get the requested data, from the filename or the url"""
@@ -76,12 +77,12 @@ class _Provider(ABC):
         # If the payload is already in the cache
         if os.path.exists(fname):
             logger.info(f"Reading payload from {fname}")
-            with open(fname) as fin:
+            with gzip.open(fname, "rt") as fin:
                 js = json.load(fin)
         else:
             # If the payload is not in the cache
             js = self._fetch_url(url)
-            with open(fname, "wt") as fout:
+            with gzip.open(fname, "wt") as fout:
                 print(json.dumps(js), file=fout)
         return js
 
