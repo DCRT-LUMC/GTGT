@@ -26,7 +26,7 @@ ENSEMBL_TO_UCSC = {
 }
 
 # Supported tracks which contain protein features
-PROTEIN_TRACKS: list[str] = ["unipDomain"]
+PROTEIN_TRACKS: list[str] = ["unipDomain", "unipRepeat"]
 # Supported tracks which contain RNA features
 RNA_TRACKS: list[str] = ["knownGene"]
 
@@ -91,6 +91,20 @@ def _blocks_overlap(blocks: list[Range]) -> bool:
         return False
 
 
+def _track_name(track: payload) -> str:
+    """Determine the name of a track
+
+    The format is a bit weird, the most informative name is in the 'comments'
+    field, while 'name' appears to be truncated sometimes
+    """
+    if 'name' not in track:
+        raise ValueError(f"Name is missing from track {track}")
+    if 'comments' not in track:
+        return str(track['name'])
+    else:
+        return f"{track['name']}: {track['comments']}"
+
+
 def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
     """Convert a list of json track objects from UCSC into a list of Bed records
 
@@ -102,7 +116,8 @@ def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
     # Next, group the tracks by name
     grouped = defaultdict(list)
     for track in tracks:
-        grouped[track["name"]].append(track)
+        name = _track_name(track)
+        grouped[name].append(track)
 
     for tracks in grouped.values():
         if not tracks:
@@ -116,7 +131,7 @@ def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
 
         # Get the chromosome
         chrom = track["chrom"]
-        name = track["name"]
+        name = _track_name(track)
 
         # Ensure that the blocks do not overlap
         if _blocks_overlap(blocks):
