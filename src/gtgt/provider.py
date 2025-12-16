@@ -28,9 +28,12 @@ class _Provider(ABC):
         cache = os.environ.get("GTGT_CACHE")
         name = type(self).__name__
 
+        self.cache: str | None
         # Put the cache for each Provider in a separate folder
         if cache:
             self.cache = f"{cache}/{name}"
+        else:
+            self.cache = None
 
         # Ensure the cache folder exists
         if self.cache:
