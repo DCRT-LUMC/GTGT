@@ -158,6 +158,17 @@ def test_tracks_to_bed(tracks: list[payload], expected: list[Bed]) -> None:
             },
             [(10, 20), (30, 40)],
         ),
+        (
+            # A track with two blocks, with trailing commas
+            {
+                "chromStart": 10,
+                "chromEnd": 40,
+                "blockCount": 2,
+                "chromStarts": "0,20,",  # Relative to chromStart
+                "blockSizes": "10, 10,",
+            },
+            [(10, 20), (30, 40)],
+        ),
     ],
 )
 def test_track_to_range(track: payload, ranges: list[Range]) -> None:

@@ -73,8 +73,8 @@ def _track_to_range(track: payload) -> list[Range]:
     if track["blockCount"] == 1:
         blocks.append((chrom_start, chrom_end))
     else:
-        starts = [int(x) for x in track["chromStarts"].split(",")]
-        sizes = [int(x) for x in track["blockSizes"].split(",")]
+        starts = [int(x) for x in track["chromStarts"].strip(",").split(",")]
+        sizes = [int(x) for x in track["blockSizes"].strip(",").split(",")]
         for start, size in zip(starts, sizes):
             block_start = chrom_start + start
             block_end = chrom_start + start + size
