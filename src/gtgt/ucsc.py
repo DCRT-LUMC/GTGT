@@ -42,7 +42,7 @@ PROTEIN_TRACKS: list[str] = [
     "unipInterest",
 ]
 # Supported tracks which contain RNA features
-RNA_TRACKS: list[str] = ["knownGene"]
+RNA_TRACKS: list[str] = ["knownGene", "clinvarMain"]
 
 
 # Holder for the required parameters for UCSC query
@@ -84,7 +84,7 @@ def _track_to_range(track: payload) -> list[Range]:
     chrom_end = track["chromEnd"]
 
     # If the track only contains a single block
-    if track["blockCount"] == 1:
+    if track.get("blockCount", 1) == 1:
         blocks.append((chrom_start, chrom_end))
     else:
         starts = [int(x) for x in track["chromStarts"].strip(",").split(",")]
