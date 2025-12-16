@@ -26,7 +26,21 @@ ENSEMBL_TO_UCSC = {
 }
 
 # Supported tracks which contain protein features
-PROTEIN_TRACKS: list[str] = ["unipDomain", "unipRepeat"]
+PROTEIN_TRACKS: list[str] = [
+    "unipDomain",
+    "unipRepeat",
+    "unipStruct",
+    "unipOther",
+    "unipMut",
+    "unipModif",
+    "unipDisulfBond",
+    "unipChain",  # Unclear naming, in DMD the track name is just '1'
+    "unipLocCytopl",
+    "unipLocTransMemb",
+    "unipLocExtra",
+    "unipLocSignal",
+    "unipInterest",
+]
 # Supported tracks which contain RNA features
 RNA_TRACKS: list[str] = ["knownGene"]
 
@@ -97,12 +111,16 @@ def _track_name(track: payload) -> str:
     The format is a bit weird, the most informative name is in the 'comments'
     field, while 'name' appears to be truncated sometimes
     """
-    if 'name' not in track:
+    name = track.get("name")
+    comments = track.get("comments")
+
+    if not name:
         raise ValueError(f"Name is missing from track {track}")
-    if 'comments' not in track:
-        return str(track['name'])
+
+    if not comments:
+        return str(name)
     else:
-        return f"{track['name']}: {track['comments']}"
+        return f"{name}: {comments}"
 
 
 def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
