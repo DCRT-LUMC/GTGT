@@ -12,6 +12,10 @@ v0.2.9-dev
 ----------
 + Fix a bug with analyzing non-human Ensembl transcripts
 + Remove the API endpoints
++ Remove pydantic models which were only used by the API endpoints
++ Refactor Provider class (used to cache API calls)
++ Add support for querying UCSC tracks for a given Description
+
 
 ------
 v0.2.8
