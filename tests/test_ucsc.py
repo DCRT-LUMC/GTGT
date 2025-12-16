@@ -4,7 +4,7 @@ import pytest
 
 from gtgt import Bed
 from gtgt.range import Range
-from gtgt.ucsc import _track_to_range, _tracks_to_bed
+from gtgt.ucsc import _blocks_overlap, _track_to_range, _tracks_to_bed
 
 payload = dict[str, Any]
 
@@ -163,3 +163,17 @@ def test_tracks_to_bed(tracks: list[payload], expected: list[Bed]) -> None:
 def test_track_to_range(track: payload, ranges: list[Range]) -> None:
     """Test converting a single track to a list of ranges"""
     assert _track_to_range(track) == ranges
+
+
+@pytest.mark.parametrize(
+    "blocks, expected",
+    [
+        ([], False),
+        ([(0, 10)], False),
+        ([(0, 10), (0, 10)], True),
+        ([(0, 10), (10, 20)], False),
+        ([(0, 10), (10, 20), (8, 12), (0, 10)], True),
+    ],
+)
+def test_blocks_overlap(blocks: list[Range], expected: bool) -> None:
+    assert _blocks_overlap(blocks) == expected

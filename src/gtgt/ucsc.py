@@ -1,5 +1,6 @@
 import logging
 from collections import defaultdict, namedtuple
+from itertools import combinations
 from typing import Any, Mapping, Sequence
 
 from mutalyzer.description import Description
@@ -11,7 +12,7 @@ from gtgt.mutalyzer import (
     get_offset,
     get_transcript_name,
 )
-from gtgt.range import Range
+from gtgt.range import Range, overlap
 from gtgt.variant_validator import parse_payload
 
 from .models import Assembly, EnsemblTranscript
@@ -81,6 +82,15 @@ def _track_to_range(track: payload) -> list[Range]:
     return blocks
 
 
+def _blocks_overlap(blocks: list[Range]) -> bool:
+    """Determine if blocks overlap"""
+    for a, b in combinations(blocks, 2):
+        if overlap(a, b):
+            return True
+    else:
+        return False
+
+
 def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
     """Convert a list of json track objects from UCSC into a list of Bed records
 
@@ -106,13 +116,18 @@ def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
 
         # Get the chromosome
         chrom = track["chrom"]
+        name = track["name"]
+
+        # Ensure that the blocks do not overlap
+        if _blocks_overlap(blocks):
+            raise ValueError(f"Found overlapping blocks in {name}")
 
         bed = Bed.from_blocks(chrom, blocks)
         # The color is stored in the 'reserved' field by UCSC
         bed.itemRgb = tuple(map(int, track["reserved"].split(",")))
         bed.score = track["score"]
         bed.strand = track["strand"]
-        bed.name = track["name"]
+        bed.name = name
 
         records.append(bed)
 
