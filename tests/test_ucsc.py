@@ -20,6 +20,7 @@ payload = dict[str, Any]
                     "chromStart": 10,
                     "chromEnd": 20,
                     "name": "name",
+                    "blockCount": 1,
                 },
             ],
             [Bed("chr11", 10, 20, name="name")],
@@ -32,12 +33,14 @@ payload = dict[str, Any]
                     "chromStart": 10,
                     "chromEnd": 20,
                     "name": "name",
+                    "blockCount": 1,
                 },
                 {
                     "chrom": "chr11",
                     "chromStart": 30,
                     "chromEnd": 40,
                     "name": "name",
+                    "blockCount": 1,
                 },
             ],
             [
@@ -60,12 +63,14 @@ payload = dict[str, Any]
                     "chromStart": 10,
                     "chromEnd": 20,
                     "name": "name",
+                    "blockCount": 1,
                 },
                 {
                     "chrom": "chr11",
                     "chromStart": 30,
                     "chromEnd": 40,
                     "name": "NAME",
+                    "blockCount": 1,
                 },
             ],
             [
@@ -73,12 +78,45 @@ payload = dict[str, Any]
                 Bed("chr11", 30, 40, name="NAME"),
             ],
         ),
+        (
+            # Two tracks with the same name, one with multiple blocks
+            [
+                # [(5, 10), (15, 25)]
+                {
+                    "chrom": "chr11",
+                    "chromStart": 5,
+                    "chromEnd": 20,
+                    "name": "name",
+                    "blockCount": 2,
+                    "chromStarts": "0,10",  # Relative to chromStart
+                    "blockSizes": "5, 10",
+                },
+                # [(30, 40)]
+                {
+                    "chrom": "chr11",
+                    "chromStart": 30,
+                    "chromEnd": 40,
+                    "name": "name",
+                    "blockCount": 1,
+                },
+            ],
+            [
+                Bed(
+                    "chr11",
+                    5,
+                    40,
+                    name="name",
+                    blockCount=3,
+                    blockSizes=[5, 10, 10],
+                    blockStarts=[0, 10, 25],
+                )
+            ],
+        ),
     ],
 )
 def test_tracks_to_bed(tracks: list[payload], expected: list[Bed]) -> None:
     # Update constant values for the tracks
     constant = {
-        "blockCount": 1,
         "reserved": "100,100,0",
         "score": 1000,
         "strand": "+",

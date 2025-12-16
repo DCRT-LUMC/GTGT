@@ -103,6 +103,7 @@ def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
         blocks: list[tuple[int, int]] = list()
         for track in tracks:
             blocks += _track_to_range(track)
+
         # Get the chromosome
         chrom = track["chrom"]
 
