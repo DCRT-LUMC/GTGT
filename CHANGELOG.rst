@@ -7,9 +7,9 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
-----------
-v0.2.9-dev
-----------
+------
+v0.2.9
+------
 + Fix a bug with analyzing non-human Ensembl transcripts
 + Remove the API endpoints
 + Remove pydantic models which were only used by the API endpoints
