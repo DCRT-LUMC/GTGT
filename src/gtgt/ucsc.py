@@ -11,6 +11,7 @@ from gtgt.mutalyzer import (
     get_offset,
     get_transcript_name,
 )
+from gtgt.range import Range
 from gtgt.variant_validator import parse_payload
 
 from .models import Assembly, EnsemblTranscript
@@ -61,6 +62,25 @@ def _lookup_track_payload(
     return ucsc.get(parameters)
 
 
+def _track_to_range(track: payload) -> list[Range]:
+    """Extract a Range from a track"""
+    blocks = list()
+    chrom_start = track["chromStart"]
+    chrom_end = track["chromEnd"]
+
+    # If the track only contains a single block
+    if track["blockCount"] == 1:
+        blocks.append((chrom_start, chrom_end))
+    else:
+        starts = [int(x) for x in track["chromStarts"].split(",")]
+        sizes = [int(x) for x in track["blockSizes"].split(",")]
+        for start, size in zip(starts, sizes):
+            block_start = chrom_start + start
+            block_end = chrom_start + start + size
+            blocks.append((block_start, block_end))
+    return blocks
+
+
 def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
     """Convert a list of json track objects from UCSC into a list of Bed records
 
@@ -69,10 +89,6 @@ def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
     # Store the resulting Bed records
     records: list[Bed] = list()
 
-    # Ensure each track only contains a single block
-    for track in tracks:
-        if track["blockCount"] > 1:
-            raise NotImplementedError(tracks)
     # Next, group the tracks by name
     grouped = defaultdict(list)
     for track in tracks:
@@ -86,9 +102,7 @@ def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
         # Get the blocks
         blocks: list[tuple[int, int]] = list()
         for track in tracks:
-            start = track["chromStart"]
-            end = track["chromEnd"]
-            blocks.append((start, end))
+            blocks += _track_to_range(track)
         # Get the chromosome
         chrom = track["chrom"]
 
