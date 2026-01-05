@@ -10,6 +10,10 @@
     <div class="field border round small" style="margin-bottom:1em;">
       <input id="variant_input" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
     </div>
+    <label class="checkbox">
+      <input type="checkbox" id="protein_domains">
+      <span>Include protein domains</span>
+    </label>
     <div>
       <progress id="submitSpinner" style="visibility:hidden"></progress>
       <button id="submitBtn" class="center" type="button" onclick="redirect()" >Submit</button>

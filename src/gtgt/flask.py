@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from typing import Any, Mapping
 
 import mutalyzer_hgvs_parser
-from flask import Flask
+from flask import Flask, request
 from jinja2 import Environment, FileSystemLoader
 
 from gtgt.mutalyzer import init_description
@@ -127,7 +127,16 @@ def result(variant: str | None = None) -> str:
 
     # Analyze the transcript
     try:
-        transcript = Transcript.from_description(init_description(variant))
+        d = init_description(variant)
+        transcript = Transcript.from_description(d)
+
+        print(f"{request.args=}")
+        # Should we lookup protein domains
+        protein_domains = request.args.get("protein_domains") == "true"
+
+        if protein_domains:
+            transcript.lookup_protein_domains(d)
+
         results = transcript.analyze(variant)
     except Exception as e:
         error = {"summary": "Analysis failed", "details": str(e)}

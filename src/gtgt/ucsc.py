@@ -31,7 +31,7 @@ PROTEIN_TRACKS: list[str] = [
     "unipRepeat",
     "unipStruct",
     "unipOther",
-    "unipMut",
+    # "unipMut",
     "unipModif",
     "unipDisulfBond",
     "unipChain",  # Unclear naming, in DMD the track name is just '1'

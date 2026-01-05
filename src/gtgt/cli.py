@@ -84,6 +84,12 @@ def main() -> None:
     analyze_parser.add_argument(
         "hgvs", help="HGVS description of the transcript of interest"
     )
+    analyze_parser.add_argument(
+        "--protein-domains",
+        help="Fetch supported protein domains from UCSC",
+        default=False,
+        action="store_true",
+    )
 
     export_parser = subparsers.add_parser(
         "export", help="Export the specified Transcript to BED format"
@@ -130,6 +136,8 @@ def main() -> None:
     elif args.command == "analyze":
         d = init_description(args.hgvs)
         transcript = Transcript.from_description(d)
+        if args.protein_domains:
+            transcript.lookup_protein_domains(d)
         # Convert Result objects to dict
         results = [dataclasses.asdict(x) for x in transcript.analyze(args.hgvs)]
         print(json.dumps(results, indent=True, default=vars))

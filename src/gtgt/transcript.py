@@ -20,6 +20,7 @@ from .mutalyzer import (
     protein_prediction,
     sequence_from_description,
 )
+from .ucsc import PROTEIN_TRACKS, lookup_track
 
 logger = logging.getLogger(__name__)
 
@@ -263,3 +264,8 @@ class Transcript:
                 return record
         else:
             return None
+
+    def lookup_protein_domains(self, d: Description) -> None:
+        """Lookup supported protein domains from USCS"""
+        for track in PROTEIN_TRACKS:
+            self.protein_features += lookup_track(d, track)

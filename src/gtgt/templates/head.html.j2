@@ -39,8 +39,9 @@
       document.getElementById('submitSpinner').style.visibility='visible';
 
       // Redirect to the results page
-      var url = document.getElementById('variant_input').value;
-      window.location = "/" + url;
+      var variant = document.getElementById('variant_input').value;
+      var protein_domains = document.getElementById('protein_domains').checked
+      window.location = "/" + variant + "?" + "protein_domains=" + protein_domains;
     }
 
     function fillSearchField(value)
