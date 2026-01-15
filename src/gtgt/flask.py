@@ -138,6 +138,7 @@ def result(variant: str | None = None) -> str:
             transcript.lookup_protein_domains(d)
 
         results = transcript.analyze(variant)
+        print(transcript)
     except Exception as e:
         error = {"summary": "Analysis failed", "details": str(e)}
         results = []

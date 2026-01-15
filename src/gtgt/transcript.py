@@ -109,10 +109,6 @@ class Transcript:
         """Return the Bed records that contain RNA features"""
         return self.rna_features
 
-    def protein_records(self) -> list[Bed]:
-        """Return the Bed records that contain protein features"""
-        return self.protein_features
-
     def intersect(self, selector: Bed) -> None:
         """Update transcript to only contain features that intersect the selector"""
         for record in self.records():
@@ -166,7 +162,7 @@ class Transcript:
 
         # Update protein features
         protein_changes = Bed.from_blocks(chrom, mutation_to_cds_effect(d, variants))
-        for record in self.protein_records():
+        for record in self.protein_features:
             record.subtract(protein_changes)
 
         # Update RNA features

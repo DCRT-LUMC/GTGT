@@ -23,7 +23,7 @@ payload = dict[str, Any]
                     "blockCount": 1,
                 },
             ],
-            [Bed("chr11", 10, 20, name="name")],
+            [Bed("NC_000011.10", 10, 20, name="name")],
         ),
         (
             # Two tracks with the same name
@@ -45,7 +45,7 @@ payload = dict[str, Any]
             ],
             [
                 Bed(
-                    "chr11",
+                    "NC_000011.10",
                     10,
                     40,
                     name="name",
@@ -74,8 +74,8 @@ payload = dict[str, Any]
                 },
             ],
             [
-                Bed("chr11", 10, 20, name="name"),
-                Bed("chr11", 30, 40, name="NAME"),
+                Bed("NC_000011.10", 10, 20, name="name"),
+                Bed("NC_000011.10", 30, 40, name="NAME"),
             ],
         ),
         (
@@ -102,7 +102,7 @@ payload = dict[str, Any]
             ],
             [
                 Bed(
-                    "chr11",
+                    "NC_000011.10",
                     5,
                     40,
                     name="name",

@@ -7,6 +7,7 @@ from mutalyzer.description import Description
 
 from gtgt.bed import Bed
 from gtgt.mutalyzer import (
+    chrom_to_nc,
     get_assembly_name,
     get_chrom_name,
     get_offset,
@@ -149,6 +150,11 @@ def _tracks_to_bed(tracks: Sequence[payload]) -> list[Bed]:
 
         # Get the chromosome
         chrom = track["chrom"]
+
+        # Update chromosome name
+        if chrom_to_nc(chrom) is not None:
+            chrom = chrom_to_nc(chrom)
+
         name = _track_name(track)
 
         # Ensure that the blocks do not overlap

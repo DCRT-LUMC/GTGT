@@ -450,15 +450,14 @@ def test_analyze_NM_reverse() -> None:
     "transcript, chromosome",
     [
         ##  SDHD on chromosome 11  ##
-        # ENST use chromosome numbers
-        ("ENST00000375549.8", "11"),
+        ("ENST00000375549.8", "NC_000011.10"),
         # NM transcripts are on their own 'chromosome'
         ("NM_003002.4", "NM_003002.4"),
         # NM on an NC should return the NC
         ("NC_000011.10(NM_003002.4)", "NC_000011.10"),
         ##  WT-1 on chromosome 11  ##
         # ENST use chromosome numbers
-        ("ENST00000452863.10", "11"),
+        ("ENST00000452863.10", "NC_000011.10"),
         ##  TIMM8B on chromosome  ##
         # NM transcripts are on their own 'chromosome'
         ("NM_012459.4", "NM_012459.4"),

@@ -167,6 +167,8 @@ def main() -> None:
 
         for record in transcript.records():
             print(record)
+            print(record.chrom, type(record.chrom))
+            print()
     elif args.command == "render":
         if args.results:
             with open(args.results) as fin:
