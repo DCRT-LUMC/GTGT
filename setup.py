@@ -60,7 +60,7 @@ setup(
     python_requires='>=3.10',
     install_requires=[
         "pydantic",
-        "setuptools",
+        "setuptools<82.0.0",
         "mutalyzer>=3.1.1",
         "mutalyzer_hgvs_parser",
         "lark==1.2.2",
