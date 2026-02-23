@@ -24,29 +24,56 @@
         Visualization of the input variants and exons (with reading frames), generated with <a href="https://exonviz.rnatherapy.nl" class="link" target="_blank">ExonViz</a>.
         {{ result.therapy.figure }}
       {% endif %}
-      <h6>Annotation overview</h6>
-      <table>
-        <thead>
-          <tr>
-            <th>Annotation</th>
-            <th>Remaining</th>
-            <th>Basepairs</th>
-            <th>Percentage</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for comp in result.comparison %}
-          {% set value = (comp.percentage * 100) | round(precision=1) %}
-          <tr>
-            <td>{{ comp.name }}</td>
-            <td>{{ value }}% </td>
-            <td>{{ comp.basepairs }}
-            <td><progress value="{{value}}" max="100"></progress></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </details>
+      <h6>Changed annotations</h6>
+        <table>
+          <thead>
+            <tr>
+              <th>Annotation</th>
+              <th>Remaining</th>
+              <th>Basepairs</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for comp in result.comparison if comp.percentage != 1.0%}
+            {% set value = (comp.percentage * 100) | round(precision=1) %}
+            <tr>
+              <td>{{ comp.name }}</td>
+              <td>{{ value }}% </td>
+              <td>{{ comp.basepairs }}
+              <td><progress value="{{value}}" max="100"></progress></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      <details>
+        <summary>
+        <h6>Unchanged annotations <i>arrow_drop_down</i></h6>
+        </summary>
+        <article>
+          <table>
+            <thead>
+              <tr>
+                <th>Annotation</th>
+                <th>Remaining</th>
+                <th>Basepairs</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for comp in result.comparison if comp.percentage == 1.0%}
+              {% set value = (comp.percentage * 100) | round(precision=1) %}
+              <tr>
+                <td>{{ comp.name }}</td>
+                <td>{{ value }}% </td>
+                <td>{{ comp.basepairs }}
+                <td><progress value="{{value}}" max="100"></progress></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </article>
+      </details>
   </article>
 {%- endmacro %}
 {% if results is defined %}
