@@ -24,26 +24,29 @@
         Visualization of the input variants and exons (with reading frames), generated with <a href="https://exonviz.rnatherapy.nl" class="link" target="_blank">ExonViz</a>.
         {{ result.therapy.figure }}
       {% endif %}
-      <h6>Changed annotations</h6>
-        <table>
-          <thead>
-            <tr>
-              <th>Annotation</th>
-              <th>Remaining</th>
-              <th>Basepairs</th>
-              <th>Percentage</th>
-            </tr>
-          </thead>
+
+      {% for comp in result.comparison if comp.percentage != 1.0 %}
+        {% set value = (comp.percentage * 100) | round(precision=1) %}
+        {% if loop.first %}
+          <h6>Changed annotations</h6>
+            <table>
+              <thead>
+                <tr>
+                  <th>Annotation</th>
+                  <th>Remaining</th>
+                  <th>Basepairs</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+        {% endif %}
           <tbody>
-            {% for comp in result.comparison if comp.percentage != 1.0%}
-            {% set value = (comp.percentage * 100) | round(precision=1) %}
             <tr>
               <td>{{ comp.name }}</td>
               <td>{{ value }}% </td>
               <td>{{ comp.basepairs }}
               <td><progress value="{{value}}" max="100"></progress></td>
             </tr>
-            {% endfor %}
+      {% endfor %}
           </tbody>
         </table>
       <details>
