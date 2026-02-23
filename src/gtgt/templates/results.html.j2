@@ -49,36 +49,42 @@
       {% endfor %}
           </tbody>
         </table>
-      <details>
-        <summary>
-        <h6>Unchanged annotations <i>arrow_drop_down</i></h6>
-        </summary>
-        <article>
-          <table>
-            <thead>
-              <tr>
-                <th>Annotation</th>
-                <th>Remaining</th>
-                <th>Basepairs</th>
-                <th>Percentage</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for comp in result.comparison if comp.percentage == 1.0%}
-              {% set value = (comp.percentage * 100) | round(precision=1) %}
-              <tr>
-                <td>{{ comp.name }}</td>
-                <td>{{ value }}% </td>
-                <td>{{ comp.basepairs }}
-                <td><progress value="{{value}}" max="100"></progress></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </article>
-      </details>
+
+      {% for comp in result.comparison if comp.percentage == 1.0%}
+        {% set value = (comp.percentage * 100) | round(precision=1) %}
+        {% if loop.first %}
+        <details>
+          <summary>
+            <h6>Unchanged annotations <i>arrow_drop_down</i></h6>
+          </summary>
+          <article>
+            <table>
+              <thead>
+                <tr>
+                  <th>Annotation</th>
+                  <th>Remaining</th>
+                  <th>Basepairs</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+        {% endif %}
+                <tr>
+                  <td>{{ comp.name }}</td>
+                  <td>{{ value }}% </td>
+                  <td>{{ comp.basepairs }}
+                  <td><progress value="{{value}}" max="100"></progress></td>
+                </tr>
+        {% if loop.last %}
+              </tbody>
+            </table>
+          </article>
+        </details>
+        {% endif %}
+      {% endfor %}
   </article>
 {%- endmacro %}
+
 {% if results is defined %}
   <div id="results" class="page padding active">
     <h2> Analysis results for {{ variant }}</h2>
