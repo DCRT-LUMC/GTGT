@@ -97,6 +97,12 @@ def main() -> None:
     export_parser.add_argument(
         "hgvs", help="HGVS description of the transcript of interest"
     )
+    export_parser.add_argument(
+        "--protein-domains",
+        help="Fetch supported protein domains from UCSC",
+        default=False,
+        action="store_true",
+    )
 
     render_parser = subparsers.add_parser(
         "render", help="Render the HTML template (helper)"
@@ -154,10 +160,12 @@ def main() -> None:
         flask_app.run(args.host, debug=args.debug)
     elif args.command == "export":
         # Get the transcript
-        transcript = Transcript.from_description(init_description(args.hgvs))
+        d = init_description(args.hgvs)
+        transcript = Transcript.from_description(d)
+        if args.protein_domains:
+            transcript.lookup_protein_domains(d)
 
         # Mutate the transcript
-        d = init_description(args.hgvs)
         sequence = sequence_from_description(d)
         input_variants = [
             Variant.from_model(delins, sequence=sequence)
@@ -167,8 +175,6 @@ def main() -> None:
 
         for record in transcript.records():
             print(record)
-            print(record.chrom, type(record.chrom))
-            print()
     elif args.command == "render":
         if args.results:
             with open(args.results) as fin:
