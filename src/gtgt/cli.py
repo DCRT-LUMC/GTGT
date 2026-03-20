@@ -85,6 +85,12 @@ def _set_analyze_parser(subparsers: Any) -> None:
         default=False,
         action="store_true",
     )
+    analyze_parser.add_argument(
+        "--extended",
+        help="Output all evaluated therapies",
+        default=False,
+        action='store_true'
+    )
     analyze_parser.set_defaults(func=analyze)
 
 
@@ -140,7 +146,7 @@ def analyze(args: argparse.Namespace) -> None:
     if args.protein_domains:
         transcript.lookup_protein_domains(d)
     # Convert Result objects to dict
-    results = [dataclasses.asdict(x) for x in transcript.analyze(args.hgvs)]
+    results = [dataclasses.asdict(x) for x in transcript.analyze(args.hgvs, extended=args.extended)]
     print(json.dumps(results, indent=True, default=vars))
 
 
