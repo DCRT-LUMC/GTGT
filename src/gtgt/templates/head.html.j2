@@ -41,7 +41,8 @@
       // Redirect to the results page
       var variant = document.getElementById('variant_input').value;
       var protein_domains = document.getElementById('protein_domains').checked
-      window.location = "/" + variant + "?" + "protein_domains=" + protein_domains;
+      var extended = document.getElementById('extended').checked
+      window.location = "/" + variant + "?" + "protein_domains=" + protein_domains + "&extended=" + extended;
     }
 
     function fillSearchField(value)

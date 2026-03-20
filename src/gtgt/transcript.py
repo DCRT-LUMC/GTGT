@@ -172,7 +172,7 @@ class Transcript:
         for record in self.rna_records():
             self.subtract(rna_changes)
 
-    def analyze(self, hgvs: str, extended=False) -> Sequence[Result]:
+    def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
 
         # r. notations are not supported
@@ -228,7 +228,9 @@ class Transcript:
 
             # Filter variants which are not of interest
             if not extended:
-                if not is_of_interest(patient, input.variants, modified_transcript, therapy.variants):
+                if not is_of_interest(
+                    patient, input.variants, modified_transcript, therapy.variants
+                ):
                     continue
             results.append(Result(therapy, modified_transcript.compare(self)))
 

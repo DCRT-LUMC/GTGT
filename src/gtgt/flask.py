@@ -130,14 +130,14 @@ def result(variant: str | None = None) -> str:
         d = init_description(variant)
         transcript = Transcript.from_description(d)
 
-        print(f"{request.args=}")
-        # Should we lookup protein domains
+        # Extract parameter from the request
         protein_domains = request.args.get("protein_domains") == "true"
+        extended = request.args.get("extended") == "true"
 
         if protein_domains:
             transcript.lookup_protein_domains(d)
 
-        results = transcript.analyze(variant)
+        results = transcript.analyze(variant, extended=extended)
         print(transcript)
     except Exception as e:
         error = {"summary": "Analysis failed", "details": str(e)}
