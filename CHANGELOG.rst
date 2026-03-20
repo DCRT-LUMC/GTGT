@@ -8,6 +8,12 @@ Changelog
 .. that users understand how the changes affect the new version.
 
 -------
+v0.2.14
+-------
++ Fix a bug comparing empty features
++ Fix a bug where a therapy restoring part of a feature was not recognized
+
+-------
 v0.2.13
 -------
 + Collapse the unchanged annotations in the frontend

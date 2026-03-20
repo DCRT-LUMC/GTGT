@@ -291,9 +291,12 @@ def is_of_interest(
     if missing_variants:
         return True
 
-    # If any feature is better in the therapy than the patient
-    for cmp in therapy.compare(patient):
-        if cmp.percentage > 1.0:
+    # Determine if there are any regions that were restored in the therapy,
+    # which are lacking in the patient
+    for t, p in zip(therapy.records(), patient.records()):
+        restored = deepcopy(t)
+        restored.subtract(p)
+        if restored.size > 0:
             return True
     else:
         return False

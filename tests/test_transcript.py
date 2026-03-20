@@ -277,6 +277,48 @@ def test_Result_comparison() -> None:
             [],
             True,
         ),
+        # One of the therapy features is completely missing
+        (
+            # Patient
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
+            ),
+            [],
+            # Therapy
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=10)], protein_features=[]
+            ),
+            [],
+            False,
+        ),
+        # One of the patient features is completely missing
+        (
+            # Patient
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=10)], protein_features=[]
+            ),
+            [],
+            # Therapy
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
+            ),
+            [],
+            True,
+        ),
+        # The therapy is smaller, but has a region the patient lacks
+        (
+            # Patient
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
+            ),
+            [],
+            # Therapy
+            Transcript(
+                rna_features=[Bed("", chromStart=20, chromEnd=21)], protein_features=[]
+            ),
+            [],
+            True,
+        ),
     ],
 )
 def test_therapy_is_of_interest(
