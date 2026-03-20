@@ -1,10 +1,10 @@
-import json
+from typing import Sequence
 
 import pytest
 
 from gtgt import Bed
 from gtgt.mutalyzer import Therapy, Variant, init_description
-from gtgt.transcript import Comparison, Result, Transcript
+from gtgt.transcript import Comparison, Result, Transcript, is_of_interest
 
 
 @pytest.fixture
@@ -224,6 +224,69 @@ def test_Result_comparison() -> None:
 
     # Highest scoring Results should come first
     assert sorted(results, reverse=True) == [r1, r2]
+
+
+@pytest.mark.parametrize(
+    "patient, patient_vars, therapy, therapy_vars, expected",
+    [
+        # Identical patient and therapy
+        (
+            # Patient
+            Transcript(rna_features=[], protein_features=[]),
+            [],
+            # Therapy
+            Transcript(rna_features=[], protein_features=[]),
+            [],
+            False,
+        ),
+        # The therapy got rid of one of the variants
+        (
+            # Patient
+            Transcript(rna_features=[], protein_features=[]),
+            [Variant(10, 20)],
+            # Therapy
+            Transcript(rna_features=[], protein_features=[]),
+            [],
+            True,
+        ),
+        # One of the therapy features is smaller
+        (
+            # Patient
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
+            ),
+            [],
+            # Therapy
+            Transcript(
+                rna_features=[Bed("", chromStart=11, chromEnd=20)], protein_features=[]
+            ),
+            [],
+            False,
+        ),
+        # One of the therapy features is larger
+        (
+            # Patient
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
+            ),
+            [],
+            # Therapy
+            Transcript(
+                rna_features=[Bed("", chromStart=10, chromEnd=21)], protein_features=[]
+            ),
+            [],
+            True,
+        ),
+    ],
+)
+def test_therapy_is_of_interest(
+    patient: Transcript,
+    patient_vars: Sequence[Variant],
+    therapy: Transcript,
+    therapy_vars: Sequence[Variant],
+    expected: bool,
+) -> None:
+    assert is_of_interest(patient, patient_vars, therapy, therapy_vars) == expected
 
 
 MUTATE = [

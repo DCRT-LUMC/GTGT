@@ -207,6 +207,9 @@ class Variant:
         deleted = self.deleted
         return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted})"
 
+    def __hash__(self) -> int:
+        return hash(self.__repr__())
+
     def before(self, other: "Variant") -> bool:
         return self.end <= other.start
 

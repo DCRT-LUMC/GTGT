@@ -265,3 +265,28 @@ class Transcript:
         """Lookup supported protein domains from USCS"""
         for track in PROTEIN_TRACKS:
             self.protein_features += lookup_track(d, track)
+
+
+def is_of_interest(
+    patient: Transcript,
+    patient_vars: Sequence[Variant],
+    therapy: Transcript,
+    therapy_vars: Sequence[Variant],
+) -> bool:
+    """Determine if therapy is of interest for patient
+
+    There are two criteria that determine of a therapy is of interest
+    1: If any patient variants are modified by the therapy
+    2: If any of the annotations have **improved** for the therapy
+    """
+    # If any patient variants are modified
+    missing_variants = set(patient_vars).difference(therapy_vars)
+    if missing_variants:
+        return True
+
+    # If any feature is better in the therapy than the patient
+    for cmp in therapy.compare(patient):
+        if cmp.percentage > 1.0:
+            return True
+    else:
+        return False
