@@ -55,13 +55,6 @@ def main() -> None:
     link_parser = subparsers.add_parser("links", help="Links to external resources")
     link_parser.add_argument("hgvs_variant", type=str, help="Variant of interest")
 
-    api_server_parser = subparsers.add_parser(
-        "api_server", help="Run the GTGT API server"
-    )
-    api_server_parser.add_argument(
-        "--host", default="localhost", help="Hostname to listen on"
-    )
-
     web_server_parser = subparsers.add_parser(
         "webserver", help="Run the GTGT web server"
     )
@@ -125,15 +118,6 @@ def main() -> None:
         links = lookup_variant(args.hgvs_variant).url_dict()
         for website, url in links.items():
             print(f"{website}: {url}")
-    elif args.command == "api_server":
-        try:
-            from .app import app, uvicorn
-        except ModuleNotFoundError:
-            logger.critical(
-                "Missing modules, please install with 'pip install gtgt[api_server]'"
-            )
-            exit(-1)
-        uvicorn.run(app, host=args.host)
     elif args.command == "mutate":
         desc = f"{args.transcript_id}:c.="
         d = init_description(desc)
