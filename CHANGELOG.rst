@@ -12,6 +12,8 @@ v0.2.13-dev
 -----------
 + Collapse the unchanged annotations in the frontend
 + Hide empty sections in the frontend
++ Only show relevant therapies by default. A therapy is relevant if it modifies
+  at least one input variant, or improves at least one annotation
 
 -------
 v0.2.12
