@@ -6,13 +6,13 @@ from mutalyzer.description_model import get_reference_id
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
 
-from gtgt.variant import Variant, combine_variants_deletion
 from gtgt.mutalyzer import (
     init_description,
     mutation_to_cds_effect,
     sequence_from_description,
     to_cdot_hgvs,
 )
+from gtgt.variant import Variant, combine_variants_deletion
 
 
 def SDHD_description() -> Description:

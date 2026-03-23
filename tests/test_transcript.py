@@ -3,10 +3,10 @@ from typing import Sequence
 import pytest
 
 from gtgt import Bed
-from gtgt.variant import Variant
-from gtgt.therapy import Therapy
 from gtgt.mutalyzer import init_description
+from gtgt.therapy import Therapy
 from gtgt.transcript import Comparison, Result, Transcript, is_of_interest
+from gtgt.variant import Variant
 
 
 @pytest.fixture
