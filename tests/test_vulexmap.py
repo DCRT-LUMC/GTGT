@@ -1,9 +1,10 @@
 from typing import Any
-import pytest
 
-from gtgt.vulexmap import VulExMap, VulExMapExon, _vulexmap_key, vulexmap_description
-from gtgt.mutalyzer import init_description
+import pytest
 from mutalyzer.description import Description
+
+from gtgt.mutalyzer import init_description
+from gtgt.vulexmap import VulExMapExon, _vulexmap_key, vulexmap_description
 
 
 def SDHD_description() -> Description:
@@ -17,10 +18,10 @@ def WT1_description() -> Description:
 
 
 @pytest.mark.parametrize(
-    "d, exon, expected",
+    "gene, exon, expected",
     [
         (
-            SDHD_description(),
+            "SDHD",
             # Exon 2 of SDHD
             (984, 1101),
             # Key
@@ -28,7 +29,7 @@ def WT1_description() -> Description:
             ("NC_000011.10", 112087856, 112087973, "+"),
         ),
         (
-            WT1_description(),
+            "WT1",
             # Exon 2 of WT1 (on the reverse strand)
             (40722, 40845),
             # Key
@@ -38,8 +39,12 @@ def WT1_description() -> Description:
     ],
 )
 def test_vulexmap_key(
-    d: Description, exon: tuple[int, int], expected: tuple[Any, ...]
+    gene: str, exon: tuple[int, int], expected: tuple[Any, ...]
 ) -> None:
+    if gene == "SDHD":
+        d = SDHD_description()
+    elif gene == "WT1":
+        d = WT1_description()
     assert _vulexmap_key(d, exon) == expected
 
 

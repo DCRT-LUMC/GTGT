@@ -3,8 +3,9 @@
 from dataclasses import dataclass
 from typing import Any
 
-from gtgt.mutalyzer import chrom_to_nc, get_offset, get_chrom_name
 from mutalyzer.description import Description
+
+from gtgt.mutalyzer import chrom_to_nc, get_chrom_name, get_offset
 
 
 @dataclass
@@ -97,13 +98,11 @@ def vulexmap_description(v: VulExMapExon, name: str) -> str:
             f"{name} appears to be a {v.exon_class} exon "
             f"(median PSI={v.median_PSI:.1f}, "
             f"sd={v.sd_PSI:.1f}), but this is based on limited data."
-            "Please see https://vulexmap.compbio.sdu.dk/ for more details."
         )
     return (
             f"{name} is a {v.exon_class} exon "
             f"(median PSI={v.median_PSI:.1f}, "
             f"sd={v.sd_PSI:.1f})."
-            "Please see https://vulexmap.compbio.sdu.dk/ for more details."
     )
     # fmt: on
 

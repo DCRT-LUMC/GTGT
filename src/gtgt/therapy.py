@@ -1,16 +1,18 @@
 import dataclasses
 import logging
+import os
 from typing import Any, Mapping, Sequence, TypeVar
 
 from mutalyzer.description import Description
 
-from .mutalyzer import (
+from gtgt.mutalyzer import (
     get_exons,
     protein_prediction,
     sequence_from_description,
     to_cdot_hgvs,
 )
-from .variant import Variant, combine_variants_deletion
+from gtgt.variant import Variant, combine_variants_deletion
+from gtgt.vulexmap import VulExMap, lookup_vulexmap, vulexmap_description
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +102,22 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
             continue
         logger.debug(f"Skip {exons_description}({exons=}): {exon_skip=} {combined=}")
 
-        description = f"The annotations based on the supplied variants, in combination with skipping {exons_description}."
+        description = [
+            f"The annotations based on the supplied variants, in combination with skipping {exons_description}.\n"
+        ]
+        # Lookup VulExMap data fore every exon
+        for j, exon in enumerate(exons):
+            vulexmap = lookup_vulexmap(
+                d, exon, VulExMap(path=os.environ.get("GTGT_VulExMap"))
+            )
+            if vulexmap is not None:
+                description.append(vulexmap_description(vulexmap, name=f"Exon {i+j}"))
+        # If we added VulExMap information
+        if len(description) > 1:
+            description.append(
+                "Please see https://vulexmap.compbio.sdu.dk/ for more details."
+            )
+
         # Convert to c. notation (user facing)
         name = f"Skip {exons_description}"
         selector = d.get_selector_id()
@@ -113,7 +130,7 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
             hgvsc=hgvsc,
             hgvsr=hgvsr,
             hgvsp=protein_prediction(d, combined)[0],
-            description=description,
+            description=" ".join(description),
             variants=combined,
         )
         exon_skips.append(t)
