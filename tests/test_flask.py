@@ -1,7 +1,8 @@
 import pytest
 
 from gtgt.flask import organize_results, validate_user_input
-from gtgt.mutalyzer import Therapy, Variant
+from gtgt.therapy import Therapy
+from gtgt.variant import Variant
 from gtgt.transcript import Comparison, Result
 
 INVALID_INPUTS = [

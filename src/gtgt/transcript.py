@@ -8,8 +8,6 @@ from mutalyzer.description import Description
 from .bed import Bed
 from .exonviz import draw
 from .mutalyzer import (
-    Therapy,
-    Variant,
     generate_therapies,
     get_chrom_name,
     get_exons,
@@ -21,6 +19,8 @@ from .mutalyzer import (
     sequence_from_description,
 )
 from .ucsc import PROTEIN_TRACKS, lookup_track
+from .therapy import Therapy
+from .variant import Variant
 
 logger = logging.getLogger(__name__)
 

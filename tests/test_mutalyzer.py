@@ -5,9 +5,9 @@ from itertools import zip_longest
 import pytest
 from mutalyzer.description import Description
 
+from gtgt.therapy import Therapy
+from gtgt.variant import Variant
 from gtgt.mutalyzer import (
-    Therapy,
-    Variant,
     _exon_string,
     changed_protein_positions,
     get_assembly_name,

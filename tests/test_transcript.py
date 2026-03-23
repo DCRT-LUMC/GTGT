@@ -3,7 +3,9 @@ from typing import Sequence
 import pytest
 
 from gtgt import Bed
-from gtgt.mutalyzer import Therapy, Variant, init_description
+from gtgt.variant import Variant
+from gtgt.therapy import Therapy
+from gtgt.mutalyzer import init_description
 from gtgt.transcript import Comparison, Result, Transcript, is_of_interest
 
 

@@ -14,12 +14,12 @@ from gtgt.flask import render as flask_render
 from gtgt.transcript import Result, Transcript
 
 from .mutalyzer import (
-    Variant,
     generate_therapies,
     init_description,
     sequence_from_description,
 )
 from .variant_validator import lookup_variant
+from .variant import Variant
 
 logger = logging.getLogger(__name__)
 
