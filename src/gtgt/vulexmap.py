@@ -3,7 +3,8 @@
 from dataclasses import dataclass
 from typing import Any
 
-from gtgt.mutalyzer import chrom_to_nc
+from gtgt.mutalyzer import chrom_to_nc, get_offset, get_chrom_name
+from mutalyzer.description import Description
 
 
 @dataclass
@@ -39,6 +40,9 @@ class VulExMap:
         else:
             return None
 
+    def __repr__(self) -> str:
+        return f"VulExMap(path={self.path})"
+
     def read_vulex_file(self, fname: str) -> VulExDict:
         results = dict()
         with open(fname) as fin:
@@ -64,6 +68,44 @@ class VulExMap:
 
                 results[key] = (median_PSI, sd_PSI, exon_class, low_read_count)
         return results
+
+
+def _vulexmap_key(d: Description, exon: tuple[int, int]) -> tuple[Any, ...]:
+    """Determine the VulExMap key from a description and exon coordinates"""
+    # Create the key to look up VulExMap data
+    chr = get_chrom_name(d)
+    offset = get_offset(d)
+    start = exon[0] + offset
+    end = exon[1] + offset
+    strand = "-" if d.is_inverted() else "+"
+    return (chr, start, end, strand)
+
+
+def lookup_vulexmap(
+    d: Description, exon: tuple[int, int], V: VulExMap = VulExMap()
+) -> VulExMapExon | None:
+    key = _vulexmap_key(d, exon)
+
+    return V[key]
+
+
+def vulexmap_description(v: VulExMapExon, name: str) -> str:
+    """Create a human readable description based on the VulExMap data"""
+    # fmt: off
+    if v.low_read_count:
+        return (
+            f"{name} appears to be a {v.exon_class} exon "
+            f"(median PSI={v.median_PSI:.1f}, "
+            f"sd={v.sd_PSI:.1f}), but this is based on limited data."
+            "Please see https://vulexmap.compbio.sdu.dk/ for more details."
+        )
+    return (
+            f"{name} is a {v.exon_class} exon "
+            f"(median PSI={v.median_PSI:.1f}, "
+            f"sd={v.sd_PSI:.1f})."
+            "Please see https://vulexmap.compbio.sdu.dk/ for more details."
+    )
+    # fmt: on
 
 
 def main(vulex: str) -> None:
