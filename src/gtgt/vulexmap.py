@@ -91,6 +91,7 @@ def main(vulex: str) -> None:
 
 if __name__ == "__main__":
     import sys
-    from gtgt.mutalyzer import init_description, get_chrom_name, get_exons, get_offset,
+
+    from gtgt.mutalyzer import get_chrom_name, get_exons, get_offset, init_description
 
     main(sys.argv[1])
