@@ -79,14 +79,12 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
         exons_description = _exon_string(range(i, i + number_to_skip))
 
         if d.is_inverted():
-            # Start of the first exon to skip
-            start = exons[-1][0]
-            # End of the last exon to skip
-            end = exons[0][-1]
+            exons = exons[::-1]
 
-        else:
-            start = exons[0][0]
-            end = exons[-1][-1]
+        # Start of the first exon to skip
+        start = exons[0][0]
+        # End of the last exon to skip
+        end = exons[-1][-1]
 
         exon_skip = Variant(start, end)
 
