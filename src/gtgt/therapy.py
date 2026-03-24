@@ -16,6 +16,9 @@ from gtgt.vulexmap import VulExMap, lookup_vulexmap, vulexmap_description
 
 logger = logging.getLogger(__name__)
 
+# Initialize the VulExMap data fetcher once
+V = VulExMap(path=os.environ.get("GTGT_VulExMap"))
+
 
 @dataclasses.dataclass
 class Therapy:
@@ -107,9 +110,7 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
         ]
         # Lookup VulExMap data fore every exon
         for j, exon in enumerate(exons):
-            vulexmap = lookup_vulexmap(
-                d, exon, VulExMap(path=os.environ.get("GTGT_VulExMap"))
-            )
+            vulexmap = lookup_vulexmap(d, exon, V)
             if vulexmap is not None:
                 description.append(vulexmap_description(vulexmap, name=f"Exon {i+j}"))
         # If we added VulExMap information
