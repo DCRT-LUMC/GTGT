@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+import logging
 from dataclasses import dataclass
 from typing import Any
 
 from mutalyzer.description import Description
 
 from gtgt.mutalyzer import chrom_to_nc, get_chrom_name, get_offset
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -33,7 +36,11 @@ class VulExMap:
 
         # Read the file only once
         if self.path is not None and self._data is None:
-            self._data = self.read_vulex_file(self.path)
+            try:
+                self._data = self.read_vulex_file(self.path)
+            except:
+                logger.warning(f"Failed to read data for {self}")
+                self._data = dict()
 
         values = self._data.get(key)
         if values:

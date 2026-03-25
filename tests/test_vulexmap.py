@@ -4,7 +4,7 @@ import pytest
 from mutalyzer.description import Description
 
 from gtgt.mutalyzer import init_description
-from gtgt.vulexmap import VulExMapExon, _vulexmap_key, vulexmap_description
+from gtgt.vulexmap import VulExMap, VulExMapExon, _vulexmap_key, vulexmap_description
 
 
 def SDHD_description() -> Description:
@@ -81,3 +81,8 @@ def test_vulexmap_description(
         low_read_count=low_read_count,
     )
     assert vulexmap_description(v, name).startswith(expected)
+
+
+def test_path_does_not_exist() -> None:
+    V = VulExMap(path="no/such/file")
+    assert V["key"] is None
