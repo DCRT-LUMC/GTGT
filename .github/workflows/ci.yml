@@ -1,4 +1,5 @@
 name: Continous integration
+permissions: read-all
 
 on:
   pull_request:
