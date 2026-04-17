@@ -61,6 +61,7 @@ Contents
 .. toctree::
 
    usage
+   transcript
    install
    api
    changelog
