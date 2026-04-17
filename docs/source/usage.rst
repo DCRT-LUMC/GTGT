@@ -9,11 +9,13 @@ of interest in `HGVS <https://hgvs-nomenclature.org/stable/>`_ format. For the
 best results, users should specify all variants that were observed on the
 affected allele, since the exact patient sequence is taken into account when
 assessing therapies. However, if only the pathogenic variant is known, this
-will also work. For transcripts encoded on HG38, GTGT can also access the
-protein features which are available from the UCSC, and determine the effect of
-the therapy on protein features. For example, GTGT will correctly determine if
-a protein domain is lost due to an exon skip, and will also update the protein
-domain if (part of) the domain is frameshifted.
+will also work.
+
+For transcripts encoded on HG38, GTGT can also access the protein features
+which are available from the UCSC, and determine the effect of the therapy on
+protein features. For example, GTGT will correctly determine if a protein
+domain is lost due to an exon skip, and will also update the protein domain if
+(part of) the domain has been lost due to a frameshift.
 
 Transcripts
 -----------
@@ -29,13 +31,20 @@ Ensembl transcripts always have the exact same sequence as the reference genome
 on which they are defined, and Ensembl transcripts also have introns. In
 contrast, RefSeq transcripts (which start with NM) are defined as the sequence
 of the mature transcript, independent of a reference genome. This means that
-the sequence of NM transcripts can be different from the reference genome.
+the sequence of NM transcripts can differ from the reference genome.
 Further more, NM transcripts are defined as mature transcripts, which means they do
 not have introns. It is therefore not possible to specify intronic mutations on
-an NM transcript, as can be seen on the `HGVS website
-<https://hgvs-nomenclature.org/stable/background/refseq/#DNAc>`_. Because NM
-transcripts do not have a relationship to the reference genome, protein domain
-annotations from UCSC are not available for NM transcripts in GTGT.
+an NM transcript, as is explained on the `HGVS website
+<https://hgvs-nomenclature.org/stable/background/refseq/#DNAc>`_:
+
+  "a coding DNA reference sequence does not contain intron or 5' and 3' gene
+  flanking sequences and **can not be used to describe variants in introns** [...].
+  Intronic sequences [...] may only be used to
+  describe a variant when a genomic reference sequence identifier is provided."
+
+Because NM transcripts do not have a relationship to the reference genome,
+protein domain annotations from UCSC are not available for NM transcripts in
+GTGT.
 
 Although NM transcript are in theory independent from the reference genome, in
 practice they are closely related. To account for this, NM transcripts also

@@ -7,7 +7,7 @@ GTGT provides methods to assess whether a given pathogenic variant can be
 corrected using genetic therapies (such as exon skipping). The unique feature
 of GTGT is that it takes the actual sequence of the patient transcript into
 account. In the case of exon skipping, rather than checking if the exon is
-in-frame, GTGT will check each exon-skip to determine it will result in an
+in-frame, GTGT will assess each exon to determine if skipping it will result in an
 in-frame transcript in the patient. In our examples section, we have an
 instance of a deletion in CLN3 where skipping an exon several exons upstream of
 the deletion restores the reading frame and protein function.
