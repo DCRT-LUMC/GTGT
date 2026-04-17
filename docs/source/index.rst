@@ -61,6 +61,7 @@ Contents
 .. toctree::
 
    usage
+   examples
    transcript
    install
    api
