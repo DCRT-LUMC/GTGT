@@ -54,8 +54,32 @@ therapies is most likely to benefit the patients in left to the user.
 
 Multi-exon deletion in CLN3
 ---------------------------
-CLN3 is a gene which is involved in the lysosome,
-and the deletion of exon 8 and 9 is one of the most common causes for Batten
-disease.
+CLN3 is a gene which is involved in the lysosome and loss of CLN3 is associated
+with severe condition called Batten disease. In patients with Batten involving
+CLN3, the most common mutation is a deletion of exon 8 and 9
+(``ENST00000636147.2:c.461_677del``). `Click here
+<https://gtgt.rnatherapy.nl/ENST00000636147.2:c.461_677del?protein_domains=true&extended=false>`__
+to analyze this mutation using GTGT.
 
-``ENST00000636147.2:c.461_677del``
+As can be seen from Transcript visualization, deletion of exon 8 and 9 causes a
+frameshift mutation in the transcript. The frameshift leads to the loss of the
+Lysosomal targetting motif, which is essential for the localisation of CLN3 to
+the lysosome.
+
+As can be seen from the figure, the reading frame can be restored by skipping
+either the exon before the deletion (exon 7) or the exon after the deletion
+(exon 10). Note that skipping exon 10 does not fully preserve the lysosomal targeting motif.
+
+However, GTGT has found another therapy which restores the reading frame of the
+transcript, namely skipping exon 6. This solution is not intuitive at all, and
+also difficult to see from the transript visualization of CLN3. The best way to
+explain it is that skipping exon 6 causes a frameshift when translating from
+exon 5 to exon 7, which is then cancled by the frameshift caused by the exon
+8+9 deletion.
+
+Interestingly, exon 6 is a vulnerable exon that is already partially skipped in
+healthy individuals. Skipping exon 6 has been shown to restore CLN3 function
+and localisation to the lysosome in patient cell lines (`Centa2020
+<https://www.nature.com/articles/s41591-020-0986-1>`__). Note that they use a
+different transcript of CLN3 which lacks the first noncoding exon, so the
+deletion is exon 7+8, and the exon they skip is exon 5.
