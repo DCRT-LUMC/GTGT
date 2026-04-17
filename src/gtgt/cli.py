@@ -118,6 +118,9 @@ def _set_render_parser(subparsers: Any) -> None:
     render_parser.add_argument("--results", type=str, default="")
     render_parser.add_argument("--error", "-e", help="Error payload")
     render_parser.add_argument("--variant", type=str, default="10A>T")
+    render_parser.add_argument(
+        "--links", type=str, default=None, help="Links to external resources"
+    )
     render_parser.set_defaults(func=render)
 
 
@@ -129,8 +132,7 @@ def transcript(args: argparse.Namespace) -> None:
 
 def link(args: argparse.Namespace) -> None:
     links = lookup_variant(args.hgvs_variant).url_dict()
-    for website, url in links.items():
-        print(f"{website}: {url}")
+    print(json.dumps(links))
 
 
 def mutate(args: argparse.Namespace) -> None:
@@ -193,6 +195,12 @@ def render(args: argparse.Namespace) -> None:
     else:
         file_payload = []
 
+    if args.links:
+        with open(args.links) as fin:
+            links = json.load(fin)
+    else:
+        links = dict()
+
     template_file = "templates/index.html.j2"
     print(
         flask_render(
@@ -200,6 +208,7 @@ def render(args: argparse.Namespace) -> None:
             variant=args.variant,
             results=file_payload,
             error=args.error,
+            links=links,
         )
     )
 

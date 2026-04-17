@@ -27,7 +27,7 @@ def render(
     template_file: str,
     variant: str | None = None,
     results: Sequence[Result] = [],
-    links: Mapping[str, str] | None = None,
+    links: Mapping[str, Any] | None = None,
     error: Mapping[str, str] | None = None,
 ) -> str:
     """Render the html template using jinja2 directly"""

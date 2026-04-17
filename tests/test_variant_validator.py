@@ -46,9 +46,16 @@ def test_url(ids: Links, field: str, url: str) -> None:
 def test_url_dict(ids: Links) -> None:
     d = ids.url_dict()
 
-    assert d["lovd"] == "https://databases.lovd.nl/shared/genes/COL7A1"
-    assert d["omim_1"] == "https://www.omim.org/entry/1"
-    assert d["omim_2"] == "https://www.omim.org/entry/2"
+    # Test LOVD
+    assert d["Variant"][0]["name"] == "lovd"
+    assert d["Variant"][0]["url"] == "https://databases.lovd.nl/shared/genes/COL7A1"
+
+    # Test OMIM
+    assert d["Gene"][0]["name"] == "omim_1"
+    assert d["Gene"][0]["url"] == "https://www.omim.org/entry/1"
+
+    assert d["Gene"][1]["name"] == "omim_2"
+    assert d["Gene"][1]["url"] == "https://www.omim.org/entry/2"
 
 
 def test_parse_payload_unknown_flag() -> None:

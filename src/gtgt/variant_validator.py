@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Any, Mapping, Sequence, cast
 
 from pydantic import BaseModel
@@ -17,18 +18,18 @@ class Links(BaseModel):
     hgnc: str
     ucsc: str
 
-    databases: Sequence[str] = [
-        "omim",
-        "lovd",
-        "gtex",
-        "uniprot",
-        "decipher",
-        "clinvar",
-        "hgnc",
-        "ucsc",
-        "gnomad",
-        "stringdb",
-    ]
+    databases: Mapping[str, str] = {
+        "omim": "Gene",
+        "lovd": "Variant",
+        "gtex": "Gene",
+        "uniprot": "Protein",
+        "decipher": "Variant",
+        "clinvar": "Variant",
+        "hgnc": "Gene",
+        "ucsc": "Gene",
+        "gnomad": "Variant",
+        "stringdb": "Protein",
+    }
 
     def url(self, field: str) -> str | Sequence[str]:
         if field == "omim":
@@ -58,17 +59,106 @@ class Links(BaseModel):
         else:
             raise NotImplementedError(f"Unknown field: '{field}'")
 
-    def url_dict(self) -> Mapping[str, str]:
-        """Create a flat dict with urls to all databases"""
-        d = dict()
+    def description(self, field: str) -> str:
+        d = {
+            "lovd": (
+                "LOVD is a database of genetic variants organized by gene. Annotations "
+                "include variant description on the transcript and genome level, as well as "
+                "the clinical classification of each variant."
+            ),
+            "gtex": (
+                "GTEx contains the expression levels of a gene across different "
+                "tissues derived from bulk sequencing data as well as from single cell experiments."
+            ),
+            "uniprot": (
+                "The Universal Protein Resource (UniProt) is a comprehensive "
+                "resource for protein sequence and annotation data. "
+                "The mission of UniProt is to provide the scientific "
+                "community with a comprehensive, high-quality and freely "
+                "accessible resource of protein sequence and functional information."
+            ),
+            "decipher": (
+                "DECIPHER (DatabasE of genomiC varIation and Phenotype in "
+                "Humans using Ensembl Resources) is an interactive web-based "
+                "database which incorporates a suite of tools designed to aid "
+                "the interpretation of genomic variants. "
+                "DECIPHER enhances clinical diagnosis by retrieving "
+                "information from a variety of bioinformatics resources "
+                "relevant to the variant found in the patient. The patient's "
+                "variant is displayed in the context of both normal variation "
+                "and pathogenic variation reported at that locus thereby "
+                "facilitating interpretation."
+            ),
+            "clinvar": (
+                "ClinVar is a freely accessible, public archive of reports of "
+                "human variations classified for diseases and drug responses, "
+                "with supporting evidence. ClinVar thus facilitates access to "
+                "and communication about the relationships asserted between "
+                "human variation and observed conditions, and the history of "
+                "those assertions"
+            ),
+            "hgnc": (
+                "The HGNC is responsible for approving unique symbols and "
+                "names for human loci, including protein coding genes, ncRNA "
+                "genes and pseudogenes, to allow unambiguous scientific communication"
+            ),
+            "ucsc": (
+                "The Genome Browser stacks annotation tracks beneath genome "
+                "coordinate positions, allowing rapid visual correlation of "
+                "different types of information. The user can look at a whole "
+                "chromosome to get a feel for gene density, open a specific "
+                "cytogenetic band to see a positionally mapped disease gene "
+                "candidate, or zoom in to a particular gene to view its "
+                "spliced ESTs and possible alternative splicing."
+            ),
+            "gnomad": (
+                "The Genome Aggregation Database (gnomAD™), originally "
+                "launched in 2014 as the Exome Aggregation Consortium (ExAC), "
+                "is the result of a coalition of investigators willing to share "
+                "aggregate human exome and genome sequencing data from a "
+                "variety of large-scale sequencing projects, and make summary "
+                "data available for the wider scientific community."
+            ),
+            "stringdb": (
+                "STRING represents relationships between proteins as a network "
+                "(graph). In the network visualization, proteins are shown as "
+                "nodes (bubbles) and associations between them are shown as "
+                "edges (lines). Each node represents a protein encoded by a "
+                "single gene locus."
+            ),
+            "omim": (
+                "Online Mendelian Inheritance in Man®. OMIM is a comprehensive, "
+                "authoritative compendium of human genes and genetic phenotypes "
+                "that is freely available and updated daily. The full-text, "
+                "referenced overviews in OMIM contain information on all known "
+                "mendelian disorders and over 16,000 genes"
+            ),
+        }
+        if field.startswith("omim"):
+            field = "omim"
+        return d.get(field, f"Unknown resource ({field})")
 
-        for field in self.databases:
+    def url_dict(self) -> Mapping[str, Any]:
+        """Create a nested dict with urls to all databases"""
+        d = defaultdict(list)
+
+        for field, category in self.databases.items():
             # omim can contain a list of IDs
             if field == "omim":
                 for i, url in enumerate(self.url(field), 1):
-                    d[f"{field}_{i}"] = url
+                    entry = {
+                        "name": f"{field}_{i}",
+                        "url": url,
+                        "description": self.description(field),
+                    }
+                    d[category].append(entry)
             else:
-                d[field] = cast(str, self.url(field))
+                entry = {
+                    "name": field,
+                    "url": cast(str, self.url(field)),
+                    "description": self.description(field),
+                }
+                d[category].append(entry)
 
         return d
 

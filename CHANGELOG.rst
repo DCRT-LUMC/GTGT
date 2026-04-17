@@ -11,6 +11,7 @@ Changelog
 v0.2.15-dev
 -----------
 + Fix a possible security vulnerability when using the `GTGT_CACHE`
++ Add categories and descriptions to the external resources page
 
 -------
 v0.2.14
