@@ -76,6 +76,11 @@ class _Provider(ABC):
         # Filename for the cached payload
         fname = self._fname(parameters)
 
+        # Ensure that we do not access the broader filesystem
+        fname = os.path.normpath(fname)
+        if not fname.startswith(self.cache):
+            raise RuntimeError(f"Weird path detected: {fname}")
+
         js: payload = dict()
         # If the payload is already in the cache
         if os.path.exists(fname):
