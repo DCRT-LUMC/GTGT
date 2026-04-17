@@ -8,11 +8,18 @@ not all features are available with every transcript, and protein domains are
 only available for HG38.
 
 There is a fundamental difference between Ensembl and RefSeq transcripts which
-is important to understand when using GTGT. Ensembl transcripts (which start
+is important to understand when using GTGT.
+
+Ensembl transcripts
+-------------------
+Ensembl transcripts (which start
 with ENS) are defined as regions on the reference genome. This means that
 Ensembl transcripts always have the exact same sequence as the reference genome
-on which they are defined, and Ensembl transcripts also have introns. In
-contrast, RefSeq transcripts (which start with NM) are defined as the sequence
+on which they are defined, and Ensembl transcripts also contain introns.
+
+RefSeq transcripts
+------------------
+In contrast, RefSeq transcripts (which start with NM) are defined as the sequence
 of the mature transcript, independent of a reference genome. This means that
 the sequence of NM transcripts can differ from the reference genome.
 Further more, NM transcripts are defined as mature transcripts, which means they do
@@ -29,6 +36,8 @@ Because NM transcripts do not have a relationship to the reference genome,
 protein domain annotations from UCSC are not available for NM transcripts in
 GTGT.
 
+RefSeq transcripts on the genome
+--------------------------------
 Although NM transcript are in theory independent from the reference genome, in
 practice they are closely related. To account for this, NM transcripts also
 have an alternative version which is defined on a reference genome, which we
@@ -53,6 +62,8 @@ transcript variant, you will see the option to get the `CHROMOSOMAL DESCRIPTIONS
 with a warning banner if there are differences between the sequence of the
 transcript and the reference genome.
 
+MANE Select transcripts
+-----------------------
 MANE select transcripts are a special set of transcripts that act as the
 default transcript for their respective genes, which are also guaranteed to
 be identical between Ensembl and RefSeq transcripts. Since Ensembl transcripts
