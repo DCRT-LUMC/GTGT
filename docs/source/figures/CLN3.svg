@@ -1,0 +1,978 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="235.172mm"
+   height="135.89999mm"
+   version="1.1"
+   id="svg74"
+   sodipodi:docname="CLN3.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs78" />
+  <sodipodi:namedview
+     id="namedview76"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.0596753"
+     inkscape:cx="388.32648"
+     inkscape:cy="236.865"
+     inkscape:window-width="1870"
+     inkscape:window-height="1131"
+     inkscape:window-x="1250"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg74"
+     inkscape:document-units="mm" />
+  <style
+     id="style70">
+.legend { font: 16.0px sans-serif; fill: black; dominant-baseline: central; }
+</style>
+  <style
+     id="style72">
+.exonnr { text-anchor: middle; dominant-baseline: central; font: 10.0px sans-serif; fill: white;}
+</style>
+  <g
+     id="g3991"
+     transform="translate(5.6695173,7.5581883)">
+    <g
+       id="g2862"
+       transform="translate(-24.999999,-20.840002)">
+      <g
+         id="g2063">
+        <g
+           id="g1621"
+           transform="translate(4.9999993,38.010431)">
+          <rect
+             x="20"
+             y="25"
+             width="27.5"
+             height="10"
+             fill="#4c72b7"
+             id="rect2" />
+          <text
+             class="exonnr"
+             x="33.75"
+             y="30"
+             id="text4"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">1</text>
+          <rect
+             x="52.5"
+             y="25"
+             width="39"
+             height="10"
+             fill="#4c72b7"
+             id="rect6" />
+          <polygon
+             points="113.5,30 108.5,40 90.5,40 90.5,20 108.5,20 "
+             fill="#4c72b7"
+             id="polygon8" />
+          <text
+             class="exonnr"
+             x="83"
+             y="30"
+             id="text10"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">2</text>
+          <polygon
+             points="113.5,20 148,20 153,20 148,30 153,40 148,40 113.5,40 118.5,30 "
+             fill="#4c72b7"
+             id="polygon12" />
+          <text
+             class="exonnr"
+             x="133.25"
+             y="30"
+             id="text14"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">3</text>
+          <polygon
+             points="201.5,20 201.5,40 158,40 153,30 158,20 "
+             fill="#4c72b7"
+             id="polygon16" />
+          <text
+             class="exonnr"
+             x="177.25"
+             y="30"
+             id="text18"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">4</text>
+          <polygon
+             points="242.5,20 242.5,40 206.5,40 206.5,20 "
+             fill="#4c72b7"
+             id="polygon20" />
+          <text
+             class="exonnr"
+             x="224.5"
+             y="30"
+             id="text22"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">5</text>
+          <polygon
+             points="282.5,30 287.5,40 282.5,40 247.5,40 247.5,20 282.5,20 287.5,20 "
+             fill="#4c72b7"
+             id="polygon24" />
+          <text
+             class="exonnr"
+             x="267.5"
+             y="30"
+             id="text26"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">6</text>
+          <polygon
+             points="292.5,40 287.5,30 292.5,20 325.5,20 330.5,30 325.5,40 "
+             fill="#4c72b7"
+             id="polygon28" />
+          <text
+             class="exonnr"
+             x="309"
+             y="30"
+             id="text30"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">7</text>
+          <polygon
+             points="330.5,20 362,20 367,20 362,30 367,40 362,40 330.5,40 335.5,30 "
+             fill="#4c72b7"
+             id="polygon32" />
+          <text
+             class="exonnr"
+             x="348.75"
+             y="30"
+             id="text34"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">8</text>
+          <polygon
+             points="372,20 434,20 439,20 434,30 439,40 434,40 372,40 367,30 "
+             fill="#4c72b7"
+             id="polygon36" />
+          <text
+             class="exonnr"
+             x="403"
+             y="30"
+             id="text38"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">9</text>
+          <polygon
+             points="444,40 439,30 444,20 490.5,20 495.5,30 490.5,40 "
+             fill="#4c72b7"
+             id="polygon40" />
+          <text
+             class="exonnr"
+             x="467.25"
+             y="30"
+             id="text42"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">10</text>
+          <polygon
+             points="519,20 519,40 495.5,40 500.5,30 495.5,20 "
+             fill="#4c72b7"
+             id="polygon44" />
+          <text
+             class="exonnr"
+             x="507.25"
+             y="30"
+             id="text46"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">11</text>
+          <polygon
+             points="558.5,20 558.5,40 524,40 524,20 "
+             fill="#4c72b7"
+             id="polygon48" />
+          <text
+             class="exonnr"
+             x="541.25"
+             y="30"
+             id="text50"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">12</text>
+          <polygon
+             points="586.5,30 591.5,40 586.5,40 563.5,40 563.5,20 586.5,20 591.5,20 "
+             fill="#4c72b7"
+             id="polygon52" />
+          <text
+             class="exonnr"
+             x="577.5"
+             y="30"
+             id="text54"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">13</text>
+          <polygon
+             points="638.5,20 638.5,40 596.5,40 591.5,30 596.5,20 "
+             fill="#4c72b7"
+             id="polygon56" />
+          <text
+             class="exonnr"
+             x="615"
+             y="30"
+             id="text58"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">14</text>
+          <polygon
+             points="714,20 714,40 643.5,40 643.5,20 "
+             fill="#4c72b7"
+             id="polygon60" />
+          <text
+             class="exonnr"
+             x="678.75"
+             y="30"
+             id="text62"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">15</text>
+          <rect
+             x="778"
+             y="25"
+             width="119.5"
+             height="10"
+             fill="#4c72b7"
+             id="rect64" />
+          <polygon
+             points="779,20 779,40 719,40 719,20 "
+             fill="#4c72b7"
+             id="polygon66" />
+          <text
+             class="exonnr"
+             x="808.25"
+             y="30"
+             id="text68"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif">16</text>
+        </g>
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:24px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+           x="23.535999"
+           y="38.240002"
+           id="text1731"><tspan
+             sodipodi:role="line"
+             id="tspan1729"
+             x="23.535999"
+             y="38.240002">CLN3 (ENST00000636147.2)</tspan></text>
+      </g>
+    </g>
+    <g
+       id="g2727"
+       transform="translate(-24.999999,310.17323)">
+      <g
+         id="g1621-4"
+         transform="translate(4.9999993,38.010431)">
+        <rect
+           x="20"
+           y="25"
+           width="27.5"
+           height="10"
+           fill="#4c72b7"
+           id="rect2-4" />
+        <text
+           class="exonnr"
+           x="33.75"
+           y="30"
+           id="text4-3"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">1</text>
+        <rect
+           x="52.5"
+           y="25"
+           width="39"
+           height="10"
+           fill="#4c72b7"
+           id="rect6-0" />
+        <polygon
+           points="108.5,40 90.5,40 90.5,20 108.5,20 113.5,30 "
+           fill="#4c72b7"
+           id="polygon8-7" />
+        <text
+           class="exonnr"
+           x="83"
+           y="30"
+           id="text10-8"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">2</text>
+        <polygon
+           points="113.5,20 148,20 153,20 148,30 153,40 148,40 113.5,40 118.5,30 "
+           fill="#4c72b7"
+           id="polygon12-68" />
+        <text
+           class="exonnr"
+           x="133.25"
+           y="30"
+           id="text14-8"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">3</text>
+        <polygon
+           points="201.5,40 158,40 153,30 158,20 201.5,20 "
+           fill="#4c72b7"
+           id="polygon16-4" />
+        <text
+           class="exonnr"
+           x="177.25"
+           y="30"
+           id="text18-3"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">4</text>
+        <polygon
+           points="242.5,20 242.5,40 206.5,40 206.5,20 "
+           fill="#4c72b7"
+           id="polygon20-1" />
+        <text
+           class="exonnr"
+           x="224.5"
+           y="30"
+           id="text22-4"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">5</text>
+        <polygon
+           points="282.5,40 247.5,40 247.5,20 282.5,20 287.5,20 282.5,30 287.5,40 "
+           fill="#4c72b7"
+           id="polygon24-9" />
+        <text
+           class="exonnr"
+           x="267.5"
+           y="30"
+           id="text26-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">6</text>
+        <polygon
+           points="330.5,30 325.5,40 292.5,40 287.5,30 292.5,20 325.5,20 "
+           fill="#4c72b7"
+           id="polygon28-0" />
+        <text
+           class="exonnr"
+           x="309"
+           y="30"
+           id="text30-68"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">7</text>
+        <polygon
+           points="519,40 495.5,40 500.5,30 495.5,20 519,20 "
+           fill="#4c72b7"
+           id="polygon44-50" />
+        <text
+           class="exonnr"
+           x="507.25"
+           y="30"
+           id="text46-4"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">11</text>
+        <polygon
+           points="558.5,20 558.5,40 524,40 524,20 "
+           fill="#4c72b7"
+           id="polygon48-8" />
+        <text
+           class="exonnr"
+           x="541.25"
+           y="30"
+           id="text50-71"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">12</text>
+        <polygon
+           points="586.5,40 563.5,40 563.5,20 586.5,20 591.5,20 586.5,30 591.5,40 "
+           fill="#4c72b7"
+           id="polygon52-7" />
+        <text
+           class="exonnr"
+           x="577.5"
+           y="30"
+           id="text54-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">13</text>
+        <polygon
+           points="638.5,40 596.5,40 591.5,30 596.5,20 638.5,20 "
+           fill="#4c72b7"
+           id="polygon56-72" />
+        <text
+           class="exonnr"
+           x="615"
+           y="30"
+           id="text58-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">14</text>
+        <polygon
+           points="714,20 714,40 643.5,40 643.5,20 "
+           fill="#4c72b7"
+           id="polygon60-6" />
+        <text
+           class="exonnr"
+           x="678.75"
+           y="30"
+           id="text62-1"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">15</text>
+        <rect
+           x="778"
+           y="25"
+           width="119.5"
+           height="10"
+           fill="#4c72b7"
+           id="rect64-0" />
+        <polygon
+           points="779,20 779,40 719,40 719,20 "
+           fill="#4c72b7"
+           id="polygon66-6" />
+        <text
+           class="exonnr"
+           x="808.25"
+           y="30"
+           id="text68-1"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">16</text>
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:24px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="23.535999"
+         y="38.240002"
+         id="text1731-59"><tspan
+           sodipodi:role="line"
+           id="tspan1729-49"
+           x="23.535999"
+           y="38.240002">CLN3 exon 10 skip</tspan></text>
+    </g>
+    <g
+       id="g2063-0"
+       transform="translate(-24.999999,420.51097)">
+      <g
+         id="g1621-9"
+         transform="translate(4.9999993,38.010431)" />
+      <g
+         id="g2694">
+        <rect
+           x="20"
+           y="25"
+           width="27.5"
+           height="10"
+           fill="#4c72b7"
+           id="rect2-1"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="33.75"
+           y="30"
+           id="text4-77"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">1</text>
+        <rect
+           x="52.5"
+           y="25"
+           width="39"
+           height="10"
+           fill="#4c72b7"
+           id="rect6-1"
+           transform="translate(4.9999993,38.010426)" />
+        <polygon
+           points="108.5,40 90.5,40 90.5,20 108.5,20 113.5,30 "
+           fill="#4c72b7"
+           id="polygon8-15"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="83"
+           y="30"
+           id="text10-97"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">2</text>
+        <polygon
+           points="113.5,20 148,20 153,20 148,30 153,40 148,40 113.5,40 118.5,30 "
+           fill="#4c72b7"
+           id="polygon12-7"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="133.25"
+           y="30"
+           id="text14-6"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">3</text>
+        <polygon
+           points="201.5,40 158,40 153,30 158,20 201.5,20 "
+           fill="#4c72b7"
+           id="polygon16-7"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="177.25"
+           y="30"
+           id="text18-36"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">4</text>
+        <polygon
+           points="242.5,20 242.5,40 206.5,40 206.5,20 "
+           fill="#4c72b7"
+           id="polygon20-56"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="224.5"
+           y="30"
+           id="text22-3"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">5</text>
+        <polygon
+           points="330.5,30 325.5,40 292.5,40 287.5,30 292.5,20 325.5,20 "
+           fill="#4c72b7"
+           id="polygon28-1"
+           style="fill:#ff0000"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="309"
+           y="30"
+           id="text30-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">7</text>
+        <polygon
+           points="495.5,30 490.5,40 444,40 439,30 444,20 490.5,20 "
+           fill="#4c72b7"
+           id="polygon40-8"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="467.25"
+           y="30"
+           id="text42-5"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">10</text>
+        <polygon
+           points="519,40 495.5,40 500.5,30 495.5,20 519,20 "
+           fill="#4c72b7"
+           id="polygon44-0"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="507.25"
+           y="30"
+           id="text46-96"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">11</text>
+        <polygon
+           points="558.5,20 558.5,40 524,40 524,20 "
+           fill="#4c72b7"
+           id="polygon48-3"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="541.25"
+           y="30"
+           id="text50-8"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">12</text>
+        <polygon
+           points="586.5,40 563.5,40 563.5,20 586.5,20 591.5,20 586.5,30 591.5,40 "
+           fill="#4c72b7"
+           id="polygon52-5"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="577.5"
+           y="30"
+           id="text54-6"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">13</text>
+        <polygon
+           points="638.5,40 596.5,40 591.5,30 596.5,20 638.5,20 "
+           fill="#4c72b7"
+           id="polygon56-1"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="615"
+           y="30"
+           id="text58-1"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">14</text>
+        <polygon
+           points="714,20 714,40 643.5,40 643.5,20 "
+           fill="#4c72b7"
+           id="polygon60-5"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="678.75"
+           y="30"
+           id="text62-9"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">15</text>
+        <rect
+           x="778"
+           y="25"
+           width="119.5"
+           height="10"
+           fill="#4c72b7"
+           id="rect64-8"
+           transform="translate(4.9999993,38.010426)" />
+        <polygon
+           points="779,20 779,40 719,40 719,20 "
+           fill="#4c72b7"
+           id="polygon66-4"
+           transform="translate(4.9999993,38.010426)" />
+        <text
+           class="exonnr"
+           x="808.25"
+           y="30"
+           id="text68-8"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+           transform="translate(4.9999993,38.010426)">16</text>
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:24px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+           x="23.535999"
+           y="38.240002"
+           id="text1731-1"><tspan
+             sodipodi:role="line"
+             id="tspan1729-0"
+             x="23.535999"
+             y="38.240002">CLN3 exon 6 skip</tspan></text>
+      </g>
+    </g>
+    <g
+       id="g2787"
+       transform="translate(-24.999999,199.83549)">
+      <rect
+         x="20"
+         y="25"
+         width="27.5"
+         height="10"
+         fill="#4c72b7"
+         id="rect2-2"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="33.75"
+         y="30"
+         id="text4-9"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">1</text>
+      <rect
+         x="52.5"
+         y="25"
+         width="39"
+         height="10"
+         fill="#4c72b7"
+         id="rect6-3"
+         transform="translate(4.9999993,38.01043)" />
+      <polygon
+         points="108.5,40 90.5,40 90.5,20 108.5,20 113.5,30 "
+         fill="#4c72b7"
+         id="polygon8-1"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="83"
+         y="30"
+         id="text10-9"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">2</text>
+      <polygon
+         points="113.5,20 148,20 153,20 148,30 153,40 148,40 113.5,40 118.5,30 "
+         fill="#4c72b7"
+         id="polygon12-4"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="133.25"
+         y="30"
+         id="text14-7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">3</text>
+      <polygon
+         points="201.5,40 158,40 153,30 158,20 201.5,20 "
+         fill="#4c72b7"
+         id="polygon16-8"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="177.25"
+         y="30"
+         id="text18-4"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">4</text>
+      <polygon
+         points="242.5,20 242.5,40 206.5,40 206.5,20 "
+         fill="#4c72b7"
+         id="polygon20-5"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="224.5"
+         y="30"
+         id="text22-0"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">5</text>
+      <polygon
+         points="282.5,20 287.5,20 282.5,30 287.5,40 282.5,40 247.5,40 247.5,20 "
+         fill="#4c72b7"
+         id="polygon24-3"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="267.5"
+         y="30"
+         id="text26-6"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">6</text>
+      <polygon
+         points="444,40 439,30 444,20 490.5,20 495.5,30 490.5,40 "
+         fill="#4c72b7"
+         id="polygon40-6"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="467.25"
+         y="30"
+         id="text42-1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">10</text>
+      <polygon
+         points="519,40 495.5,40 500.5,30 495.5,20 519,20 "
+         fill="#4c72b7"
+         id="polygon44-5"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="507.25"
+         y="30"
+         id="text46-5"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">11</text>
+      <polygon
+         points="558.5,20 558.5,40 524,40 524,20 "
+         fill="#4c72b7"
+         id="polygon48-4"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="541.25"
+         y="30"
+         id="text50-7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">12</text>
+      <polygon
+         points="586.5,20 591.5,20 586.5,30 591.5,40 586.5,40 563.5,40 563.5,20 "
+         fill="#4c72b7"
+         id="polygon52-6"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="577.5"
+         y="30"
+         id="text54-5"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">13</text>
+      <polygon
+         points="638.5,40 596.5,40 591.5,30 596.5,20 638.5,20 "
+         fill="#4c72b7"
+         id="polygon56-6"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="615"
+         y="30"
+         id="text58-9"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">14</text>
+      <polygon
+         points="714,20 714,40 643.5,40 643.5,20 "
+         fill="#4c72b7"
+         id="polygon60-3"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="678.75"
+         y="30"
+         id="text62-7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">15</text>
+      <rect
+         x="778"
+         y="25"
+         width="119.5"
+         height="10"
+         fill="#4c72b7"
+         id="rect64-4"
+         transform="translate(4.9999993,38.01043)" />
+      <polygon
+         points="779,20 779,40 719,40 719,20 "
+         fill="#4c72b7"
+         id="polygon66-5"
+         transform="translate(4.9999993,38.01043)" />
+      <text
+         class="exonnr"
+         x="808.25"
+         y="30"
+         id="text68-2"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff"
+         transform="translate(4.9999993,38.01043)">16</text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:24px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="23.535999"
+         y="38.240002"
+         id="text1731-5"><tspan
+           sodipodi:role="line"
+           id="tspan1729-4"
+           x="23.535999"
+           y="38.240002">CLN3 exon 7 skip</tspan></text>
+    </g>
+    <g
+       id="g2822"
+       transform="translate(-24.999999,17.497741)">
+      <g
+         id="g1621-3"
+         transform="translate(5.0000082,110.01044)">
+        <rect
+           x="20"
+           y="25"
+           width="27.5"
+           height="10"
+           fill="#4c72b7"
+           id="rect2-6" />
+        <text
+           class="exonnr"
+           x="33.75"
+           y="30"
+           id="text4-7"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">1</text>
+        <rect
+           x="52.5"
+           y="25"
+           width="39"
+           height="10"
+           fill="#4c72b7"
+           id="rect6-5" />
+        <polygon
+           points="108.5,20 113.5,30 108.5,40 90.5,40 90.5,20 "
+           fill="#4c72b7"
+           id="polygon8-3" />
+        <text
+           class="exonnr"
+           x="83"
+           y="30"
+           id="text10-5"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">2</text>
+        <polygon
+           points="113.5,20 148,20 153,20 148,30 153,40 148,40 113.5,40 118.5,30 "
+           fill="#4c72b7"
+           id="polygon12-6" />
+        <text
+           class="exonnr"
+           x="133.25"
+           y="30"
+           id="text14-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">3</text>
+        <polygon
+           points="158,20 201.5,20 201.5,40 158,40 153,30 "
+           fill="#4c72b7"
+           id="polygon16-9" />
+        <text
+           class="exonnr"
+           x="177.25"
+           y="30"
+           id="text18-1"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">4</text>
+        <polygon
+           points="242.5,20 242.5,40 206.5,40 206.5,20 "
+           fill="#4c72b7"
+           id="polygon20-2" />
+        <text
+           class="exonnr"
+           x="224.5"
+           y="30"
+           id="text22-7"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">5</text>
+        <polygon
+           points="247.5,40 247.5,20 282.5,20 287.5,20 282.5,30 287.5,40 282.5,40 "
+           fill="#4c72b7"
+           id="polygon24-0" />
+        <text
+           class="exonnr"
+           x="267.5"
+           y="30"
+           id="text26-9"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">6</text>
+        <polygon
+           points="292.5,40 287.5,30 292.5,20 325.5,20 330.5,30 325.5,40 "
+           fill="#4c72b7"
+           id="polygon28-3" />
+        <text
+           class="exonnr"
+           x="309"
+           y="30"
+           id="text30-6"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">7</text>
+        <polygon
+           points="444,40 439,30 444,20 490.5,20 495.5,30 490.5,40 "
+           fill="#4c72b7"
+           id="polygon40-1"
+           style="fill:#ff0000" />
+        <text
+           class="exonnr"
+           x="467.25"
+           y="30"
+           id="text42-8"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">10</text>
+        <polygon
+           points="495.5,20 519,20 519,40 495.5,40 500.5,30 "
+           fill="#4c72b7"
+           id="polygon44-7"
+           style="fill:#ff0000" />
+        <text
+           class="exonnr"
+           x="507.25"
+           y="30"
+           id="text46-9"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">11</text>
+        <polygon
+           points="558.5,20 558.5,40 524,40 524,20 "
+           fill="#4c72b7"
+           id="polygon48-2"
+           style="fill:#ff0000" />
+        <text
+           class="exonnr"
+           x="541.25"
+           y="30"
+           id="text50-0"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">12</text>
+        <polygon
+           points="563.5,40 563.5,20 586.5,20 591.5,20 586.5,30 591.5,40 586.5,40 "
+           fill="#4c72b7"
+           id="polygon52-2"
+           style="fill:#ff0000" />
+        <text
+           class="exonnr"
+           x="577.5"
+           y="30"
+           id="text54-3"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">13</text>
+        <polygon
+           points="596.5,20 638.5,20 638.5,40 596.5,40 591.5,30 "
+           fill="#4c72b7"
+           id="polygon56-7"
+           style="fill:#ff0000" />
+        <text
+           class="exonnr"
+           x="615"
+           y="30"
+           id="text58-5"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">14</text>
+        <polygon
+           points="714,20 714,40 643.5,40 643.5,20 "
+           fill="#4c72b7"
+           id="polygon60-9"
+           style="fill:#ff0000" />
+        <text
+           class="exonnr"
+           x="678.75"
+           y="30"
+           id="text62-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">15</text>
+        <rect
+           x="778"
+           y="25"
+           width="119.5"
+           height="10"
+           fill="#4c72b7"
+           id="rect64-2"
+           style="fill:#ff0000" />
+        <polygon
+           points="779,20 779,40 719,40 719,20 "
+           fill="#4c72b7"
+           id="polygon66-8"
+           style="fill:#ff0000" />
+        <text
+           class="exonnr"
+           x="808.25"
+           y="30"
+           id="text68-9"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:normal;font-family:sans-serif;dominant-baseline:central;text-anchor:middle;fill:#ffffff">16</text>
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:24px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         x="23.535999"
+         y="110.24"
+         id="text1731-7"><tspan
+           sodipodi:role="line"
+           id="tspan1729-3"
+           x="23.535999"
+           y="110.24">CLN3 exon 8-9 deletion</tspan></text>
+    </g>
+  </g>
+</svg>
