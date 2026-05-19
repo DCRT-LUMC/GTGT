@@ -33,7 +33,7 @@ from typing_extensions import NewType
 
 logger = logging.getLogger(__name__)
 
-from .variant import Variant, combine_variants_deletion
+from .variant import combine_variants_deletion, gcVariant
 
 # Mutalyzer Variant dictionary
 Variant_Dict = NewType("Variant_Dict", Mapping[str, Any])
@@ -199,7 +199,7 @@ def de_to_hgvs(variants: Any, sequences: Any) -> Sequence[Variant_Dict]:
     return new_variants
 
 
-def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
+def to_cdot_hgvs(d: Description, variants: Sequence[gcVariant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
     delins_model = [v.to_model() for v in variants]
 
@@ -208,7 +208,7 @@ def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
         for delins in delins_model:
             if "deleted" in delins:
                 _del = delins["deleted"][0]
-                _del["sequence"] = Variant._reverse_complement(_del["sequence"])
+                _del["sequence"] = gcVariant._reverse_complement(_del["sequence"])
                 _del["inverted"] = True
 
     variant_models = de_to_hgvs(delins_model, d.get_sequences())
@@ -363,7 +363,7 @@ def changed_protein_positions(
 
 
 def protein_prediction(
-    d: Description, variants: Sequence[Variant]
+    d: Description, variants: Sequence[gcVariant]
 ) -> tuple[str, str, str]:
     """Call mutalyzer get_protein_description on a Description and list of Variants"""
     # Get required data structures from the Description
@@ -390,7 +390,7 @@ def protein_prediction(
 
 
 def mutation_to_cds_effect(
-    d: Description, variants: Sequence[Variant]
+    d: Description, variants: Sequence[gcVariant]
 ) -> list[tuple[int, int]]:
     """
     Determine the effect of the specified HGVS description on the CDS, on the genome
@@ -434,7 +434,7 @@ def mutation_to_cds_effect(
         if end < start:
             start, end = end - 1, start + 1
 
-        v = Variant(start, end)
+        v = gcVariant(start, end)
 
         changed_genomic.append(v.genomic_coordinates(d))
 

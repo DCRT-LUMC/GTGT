@@ -18,7 +18,7 @@ from .mutalyzer import (
     sequence_from_description,
 )
 from .therapy import generate_therapies
-from .variant import Variant
+from .variant import gcVariant
 from .variant_validator import lookup_variant
 
 logger = logging.getLogger(__name__)
@@ -178,7 +178,7 @@ def export(args: argparse.Namespace) -> None:
     # Mutate the transcript
     sequence = sequence_from_description(d)
     input_variants = [
-        Variant.from_model(delins, sequence=sequence)
+        gcVariant.from_model(delins, sequence=sequence)
         for delins in d.delins_model["variants"]
     ]
     transcript.mutate(d, input_variants)

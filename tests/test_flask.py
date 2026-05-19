@@ -3,7 +3,7 @@ import pytest
 from gtgt.flask import organize_results, validate_user_input
 from gtgt.therapy import Therapy
 from gtgt.transcript import Comparison, Result
-from gtgt.variant import Variant
+from gtgt.variant import gcVariant
 
 INVALID_INPUTS = [
     # Non-HGVS input
@@ -21,7 +21,7 @@ def test_organize_results() -> None:
     Test grouping the results for rendering
     """
     # Input Result
-    input_variant = Variant(10, 11, deleted="A", inserted="T")
+    input_variant = gcVariant(10, 11, deleted="A", inserted="T")
     input_ = Result(
         therapy=Therapy(
             name="Input",
@@ -47,7 +47,7 @@ def test_organize_results() -> None:
             name="Skip exon 3",
             hgvsc="",
             description="Skip exon with variant",
-            variants=[Variant(5, 15, inserted="")],
+            variants=[gcVariant(5, 15, inserted="")],
         ),
         comparison=[],
     )
@@ -57,7 +57,7 @@ def test_organize_results() -> None:
             name="Skip exon 2",
             hgvsc="",
             description="Skip exon before variant",
-            variants=[Variant(2, 5, inserted=""), input_variant],
+            variants=[gcVariant(2, 5, inserted=""), input_variant],
         ),
         comparison=[],
     )
@@ -67,7 +67,7 @@ def test_organize_results() -> None:
             name="Skip exon 4",
             hgvsc="",
             description="Skip exon after the variant",
-            variants=[input_variant, Variant(15, 25, inserted="")],
+            variants=[input_variant, gcVariant(15, 25, inserted="")],
         ),
         comparison=[],
     )

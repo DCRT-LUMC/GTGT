@@ -12,7 +12,7 @@ from gtgt.mutalyzer import (
 )
 from gtgt.therapy import Therapy
 from gtgt.transcript import Transcript
-from gtgt.variant import Variant
+from gtgt.variant import gcVariant
 
 
 def SDHD_description() -> Description:
@@ -149,7 +149,7 @@ def test_exons_forward() -> None:
 
 def test_Therapy_from_dict() -> None:
     """Test creating a Therapy from a dict"""
-    variants = [Variant(10, 11, inserted="A", deleted="T")]
+    variants = [gcVariant(10, 11, inserted="A", deleted="T")]
     therapy = Therapy(
         "Wildtype", hgvsc="ENST:c.=", description="free text", variants=variants
     )
@@ -173,7 +173,7 @@ def test_protein_prediction_unknown() -> None:
     """
     d = SDHD_description()
     # Variants that give rise to a :p.? prediction from mutalyzer
-    variants = [Variant(start=1031, end=1032), Variant(start=1994, end=2139)]
+    variants = [gcVariant(start=1031, end=1032), gcVariant(start=1994, end=2139)]
 
     id = "ENST00000375549.8(ENSP00000364699)"
     p_variant = "Leu35_Leu159delinsPheArgThrAspLeuSerGlnAsnGlyValGluCysSerThrTyrThrCysHisArgAlaThrIleGlyProTrpThrSerCysTyr"

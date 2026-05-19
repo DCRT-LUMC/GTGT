@@ -1,4 +1,4 @@
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Self, Sequence, TypeVar
 
 from mutalyzer.description import Description
 from mutalyzer.description_model import get_reference_id
@@ -16,7 +16,7 @@ def get_offset(d: Description) -> int:
     return offset
 
 
-class Variant:
+class _Variant:
     """Class to store delins variants"""
 
     # fmt: off
@@ -86,21 +86,21 @@ class Variant:
         end = self.end
         inserted = self.inserted
         deleted = self.deleted
-        return f"Variant({start=}, {end=}, inserted={inserted}, deleted={deleted})"
+        return f"{self.__class__.__name__}({start=}, {end=}, inserted={inserted}, deleted={deleted})"
 
     def __hash__(self) -> int:
         return hash(self.__repr__())
 
-    def before(self, other: "Variant") -> bool:
+    def before(self, other: Self) -> bool:
         return self.end <= other.start
 
-    def after(self, other: "Variant") -> bool:
+    def after(self, other: Self) -> bool:
         return self.start >= other.end
 
-    def inside(self, other: "Variant") -> bool:
+    def inside(self, other: Self) -> bool:
         return self.start >= other.start and self.end <= other.end
 
-    def overlap(self, other: "Variant") -> bool:
+    def overlap(self, other: Self) -> bool:
         self_ends_in_other = self.end > other.start and self.end <= other.end
         self_starts_in_other = self.start >= other.start and self.start < other.end
 
@@ -114,7 +114,7 @@ class Variant:
         )
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Variant):
+        if not type(other) == type(self):
             raise NotImplementedError
 
         return (
@@ -124,8 +124,8 @@ class Variant:
             and self.deleted == other.deleted
         )
 
-    def __lt__(self, other: "Variant") -> bool:
-        if not isinstance(other, Variant):
+    def __lt__(self, other: Self) -> bool:
+        if not type(other) == type(self):
             raise NotImplementedError
         if self.overlap(other):
             msg = f"Overlapping variants '{self}' and '{other}' cannot be sorted"
@@ -140,7 +140,7 @@ class Variant:
         This can be very complex, and we only support the most common cases.
         """
 
-        Variant.schema.validate(model)
+        _Variant.schema.validate(model)
 
     @staticmethod
     def _model_is_repeat(model: Mapping[str, Any]) -> bool:
@@ -304,7 +304,7 @@ class Variant:
         end = inserted["location"]["end"]["position"]
 
         # Expand the new sequence
-        new_sequence = Variant._reverse_complement(sequence[start:end])
+        new_sequence = _Variant._reverse_complement(sequence[start:end])
 
         new_model["inserted"] = [
             {
@@ -315,14 +315,14 @@ class Variant:
         return new_model
 
     @classmethod
-    def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> "Variant":
-        if Variant._model_is_inversion(model):
-            model = Variant._model_inversion_to_delins(model, sequence)
-        if Variant._model_is_duplication(model):
-            model = Variant._model_duplication_to_delins(model, sequence)
+    def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> Self:
+        if cls._model_is_inversion(model):
+            model = cls._model_inversion_to_delins(model, sequence)
+        if cls._model_is_duplication(model):
+            model = cls._model_duplication_to_delins(model, sequence)
         # Determine if the model is a repeat
-        if Variant._model_is_repeat(model):
-            model = Variant._model_repeat_to_delins(model)
+        if cls._model_is_repeat(model):
+            model = cls._model_repeat_to_delins(model)
 
         # Validate the delins model
         cls._validate_schema(model)
@@ -376,7 +376,7 @@ class Variant:
         if deleted and del_inverted:
             deleted = cls._reverse_complement(deleted)
 
-        return Variant(
+        return cls(
             start=start,
             end=end,
             inserted=inserted if inserted else "",
@@ -384,7 +384,7 @@ class Variant:
         )
 
     @classmethod
-    def from_dict(cls, dict: Mapping[str, Any]) -> "Variant":
+    def from_dict(cls, dict: Mapping[str, Any]) -> Self:
         """Create a Variant object from a dict representation of a Variant"""
         return cls(**dict)
 
@@ -443,16 +443,32 @@ class Variant:
         return self.start + offset, self.end + offset
 
 
-def combine_variants_deletion(
-    variants: Sequence[Variant], deletion: Variant
-) -> Sequence[Variant]:
+class gcVariant(_Variant):
+    """
+    Variant described using genomic coordinates.
+
+    Note: This class uses 0 based positions, and should not be confused with
+           HGVS g. position notation
+
+    Note: For RefSeq transcripts, genomic coordinates count from the start of
+           the chromosome. For Ensembl transcripts, genomic coordinates count
+           from the start of the gene
+    """
+
+    pass
+
+
+V = TypeVar("V", bound=_Variant)
+
+
+def combine_variants_deletion(variants: Sequence[V], deletion: V) -> Sequence[V]:
     """Combine variants and a deletion, any variants that are contained in
     the deletion are discarded
 
     The resulting list of variants is sorted
     """
     if deletion.inserted:
-        raise ValueError(f"{Variant} is not a pure deletion")
+        raise ValueError(f"{deletion} is not a pure deletion")
 
     # Ensure the variants are sorted, and do not overlap
     sorted_variants = sorted(variants)

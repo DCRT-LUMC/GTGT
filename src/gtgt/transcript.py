@@ -19,7 +19,7 @@ from .mutalyzer import (
 )
 from .therapy import Therapy, generate_therapies
 from .ucsc import PROTEIN_TRACKS, lookup_track
-from .variant import Variant
+from .variant import gcVariant
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class Comparison:
 
     @classmethod
     def from_dict(cls, dict: Mapping[str, Any]) -> "Comparison":
-        """Create a Variant object from a dict representation of a Variant"""
+        """Create a Comparison object from a dict representation of a comparison"""
         return cls(**dict)
 
 
@@ -151,7 +151,7 @@ class Transcript:
         values = [x.percentage for x in cmp]
         return sum(values) / len(cmp)
 
-    def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
+    def mutate(self, d: Description, variants: Sequence[gcVariant]) -> None:
         """Mutate the transcript based on the specified variants"""
         # Determine the chromosome the transcript is on
         if self.records():
@@ -186,7 +186,7 @@ class Transcript:
         # Extract the input variants as internal delins
         sequence = sequence_from_description(d)
         input_variants = [
-            Variant.from_model(delins, sequence=sequence)
+            gcVariant.from_model(delins, sequence=sequence)
             for delins in d.delins_model["variants"]
         ]
 
@@ -275,9 +275,9 @@ class Transcript:
 
 def is_of_interest(
     patient: Transcript,
-    patient_vars: Sequence[Variant],
+    patient_vars: Sequence[gcVariant],
     therapy: Transcript,
-    therapy_vars: Sequence[Variant],
+    therapy_vars: Sequence[gcVariant],
 ) -> bool:
     """Determine if therapy is of interest for patient
 
