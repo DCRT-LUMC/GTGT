@@ -1,9 +1,9 @@
+import sys
 from typing import Any, Mapping, Sequence, TypeVar
 
-# This is required in python <3.11
-try:
+if sys.version_info >= (3, 11):
     from typing import Self
-except ImportError:
+else:
     from typing_extensions import Self
 
 from mutalyzer.description import Description
