@@ -1,4 +1,10 @@
-from typing import Any, Mapping, Self, Sequence, TypeVar
+from typing import Any, Mapping, Sequence, TypeVar
+
+# This is required in python <3.11
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
 
 from mutalyzer.description import Description
 from mutalyzer.description_model import get_reference_id
