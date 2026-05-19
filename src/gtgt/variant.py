@@ -86,7 +86,7 @@ class _Variant:
         end = self.end
         inserted = self.inserted
         deleted = self.deleted
-        return f"{self.__class__.__name__}({start=}, {end=}, inserted={inserted}, deleted={deleted})"
+        return f"{self.__class__.__name__}({start=}, {end=}, inserted='{inserted}', deleted='{deleted}')"
 
     def __hash__(self) -> int:
         return hash(self.__repr__())

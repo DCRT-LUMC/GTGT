@@ -35,13 +35,13 @@ class TestVariant:
     def test_Variant_to_str(self) -> None:
         """Test converting a Variant to string"""
         v = Variant(10, 11, "ATG")
-        assert str(v) == "_Variant(start=10, end=11, inserted=ATG, deleted=)"
+        assert str(v) == "_Variant(start=10, end=11, inserted='ATG', deleted='')"
 
     def test_Variant_snp_to_str(self) -> None:
         """SNPS are special, since they contain the inserted sequence"""
         # 10A>T
         v = Variant(10, 11, "T", "A")
-        assert str(v) == "_Variant(start=10, end=11, inserted=T, deleted=A)"
+        assert str(v) == "_Variant(start=10, end=11, inserted='T', deleted='A')"
 
     def test_Variant_to_model_positions(self) -> None:
         """Test converting a variant to model"""
