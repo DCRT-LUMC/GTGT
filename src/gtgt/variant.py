@@ -292,7 +292,9 @@ class _Variant:
 
     @staticmethod
     def _reverse_complement(seq: str) -> str:
-        complement = {"A": "T", "T": "A", "G": "C", "C": "G"}
+        forward = "ATCGaucg"
+        comp    = "TAGCtagc" # fmt: skip
+        complement = {k: v for k, v in zip(forward, comp)}
         return "".join((complement[nt] for nt in reversed(seq)))
 
     @staticmethod
