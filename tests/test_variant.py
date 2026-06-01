@@ -12,8 +12,7 @@ from gtgt.mutalyzer import (
     sequence_from_description,
     to_cdot_hgvs,
 )
-from gtgt.variant import _Variant as Variant
-from gtgt.variant import combine_variants_deletion, gcVariant
+from gtgt.variant import Variant, combine_variants_deletion
 
 
 def SDHD_description() -> Description:
@@ -35,13 +34,13 @@ class TestVariant:
     def test_Variant_to_str(self) -> None:
         """Test converting a Variant to string"""
         v = Variant(10, 11, "ATG")
-        assert str(v) == "_Variant(start=10, end=11, inserted='ATG', deleted='')"
+        assert str(v) == "Variant(start=10, end=11, inserted='ATG', deleted='')"
 
     def test_Variant_snp_to_str(self) -> None:
         """SNPS are special, since they contain the inserted sequence"""
         # 10A>T
         v = Variant(10, 11, "T", "A")
-        assert str(v) == "_Variant(start=10, end=11, inserted='T', deleted='A')"
+        assert str(v) == "Variant(start=10, end=11, inserted='T', deleted='A')"
 
     def test_Variant_to_model_positions(self) -> None:
         """Test converting a variant to model"""
@@ -455,14 +454,14 @@ class TestVariantMutalyzerForward(object):
         # An SNP that creates a STOP codon
         (
             "14G>A",
-            [gcVariant(start=48, end=49, inserted="A", deleted="G")],
+            [Variant(start=48, end=49, inserted="A", deleted="G")],
             (112086919, 112094967)
         ),
     ]
     # fmt: on
     @pytest.mark.parametrize("cdot, variants, expected", MUTATIONS_VARIANT)
     def test_mutation_to_cds_effect(
-        self, cdot: str, variants: Sequence[gcVariant], expected: tuple[int, int]
+        self, cdot: str, variants: Sequence[Variant], expected: tuple[int, int]
     ) -> None:
         """
         GIVEN a HGVS transcript description for a transcript on the reverse strand
@@ -542,17 +541,17 @@ class TestVariantMutalyzerForward(object):
 
     TO_HGVS = [
         # SNP
-        (gcVariant(44, 45, "T", "C"), "10C>T"),
+        (Variant(44, 45, "T", "C"), "10C>T"),
         # Deletion
-        (gcVariant(44, 45), "10del"),
+        (Variant(44, 45), "10del"),
         # Insertion
-        (gcVariant(45, 45, "A"), "10_11insA"),
+        (Variant(45, 45, "A"), "10_11insA"),
         # Insertion/Deletion
-        (gcVariant(44, 46, "GG"), "10_11delinsGG"),
+        (Variant(44, 46, "GG"), "10_11delinsGG"),
     ]
 
     @pytest.mark.parametrize("variant, expected", TO_HGVS)
-    def test_Variant_to_hgvs(self, variant: gcVariant, expected: str) -> None:
+    def test_Variant_to_hgvs(self, variant: Variant, expected: str) -> None:
         d = SDHD_description()
         assert to_cdot_hgvs(d, [variant]) == expected
 
@@ -694,21 +693,21 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         # A simple missense that changes a single amino acids
         (
             "13T>A",
-            [gcVariant(start=47573, end=47574, inserted="T", deleted="A")],
+            [Variant(start=47573, end=47574, inserted="T", deleted="A")],
             (32435345, 32435348)
         ),
         # A stop mutation which destroys most of the protein
         (
             "9_10insTAG",
-            [gcVariant(start=47577, end=47577, inserted="CTA")],
+            [Variant(start=47577, end=47577, inserted="CTA")],
             (32389060, 32435351)
         ),
         # # # A frameshift that is restored by an insertion
         (
             "[10del;20_21insA]",
             [
-                gcVariant(start=47576, end=47577),
-                gcVariant(start=47566, end=47566, inserted="T"),
+                Variant(start=47576, end=47577),
+                Variant(start=47566, end=47566, inserted="T"),
             ],
             (32435339, 32435351)
         ),
@@ -716,27 +715,27 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         (
             "[10del;20_21insATCGAATATGGGG]",
             [
-                gcVariant(start=47566, end=47566, inserted="CCCCATATTCGAT"),
-                gcVariant(start=47576, end=47577),
+                Variant(start=47566, end=47566, inserted="CCCCATATTCGAT"),
+                Variant(start=47576, end=47577),
             ],
             (32435339, 32435351)),
         # # # A bigger deletion
         (
             "11_19del",
-            [gcVariant(start=47567, end=47576)],
+            [Variant(start=47567, end=47576)],
              (32435342, 32435351)
         ),
         # # # An inframe deletion that creates a STOP codon
         (
             "87_89del",
-            [gcVariant(start=47497, end=47500)],
+            [Variant(start=47497, end=47500)],
             (32389060, 32435276)
         ),
     ]
     # fmt: on
     @pytest.mark.parametrize("cdot, variants, expected", MUTATIONS_VARIANT)
     def test_mutation_to_cds_effect(
-        self, cdot: str, variants: Sequence[gcVariant], expected: tuple[int, int]
+        self, cdot: str, variants: Sequence[Variant], expected: tuple[int, int]
     ) -> None:
         """
         GIVEN a HGVS transcript description for a transcript on the reverse strand
@@ -797,17 +796,17 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
 
     TO_HGVS = [
         # SNP
-        (gcVariant(47573, 47574, inserted="T", deleted="A"), "13T>A"),
+        (Variant(47573, 47574, inserted="T", deleted="A"), "13T>A"),
         # Deletion
-        (gcVariant(start=47576, end=47577), "10del"),
+        (Variant(start=47576, end=47577), "10del"),
         # Insertion
-        (gcVariant(start=47577, end=47577, inserted="CTA"), "9_10insTAG"),
+        (Variant(start=47577, end=47577, inserted="CTA"), "9_10insTAG"),
         # Insertion/deletion
-        (gcVariant(47566, 47569, inserted="GCA"), "18_20delinsTGC"),
+        (Variant(47566, 47569, inserted="GCA"), "18_20delinsTGC"),
     ]
 
     @pytest.mark.parametrize("variant, expected", TO_HGVS)
-    def test_Variant_to_hgvs(self, variant: gcVariant, expected: str) -> None:
+    def test_Variant_to_hgvs(self, variant: Variant, expected: str) -> None:
         d = WT1_description()
         assert to_cdot_hgvs(d, [variant]) == expected
 

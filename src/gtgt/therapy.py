@@ -11,7 +11,7 @@ from gtgt.mutalyzer import (
     sequence_from_description,
     to_cdot_hgvs,
 )
-from gtgt.variant import combine_variants_deletion, gcVariant
+from gtgt.variant import Variant, combine_variants_deletion
 from gtgt.vulexmap import VulExMap, lookup_vulexmap, vulexmap_description
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class Therapy:
     name: str
     hgvsc: str
     description: str
-    variants: Sequence[gcVariant]
+    variants: Sequence[Variant]
     figure: str | None = None
     hgvsr: str | None = None
     hgvsp: str | None = None
@@ -35,7 +35,7 @@ class Therapy:
     @classmethod
     def from_dict(cls, dict: Mapping[str, Any]) -> "Therapy":
         """Create a Therapy object from a dict representation of a Therapy"""
-        v = [gcVariant.from_dict(x) for x in dict["variants"]]
+        v = [Variant.from_dict(x) for x in dict["variants"]]
         return cls(
             name=dict["name"],
             hgvsc=dict["hgvsc"],
@@ -75,7 +75,7 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
     skippable_exons = get_exons(d, in_transcript_order=True)[1:-1]
     sequence = sequence_from_description(d)
     variants = [
-        gcVariant.from_model(v, sequence=sequence) for v in d.delins_model["variants"]
+        Variant.from_model(v, sequence=sequence) for v in d.delins_model["variants"]
     ]
     logger.debug(f"Input variants: {variants}")
 
@@ -91,7 +91,7 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
         # End of the last exon to skip
         end = exons[-1][-1]
 
-        exon_skip = gcVariant(start, end)
+        exon_skip = Variant(start, end)
 
         # Combine the existing variants with the exon skip
         try:

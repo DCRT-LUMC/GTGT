@@ -22,7 +22,7 @@ def get_offset(d: Description) -> int:
     return offset
 
 
-class _Variant:
+class Variant:
     """Class to store delins variants"""
 
     # fmt: off
@@ -120,7 +120,7 @@ class _Variant:
         )
 
     def __eq__(self, other: object) -> bool:
-        if not type(other) == type(self):
+        if not isinstance(other, Variant):
             raise NotImplementedError
 
         return (
@@ -131,7 +131,7 @@ class _Variant:
         )
 
     def __lt__(self, other: Self) -> bool:
-        if not type(other) == type(self):
+        if not isinstance(other, Variant):
             raise NotImplementedError
         if self.overlap(other):
             msg = f"Overlapping variants '{self}' and '{other}' cannot be sorted"
@@ -146,7 +146,7 @@ class _Variant:
         This can be very complex, and we only support the most common cases.
         """
 
-        _Variant.schema.validate(model)
+        Variant.schema.validate(model)
 
     @staticmethod
     def _model_is_repeat(model: Mapping[str, Any]) -> bool:
@@ -312,7 +312,7 @@ class _Variant:
         end = inserted["location"]["end"]["position"]
 
         # Expand the new sequence
-        new_sequence = _Variant._reverse_complement(sequence[start:end])
+        new_sequence = Variant._reverse_complement(sequence[start:end])
 
         new_model["inserted"] = [
             {
@@ -323,14 +323,14 @@ class _Variant:
         return new_model
 
     @classmethod
-    def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> Self:
-        if cls._model_is_inversion(model):
-            model = cls._model_inversion_to_delins(model, sequence)
-        if cls._model_is_duplication(model):
-            model = cls._model_duplication_to_delins(model, sequence)
+    def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> Variant:
+        if Variant._model_is_inversion(model):
+            model = Variant._model_inversion_to_delins(model, sequence)
+        if Variant._model_is_duplication(model):
+            model = Variant._model_duplication_to_delins(model, sequence)
         # Determine if the model is a repeat
-        if cls._model_is_repeat(model):
-            model = cls._model_repeat_to_delins(model)
+        if Variant._model_is_repeat(model):
+            model = Variant._model_repeat_to_delins(model)
 
         # Validate the delins model
         cls._validate_schema(model)
@@ -384,7 +384,7 @@ class _Variant:
         if deleted and del_inverted:
             deleted = cls._reverse_complement(deleted)
 
-        return cls(
+        return Variant(
             start=start,
             end=end,
             inserted=inserted if inserted else "",
@@ -451,32 +451,16 @@ class _Variant:
         return self.start + offset, self.end + offset
 
 
-class gcVariant(_Variant):
-    """
-    Variant described using genomic coordinates.
-
-    Note: This class uses 0 based positions, and should not be confused with
-           HGVS g. position notation
-
-    Note: For RefSeq transcripts, genomic coordinates count from the start of
-           the chromosome. For Ensembl transcripts, genomic coordinates count
-           from the start of the gene
-    """
-
-    pass
-
-
-V = TypeVar("V", bound=_Variant)
-
-
-def combine_variants_deletion(variants: Sequence[V], deletion: V) -> Sequence[V]:
+def combine_variants_deletion(
+    variants: Sequence[Variant], deletion: Variant
+) -> Sequence[Variant]:
     """Combine variants and a deletion, any variants that are contained in
     the deletion are discarded
 
     The resulting list of variants is sorted
     """
     if deletion.inserted:
-        raise ValueError(f"{deletion} is not a pure deletion")
+        raise ValueError(f"{Variant} is not a pure deletion")
 
     # Ensure the variants are sorted, and do not overlap
     sorted_variants = sorted(variants)

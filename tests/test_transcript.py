@@ -6,7 +6,7 @@ from gtgt import Bed
 from gtgt.mutalyzer import init_description
 from gtgt.therapy import Therapy
 from gtgt.transcript import Comparison, Result, Transcript, is_of_interest
-from gtgt.variant import gcVariant
+from gtgt.variant import Variant
 
 
 @pytest.fixture
@@ -245,7 +245,7 @@ def test_Result_comparison() -> None:
         (
             # Patient
             Transcript(rna_features=[], protein_features=[]),
-            [gcVariant(10, 20)],
+            [Variant(10, 20)],
             # Therapy
             Transcript(rna_features=[], protein_features=[]),
             [],
@@ -325,9 +325,9 @@ def test_Result_comparison() -> None:
 )
 def test_therapy_is_of_interest(
     patient: Transcript,
-    patient_vars: Sequence[gcVariant],
+    patient_vars: Sequence[Variant],
     therapy: Transcript,
-    therapy_vars: Sequence[gcVariant],
+    therapy_vars: Sequence[Variant],
     expected: bool,
 ) -> None:
     assert is_of_interest(patient, patient_vars, therapy, therapy_vars) == expected
@@ -403,7 +403,7 @@ def test_mutate_forward(
     # Variant to test
     d = init_description(f"{transcript}:c.{variant}")
     v = [
-        gcVariant.from_model(delins)
+        Variant.from_model(delins)
         for delins in d.de_hgvs_internal_indexing_model["variants"]
     ]
 
@@ -575,7 +575,7 @@ def test_mutate_reverse(
     # Variant to test
     d = init_description(f"{transcript}:c.{variant}")
     v = [
-        gcVariant.from_model(delins)
+        Variant.from_model(delins)
         for delins in d.de_hgvs_internal_indexing_model["variants"]
     ]
 
@@ -609,7 +609,7 @@ def test_Result_from_dict() -> None:
             name="wildtype",
             hgvsc="ENST:c.=",
             description="Free text",
-            variants=[gcVariant(10, 12, inserted="ATG")],
+            variants=[Variant(10, 12, inserted="ATG")],
         ),
         comparison=[Comparison("Exons", percentage=100, basepairs="120/120")],
     )
