@@ -323,7 +323,7 @@ class Variant:
         return new_model
 
     @classmethod
-    def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> Variant:
+    def from_model(cls, model: Mapping[str, Any], sequence: str = "") -> "Variant":
         if Variant._model_is_inversion(model):
             model = Variant._model_inversion_to_delins(model, sequence)
         if Variant._model_is_duplication(model):
