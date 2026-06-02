@@ -35,6 +35,9 @@ class Comparison:
         """Create a Variant object from a dict representation of a Variant"""
         return cls(**dict)
 
+    def __hash__(self) -> int:
+        return hash(f"{self.name} {self.basepairs}")
+
 
 @dataclasses.dataclass
 class Result:

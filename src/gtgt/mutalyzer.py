@@ -389,6 +389,47 @@ def protein_prediction(
     return description, reference, predicted
 
 
+def genomic_crossmapper(hgvs: str) -> Coding:
+    """Create a genomic crossmapper for the hgvs description"""
+    # First, we re-write the hgvs to c. to ensure we have the introns
+    h = hgvs.replace(":r.", ":c.")
+    d = init_description(h)
+
+    # Get the offset of the exons
+    offset = get_offset(d)
+    # print(f"{offset}")
+
+    # Get the exons on the genome
+    exons = d.get_selector_model()["exon"]
+    # print(exons)
+    exons = [(start + offset, end + offset) for start, end in exons]
+    # print(exons)
+
+    # Get the cds on the genome
+    cds = d.get_selector_model()["cds"]
+    # print(f"{cds=}")
+    cds_start, cds_end = cds[0]
+    cds_start += offset
+    cds_end += offset
+    cds = cds_start, cds_end
+    return Coding(exons, cds, inverted=d.is_inverted())
+
+
+def protein_to_genomic(
+    protein_start: int, protein_end: int, hgvs: str
+) -> tuple[int, int]:
+    """Convert protein positions to genomic"""
+    crossmap = genomic_crossmapper(hgvs)
+
+    start = crossmap.protein_to_coordinate((protein_start + 1, 1, 0, 0, 0))
+    end = crossmap.protein_to_coordinate((protein_end, 3, 0, 0, 0)) + 1
+
+    if end < start:
+        start, end = end - 1, start + 1
+
+    return start, end
+
+
 def mutation_to_cds_effect(
     d: Description, variants: Sequence[Variant]
 ) -> list[tuple[int, int]]:
@@ -398,11 +439,11 @@ def mutation_to_cds_effect(
     Steps:
     - Use the protein prediction of mutalyzer to determine which protein
       residues are changed
-    - Map this back to a deletion in c. positions to determine which protein
-      annotations are no longer valid
-    - Convert the c. positions to genome coordiinates as used by the UCSC
-    NOTE that the genome range is similar to the UCSC annotations on the genome,
-    i.e. 0 based, half open. Not to be confused with hgvs g. positions
+    - Map this back to the genome to determine which protein annotations are no
+      longer valid
+
+    NOTE that the positions are 0 based, half open. Not to be confused with
+    hgvs g. positions
     """
     # Determine the protein positions that were changed
     protein = protein_prediction(d, variants)
@@ -411,32 +452,12 @@ def mutation_to_cds_effect(
     # Keep track of changed positions on the genome
     changed_genomic = list()
 
-    # Create crossmapper
-    exons = d.get_selector_model()["exon"]
-    cds = d.get_selector_model()["cds"]
-    assert len(cds) == 1
-    crossmap = Coding(exons, cds[0], inverted=d.is_inverted())
-
     for start, end in changed_protein_positions(reference, observed):
         # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
 
-        # Internal coordinate positions
-        start = crossmap.protein_to_coordinate(
-            # nth amino acid, first nt of codon
-            (start + 1, 1, 0, 0, 0)
-        )
-        end = (
-            # nth amino acid, last nt of codon
-            crossmap.protein_to_coordinate((end, 3, 0, 0, 0))
-            + 1
-        )
+        start, end = protein_to_genomic(start, end, d.input_description)
 
-        if end < start:
-            start, end = end - 1, start + 1
-
-        v = Variant(start, end)
-
-        changed_genomic.append(v.genomic_coordinates(d))
+        changed_genomic.append((start, end))
 
     return changed_genomic
 

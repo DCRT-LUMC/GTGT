@@ -1,3 +1,5 @@
+from typing import Sequence
+
 import pytest
 from mutalyzer.description import Description
 
@@ -9,9 +11,11 @@ from gtgt.mutalyzer import (
     get_transcript_name,
     init_description,
     protein_prediction,
+    protein_to_genomic,
+    sequence_from_description,
 )
 from gtgt.therapy import Therapy
-from gtgt.transcript import Transcript
+from gtgt.transcript import Comparison, Transcript
 from gtgt.variant import Variant
 
 
@@ -30,6 +34,7 @@ def WT_Transcript() -> Transcript:
     return Transcript.from_description(d)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     "variant",
     "13T>A 970del 970_971insA 997_999delinsTAA 1000dup 10_11inv 994_996A[9]".split(),
@@ -65,7 +70,7 @@ def test_analyze_transcript() -> None:
     assert coding_exons.basepairs == "990/1569"
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail(strict=True)
 def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
     """Test analyzing a transcript using the r. coordinate system
 
