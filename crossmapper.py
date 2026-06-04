@@ -4,6 +4,7 @@ from mutalyzer.description_model import get_reference_id
 from mutalyzer.description import Description
 from mutalyzer_crossmapper import Coding
 import json
+import sys
 import pytest
 from gtgt.mutalyzer import changed_protein_positions
 
@@ -31,10 +32,11 @@ WT1_variants = [
 ]
 
 WT1_descriptions = list()
-for variant in WT1_variants:
-    for transcript in WT1:
-        hgvs = f"{transcript}:c.{variant}"
-        WT1_descriptions.append(hgvs)
+for coordinate in "cr":
+    for variant in WT1_variants:
+        for transcript in WT1:
+            hgvs = f"{transcript}:{coordinate}.{variant}"
+            WT1_descriptions.append(hgvs)
 
 #################### SET UP SDHD VARIANTS ####################
 SDHD =  [ "ENST00000375549.8", "NC_000011.10(NM_003002.4)", "NM_003002.4"]
@@ -53,10 +55,11 @@ SDHD_variants = [
     "[31_33del;451_453del]",
 ]
 SDHD_descriptions = list()
-for variant in SDHD_variants:
-    for transcript in SDHD:
-        hgvs = f"{transcript}:c.{variant}"
-        SDHD_descriptions.append(hgvs)
+for coordinate in "cr":
+    for variant in SDHD_variants:
+        for transcript in SDHD:
+            hgvs = f"{transcript}:{coordinate}.{variant}"
+            SDHD_descriptions.append(hgvs)
 
 descriptions = WT1_descriptions + SDHD_descriptions
 
@@ -118,7 +121,7 @@ def transcript_crossmapper(hgvs: str) -> Coding:
     """Create a genomic crossmapper for the hgvs description"""
     # First, we re-write the hgvs to c. to ensure we have the introns
     h  = hgvs.replace(":r.", ":c.")
-    d = init_description(h)
+    d = init_description(hgvs)
 
     # Get the exons on the genome
     exons = d.get_selector_model()["exon"]
@@ -160,8 +163,6 @@ def variants_from_protein(hgvs: str):
         end = transcript_crossmap.protein_to_coordinate((protein_end, 3, 0, 0, 0)) + 1
 
         print(f"Protein coordinate: ({start}, {end})")
-
-        print(f"Coding position: ({start}, {end})")
         # Next, we map the coordinate to the noncoding, which is what mutalyzer
         # uses as offset
 
@@ -198,20 +199,28 @@ def variants_from_hgvs(hgvs):
     ]
     return sorted(mutalyzer_variants)
 
+def wrapper(hgvs):
+    print(hgvs)
+    mutalyzer_variants = variants_from_hgvs(hgvs)
+    print(mutalyzer_variants)
+
+    # Determine the Variants by going via the genomic crossmapper and
+    # the differences in the protein description to reconsitute the
+    # variants ourself, and then map them back to the coordinates that
+    # mutalyzer uses
+    gtgt_variants = variants_from_protein(hgvs)
+    print(gtgt_variants)
+    print()
+
+    if mutalyzer_variants != gtgt_variants:
+        print("*"*20, "ERROR", "*"*20)
+        exit(1)
 if __name__ == "__main__":
+    if len(sys.argv) == 2:
+        hgvs = sys.argv[1]
+        wrapper(hgvs)
+        exit()
+
     for hgvs in descriptions:
-        print(hgvs)
-        mutalyzer_variants = variants_from_hgvs(hgvs)
-        print(mutalyzer_variants)
+        wrapper(hgvs)
 
-        # Determine the Variants by going via the genomic crossmapper and
-        # the differences in the protein description to reconsitute the
-        # variants ourself, and then map them back to the coordinates that
-        # mutalyzer uses
-        gtgt_variants = variants_from_protein(hgvs)
-        print(gtgt_variants)
-        print()
-
-        if mutalyzer_variants != gtgt_variants:
-            print("*"*20, "ERROR", "*"*20)
-            exit(1)
