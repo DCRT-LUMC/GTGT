@@ -25,6 +25,8 @@ WT1_variants = [
     "700_720del",
     # Deletion in the last exon (not normalized)
     "1252_1260del",
+    # Multiple variants
+    "[7_9del;658_663del]",
 
 ]
 
@@ -46,7 +48,9 @@ SDHD_variants = [
     # Deletion in exon 2
     "100_132del",
     # Deletion in the last exon
-    "451_453del"
+    "451_453del",
+    # Multiple variants
+    "[31_33del;451_453del]",
 ]
 SDHD_descriptions = list()
 for variant in SDHD_variants:
@@ -175,8 +179,7 @@ def variants_from_protein(hgvs: str):
             start, end = end - 1, start + 1
 
         gtgt_variants.append(Variant(start, end))
-    return gtgt_variants
-    print(crossmap)
+    return sorted(gtgt_variants)
     
 
 # Special variants which are deletions which are exactly aligned with amino acids
@@ -193,7 +196,7 @@ def variants_from_hgvs(hgvs):
     mutalyzer_variants = [Variant.from_model(delins, sequence=sequence)
     for delins in d.delins_model["variants"]
     ]
-    return mutalyzer_variants
+    return sorted(mutalyzer_variants)
 
 if __name__ == "__main__":
     for hgvs in descriptions:
