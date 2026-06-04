@@ -11,19 +11,50 @@ def pprint(thing):
     print(json.dumps(thing, indent=True))
 
 
-#"WT1": [ "ENST00000452863.10",# "NC_000011.10(NM_024426.6)", "NM_024426.6"]
-#"SDHD": [ "ENST00000375549.8", "NC_000011.10(NM_003002.4)", "NM_003002.4"]
-descriptions = [
-    # WT1 exon 1 on ENST
-    "ENST00000452863.10:c.4_6del",
-    "ENST00000452863.10:c.7_9del",
-    # WT1 exon 1 on NM
-    "NM_024426.6:c.4_6del",
-    "NM_024426.6:c.7_9del",
-    # WT1 exon 1 on NC(NM)
-    "NC_000011.10(NM_024426.6):c.4_6del",
-    "NC_000011.10(NM_024426.6):c.7_9del",
+#################### SET UP WT1 VARIANTS ####################
+WT1 = [ "ENST00000452863.10", "NC_000011.10(NM_024426.6)", "NM_024426.6"]
+
+# NOTE: These variants are special, they are all deletions of one or more full amino acids
+WT1_variants = [
+    # Deletion in exon 1
+    "4_6del",
+    "7_9del",
+    # Deletion crosses exon 1 and exon2 boundary
+    "658_663del",
+    # Deletion in exon 2 (not normalized, which whould shift the variant 1bp downstream)
+    "700_720del",
+    # Deletion in the last exon (not normalized)
+    "1252_1260del",
+
 ]
+
+WT1_descriptions = list()
+for variant in WT1_variants:
+    for transcript in WT1:
+        hgvs = f"{transcript}:c.{variant}"
+        WT1_descriptions.append(hgvs)
+
+#################### SET UP SDHD VARIANTS ####################
+SDHD =  [ "ENST00000375549.8", "NC_000011.10(NM_003002.4)", "NM_003002.4"]
+
+# NOTE: These variants are special, they are all deletions of one or more full amino acids
+SDHD_variants = [
+    # Deletion in exon 1
+    "31_33del",
+    # Deletion across exon 1 and 2
+    "49_57del",
+    # Deletion in exon 2
+    "100_132del",
+    # Deletion in the last exon
+    "451_453del"
+]
+SDHD_descriptions = list()
+for variant in SDHD_variants:
+    for transcript in SDHD:
+        hgvs = f"{transcript}:c.{variant}"
+        SDHD_descriptions.append(hgvs)
+
+descriptions = WT1_descriptions + SDHD_descriptions
 
 class TestCrossmapper:
     """Test using the crossmapper to translate protein changes to the transcript coordinate system"""
@@ -177,3 +208,7 @@ if __name__ == "__main__":
         gtgt_variants = variants_from_protein(hgvs)
         print(gtgt_variants)
         print()
+
+        if mutalyzer_variants != gtgt_variants:
+            print("*"*20, "ERROR", "*"*20)
+            exit(1)
