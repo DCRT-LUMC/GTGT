@@ -32,9 +32,9 @@ WT1_variants = [
 ]
 
 WT1_descriptions = list()
-for coordinate in "cr":
-    for variant in WT1_variants:
-        for transcript in WT1:
+for variant in WT1_variants:
+    for transcript in WT1:
+        for coordinate in "cr":
             hgvs = f"{transcript}:{coordinate}.{variant}"
             WT1_descriptions.append(hgvs)
 
@@ -55,9 +55,9 @@ SDHD_variants = [
     "[31_33del;451_453del]",
 ]
 SDHD_descriptions = list()
-for coordinate in "cr":
-    for variant in SDHD_variants:
-        for transcript in SDHD:
+for variant in SDHD_variants:
+    for transcript in SDHD:
+        for coordinate in "cr":
             hgvs = f"{transcript}:{coordinate}.{variant}"
             SDHD_descriptions.append(hgvs)
 
@@ -114,7 +114,7 @@ def genomic_crossmapper(hgvs: str) -> Coding:
     cds = cds_start, cds_end
 
     inverted= d.is_inverted()
-    print(f"Coding({exons=},{cds=},{inverted=})")
+    # print(f"Coding({exons=},{cds=},{inverted=})")
     return Coding(exons, cds, inverted)
 
 def transcript_crossmapper(hgvs: str) -> Coding:
@@ -136,7 +136,7 @@ def transcript_crossmapper(hgvs: str) -> Coding:
     cds = cds_start, cds_end
 
     inverted= d.is_inverted()
-    print(f"Coding({exons=},{cds=},{inverted=})")
+    # print(f"Coding({exons=},{cds=},{inverted=})")
     return Coding(exons, cds, inverted)
 
 def variants_from_protein(hgvs: str):
@@ -157,12 +157,12 @@ def variants_from_protein(hgvs: str):
     protein = protein_prediction(d, variants)
     reference, observed = protein[1], protein[2]
     for protein_start, protein_end in changed_protein_positions(reference, observed):
-        print(f"Protein change: ({protein_start}, {protein_end})")
+        # print(f"Protein change: ({protein_start}, {protein_end})")
         # First, we map the protein to the coordinate
         start = transcript_crossmap.protein_to_coordinate((protein_start+ 1, 1, 0, 0, 0))
         end = transcript_crossmap.protein_to_coordinate((protein_end, 3, 0, 0, 0)) + 1
 
-        print(f"Protein coordinate: ({start}, {end})")
+        # print(f"Protein coordinate: ({start}, {end})")
         # Next, we map the coordinate to the noncoding, which is what mutalyzer
         # uses as offset
 
@@ -199,22 +199,23 @@ def variants_from_hgvs(hgvs):
     ]
     return sorted(mutalyzer_variants)
 
-def wrapper(hgvs):
-    print(hgvs)
+def wrapper(hgvs: str) -> None:
     mutalyzer_variants = variants_from_hgvs(hgvs)
-    print(mutalyzer_variants)
 
     # Determine the Variants by going via the genomic crossmapper and
     # the differences in the protein description to reconsitute the
     # variants ourself, and then map them back to the coordinates that
     # mutalyzer uses
     gtgt_variants = variants_from_protein(hgvs)
+    print(hgvs)
     print(gtgt_variants)
     print()
 
     if mutalyzer_variants != gtgt_variants:
         print("*"*20, "ERROR", "*"*20)
         exit(1)
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         hgvs = sys.argv[1]
