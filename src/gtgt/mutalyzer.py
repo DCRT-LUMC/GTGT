@@ -430,6 +430,24 @@ def protein_to_genomic(
     return start, end
 
 
+def transcript_crossmapper(d: Description) -> Coding:
+    # Get the exons on the genome
+    exons = d.get_selector_model()["exon"]
+    # print(exons)
+    exons = [(start, end) for start, end in exons]
+    # print(exons)
+
+    # Get the cds on the genome
+    cds = d.get_selector_model()["cds"]
+    # print(f"{cds=}")
+    cds_start, cds_end = cds[0]
+    cds = cds_start, cds_end
+
+    inverted = d.is_inverted()
+    # print(f"Coding({exons=},{cds=},{inverted=})")
+    return Coding(exons, cds, inverted)
+
+
 def mutation_to_cds_effect(
     d: Description, variants: Sequence[Variant]
 ) -> list[tuple[int, int]]:
@@ -449,17 +467,25 @@ def mutation_to_cds_effect(
     protein = protein_prediction(d, variants)
     reference, observed = protein[1], protein[2]
 
-    # Keep track of changed positions on the genome
-    changed_genomic = list()
+    # Create a crossmapper for the transcript
+    crossmap = transcript_crossmapper(d)
+
+    # Keep track of changed positions on the internal coordinate system of the
+    # hgvs description
+    changed_internal = list()
 
     for start, end in changed_protein_positions(reference, observed):
         # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
 
-        start, end = protein_to_genomic(start, end, d.input_description)
+        start = crossmap.protein_to_coordinate((start + 1, 1, 0, 0, 0))
+        end = crossmap.protein_to_coordinate((end, 3, 0, 0, 0)) + 1
 
-        changed_genomic.append((start, end))
+        if end < start:
+            start, end = end - 1, start + 1
 
-    return changed_genomic
+        changed_internal.append((start, end))
+
+    return changed_internal
 
 
 def get_exons(

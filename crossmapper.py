@@ -1,3 +1,4 @@
+from typing import Any
 from gtgt.mutalyzer import init_description, sequence_from_description, protein_prediction
 from gtgt.variant import Variant
 from mutalyzer.description_model import get_reference_id
@@ -8,7 +9,7 @@ import sys
 import pytest
 from gtgt.mutalyzer import changed_protein_positions
 
-def pprint(thing):
+def pprint(thing: Any) -> None:
     print(json.dumps(thing, indent=True))
 
 
@@ -117,12 +118,14 @@ def genomic_crossmapper(hgvs: str) -> Coding:
     # print(f"Coding({exons=},{cds=},{inverted=})")
     return Coding(exons, cds, inverted)
 
-def transcript_crossmapper(hgvs: str) -> Coding:
+def transcript_cdot_crossmapper(hgvs: str) -> Coding:
     """Create a genomic crossmapper for the hgvs description"""
     # First, we re-write the hgvs to c. to ensure we have the introns
     h  = hgvs.replace(":r.", ":c.")
     d = init_description(hgvs)
+    return transcript_crossmapper(d)
 
+def transcript_crossmapper(d: Description) -> Coding:
     # Get the exons on the genome
     exons = d.get_selector_model()["exon"]
     # print(exons)
@@ -139,7 +142,7 @@ def transcript_crossmapper(hgvs: str) -> Coding:
     # print(f"Coding({exons=},{cds=},{inverted=})")
     return Coding(exons, cds, inverted)
 
-def variants_from_protein(hgvs: str):
+def variants_from_protein(hgvs: str) -> list[Variant]:
     """
     Re-create the variants from the protein description
     """
@@ -189,7 +192,7 @@ def variants_from_protein(hgvs: str):
 # WT1_variants = "10_12del 658_663del".split()
 
 
-def variants_from_hgvs(hgvs):
+def variants_from_hgvs(hgvs: str) -> list[Variant]:
     d = init_description(hgvs)
 
     # Determine the Variants from the mutalyzer description

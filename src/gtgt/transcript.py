@@ -74,15 +74,14 @@ class Transcript:
         """Create a Transcript object from a mutalyzer Description"""
         # Check if we can use this Description to initialize a Transcript
         offset = get_offset(d)
+        print(f"From description: {offset=}")
 
         # Get exons and add the offset
         selector_model = d.get_selector_model()
         exons = selector_model["exon"]
-        exons = [(start + offset, end + offset) for start, end in exons]
 
         # Get CDS and add the offset
         cds = selector_model["cds"][0]
-        cds = (cds[0] + offset, cds[1] + offset)
 
         # Get the strand and chromosome name
         chrom = get_chrom_name(d)
@@ -168,9 +167,7 @@ class Transcript:
             record.subtract(protein_changes)
 
         # Update RNA features
-        rna_changes = Bed.from_blocks(
-            chrom, [v.genomic_coordinates(d) for v in variants]
-        )
+        rna_changes = Bed.from_blocks(chrom, [(v.start, v.end) for v in variants])
         for record in self.rna_records():
             self.subtract(rna_changes)
 
