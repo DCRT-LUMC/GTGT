@@ -13,6 +13,8 @@ try:
 except ImportError:
     from gtgt.mutalyzer import Variant
 
+from gtgt.mutalyzer import changed_protein_positions, transcript_crossmapper, genomic_crossmapper
+
 def pprint(thing: Any) -> None:
     print(json.dumps(thing, indent=True))
 
