@@ -412,6 +412,9 @@ def genomic_crossmapper(hgvs: str) -> Coding:
     cds_start += offset
     cds_end += offset
     cds = cds_start, cds_end
+    print(f"Genomic crossmapper: {exons=}, {cds=}")
+    start=exons[0][0]
+    print(*((s-start, e-start) for s,e in exons))
     return Coding(exons, cds, inverted=d.is_inverted())
 
 
