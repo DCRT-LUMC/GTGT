@@ -186,8 +186,14 @@ def lookup_track(
 
     # For protein tracks, we have to lookup the uniprot_id
     if track in PROTEIN_TRACKS:
-        # First, we look up the ENSG using VariantValidator
-        variant = str(d)
+        # First, we look up the ENSG using VariantValidator using a fake
+        # variant on the c.
+        # This is a workaround for the fact that VariantValidator does not
+        # support variants on the r.
+        transcript = d.input_description.split(":")[0]
+        variant = f"{transcript}:c.1del"
+        logger.warn(f"Querying VariantValidator with {variant}")
+
         vv = variantvalidator.get(("hg38", variant))
         ensg = parse_payload(vv, variant, "hg38")["ensembl_gene_id"]
         assert ensg is not None
