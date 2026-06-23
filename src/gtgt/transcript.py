@@ -8,6 +8,8 @@ from mutalyzer.description import Description
 from .bed import Bed
 from .exonviz import draw
 from .mutalyzer import (
+    genomic_crossmapper,
+    transcript_crossmapper,
     get_chrom_name,
     get_exons,
     get_offset,
@@ -269,8 +271,21 @@ class Transcript:
 
     def lookup_protein_domains(self, d: Description) -> None:
         """Lookup supported protein domains from USCS"""
+        g_crossmapper = genomic_crossmapper(d.input_description)
+        t_crossmapper = transcript_crossmapper(d)
+        
+        map = lambda x: t_crossmapper.coding_to_coordinate(g_crossmapper.coordinate_to_coding(x))
         for track in PROTEIN_TRACKS:
-            self.protein_features += lookup_track(d, track)
+            bed_records = lookup_track(d, track)
+            for bed in bed_records:
+                blocks = bed.blocks()
+                t_blocks = [(map(start), map(end)) for start, end in blocks]
+                # print("*"*20, bed.name, "*"*20)
+                # print(f"{bed.name}", blocks)
+                # print(f"{bed.name}T",t_blocks)
+                # print("*"*80)
+                bed.update(t_blocks)
+                self.protein_features.append(bed)
 
 
 def is_of_interest(
