@@ -1,13 +1,12 @@
 from typing import Any
 from gtgt.mutalyzer import init_description, sequence_from_description, protein_prediction
-from gtgt.variant import Variant
 from mutalyzer.description_model import get_reference_id
 from mutalyzer.description import Description
 from mutalyzer_crossmapper import Coding
 import json
 import sys
 import pytest
-from gtgt.mutalyzer import changed_protein_positions
+# from gtgt.mutalyzer import changed_protein_positions, transcript_crossmapper, genomic_crossmapper
 
 def pprint(thing: Any) -> None:
     print(json.dumps(thing, indent=True))
@@ -90,58 +89,7 @@ def get_offset(d: Description) -> int:
     )
     return offset
 
-def genomic_crossmapper(hgvs: str) -> Coding:
-    """Create a genomic crossmapper for the hgvs description"""
-    # First, we re-write the hgvs to c. to ensure we have the introns
-    h  = hgvs.replace(":r.", ":c.")
-    d = init_description(h)
-
-    # Get the offset of the exons
-    offset = get_offset(d)
-    # print(f"{offset}")
-
-    # Get the exons on the genome
-    exons = d.get_selector_model()["exon"]
-    # print(exons)
-    exons = [(start + offset, end+offset) for start,end in exons]
-    # print(exons)
-
-    # Get the cds on the genome
-    cds = d.get_selector_model()["cds"]
-    # print(f"{cds=}")
-    cds_start, cds_end = cds[0]
-    cds_start += offset
-    cds_end += offset
-    cds = cds_start, cds_end
-
-    inverted= d.is_inverted()
-    # print(f"Coding({exons=},{cds=},{inverted=})")
-    return Coding(exons, cds, inverted)
-
-def transcript_cdot_crossmapper(hgvs: str) -> Coding:
-    """Create a genomic crossmapper for the hgvs description"""
-    # First, we re-write the hgvs to c. to ensure we have the introns
-    h  = hgvs.replace(":r.", ":c.")
-    d = init_description(hgvs)
-    return transcript_crossmapper(d)
-
-def transcript_crossmapper(d: Description) -> Coding:
-    # Get the exons on the genome
-    exons = d.get_selector_model()["exon"]
-    # print(exons)
-    exons = [(start, end) for start,end in exons]
-    # print(exons)
-
-    # Get the cds on the genome
-    cds = d.get_selector_model()["cds"]
-    # print(f"{cds=}")
-    cds_start, cds_end = cds[0]
-    cds = cds_start, cds_end
-
-    inverted= d.is_inverted()
-    # print(f"Coding({exons=},{cds=},{inverted=})")
-    return Coding(exons, cds, inverted)
-
+from gtgt.variant import Variant
 def variants_from_protein(hgvs: str) -> list[Variant]:
     """
     Re-create the variants from the protein description
@@ -150,7 +98,7 @@ def variants_from_protein(hgvs: str) -> list[Variant]:
     gtgt_variants = list()
     # crossmap = genomic_crossmapper(d.input_description)
 
-    transcript_crossmap = transcript_crossmapper(d.input_description)
+    transcript_crossmap = transcript_crossmapper(d)
 
     # Get the changed amino acids
     sequence = sequence_from_description(d)
@@ -226,5 +174,7 @@ if __name__ == "__main__":
         exit()
 
     for hgvs in descriptions:
+        print(hgvs)
+        continue
         wrapper(hgvs)
 
