@@ -10,7 +10,6 @@ import logging
 import secrets
 from typing import Any
 
-from gtgt.flask import render as flask_render
 from gtgt.transcript import Result, Transcript
 
 from .mutalyzer import (
@@ -189,6 +188,13 @@ def export(args: argparse.Namespace) -> None:
 
 
 def render(args: argparse.Namespace) -> None:
+    try:
+        from gtgt.flask import render as flask_render
+    except ModuleNotFoundError:
+        logger.critical(
+            f"Missing modules, please install with 'pip install gtgt[webserver]'"
+        )
+        exit(-1)
     if args.results:
         with open(args.results) as fin:
             file_payload = [Result.from_dict(x) for x in json.load(fin)]
