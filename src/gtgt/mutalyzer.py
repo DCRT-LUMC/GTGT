@@ -451,6 +451,57 @@ def transcript_crossmapper(d: Description) -> Coding:
     return Coding(exons, cds, inverted)
 
 
+def range_in_coding(start: tuple[int,int,int,int], end: tuple[int, int, int, int]) -> bool:
+    """
+    Determine if the specified (start, end) range falls within the coding region
+
+    start, end are tuples from the mutalyzer Coding crossmapper
+    """
+    # First, we check the start position
+    position, offset, region, upstream = start
+
+    # The coding region starts at position 1
+    if position < 1:
+        return False
+
+    if offset or region or upstream:
+        return False
+
+    # Next, we check the end position
+    position, offset, region, upstream = end
+    # offset can be 1, since the range is non-inclusive
+    if offset > 1 or region or upstream:
+        return False
+
+    return True
+
+def genomic_to_transcript(start:int, end:int, genomic_crossmapper: Coding, transcript_crossmapper: Coding) -> tuple[int, int]:
+    """Convert between genomic and transcript coordinate_system
+
+    Performs additional checks to ensure that the position is in the coding region
+    """
+
+    coding_start = genomic_crossmapper.coordinate_to_coding(start)
+    coding_end = genomic_crossmapper.coordinate_to_coding(end)
+
+    print(f"Genomic: ({start=}, {end=})", end="\t")
+
+    print(f"({coding_start=}, {coding_end=})", end=" ")
+
+    if not range_in_coding(coding_start, coding_end):
+        msg=(f"Genomic range g.({start=}, {end=}) c.({coding_start=}, "
+            f"{coding_end=}) is not fully inside the Coding region"
+        )
+        raise ValueError(msg)
+
+    # Position on the internal coordinate system
+    i_start =transcript_crossmapper.coding_to_coordinate(coding_start)
+    i_end = transcript_crossmapper.coding_to_coordinate(coding_end)
+
+    print(f"(){i_start=}, {i_end=})")
+    return i_start, i_end
+
+
 def mutation_to_cds_effect(
     d: Description, variants: Sequence[Variant]
 ) -> list[tuple[int, int]]:

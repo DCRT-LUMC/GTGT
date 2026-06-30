@@ -6,7 +6,7 @@ from typing import Any, Mapping, Sequence
 from mutalyzer.description import Description
 from mutalyzer_crossmapper import Coding
 
-from .mutalyzer import genomic_crossmapper, transcript_crossmapper
+from .mutalyzer import genomic_crossmapper, genomic_to_transcript, transcript_crossmapper
 
 from .bed import Bed
 from .exonviz import draw
@@ -269,39 +269,6 @@ class Transcript:
         else:
             return None
 
-    @staticmethod
-    def genomic_to_transcript(start:int, end:int, genomic_crossmapper: Coding, transcript_crossmapper: Coding) -> tuple[int, int]:
-        """Convert between genomic and transcript coordinate_system
-
-        Performs additional checks to ensure that the position is in the coding region
-        """
-        def check_coding(coding: tuple[int,int,int,int]) -> None:
-            # Check that the position is in the coding region
-            position, offset, region, upstream = coding_start
-
-            return
-            # Not in intron
-            if offset > 1:
-                assert not offset, f"{position=}, {coding}"
-            assert not region, f"{position=}, {coding}"
-            assert not upstream, f"{position=}, {coding}"
-
-        coding_start = genomic_crossmapper.coordinate_to_coding(start)
-        coding_end = genomic_crossmapper.coordinate_to_coding(end)
-
-        print(f"Genomic: ({start=}, {end=})", end="\t")
-
-        print(f"({coding_start=}, {coding_end=})", end=" ")
-
-        check_coding(coding_start)
-        check_coding(coding_end)
-
-        # Position on the internal coordinate system
-        i_start =transcript_crossmapper.coding_to_coordinate(coding_start) 
-        i_end = transcript_crossmapper.coding_to_coordinate(coding_end)
-
-        print(f"(){i_start=}, {i_end=})")
-        return i_start, i_end
 
     def lookup_protein_domains(self, d: Description) -> None:
         """Lookup supported protein domains from USCS"""
@@ -332,9 +299,12 @@ class Transcript:
                 to_transcript = lambda x: t_crossmap.coding_to_coordinate(g_crossmap.coordinate_to_coding(x))
 
                 for start, end in blocks:
-                    start, end = self.genomic_to_transcript(start, end, g_crossmap, t_crossmap)
+                    try:
+                        start, end = genomic_to_transcript(start, end, g_crossmap, t_crossmap)
+                    except ValueError as e:
+                        logger.warning(str(e))
+                        continue
 
-                    assert end > start, record
                     t_blocks.append((start, end))
                 # # Print the blocks
                 print("*"*10, record.name, "*"*10)
