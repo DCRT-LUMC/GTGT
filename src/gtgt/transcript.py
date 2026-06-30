@@ -4,6 +4,7 @@ from copy import deepcopy
 from typing import Any, Mapping, Sequence
 
 from mutalyzer.description import Description
+from mutalyzer_crossmapper import Coding
 
 from .mutalyzer import genomic_crossmapper, transcript_crossmapper
 
@@ -269,12 +270,12 @@ class Transcript:
             return None
 
     @staticmethod
-    def genomic_to_transcript(start, end, genomic_crossmapper, transcript_crossmapper) -> int:
+    def genomic_to_transcript(start:int, end:int, genomic_crossmapper: Coding, transcript_crossmapper: Coding) -> tuple[int, int]:
         """Convert between genomic and transcript coordinate_system
 
         Performs additional checks to ensure that the position is in the coding region
         """
-        def check_coding(coding):
+        def check_coding(coding: tuple[int,int,int,int]) -> None:
             # Check that the position is in the coding region
             position, offset, region, upstream = coding_start
 
