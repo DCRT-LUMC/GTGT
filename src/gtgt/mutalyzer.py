@@ -413,8 +413,8 @@ def genomic_crossmapper(hgvs: str) -> Coding:
     cds_end += offset
     cds = cds_start, cds_end
     print(f"Genomic crossmapper: {exons=}, {cds=}")
-    start=exons[0][0]
-    print(*((s-start, e-start) for s,e in exons))
+    start = exons[0][0]
+    print(*((s - start, e - start) for s, e in exons))
     return Coding(exons, cds, inverted=d.is_inverted())
 
 
@@ -451,7 +451,9 @@ def transcript_crossmapper(d: Description) -> Coding:
     return Coding(exons, cds, inverted)
 
 
-def range_in_coding(start: tuple[int,int,int,int], end: tuple[int, int, int, int]) -> bool:
+def range_in_coding(
+    start: tuple[int, int, int, int], end: tuple[int, int, int, int]
+) -> bool:
     """
     Determine if the specified (start, end) range falls within the coding region
 
@@ -475,7 +477,10 @@ def range_in_coding(start: tuple[int,int,int,int], end: tuple[int, int, int, int
 
     return True
 
-def genomic_to_transcript(start:int, end:int, genomic_crossmapper: Coding, transcript_crossmapper: Coding) -> tuple[int, int]:
+
+def genomic_to_transcript(
+    start: int, end: int, genomic_crossmapper: Coding, transcript_crossmapper: Coding
+) -> tuple[int, int]:
     """Convert between genomic and transcript coordinate_system
 
     Performs additional checks to ensure that the position is in the coding region
@@ -489,13 +494,14 @@ def genomic_to_transcript(start:int, end:int, genomic_crossmapper: Coding, trans
     print(f"({coding_start=}, {coding_end=})", end=" ")
 
     if not range_in_coding(coding_start, coding_end):
-        msg=(f"Genomic range g.({start=}, {end=}) c.({coding_start=}, "
+        msg = (
+            f"Genomic range g.({start=}, {end=}) c.({coding_start=}, "
             f"{coding_end=}) is not fully inside the Coding region"
         )
         raise ValueError(msg)
 
     # Position on the internal coordinate system
-    i_start =transcript_crossmapper.coding_to_coordinate(coding_start)
+    i_start = transcript_crossmapper.coding_to_coordinate(coding_start)
     i_end = transcript_crossmapper.coding_to_coordinate(coding_end)
 
     print(f"(){i_start=}, {i_end=})")

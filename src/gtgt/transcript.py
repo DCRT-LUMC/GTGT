@@ -6,11 +6,11 @@ from typing import Any, Mapping, Sequence
 from mutalyzer.description import Description
 from mutalyzer_crossmapper import Coding
 
-from .mutalyzer import genomic_crossmapper, genomic_to_transcript, transcript_crossmapper
-
 from .bed import Bed
 from .exonviz import draw
 from .mutalyzer import (
+    genomic_crossmapper,
+    genomic_to_transcript,
     get_chrom_name,
     get_exons,
     get_offset,
@@ -19,6 +19,7 @@ from .mutalyzer import (
     mutation_to_cds_effect,
     protein_prediction,
     sequence_from_description,
+    transcript_crossmapper,
 )
 from .therapy import Therapy, generate_therapies
 from .ucsc import PROTEIN_TRACKS, lookup_track
@@ -269,7 +270,6 @@ class Transcript:
         else:
             return None
 
-
     def lookup_protein_domains(self, d: Description) -> None:
         """Lookup supported protein domains from USCS"""
         g_crossmap = genomic_crossmapper(d.input_description)
@@ -281,33 +281,37 @@ class Transcript:
                 logger.error(e)
                 continue
 
-            print("||"*20, track, "||"*20)
+            print("||" * 20, track, "||" * 20)
 
             # Convert each feature to the internal transcript coordinate system
             for record in features:
                 print(record)
-                print("*"*10, record.name, "*"*10)
+                print("*" * 10, record.name, "*" * 10)
                 blocks = record.blocks()
                 print(blocks)
                 t_blocks = list()
-                offset=112086872
+                offset = 112086872
                 # # Print the blocks
                 for start, end in blocks:
                     print(f"({start-offset:,}-{end-offset:,})", end=" ")
                 print()
 
-                to_transcript = lambda x: t_crossmap.coding_to_coordinate(g_crossmap.coordinate_to_coding(x))
+                to_transcript = lambda x: t_crossmap.coding_to_coordinate(
+                    g_crossmap.coordinate_to_coding(x)
+                )
 
                 for start, end in blocks:
                     try:
-                        start, end = genomic_to_transcript(start, end, g_crossmap, t_crossmap)
+                        start, end = genomic_to_transcript(
+                            start, end, g_crossmap, t_crossmap
+                        )
                     except ValueError as e:
                         logger.warning(str(e))
                         continue
 
                     t_blocks.append((start, end))
                 # # Print the blocks
-                print("*"*10, record.name, "*"*10)
+                print("*" * 10, record.name, "*" * 10)
                 for start, end in blocks:
                     print(f"({start:,}-{end:,})", end=" ")
                 print()
