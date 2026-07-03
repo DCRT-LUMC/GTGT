@@ -12,7 +12,6 @@ from .mutalyzer import (
     genomic_crossmapper,
     genomic_to_transcript,
     get_chrom_name,
-    get_exons,
     get_offset,
     get_strand,
     init_description,
@@ -281,24 +280,10 @@ class Transcript:
                 logger.error(e)
                 continue
 
-            # print("||" * 20, track, "||" * 20)
-
             # Convert each feature to the internal transcript coordinate system
             for record in features:
-                # print(record)
-                # print("*" * 10, record.name, "*" * 10)
                 blocks = record.blocks()
-                # print(blocks)
                 t_blocks = list()
-                offset = 112086872
-                # # Print the blocks
-                # for start, end in blocks:
-                #     print(f"({start-offset:,}-{end-offset:,})", end=" ")
-                # print()
-
-                to_transcript = lambda x: t_crossmap.coding_to_coordinate(
-                    g_crossmap.coordinate_to_coding(x)
-                )
 
                 for start, end in blocks:
                     try:
@@ -310,20 +295,7 @@ class Transcript:
                         continue
 
                     t_blocks.append((start, end))
-                # # Print the blocks
-                # print("*" * 10, record.name, "*" * 10)
-                # for start, end in blocks:
-                #     print(f"({start:,}-{end:,})", end=" ")
-                # print()
 
-                # for start, end in t_blocks:
-                #     print(f"({start:,}-{end:,})", end=" ")
-                # print()
-                # print()
-                # print(f"{blocks=}")
-                # print([(start-offset, end-offset) for start,end in blocks])
-                # print([(g_crossmap.coordinate_to_coding(start), g_crossmap.coordinate_to_coding(end)) for start,end in blocks])
-                # print(f"{t_blocks=}")
                 record.update(t_blocks)
                 self.protein_features.append(record)
 

@@ -184,7 +184,6 @@ def export(args: argparse.Namespace) -> None:
 
     for record in transcript.records():
         print(record)
-        # print(record.blocks())
 
 
 def render(args: argparse.Namespace) -> None:
