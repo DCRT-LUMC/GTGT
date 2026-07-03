@@ -178,11 +178,11 @@ class Transcript:
         """Analyze the transcript based on the specified HGVS description"""
 
         # r. notations are not supported
-        coordinate_system = hgvs.split(":")[1][0:1]
-        if coordinate_system != "c":
-            raise NotImplementedError(
-                f"Coordinate system '{coordinate_system}' is not supported"
-            )
+        # coordinate_system = hgvs.split(":")[1][0:1]
+        # if coordinate_system != "c":
+        #     raise NotImplementedError(
+        #         f"Coordinate system '{coordinate_system}' is not supported"
+        #     )
         # Initialize the input HGVS description
         d = init_description(hgvs)
 
@@ -281,20 +281,20 @@ class Transcript:
                 logger.error(e)
                 continue
 
-            print("||" * 20, track, "||" * 20)
+            # print("||" * 20, track, "||" * 20)
 
             # Convert each feature to the internal transcript coordinate system
             for record in features:
-                print(record)
-                print("*" * 10, record.name, "*" * 10)
+                # print(record)
+                # print("*" * 10, record.name, "*" * 10)
                 blocks = record.blocks()
-                print(blocks)
+                # print(blocks)
                 t_blocks = list()
                 offset = 112086872
                 # # Print the blocks
-                for start, end in blocks:
-                    print(f"({start-offset:,}-{end-offset:,})", end=" ")
-                print()
+                # for start, end in blocks:
+                #     print(f"({start-offset:,}-{end-offset:,})", end=" ")
+                # print()
 
                 to_transcript = lambda x: t_crossmap.coding_to_coordinate(
                     g_crossmap.coordinate_to_coding(x)
@@ -311,14 +311,14 @@ class Transcript:
 
                     t_blocks.append((start, end))
                 # # Print the blocks
-                print("*" * 10, record.name, "*" * 10)
-                for start, end in blocks:
-                    print(f"({start:,}-{end:,})", end=" ")
-                print()
+                # print("*" * 10, record.name, "*" * 10)
+                # for start, end in blocks:
+                #     print(f"({start:,}-{end:,})", end=" ")
+                # print()
 
-                for start, end in t_blocks:
-                    print(f"({start:,}-{end:,})", end=" ")
-                print()
+                # for start, end in t_blocks:
+                #     print(f"({start:,}-{end:,})", end=" ")
+                # print()
                 # print()
                 # print(f"{blocks=}")
                 # print([(start-offset, end-offset) for start,end in blocks])

@@ -412,9 +412,9 @@ def genomic_crossmapper(hgvs: str) -> Coding:
     cds_start += offset
     cds_end += offset
     cds = cds_start, cds_end
-    print(f"Genomic crossmapper: {exons=}, {cds=}")
+    # print(f"Genomic crossmapper: {exons=}, {cds=}")
     start = exons[0][0]
-    print(*((s - start, e - start) for s, e in exons))
+    # print(*((s - start, e - start) for s, e in exons))
     return Coding(exons, cds, inverted=d.is_inverted())
 
 
@@ -489,9 +489,9 @@ def genomic_to_transcript(
     coding_start = genomic_crossmapper.coordinate_to_coding(start)
     coding_end = genomic_crossmapper.coordinate_to_coding(end)
 
-    print(f"Genomic: ({start=}, {end=})", end="\t")
+    # print(f"Genomic: ({start=}, {end=})", end="\t")
 
-    print(f"({coding_start=}, {coding_end=})", end=" ")
+    # print(f"({coding_start=}, {coding_end=})", end=" ")
 
     if not range_in_coding(coding_start, coding_end):
         msg = (
@@ -504,7 +504,7 @@ def genomic_to_transcript(
     i_start = transcript_crossmapper.coding_to_coordinate(coding_start)
     i_end = transcript_crossmapper.coding_to_coordinate(coding_end)
 
-    print(f"(){i_start=}, {i_end=})")
+    # print(f"(){i_start=}, {i_end=})")
     return i_start, i_end
 
 
