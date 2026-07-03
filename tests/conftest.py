@@ -1,6 +1,7 @@
 import os
+import argparse
 from pathlib import Path
-from typing import Any
+from typing import Any, AnyStr
 
 # Remove the mutalyzer environment variable to ensure we use the test data,
 # rather than the mutalyzer cache from the settings
@@ -48,3 +49,20 @@ def _get_content(relative_location: str) -> str:
 def mock_env(monkeypatch: Any) -> None:
     monkeypatch.setattr("mutalyzer_retriever.retriever.retrieve_raw", _retrieve_raw)
     monkeypatch.setattr("mutalyzer.description.get_cds_to_mrna", _get_cds_to_mrna)
+
+
+def pytest_addoption(parser: Any) -> None:
+    parser.addoption(
+        "--slow", action="store_true", default=False, help="Run slow tests"
+    )
+
+def pytest_configure(config: Any) -> None:
+    config.addinivalue_line("markers", "slow: mark test as slow")
+
+def pytest_collection_modifyitems(config: Any, items: Any) -> None:
+    if config.getoption("--slow"):
+        return
+    skip_slow = pytest.mark.skip(reason="needs --slow option to run")
+    for item in items:
+        if "slow" in item.keywords:
+            item.add_marker(skip_slow)
