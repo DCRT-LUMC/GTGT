@@ -21,20 +21,24 @@ mkdir -p ${name}
 # for transcript in $(python3 crossmapper.py | grep ":c." | grep -v "^NM"); do
 # for transcript in $(python3 crossmapper.py | grep ":r." | grep -v "^NM"); do
 # for transcript in $(python3 crossmapper.py | grep -v "^NM"); do
-for transcript in $(python3 crossmapper.py); do
-  fname=${name}/${transcript}.txt
+for transcript in $(python3 crossmapper.py | grep ENST.*:c.); do
+  fname=${name}/${transcript}.json
+  logname=${name}/${transcript}.log
+  export=${name}/${transcript}.bed
 
   if [ -f ${fname} ];then
     echo "Skipping ${transcript}, ${fname} already exists"
-    continue
+    #continue
   fi
-  echo "Analyzing $transcript"
+  echo "$(date +%R:%S) Analyzing $transcript"
 
   if [[ ${transcript} == NM* ]]; then
     # No protein annotations for naked NM
-    gtgt analyze ${transcript} --extended > ${fname}
+    gtgt analyze ${transcript} --extended 2> ${logname} | jq sort > ${fname}
+    gtgt export ${transcript} --protein > ${export}
   else
-    gtgt analyze ${transcript} --protein --extended > ${fname}
+    gtgt analyze ${transcript} --protein --extended 2> ${logname} | jq sort > ${fname}
+    gtgt export ${transcript} --protein > ${export}
   fi
 done
 
