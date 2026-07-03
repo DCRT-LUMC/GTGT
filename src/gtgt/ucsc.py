@@ -70,9 +70,10 @@ def _lookup_track_payload(
     exons = d.get_selector_model()["exon"]
     start = exons[0][0]
     end = exons[-1][1]
-    genomic_start= g_crossmap.coding_to_coordinate(t_crossmap.coordinate_to_coding(start))
-    genomic_end= g_crossmap.coding_to_coordinate(t_crossmap.coordinate_to_coding(end))
-
+    genomic_start = g_crossmap.coding_to_coordinate(
+        t_crossmap.coordinate_to_coding(start)
+    )
+    genomic_end = g_crossmap.coding_to_coordinate(t_crossmap.coordinate_to_coding(end))
 
     # Next, determine the uniprot ID for the protein domain
     parameters = Parameters(
