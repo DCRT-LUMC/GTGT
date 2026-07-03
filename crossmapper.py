@@ -8,6 +8,11 @@ import sys
 import pytest
 # from gtgt.mutalyzer import changed_protein_positions, transcript_crossmapper, genomic_crossmapper
 
+try:
+    from gtgt.variant import Variant
+except ImportError:
+    from gtgt.mutalyzer import Variant
+
 def pprint(thing: Any) -> None:
     print(json.dumps(thing, indent=True))
 
@@ -89,7 +94,6 @@ def get_offset(d: Description) -> int:
     )
     return offset
 
-from gtgt.variant import Variant
 def variants_from_protein(hgvs: str) -> list[Variant]:
     """
     Re-create the variants from the protein description
