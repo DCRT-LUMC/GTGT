@@ -1,5 +1,5 @@
-import os
 import argparse
+import os
 from pathlib import Path
 from typing import Any, AnyStr
 
@@ -56,8 +56,10 @@ def pytest_addoption(parser: Any) -> None:
         "--slow", action="store_true", default=False, help="Run slow tests"
     )
 
+
 def pytest_configure(config: Any) -> None:
     config.addinivalue_line("markers", "slow: mark test as slow")
+
 
 def pytest_collection_modifyitems(config: Any, items: Any) -> None:
     if config.getoption("--slow"):
