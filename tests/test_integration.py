@@ -37,7 +37,9 @@ class TestDifferentTranscripts:
     (with different internal coordinate systems)
     """
 
-    common_args = ("coordinate", ["c", "r"])
+    coordinate = ("coordinate", ["c", "r"])
+
+    transcript = ("transcript", ["ENST00000375549.8", "NC_000011.10(NM_003002.4)", "NM_003002.4"])
 
     # NOTE: These variants are special, they are all deletions of one or more full amino acids
     SDHD_variants = [
@@ -54,7 +56,7 @@ class TestDifferentTranscripts:
     ]
 
     @pytest.mark.slow
-    @pytest.mark.parametrize(*common_args)
+    @pytest.mark.parametrize(*coordinate)
     @pytest.mark.parametrize("variant", SDHD_variants)
     def test_different_transcripts_SDHD(self, coordinate: str, variant: str) -> None:
         """Test that ENST, NC(NM) and NM variants are handled the same
@@ -87,3 +89,24 @@ class TestDifferentTranscripts:
         cmp_nm = compare_to_wildtype(hgvs_nm)
 
         assert cmp_enst == cmp_nm
+
+    @pytest.mark.parametrize(*transcript)
+    @pytest.mark.parametrize("variant", SDHD_variants)
+    def test_different_coordinates_SDHD(self, transcript: str, variant: str) -> None:
+        """Test that the c. and r. variants are handled the same, for ENST, NC(NM) and NM
+
+        Because the internal coordinate systems differ we cannot compare these
+        directly but we have to compare them via the comparison with the wildtype
+        version of the corresponding transcript
+
+        For each transcript, the r. and c. should give the same predicted
+        effect relative to the wildtype.
+        """
+
+        hgvs_c = f"{transcript}:c.{variant}"
+        hgvs_r = f"{transcript}:r.{variant}"
+
+        cmp_c = compare_to_wildtype(hgvs_c)
+        cmp_r = compare_to_wildtype(hgvs_r)
+
+        assert cmp_r == cmp_c
