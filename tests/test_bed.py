@@ -424,11 +424,11 @@ def test_bed_size() -> None:
 
 not_comparable = [
     # Different chromosomes
-    (Bed("chr1", 0, 0), Bed("chr2", 0, 0)),
+    (Bed("chr1", 0, 10), Bed("chr2", 0, 5)),
     # Different names
-    (Bed("chr1", 0, 0, name="a"), Bed("chr1", 0, 0, name="b")),
+    (Bed("chr1", 0, 10, name="a"), Bed("chr1", 0, 5, name="b")),
     # Different strands
-    (Bed("chr1", 0, 0, strand="+"), Bed("chr1", 0, 0)),
+    (Bed("chr1", 0, 10, strand="+"), Bed("chr1", 0, 5)),
     # The selector is zero
     (Bed("chr1", 0, 10), Bed("chr1", 0, 0)),
 ]
@@ -440,6 +440,11 @@ def test_non_comparable_bed(a: Bed, b: Bed) -> None:
     with pytest.raises(ValueError):
         a.compare(b)
 
+@pytest.mark.parametrize("a, b", not_comparable)
+def test_non_comparable_bed_basepair(a: Bed, b: Bed) -> None:
+    """Test that we raise an error"""
+    with pytest.raises(ValueError):
+        a.compare_basepair(b)
 
 compare = [
     # A, B, A/B
