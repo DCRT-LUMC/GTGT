@@ -440,11 +440,13 @@ def test_non_comparable_bed(a: Bed, b: Bed) -> None:
     with pytest.raises(ValueError):
         a.compare(b)
 
+
 @pytest.mark.parametrize("a, b", not_comparable)
 def test_non_comparable_bed_basepair(a: Bed, b: Bed) -> None:
     """Test that we raise an error"""
     with pytest.raises(ValueError):
         a.compare_basepair(b)
+
 
 compare = [
     # A, B, A/B
