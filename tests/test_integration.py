@@ -39,7 +39,7 @@ class TestDifferentTranscripts:
 
     coordinate = ("coordinate", ["c", "r"])
 
-    transcript = ("transcript", ["ENST00000375549.8", "NC_000011.10(NM_003002.4)", "NM_003002.4"])
+    SDHD_transcript = ("transcript", ["ENST00000375549.8", "NC_000011.10(NM_003002.4)", "NM_003002.4"])
 
     # NOTE: These variants are special, they are all deletions of one or more full amino acids
     SDHD_variants = [
@@ -54,7 +54,6 @@ class TestDifferentTranscripts:
         # Multiple variants
         "[31_33del;451_453del]",
     ]
-
     @pytest.mark.slow
     @pytest.mark.parametrize(*coordinate)
     @pytest.mark.parametrize("variant", SDHD_variants)
@@ -71,26 +70,28 @@ class TestDifferentTranscripts:
         SDHD = ["ENST00000375549.8", "NC_000011.10(NM_003002.4)", "NM_003002.4"]
 
         # First, we compare ENST to NC(NM)
-        enst, nm = SDHD[0], SDHD[-1]
+        enst, nc_nm = SDHD[:2]
         hgvs_enst = f"{enst}:{coordinate}.{variant}"
-        hgvs_nm = f"{nm}:{coordinate}.{variant}"
+        hgvs_nc_nm = f"{nc_nm}:{coordinate}.{variant}"
 
         cmp_enst = compare_to_wildtype(hgvs_enst)
-        cmp_nm = compare_to_wildtype(hgvs_nm)
+        cmp_nm = compare_to_wildtype(hgvs_nc_nm)
 
         assert cmp_enst == cmp_nm
 
         # Next, we compare ENST to the bare NM
-        enst, nm = SDHD[:2]
+        enst, nm = SDHD[0], SDHD[-1]
         hgvs_enst = f"{enst}:{coordinate}.{variant}"
         hgvs_nm = f"{nm}:{coordinate}.{variant}"
+
+        print(hgvs_nm)
 
         cmp_enst = compare_to_wildtype(hgvs_enst)
         cmp_nm = compare_to_wildtype(hgvs_nm)
 
         assert cmp_enst == cmp_nm
 
-    @pytest.mark.parametrize(*transcript)
+    @pytest.mark.parametrize(*SDHD_transcript)
     @pytest.mark.parametrize("variant", SDHD_variants)
     def test_different_coordinates_SDHD(self, transcript: str, variant: str) -> None:
         """Test that the c. and r. variants are handled the same, for ENST, NC(NM) and NM
