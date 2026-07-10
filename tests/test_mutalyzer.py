@@ -436,7 +436,8 @@ class TestCrossmapper:
             ((1, 1, 0, 0), (2, 0, 0, 0), False),
             ((1, 0, 1, 0), (2, 0, 0, 0), False),
             ((1, 0, 0, 1), (2, 0, 0, 0), False),
-            # The offset of the end can be 1 (but only 1), since it is not inclusive
+            # The offset of the end can be 1 (but only 1), since the range is
+            # not inclusive
             ((1, 0, 0, 0), (2, 1, 0, 0), True),
             ((1, 0, 0, 0), (2, 2, 0, 0), False),
             ((1, 0, 0, 0), (2, 0, 1, 0), False),

@@ -421,10 +421,14 @@ class TestVariantMutalyzerForward(object):
     MUTATIONS_VARIANT = [
         # HGVS, coordinates on the genome,
         # A simple missense that changes a single amino acids
-        (
-            "13T>A", # cdot notation of the variant, not used
-            [Variant(start=47, end=48, inserted="A", deleted="T")], # Variants
-            (47, 50) # Location of the protein change on the internal coordinate system
+        ( 
+            # cdot notation of the variant, not used
+            "13T>A",
+            # Variants
+            [Variant(start=47, end=48, inserted="A", deleted="T")],
+            # Location of the protein change on the internal
+            # coordinate system
+            (47, 50)
         ),
         # A stop mutation which destroys most of the protein
         (
