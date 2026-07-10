@@ -397,21 +397,18 @@ def genomic_crossmapper(hgvs: str) -> Coding:
 
     # Get the offset of the exons
     offset = get_offset(d)
-    # print(f"{offset}")
 
     # Get the exons on the genome
     exons = d.get_selector_model()["exon"]
-    # print(exons)
     exons = [(start + offset, end + offset) for start, end in exons]
-    # print(exons)
 
     # Get the cds on the genome
     cds = d.get_selector_model()["cds"]
-    # print(f"{cds=}")
     cds_start, cds_end = cds[0]
     cds_start += offset
     cds_end += offset
     cds = cds_start, cds_end
+
     return Coding(exons, cds, inverted=d.is_inverted())
 
 
@@ -428,6 +425,72 @@ def protein_to_genomic(
         start, end = end - 1, start + 1
 
     return start, end
+
+
+def transcript_crossmapper(d: Description) -> Coding:
+    # Get the exons on the genome
+    exons = d.get_selector_model()["exon"]
+    exons = [(start, end) for start, end in exons]
+
+    # Get the cds on the genome
+    cds = d.get_selector_model()["cds"]
+    cds_start, cds_end = cds[0]
+    cds = cds_start, cds_end
+
+    inverted = d.is_inverted()
+    return Coding(exons, cds, inverted)
+
+
+def range_in_coding(
+    start: tuple[int, int, int, int], end: tuple[int, int, int, int]
+) -> bool:
+    """
+    Determine if the specified (start, end) range falls within the coding region
+
+    start, end are tuples from the mutalyzer Coding crossmapper
+    """
+    # First, we check the start position
+    position, offset, region, upstream = start
+
+    # The coding region starts at position 1
+    if position < 1:
+        return False
+
+    if offset or region or upstream:
+        return False
+
+    # Next, we check the end position
+    position, offset, region, upstream = end
+    # offset can be 1, since the end of the range is non-inclusive
+    if offset > 1 or region or upstream:
+        return False
+
+    return True
+
+
+def genomic_to_transcript(
+    start: int, end: int, genomic_crossmapper: Coding, transcript_crossmapper: Coding
+) -> tuple[int, int]:
+    """Convert between genomic and transcript coordinate_system
+
+    Performs additional checks to ensure that the position is in the coding region
+    """
+
+    coding_start = genomic_crossmapper.coordinate_to_coding(start)
+    coding_end = genomic_crossmapper.coordinate_to_coding(end)
+
+    if not range_in_coding(coding_start, coding_end):
+        msg = (
+            f"Genomic range g.({start=}, {end=}) c.({coding_start=}, "
+            f"{coding_end=}) is not fully inside the Coding region"
+        )
+        raise ValueError(msg)
+
+    # Position on the internal coordinate system
+    i_start = transcript_crossmapper.coding_to_coordinate(coding_start)
+    i_end = transcript_crossmapper.coding_to_coordinate(coding_end)
+
+    return i_start, i_end
 
 
 def mutation_to_cds_effect(
@@ -449,17 +512,25 @@ def mutation_to_cds_effect(
     protein = protein_prediction(d, variants)
     reference, observed = protein[1], protein[2]
 
-    # Keep track of changed positions on the genome
-    changed_genomic = list()
+    # Create a crossmapper for the transcript
+    crossmap = transcript_crossmapper(d)
+
+    # Keep track of changed positions on the internal coordinate system of the
+    # hgvs description
+    changed_internal = list()
 
     for start, end in changed_protein_positions(reference, observed):
         # Calculate the nucleotide changed amino acids into a deletion in HGVS c. format
 
-        start, end = protein_to_genomic(start, end, d.input_description)
+        start = crossmap.protein_to_coordinate((start + 1, 1, 0, 0, 0))
+        end = crossmap.protein_to_coordinate((end, 3, 0, 0, 0)) + 1
 
-        changed_genomic.append((start, end))
+        if end < start:
+            start, end = end - 1, start + 1
 
-    return changed_genomic
+        changed_internal.append((start, end))
+
+    return changed_internal
 
 
 def get_exons(

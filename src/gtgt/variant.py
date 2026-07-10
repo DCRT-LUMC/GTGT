@@ -441,15 +441,6 @@ class Variant:
 
         return model
 
-    def genomic_coordinates(self, d: Description) -> tuple[int, int]:
-        """Return genomic coordinates for Variant"""
-        offset = get_offset(d)
-
-        if offset is None:
-            raise RuntimeError("Missing ensembl offset")
-
-        return self.start + offset, self.end + offset
-
 
 def combine_variants_deletion(
     variants: Sequence[Variant], deletion: Variant

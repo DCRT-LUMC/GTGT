@@ -12,6 +12,7 @@ from gtgt.mutalyzer import (
     init_description,
     protein_prediction,
     protein_to_genomic,
+    range_in_coding,
     sequence_from_description,
 )
 from gtgt.therapy import Therapy
@@ -423,3 +424,33 @@ def test_transcript_name(transcript: str, expected: str) -> None:
     """Test extracting the chromosome name from a Description object"""
     d = init_description(f"{transcript}:c.=")
     assert get_transcript_name(d) == expected
+
+
+class TestCrossmapper:
+    @pytest.mark.parametrize(
+        "start, end, in_coding",
+        [
+            # Position 0 is before the coding region
+            ((0, 0, 0, 0), (2, 0, 0, 0), False),
+            ((1, 0, 0, 0), (2, 0, 0, 0), True),
+            ((1, 1, 0, 0), (2, 0, 0, 0), False),
+            ((1, 0, 1, 0), (2, 0, 0, 0), False),
+            ((1, 0, 0, 1), (2, 0, 0, 0), False),
+            # The offset of the end can be 1 (but only 1), since the range is
+            # not inclusive
+            ((1, 0, 0, 0), (2, 1, 0, 0), True),
+            ((1, 0, 0, 0), (2, 2, 0, 0), False),
+            ((1, 0, 0, 0), (2, 0, 1, 0), False),
+            ((1, 0, 0, 0), (2, 0, 0, 1), False),
+        ],
+    )
+    def test_range_in_coding(
+        self,
+        start: tuple[int, int, int, int],
+        end: tuple[int, int, int, int],
+        in_coding: bool,
+    ) -> None:
+        """Test to determine if a range (consisting of mutalyzer TestCrossmapper
+        Coding tuples) is in the coding region
+        """
+        assert range_in_coding(start, end) == in_coding

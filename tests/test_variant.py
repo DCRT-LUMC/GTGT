@@ -421,16 +421,20 @@ class TestVariantMutalyzerForward(object):
     MUTATIONS_VARIANT = [
         # HGVS, coordinates on the genome,
         # A simple missense that changes a single amino acids
-        (
-            "13T>A", # cdot notation of the variant, not used
-            [Variant(start=47, end=48, inserted="A", deleted="T")], # Variants
-            (112086919, 112086922) # Chromosomal location of the protein change
+        ( 
+            # cdot notation of the variant, not used
+            "13T>A",
+            # Variants
+            [Variant(start=47, end=48, inserted="A", deleted="T")],
+            # Location of the protein change on the internal
+            # coordinate system
+            (47, 50)
         ),
         # A stop mutation which destroys most of the protein
         (
             "9_10insTAG",
             [Variant(start=44, end=44, inserted="TAG")],
-            (112086916, 112094967)
+            (44, 8095)
         ),
         # A frameshift that is restored by an insertion
         # Note this gives two separate, adjacent regions
@@ -441,21 +445,21 @@ class TestVariantMutalyzerForward(object):
                 Variant(start=54, end=55),
             ],
             [
-                (112086919, 112086925),
-                (112086925, 112086928),
+                (47, 53),
+                (53, 56),
             ]
         ),
         # A bigger deletion
         (
             "13_21del",
             [Variant(start=47, end=56)],
-            (112086919, 112086928)
+            (47, 56)
         ),
         # An SNP that creates a STOP codon
         (
             "14G>A",
             [Variant(start=48, end=49, inserted="A", deleted="G")],
-            (112086919, 112094967)
+            (47, 8095)
         ),
     ]
     # fmt: on
@@ -664,21 +668,24 @@ class TestVariantMutalyzerForward(object):
         variant_model = Variant.from_model(delins_model, sequence=seq)
         assert variant_model == variant
 
-    COORDINATES = [
-        (Variant(47, 50), (112_086_919, 112_086_922)),
-        (Variant(53, 56), (112_086_925, 112_086_928)),
-        (Variant(44, 8095), (112_086_916, 112_094_967)),
-        (Variant(47, 56), (112_086_919, 112_086_928)),
-        (Variant(47, 8095), (112_086_919, 112_094_967)),
-    ]
-
-    @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
-    def test_Variant_to_genomic_coordinates(
-        self, variant: Variant, genomic_coordinates: tuple[int, int]
-    ) -> None:
-        """Test converting Variant coordinates to genomic coordinates"""
-        d = init_description(f"{self.transcript}:c.=")
-        assert variant.genomic_coordinates(d) == genomic_coordinates
+    # the function genomic_coordinates has been removed from the Variant class
+    # Keep this test around for now, and later convert the test case to test the genomic crossmapper
+    # (It was a lot of work to manually generate and verify the test cases)
+    # COORDINATES = [
+    #     (Variant(47, 50), (112_086_919, 112_086_922)),
+    #     (Variant(53, 56), (112_086_925, 112_086_928)),
+    #     (Variant(44, 8095), (112_086_916, 112_094_967)),
+    #     (Variant(47, 56), (112_086_919, 112_086_928)),
+    #     (Variant(47, 8095), (112_086_919, 112_094_967)),
+    # ]
+    #
+    # @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
+    # def test_Variant_to_genomic_coordinates(
+    #     self, variant: Variant, genomic_coordinates: tuple[int, int]
+    # ) -> None:
+    #     """Test converting Variant coordinates to genomic coordinates"""
+    #     d = init_description(f"{self.transcript}:c.=")
+    #     assert variant.genomic_coordinates(d) == genomic_coordinates
 
 
 class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
@@ -694,13 +701,13 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         (
             "13T>A",
             [Variant(start=47573, end=47574, inserted="T", deleted="A")],
-            (32435345, 32435348)
+            (47571, 47574)
         ),
         # A stop mutation which destroys most of the protein
         (
             "9_10insTAG",
             [Variant(start=47577, end=47577, inserted="CTA")],
-            (32389060, 32435351)
+            (1286, 47577)
         ),
         # # # A frameshift that is restored by an insertion
         (
@@ -709,7 +716,7 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
                 Variant(start=47576, end=47577),
                 Variant(start=47566, end=47566, inserted="T"),
             ],
-            (32435339, 32435351)
+            (47565, 47577)
         ),
         # # # A frameshift that is restored by a bigger insertion
         (
@@ -718,18 +725,18 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
                 Variant(start=47566, end=47566, inserted="CCCCATATTCGAT"),
                 Variant(start=47576, end=47577),
             ],
-            (32435339, 32435351)),
+            (47565, 47577)),
         # # # A bigger deletion
         (
             "11_19del",
             [Variant(start=47567, end=47576)],
-             (32435342, 32435351)
+            (47568, 47577)
         ),
         # # # An inframe deletion that creates a STOP codon
         (
             "87_89del",
             [Variant(start=47497, end=47500)],
-            (32389060, 32435276)
+            (1286, 47502)
         ),
     ]
     # fmt: on
@@ -927,19 +934,22 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
         variant_model = Variant.from_model(delins_model, sequence=seq)
         assert variant_model == variant
 
-    COORDINATES = [
-        (Variant(47571, 47574), (32_435_345, 32_435_348)),
-        (Variant(1286, 47577), (32_389_060, 32_435_351)),
-        (Variant(47565, 47577), (32_435_339, 32_435_351)),
-        (Variant(47565, 47577), (32_435_339, 32_435_351)),
-        (Variant(47568, 47577), (32_435_342, 32_435_351)),
-        (Variant(1286, 47502), (32_389_060, 32_435_276)),
-    ]
-
-    @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
-    def test_Variant_to_genomic_coordinates(
-        self, variant: Variant, genomic_coordinates: tuple[int, int]
-    ) -> None:
-        """Test converting Variant coordinates to genomic coordinates"""
-        d = init_description(f"{self.transcript}:c.=")
-        assert variant.genomic_coordinates(d) == genomic_coordinates
+    # the function genomic_coordinates has been removed from the Variant class
+    # Keep this test around for now, and later convert the test case to test the genomic crossmapper
+    # (It was a lot of work to manually generate and verify the test cases)
+    # COORDINATES = [
+    #     (Variant(47571, 47574), (32_435_345, 32_435_348)),
+    #     (Variant(1286, 47577), (32_389_060, 32_435_351)),
+    #     (Variant(47565, 47577), (32_435_339, 32_435_351)),
+    #     (Variant(47565, 47577), (32_435_339, 32_435_351)),
+    #     (Variant(47568, 47577), (32_435_342, 32_435_351)),
+    #     (Variant(1286, 47502), (32_389_060, 32_435_276)),
+    # ]
+    #
+    # @pytest.mark.parametrize("variant, genomic_coordinates", COORDINATES)
+    # def test_Variant_to_genomic_coordinates(
+    #     self, variant: Variant, genomic_coordinates: tuple[int, int]
+    # ) -> None:
+    #     """Test converting Variant coordinates to genomic coordinates"""
+    #     d = init_description(f"{self.transcript}:c.=")
+    #     assert variant.genomic_coordinates(d) == genomic_coordinates

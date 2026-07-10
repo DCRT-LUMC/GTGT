@@ -10,6 +10,12 @@ Changelog
 -----------
 v0.2.15-dev
 -----------
++ Add support for describing variants on the RNA (r.). This will allow users to
+  describe events like (partial) intron retentions on the mature mRNA
++ Fix a bug where VariantValidator does not recognize HGVS using r.
+  descriptions
++ Deprecate Variant.genomic_coordinates, use mutalyzer.genomic_crossmapper
+  instead
 + Fix a possible security vulnerability when using the `GTGT_CACHE`
 + Add categories and descriptions to the external resources page
 

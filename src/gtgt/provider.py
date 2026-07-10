@@ -50,8 +50,8 @@ class _Provider(ABC):
         logger.info(f"Fetching {url=}")
         try:
             response = urllib.request.urlopen(url)
-        except HTTPError as e:
-            raise RuntimeError(str(e))
+        except Exception as e:
+            raise RuntimeError(f"{url}: {e}")
 
         data = response.read()
 

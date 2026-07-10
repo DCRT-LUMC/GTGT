@@ -8,10 +8,12 @@ from mutalyzer.description import Description
 from gtgt.bed import Bed
 from gtgt.mutalyzer import (
     chrom_to_nc,
+    genomic_crossmapper,
     get_assembly_name,
     get_chrom_name,
     get_offset,
     get_transcript_name,
+    transcript_crossmapper,
 )
 from gtgt.range import Range, overlap
 from gtgt.variant_validator import parse_payload
@@ -61,18 +63,24 @@ def _lookup_track_payload(
         # Assembly as used in UCSC
         genome = "hg38"
 
-    # Determine the start and end of the transcript of interest
-    offset = get_offset(d)
+    # Determine the start and end of the transcript of interest on the genome
+    g_crossmap = genomic_crossmapper(d.input_description)
+    t_crossmap = transcript_crossmapper(d)
+
     exons = d.get_selector_model()["exon"]
-    transcript_start = exons[0][0] + offset
-    transcript_end = exons[-1][1] + offset
+    start = exons[0][0]
+    end = exons[-1][1]
+    genomic_start = g_crossmap.coding_to_coordinate(
+        t_crossmap.coordinate_to_coding(start)
+    )
+    genomic_end = g_crossmap.coding_to_coordinate(t_crossmap.coordinate_to_coding(end))
 
     # Next, determine the uniprot ID for the protein domain
     parameters = Parameters(
         genome=genome,
         chrom=get_chrom_name(d),
-        start=transcript_start,
-        end=transcript_end,
+        start=genomic_start,
+        end=genomic_end,
         track=track,
     )
     return ucsc.get(parameters)
@@ -186,8 +194,14 @@ def lookup_track(
 
     # For protein tracks, we have to lookup the uniprot_id
     if track in PROTEIN_TRACKS:
-        # First, we look up the ENSG using VariantValidator
-        variant = str(d)
+        # First, we look up the ENSG using VariantValidator using a fake
+        # variant on the c.
+        # This is a workaround for the fact that VariantValidator does not
+        # support variants on the r.
+        transcript = d.input_description.split(":")[0]
+        variant = f"{transcript}:c.1del"
+        logger.warn(f"Querying VariantValidator with {variant}")
+
         vv = variantvalidator.get(("hg38", variant))
         ensg = parse_payload(vv, variant, "hg38")["ensembl_gene_id"]
         assert ensg is not None
