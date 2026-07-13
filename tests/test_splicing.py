@@ -214,11 +214,11 @@ def test_junctions_to_exons(
             (140, 333),
             [(140, 333)],
         ),
-        # (
-        #     # Junction from exon 3 to exon 3
-        #     (165, 170),
-        #     [(125, 160), (165, 170), (172, 208), (241, 300)]
-        # ),
+        (
+            # Junction from exon 3 to exon 3
+            (165, 170),
+            [(125, 160), (165, 170), (172, 208), (241, 300)],
+        ),
     ],
 )
 def test_alternative_splice_event(

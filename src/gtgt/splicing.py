@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from gtgt.range import overlap
+from gtgt.range import after, overlap
 
 
 @dataclass
@@ -67,34 +67,28 @@ class JunctionTranscript:
         self, novel_splice: tuple[int, int]
     ) -> list[tuple[int, int]]:
         """Integrate the alternative splice junction"""
+
         # If the novel junction is not fully inside the transcript
         splice_start, splice_end = novel_splice
         if splice_start < self.start or splice_end > self.end:
             return self.junctions
 
-        # The new set of junctions after integrating the novel splice junction
-        new_junctions = list()
+        # First, we remove all junction that overlap the novel splice junction
+        new_junctions = [
+            junction
+            for junction in self.junctions
+            if not overlap(junction, novel_splice)
+        ]
 
-        # If the novel splice junction is before the first regular splice junction
-        # or if it has overlap with the first splice junction
-        if splice_start < self.junctions[0][0] or overlap(
-            novel_splice, self.junctions[0]
-        ):
-            new_junctions.append(novel_splice)
-
-        # Iterate over all other junctions
-        for junction in self.junctions:
-            if not overlap(junction, novel_splice):
-                new_junctions.append(junction)
-
-        # If the novel splice junction is after the last regular splice junction
-        # Don't add it twice if the novel splice junction ALSO starts before the first junction
-        # Also add it if the novel splice junction has overlap with the last splice junction
-        if (
-            splice_end > self.junctions[-1][1]
-            and not splice_start < self.junctions[0][0]
-            and not overlap(novel_splice, self.junctions[-1])
-        ):
+        # Now, we find where to insert the novel splice junction
+        for i, junction in enumerate(new_junctions):
+            # As soon as we find a junction which is after the novel splice
+            # site, insert it before
+            if after(junction, novel_splice):
+                new_junctions.insert(i, novel_splice)
+                break
+        # If we don't find any, insert the novel junction at the end
+        else:
             new_junctions.append(novel_splice)
 
         return new_junctions

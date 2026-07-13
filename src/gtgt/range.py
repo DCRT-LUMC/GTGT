@@ -16,6 +16,16 @@ def overlap(a: Range, b: Range) -> bool:
     return False
 
 
+def before(a: Range, b: Range) -> bool:
+    """A is before B"""
+    return a[1] <= b[0]
+
+
+def after(a: Range, b: Range) -> bool:
+    """A is after B"""
+    return a[0] >= b[1]
+
+
 def intersect(a: Range, b: Range) -> Sequence[Range]:
     """Determine the intersection between ranges a and b"""
     start = max(a[0], b[0])

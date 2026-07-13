@@ -1,6 +1,6 @@
 import pytest
 
-from gtgt.range import Range, intersect, overlap, subtract
+from gtgt.range import Range, intersect, overlap, subtract, before, after
 
 # fmt: off
 range_overlap = [
@@ -214,3 +214,35 @@ range_subtract = [
 @pytest.mark.parametrize("a, b, expected", range_subtract)
 def test_subtract_ranges(a: list[Range], b: list[Range], expected: list[Range]) -> None:
     assert subtract(a, b) == expected
+
+
+@pytest.mark.parametrize(
+    "a, b, expected",
+    [
+        # The same
+        ((5, 10), (5, 10), False),
+        # Small overlap
+        ((5, 10), (9, 15), False),
+        # a before b
+        ((5, 10), (10, 15), True),
+    ],
+)
+def test_before(a: Range, b: Range, expected: bool) -> None:
+    assert before(a, b) == expected
+
+
+@pytest.mark.parametrize(
+    "a, b, expected",
+    [
+        # The same
+        ((5, 10), (5, 10), False),
+        # Small overlap
+        ((5, 10), (9, 15), False),
+        # a before b
+        ((5, 10), (10, 15), False),
+        # a after b
+        ((15, 16), (5, 10), True),
+    ],
+)
+def test_after(a: Range, b: Range, expected: bool) -> None:
+    assert after(a, b) == expected
