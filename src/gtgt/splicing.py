@@ -1,8 +1,12 @@
 from dataclasses import dataclass
 
+from gtgt.range import overlap
+
+
 @dataclass
 class ExonTranscript:
     """Transcript defined using Exons"""
+
     exons: list[tuple[int, int]]
 
     def to_junctions(self) -> "JunctionTranscript":
@@ -33,6 +37,7 @@ class ExonTranscript:
 @dataclass
 class JunctionTranscript:
     """Transcript defined using a start, end and Junctions"""
+
     start: int
     end: int
     junctions: list[tuple[int, int]]
@@ -57,3 +62,39 @@ class JunctionTranscript:
             exons.append((exon_start, self.end))
 
         return ExonTranscript(exons)
+
+    def _alternative_junctions(
+        self, novel_splice: tuple[int, int]
+    ) -> list[tuple[int, int]]:
+        """Integrate the alternative splice junction"""
+        # If the novel junction is not fully inside the transcript
+        splice_start, splice_end = novel_splice
+        if splice_start < self.start or splice_end > self.end:
+            return self.junctions
+
+        # The new set of junctions after integrating the novel splice junction
+        new_junctions = list()
+
+        # If the novel splice junction is before the first regular splice junction
+        # or if it has overlap with the first splice junction
+        if splice_start < self.junctions[0][0] or overlap(
+            novel_splice, self.junctions[0]
+        ):
+            new_junctions.append(novel_splice)
+
+        # Iterate over all other junctions
+        for junction in self.junctions:
+            if not overlap(junction, novel_splice):
+                new_junctions.append(junction)
+
+        # If the novel splice junction is after the last regular splice junction
+        # Don't add it twice if the novel splice junction ALSO starts before the first junction
+        # Also add it if the novel splice junction has overlap with the last splice junction
+        if (
+            splice_end > self.junctions[-1][1]
+            and not splice_start < self.junctions[0][0]
+            and not overlap(novel_splice, self.junctions[-1])
+        ):
+            new_junctions.append(novel_splice)
+
+        return new_junctions
