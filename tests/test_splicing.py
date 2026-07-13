@@ -219,6 +219,81 @@ def test_junctions_to_exons(
             (165, 170),
             [(125, 160), (165, 170), (172, 208), (241, 300)],
         ),
+        (
+            # Junction from exon 3 to intron 2
+            (165, 180),
+            [(125, 160), (165, 180), (241, 300)],
+        ),
+        (
+            # Junction from exon 3 to exon 2
+            (165, 225),
+            [(125, 160), (165, 225), (241, 300)],
+        ),
+        (
+            # Junction from exon 3 to intron 1
+            (165, 250),
+            [(125, 160), (165, 250)],
+        ),
+        (
+            # Junction from exon 3 to exon 1
+            (165, 330),
+            [(125, 160), (165, 330)],
+        ),
+        (
+            # Junction from intron 2 to intron 2
+            (180, 200),
+            [(125, 160), (180, 200), (241, 300)],
+        ),
+        (
+            # Junction from intron 2 to exon 2
+            (180, 225),
+            [(125, 160), (180, 225), (241, 300)],
+        ),
+        (
+            # Junction from intron 2 to intron 1
+            (180, 250),
+            [(125, 160), (180, 250)],
+        ),
+        (
+            # Junction from intron 2 to exon 1
+            (180, 333),
+            [(125, 160), (180, 333)],
+        ),
+        (
+            # Junction from exon 2 to exon 2
+            (225, 235),
+            [(125, 160), (172, 208), (225, 235), (241, 300)],
+        ),
+        (
+            # Junction from exon 2 to intron 1
+            (225, 250),
+            [(125, 160), (172, 208), (225, 250)],
+        ),
+        (
+            # Junction from exon 2 to exon 1
+            (225, 333),
+            [(125, 160), (172, 208), (225, 333)],
+        ),
+        (
+            # Junction from intron 1 to intron 1
+            (250, 275),
+            [(125, 160), (172, 208), (250, 275)],
+        ),
+        (
+            # Junction from intron 1 to exon 1
+            (250, 333),
+            [(125, 160), (172, 208), (250, 333)],
+        ),
+        (
+            # Skip exon 3
+            (125, 208),
+            [(125, 208), (241, 300)],
+        ),
+        (
+            # Skip exon 2
+            (172, 300),
+            [(125, 160), (172, 300)],
+        ),
     ],
 )
 def test_alternative_splice_event(

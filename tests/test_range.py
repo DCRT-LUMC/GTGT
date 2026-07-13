@@ -1,6 +1,6 @@
 import pytest
 
-from gtgt.range import Range, intersect, overlap, subtract, before, after
+from gtgt.range import Range, after, before, intersect, overlap, subtract
 
 # fmt: off
 range_overlap = [
