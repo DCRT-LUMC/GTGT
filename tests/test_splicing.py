@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from gtgt.splicing import Exon, Junction, exons_to_junctions, junctions_to_exons
+from gtgt.splicing import ExonTranscript, JunctionTranscript
 import pytest
 
 """
@@ -101,42 +101,37 @@ alternative_splice_junctions = [
     # Junction from intron 1 to exon 1
     (250, 333)
 ]
+# fmt: on
 
 
 # Tests cases for converting between exons and junctions
 exon_junction_conversion = [
         ( # Single exon
-            [(10, 20)],
-            10,
-            20,
-            []),
+            ExonTranscript([(10, 20)]),
+            JunctionTranscript(10, 20, []),
+        ),
         ( # Two exons
-            [(10, 20), (40, 50)],
-            10,
-            50,
-            [(20, 40)]
+            ExonTranscript([(10, 20), (40, 50)]),
+            JunctionTranscript(10, 50, [(20, 40)])
         ),
         ( # Three exons
-            [(11, 20), (40, 50), (100, 113)],
-            11,
-            113,
-            [(20, 40), (50, 100)]
+            ExonTranscript([(11, 20), (40, 50), (100, 113)]),
+            JunctionTranscript(11, 113, [(20, 40), (50, 100)]),
         ),
     ]
-@pytest.mark.parametrize( "exons, start, end, junctions", exon_junction_conversion)
+@pytest.mark.parametrize( "exons, junctions", exon_junction_conversion)
 def test_exons_to_junctions(
-    exons: list[Exon], start: int, end: int, junctions: list[Junction]
+    exons: ExonTranscript, junctions: JunctionTranscript
 ) -> None:
     """Test converting exons to junctions"""
-    assert exons_to_junctions(exons) == (start, end, junctions)
+    assert exons.to_junctions() == junctions
 
 @pytest.mark.parametrize(
-    "exons, start, end, junctions", exon_junction_conversion
+    "exons, junctions", exon_junction_conversion
 )
 def test_junctions_to_exons(
-    exons: list[Exon], start: int, end: int, junctions: list[Junction]
+    exons: ExonTranscript, junctions: JunctionTranscript
 ) -> None:
     """Test converting junctions to exons"""
-    assert junctions_to_exons(start, end, junctions) == exons
+    assert junctions.to_exons() == exons
 
-# fmt: on
