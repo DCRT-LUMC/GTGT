@@ -2,7 +2,7 @@
 
 import pytest
 
-from gtgt.splicing import ExonTranscript, JunctionTranscript
+from gtgt.splicing import ExonTranscript, JunctionTranscript, Junction
 
 """
 These are tests for combining alternative splice events with the splice
@@ -228,7 +228,7 @@ def test_junctions_to_exons(
     ],
 )
 def test_alternative_splice_event(
-    novel_junction: tuple[int, int], expected_junctions: list[tuple[int, int]]
+    novel_junction: Junction, expected_junctions: list[Junction]
 ) -> None:
     t = JunctionTranscript(
         start=100, end=348, junctions=[(125, 160), (172, 208), (241, 300)]
@@ -248,8 +248,7 @@ def test_alternative_splice_event(
         (90, 115)
     ],
 )
-def test_alternative_splice_event_ignored_junctions(
-    novel_junction: tuple[int, int]) -> None:
+def test_alternative_splice_event_ignored_junctions( novel_junction: Junction) -> None:
     """ These alternative junctions are outside the exons and should be ignored"""
     junctions = [(125, 160), (172, 208), (241, 300)]
     t = JunctionTranscript(
@@ -257,7 +256,7 @@ def test_alternative_splice_event_ignored_junctions(
     )
     assert t._alternative_junctions(novel_junction) == junctions
 
-def test_junctions_in_order():
+def test_junctions_in_order() -> None:
     """ Raise an error when the junction end is not after the start"""
     with pytest.raises(ValueError):
         t = JunctionTranscript(100, 200, junctions=[])

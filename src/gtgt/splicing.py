@@ -1,13 +1,16 @@
 from dataclasses import dataclass
+from typing import TypeAlias
 
 from gtgt.range import after, overlap
+
+Junction: TypeAlias = tuple[int, int]
 
 
 @dataclass
 class ExonTranscript:
     """Transcript defined using Exons"""
 
-    exons: list[tuple[int, int]]
+    exons: list[Junction]
 
     def to_junctions(self) -> "JunctionTranscript":
         """Determine transcript start, end and junctions from exons"""
@@ -40,7 +43,7 @@ class JunctionTranscript:
 
     start: int
     end: int
-    junctions: list[tuple[int, int]]
+    junctions: list[Junction]
 
     def to_exons(self) -> ExonTranscript:
         """Determine the exons from the transcript start, end and list of junctions"""
@@ -63,14 +66,14 @@ class JunctionTranscript:
 
         return ExonTranscript(exons)
 
-    def _alternative_junctions(
-        self, novel_junction: tuple[int, int]
-    ) -> list[tuple[int, int]]:
+    def _alternative_junctions(self, novel_junction: Junction) -> list[Junction]:
         """Integrate the alternative splice junction"""
 
         start, end = novel_junction
         if not end > start:
-            raise ValueError(f"Junction end has to be after the start: ({start}, {end})")
+            raise ValueError(
+                f"Junction end has to be after the start: ({start}, {end})"
+            )
 
         # If the novel junction is not fully inside the transcript
         for position in novel_junction:
