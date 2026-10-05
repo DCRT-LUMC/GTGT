@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypeAlias
+from typing import Sequence, TypeAlias
 
 from gtgt.range import after, overlap
 
@@ -99,3 +99,29 @@ class JunctionTranscript:
             new_junctions.append(novel_junction)
 
         return new_junctions
+
+
+def _must_be_increasing(junctions: Sequence[Junction]) -> None:
+    """Raise an error when we find an invalid list of junctions
+
+    A list of junctions is invalid if:
+        - The the end is not after the start for any junction
+        - The junctions are not in order (this makes it easier to check for
+          overlap)
+        - The junctions overlap
+    """
+
+    # Keep track of the end of the previous junction
+    prev_start = 0
+    prev_end = 0
+
+    for start, end in junctions:
+        if not end > start:
+            raise ValueError(
+                f"Junction end has to be after the start: ({start}, {end})"
+            )
+        if not start > prev_end:
+            raise ValueError(
+                f"Junction ({start}, {end}) is not after the previous junction ({prev_start}, {prev_end})"
+            )
+        prev_start, prev_end = start, end

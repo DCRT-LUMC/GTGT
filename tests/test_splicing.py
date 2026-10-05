@@ -2,7 +2,12 @@
 
 import pytest
 
-from gtgt.splicing import ExonTranscript, JunctionTranscript, Junction
+from gtgt.splicing import (
+    ExonTranscript,
+    Junction,
+    JunctionTranscript,
+    _must_be_increasing,
+)
 
 """
 These are tests for combining alternative splice events with the splice
@@ -261,3 +266,28 @@ def test_junctions_in_order() -> None:
     with pytest.raises(ValueError):
         t = JunctionTranscript(100, 200, junctions=[])
         t._alternative_junctions((10, 10))
+
+
+@pytest.mark.parametrize(
+    "junctions",
+    [
+        # The end is not after the start
+        [(0,0)],
+        # The junctions are not in order
+        [(10, 20), (4, 8)],
+        # The junctions overlap
+        [(10, 20), (19, 21)],
+        # The junctions overlap and are out of order
+        [(19, 21), (10, 20)],
+    ]
+)
+def test_invalid_junctions(junctions: list[Junction]) -> None:
+    """ Check that we raise an error when we find invalid junctions
+
+    A list of junctions is invalid if:
+        - The the end is not after the start for any junction
+        - The junctions are not in order
+        - The junctions overlap
+    """
+    with pytest.raises(ValueError):
+        _must_be_increasing(junctions)
