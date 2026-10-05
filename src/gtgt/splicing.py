@@ -68,6 +68,10 @@ class JunctionTranscript:
     ) -> list[tuple[int, int]]:
         """Integrate the alternative splice junction"""
 
+        start, end = novel_splice
+        if not end > start:
+            raise ValueError(f"Junction end has to be after the start: ({start}, {end})")
+
         # If the novel junction is not fully inside the transcript
         for position in novel_splice:
             if position < self.start or position > self.end:

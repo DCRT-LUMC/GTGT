@@ -245,7 +245,7 @@ def test_alternative_splice_event(
         # Junction from before the start of the transcript
         (325, 400),
         # Junction to beyond the end of the transcript
-        (115, 90)
+        (90, 115)
     ],
 )
 def test_alternative_splice_event_ignored_junctions(
@@ -256,3 +256,9 @@ def test_alternative_splice_event_ignored_junctions(
         start=100, end=348, junctions=junctions
     )
     assert t._alternative_junctions(novel_splice) == junctions
+
+def test_junctions_in_order():
+    """ Raise an error when the junction end is not after the start"""
+    with pytest.raises(ValueError):
+        t = JunctionTranscript(100, 200, junctions=[])
+        t._alternative_junctions((10, 10))
