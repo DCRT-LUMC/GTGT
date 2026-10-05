@@ -32,65 +32,6 @@ splice_site_locations = {
     "exon 1": 333
 }
 
-# All possible alternative splice junctions that can occur in the example
-# transcript
-alternative_splice_junctions = [
-    # Junction from exon 4 to exon 4
-    (115, 120),
-    # Junction from exon 4 to intron 3
-    (115, 140),
-    # Junction from exon 4 to exon 3
-    (115, 165),
-    # Junction from exon 4 to intron 2
-    (115, 180),
-    # Junction from exon 4 to exon 2
-    (115, 225),
-    # Junction from exon 4 to intron 1
-    (115, 250),
-    # Junction from exon 4 to exon 1
-    (115, 333),
-    # Junction from intron 3 to intron 3
-    (140, 150),
-    # Junction from intron 3 to exon 3
-    (140, 165),
-    # Junction from intron 3 to intron 2
-    (140, 180),
-    # Junction from intron 3 to exon 2
-    (140, 225),
-    # Junction from intron 3 to intron 1
-    (140, 250),
-    # Junction from intron 3 to exon 1
-    (140, 333),
-    # Junction from exon 3 to exon 3
-    (165, 170),
-    # Junction from exon 3 to intron 2
-    (165, 180),
-    # Junction from exon 3 to exon 2
-    (165, 225),
-    # Junction from exon 3 to intron 1
-    (165, 250),
-    # Junction from exon 3 to exon 1
-    (165, 333),
-    # Junction from intron 2 to intron 2
-    (180, 200),
-    # Junction from intron 2 to exon 2
-    (180, 225),
-    # Junction from intron 2 to intron 1
-    (180, 250),
-    # Junction from intron 2 to exon 1
-    (180, 333),
-    # Junction from exon 2 to exon 2
-    (225, 235),
-    # Junction from exon 2 to intron 1
-    (225, 250),
-    # Junction from exon 2 to exon 1
-    (225, 333),
-    # Junction from intron 1 to intron 1
-    (250, 275),
-    # Junction from intron 1 to exon 1
-    (250, 333)
-]
-# fmt: on
 
 
 # Tests cases for converting between exons and junctions
@@ -129,16 +70,6 @@ def test_junctions_to_exons(
 @pytest.mark.parametrize(
     "novel_splice, expected_junctions",
     [
-        (
-            # Junction before the transcript start
-            (80, 90),
-            [(125, 160), (172, 208), (241, 300)],
-        ),
-        (
-            # Junction after the transcript end
-            (350, 400),
-            [(125, 160), (172, 208), (241, 300)],
-        ),
         (
             # Junction before the first regular junction
             (115, 120),
@@ -236,8 +167,8 @@ def test_junctions_to_exons(
         ),
         (
             # Junction from exon 3 to exon 1
-            (165, 330),
-            [(125, 160), (165, 330)],
+            (165, 333),
+            [(125, 160), (165, 333)],
         ),
         (
             # Junction from intron 2 to intron 2
@@ -303,3 +234,25 @@ def test_alternative_splice_event(
         start=100, end=348, junctions=[(125, 160), (172, 208), (241, 300)]
     )
     assert t._alternative_junctions(novel_splice) == expected_junctions
+
+@pytest.mark.parametrize(
+    "novel_splice",
+    [
+        # Junction before the transcript start
+        (80, 90),
+        # Junction after the transcript end
+        (350, 400),
+        # Junction from before the start of the transcript
+        (325, 400),
+        # Junction to beyond the end of the transcript
+        (115, 90)
+    ],
+)
+def test_alternative_splice_event_ignored_junctions(
+    novel_splice: tuple[int, int]) -> None:
+    """ These alternative junctions are outside the exons and should be ignored"""
+    junctions = [(125, 160), (172, 208), (241, 300)]
+    t = JunctionTranscript(
+        start=100, end=348, junctions=junctions
+    )
+    assert t._alternative_junctions(novel_splice) == junctions

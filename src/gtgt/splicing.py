@@ -69,9 +69,9 @@ class JunctionTranscript:
         """Integrate the alternative splice junction"""
 
         # If the novel junction is not fully inside the transcript
-        splice_start, splice_end = novel_splice
-        if splice_start < self.start or splice_end > self.end:
-            return self.junctions
+        for position in novel_splice:
+            if position < self.start or position > self.end:
+                return self.junctions
 
         # First, we remove all junction that overlap the novel splice junction
         new_junctions = [
