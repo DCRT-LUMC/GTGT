@@ -64,16 +64,16 @@ class JunctionTranscript:
         return ExonTranscript(exons)
 
     def _alternative_junctions(
-        self, novel_splice: tuple[int, int]
+        self, novel_junction: tuple[int, int]
     ) -> list[tuple[int, int]]:
         """Integrate the alternative splice junction"""
 
-        start, end = novel_splice
+        start, end = novel_junction
         if not end > start:
             raise ValueError(f"Junction end has to be after the start: ({start}, {end})")
 
         # If the novel junction is not fully inside the transcript
-        for position in novel_splice:
+        for position in novel_junction:
             if position < self.start or position > self.end:
                 return self.junctions
 
@@ -81,18 +81,18 @@ class JunctionTranscript:
         new_junctions = [
             junction
             for junction in self.junctions
-            if not overlap(junction, novel_splice)
+            if not overlap(junction, novel_junction)
         ]
 
         # Now, we find where to insert the novel splice junction
         for i, junction in enumerate(new_junctions):
             # As soon as we find a junction which is after the novel splice
             # site, insert it before
-            if after(junction, novel_splice):
-                new_junctions.insert(i, novel_splice)
+            if after(junction, novel_junction):
+                new_junctions.insert(i, novel_junction)
                 break
         # If we don't find any, insert the novel junction at the end
         else:
-            new_junctions.append(novel_splice)
+            new_junctions.append(novel_junction)
 
         return new_junctions

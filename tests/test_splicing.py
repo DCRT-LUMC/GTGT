@@ -68,7 +68,7 @@ def test_junctions_to_exons(
 
 
 @pytest.mark.parametrize(
-    "novel_splice, expected_junctions",
+    "novel_junction, expected_junctions",
     [
         (
             # Junction before the first regular junction
@@ -228,15 +228,15 @@ def test_junctions_to_exons(
     ],
 )
 def test_alternative_splice_event(
-    novel_splice: tuple[int, int], expected_junctions: list[tuple[int, int]]
+    novel_junction: tuple[int, int], expected_junctions: list[tuple[int, int]]
 ) -> None:
     t = JunctionTranscript(
         start=100, end=348, junctions=[(125, 160), (172, 208), (241, 300)]
     )
-    assert t._alternative_junctions(novel_splice) == expected_junctions
+    assert t._alternative_junctions(novel_junction) == expected_junctions
 
 @pytest.mark.parametrize(
-    "novel_splice",
+    "novel_junction",
     [
         # Junction before the transcript start
         (80, 90),
@@ -249,13 +249,13 @@ def test_alternative_splice_event(
     ],
 )
 def test_alternative_splice_event_ignored_junctions(
-    novel_splice: tuple[int, int]) -> None:
+    novel_junction: tuple[int, int]) -> None:
     """ These alternative junctions are outside the exons and should be ignored"""
     junctions = [(125, 160), (172, 208), (241, 300)]
     t = JunctionTranscript(
         start=100, end=348, junctions=junctions
     )
-    assert t._alternative_junctions(novel_splice) == junctions
+    assert t._alternative_junctions(novel_junction) == junctions
 
 def test_junctions_in_order():
     """ Raise an error when the junction end is not after the start"""
