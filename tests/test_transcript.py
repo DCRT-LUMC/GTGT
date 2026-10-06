@@ -42,8 +42,8 @@ def transcript(exons: Bed, coding_exons: Bed) -> Transcript:
 
 
 def test_transcript_init(transcript: Transcript) -> None:
-    assert transcript.rna_features[0].name == "Exons"
-    assert transcript.protein_features[0].name == "Coding exons"
+    assert transcript.features.rna_features[0].name == "Exons"
+    assert transcript.features.protein_features[0].name == "Coding exons"
 
 
 def test_empty_transcript() -> None:
@@ -51,13 +51,13 @@ def test_empty_transcript() -> None:
     t = Transcript(rna_features=[], protein_features=[])
 
     # Test if we can get the records
-    assert t.records() == []
+    assert t.features.records() == []
 
     # Test if intersect works
-    t.intersect(Bed("chr1", 10, 20))
+    t.features.intersect(Bed("chr1", 10, 20))
 
     # Test if subtraction works
-    t.subtract(Bed("chr1", 10, 20))
+    t.features.subtract(Bed("chr1", 10, 20))
 
     # Test if mutating the transcript works
     d = init_description("ENST00000375549.8:c.10del")
@@ -98,7 +98,7 @@ def test_intersect_transcript(
     selector: Bed, exons: Bed, transcript: Transcript
 ) -> None:
     """Test if intersecting the Transcript updates the exons"""
-    transcript.intersect(selector)
+    transcript.features.intersect(selector)
 
     # Ensure the name matches, it's less typing to do that here
     exons.name = "Exons"
@@ -131,7 +131,7 @@ overlap_selectors = [
 @pytest.mark.parametrize("selector, exons", overlap_selectors)
 def test_overlap_transcript(selector: Bed, exons: Bed, transcript: Transcript) -> None:
     """Test if overlapping the Transcript updates the exons"""
-    transcript.overlap(selector)
+    transcript.features.overlap(selector)
 
     # Ensure the name matches, it's less typing to do that here
     exons.name = "Exons"
@@ -170,7 +170,7 @@ subtract_selectors = [
 @pytest.mark.parametrize("selector, exons", subtract_selectors)
 def test_subtract_transcript(selector: Bed, exons: Bed, transcript: Transcript) -> None:
     """Test if subtracting the Transcript updates the exons"""
-    transcript.subtract(selector)
+    transcript.features.subtract(selector)
 
     # Ensure the name matches, it's less typing to do that here
     exons.name = "Exons"
@@ -197,7 +197,7 @@ def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
 
     smaller = Transcript(rna_features=[exons], protein_features=[coding_exons])
 
-    cmp = smaller.compare(transcript)
+    cmp = smaller.features.compare(transcript.features)
 
     assert cmp[0].percentage == pytest.approx(0.71, abs=0.01)
     assert cmp[1].percentage == pytest.approx(0.41, abs=0.01)

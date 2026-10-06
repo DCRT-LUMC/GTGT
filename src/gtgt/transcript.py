@@ -67,10 +67,66 @@ class Result:
         )
 
 
-class Transcript:
+class Features:
     def __init__(self, rna_features: list[Bed], protein_features: list[Bed]):
         self.rna_features = rna_features
         self.protein_features = protein_features
+
+    def records(self) -> Sequence[Bed]:
+        """Return the Bed records that make up the Transcript"""
+        return self.rna_features + self.protein_features
+
+    def rna_records(self) -> list[Bed]:
+        """Return the Bed records that contain RNA features"""
+        return self.rna_features
+
+    def intersect(self, selector: Bed) -> None:
+        """Update transcript to only contain features that intersect the selector"""
+        for record in self.records():
+            record.intersect(selector)
+
+    def overlap(self, selector: Bed) -> None:
+        """Update transcript to only contain features that overlap the selector"""
+        for record in self.records():
+            record.overlap(selector)
+
+    def subtract(self, selector: Bed) -> None:
+        """Remove all features from transcript that intersect the selector"""
+        for record in self.records():
+            record.subtract(selector)
+
+    def compare(self, other: object) -> Sequence[Comparison]:
+        """Compare the size of each record in the transcripts"""
+        if not isinstance(other, Features):
+            raise NotImplementedError
+
+        # Compare each record that makes up self and other
+        # The comparison will fail if the record.name does not match
+        cmp = list()
+        for record1, record2 in zip(self.records(), other.records()):
+            percentage = record1.compare(record2)
+            fraction = record1.compare_basepair(record2)
+            C = Comparison(record1.name, percentage, fraction)
+            cmp.append(C)
+
+        return cmp
+
+    def compare_score(self, other: object) -> float:
+        """Compare the size of each records in the transcripts
+
+        Returns the average value for all records
+        """
+        if not isinstance(other, Transcript):
+            raise NotImplementedError
+        cmp = self.compare(other)
+
+        values = [x.percentage for x in cmp]
+        return sum(values) / len(cmp)
+
+
+class Transcript:
+    def __init__(self, rna_features: list[Bed], protein_features: list[Bed]):
+        self.features = Features(rna_features, protein_features)
 
     @classmethod
     def from_description(cls, d: Description) -> "Transcript":
@@ -104,74 +160,23 @@ class Transcript:
 
         return cls(rna_features=[exon_bed], protein_features=[coding_exons])
 
-    def records(self) -> Sequence[Bed]:
-        """Return the Bed records that make up the Transcript"""
-        return self.rna_features + self.protein_features
-
-    def rna_records(self) -> list[Bed]:
-        """Return the Bed records that contain RNA features"""
-        return self.rna_features
-
-    def intersect(self, selector: Bed) -> None:
-        """Update transcript to only contain features that intersect the selector"""
-        for record in self.records():
-            record.intersect(selector)
-
-    def overlap(self, selector: Bed) -> None:
-        """Update transcript to only contain features that overlap the selector"""
-        for record in self.records():
-            record.overlap(selector)
-
-    def subtract(self, selector: Bed) -> None:
-        """Remove all features from transcript that intersect the selector"""
-        for record in self.records():
-            record.subtract(selector)
-
-    def compare(self, other: object) -> Sequence[Comparison]:
-        """Compare the size of each record in the transcripts"""
-        if not isinstance(other, Transcript):
-            raise NotImplementedError
-
-        # Compare each record that makes up self and other
-        # The comparison will fail if the record.name does not match
-        cmp = list()
-        for record1, record2 in zip(self.records(), other.records()):
-            percentage = record1.compare(record2)
-            fraction = record1.compare_basepair(record2)
-            C = Comparison(record1.name, percentage, fraction)
-            cmp.append(C)
-
-        return cmp
-
-    def compare_score(self, other: object) -> float:
-        """Compare the size of each records in the transcripts
-
-        Returns the average value for all records
-        """
-        if not isinstance(other, Transcript):
-            raise NotImplementedError
-        cmp = self.compare(other)
-
-        values = [x.percentage for x in cmp]
-        return sum(values) / len(cmp)
-
     def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
         """Mutate the transcript based on the specified variants"""
         # Determine the chromosome the transcript is on
-        if self.records():
-            chrom = self.records()[0].chrom
+        if self.features.records():
+            chrom = self.features.records()[0].chrom
         else:
             chrom = ""
 
         # Update protein features
         protein_changes = Bed.from_blocks(chrom, mutation_to_cds_effect(d, variants))
-        for record in self.protein_features:
+        for record in self.features.protein_features:
             record.subtract(protein_changes)
 
         # Update RNA features
         rna_changes = Bed.from_blocks(chrom, [(v.start, v.end) for v in variants])
-        for record in self.rna_records():
-            self.subtract(rna_changes)
+        for record in self.features.rna_records():
+            self.features.subtract(rna_changes)
 
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
@@ -197,7 +202,7 @@ class Transcript:
             description="These are the annotations as defined on the reference. They are always 100% by definition.",
             variants=list(),
         )
-        wildtype = Result(wt, self.compare(self))
+        wildtype = Result(wt, self.features.compare(self.features))
         results.append(wildtype)
 
         # Store the input variants as Therapy
@@ -212,7 +217,7 @@ class Transcript:
         )
         patient = deepcopy(self)
         patient.mutate(d, input.variants)
-        results.append(Result(input, patient.compare(self)))
+        results.append(Result(input, patient.features.compare(self.features)))
 
         # Generate all possible therapies
         for therapy in generate_therapies(d):
@@ -227,7 +232,9 @@ class Transcript:
                     patient, input.variants, modified_transcript, therapy.variants
                 ):
                     continue
-            results.append(Result(therapy, modified_transcript.compare(self)))
+            results.append(
+                Result(therapy, modified_transcript.features.compare(self.features))
+            )
 
         # Order the results
         wt_patient = results[:2]
@@ -235,7 +242,7 @@ class Transcript:
         return wt_patient + rest
 
     def __str__(self) -> str:
-        return "\n".join(str(record) for record in self.records())
+        return "\n".join(str(record) for record in self.features.records())
 
     @property
     def exons(self) -> Bed | None:
@@ -244,7 +251,7 @@ class Transcript:
         Note that this relies on the Bed record for the exons to be
         named 'Exons'
         """
-        for record in self.rna_features:
+        for record in self.features.rna_features:
             if record.name == "Exons":
                 return record
         else:
@@ -257,7 +264,7 @@ class Transcript:
         Note that this relies on the Bed record for the coding exons to be
         named 'Coding exons'
         """
-        for record in self.protein_features:
+        for record in self.features.protein_features:
             if record.name == "Coding exons":
                 return record
         else:
@@ -291,7 +298,7 @@ class Transcript:
                     t_blocks.append((start, end))
 
                 record.update(t_blocks)
-                self.protein_features.append(record)
+                self.features.protein_features.append(record)
 
 
 def is_of_interest(
@@ -313,7 +320,7 @@ def is_of_interest(
 
     # Determine if there are any regions that were restored in the therapy,
     # which are lacking in the patient
-    for t, p in zip(therapy.records(), patient.records()):
+    for t, p in zip(therapy.features.records(), patient.features.records()):
         restored = deepcopy(t)
         restored.subtract(p)
         if restored.size > 0:

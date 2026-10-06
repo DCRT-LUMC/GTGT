@@ -182,7 +182,7 @@ def export(args: argparse.Namespace) -> None:
     ]
     transcript.mutate(d, input_variants)
 
-    for record in transcript.records():
+    for record in transcript.features.records():
         print(record)
 
 

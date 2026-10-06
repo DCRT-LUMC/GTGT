@@ -29,7 +29,7 @@ def compare_to_wildtype(hgvs: str) -> Sequence[Comparison]:
     ]
     t.mutate(d, input_variants)
 
-    return t.compare(wt)
+    return t.features.compare(wt.features)
 
 
 class TestDifferentTranscripts:
