@@ -68,17 +68,17 @@ class Result:
 
 
 class Features:
-    def __init__(self, rna_features: list[Bed], protein_features: list[Bed]):
-        self.rna_features = rna_features
-        self.protein_features = protein_features
+    def __init__(self, rna: list[Bed], protein: list[Bed]):
+        self.rna = rna
+        self.protein = protein
 
     def records(self) -> Sequence[Bed]:
         """Return the Bed records that make up the Transcript"""
-        return self.rna_features + self.protein_features
+        return self.rna + self.protein
 
     def rna_records(self) -> list[Bed]:
         """Return the Bed records that contain RNA features"""
-        return self.rna_features
+        return self.rna
 
     def intersect(self, selector: Bed) -> None:
         """Update transcript to only contain features that intersect the selector"""
@@ -102,7 +102,7 @@ class Features:
         Note that this relies on the Bed record for the exons to be
         named 'Exons'
         """
-        for record in self.rna_features:
+        for record in self.rna:
             if record.name == "Exons":
                 return record
         else:
@@ -115,12 +115,11 @@ class Features:
         Note that this relies on the Bed record for the coding exons to be
         named 'Coding exons'
         """
-        for record in self.protein_features:
+        for record in self.protein:
             if record.name == "Coding exons":
                 return record
         else:
             return None
-
 
     def compare(self, other: object) -> Sequence[Comparison]:
         """Compare the size of each record in the transcripts"""
@@ -197,7 +196,7 @@ class Transcript:
 
         # Update protein features
         protein_changes = Bed.from_blocks(chrom, mutation_to_cds_effect(d, variants))
-        for record in self.features.protein_features:
+        for record in self.features.protein:
             record.subtract(protein_changes)
 
         # Update RNA features
@@ -299,7 +298,7 @@ class Transcript:
                     t_blocks.append((start, end))
 
                 record.update(t_blocks)
-                self.features.protein_features.append(record)
+                self.features.protein.append(record)
 
 
 def is_of_interest(

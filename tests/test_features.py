@@ -38,17 +38,17 @@ def features(exons: Bed, coding_exons: Bed) -> Features:
     exons         -   - -   -   - - -
     coding_exons      - -   -   -
     """
-    return Features(rna_features=[exons], protein_features=[coding_exons])
+    return Features(rna=[exons], protein=[coding_exons])
 
 
 def test_features_init(features: Features) -> None:
-    assert features.rna_features[0].name == "Exons"
-    assert features.protein_features[0].name == "Coding exons"
+    assert features.rna[0].name == "Exons"
+    assert features.protein[0].name == "Coding exons"
 
 
 def test_empty_features() -> None:
     """Test creating and working with an empty transcript"""
-    t = Features(rna_features=[], protein_features=[])
+    t = Features(rna=[], protein=[])
 
     # Test if we can get the records
     assert t.records() == []
@@ -84,14 +84,12 @@ intersect_selectors = [
 
 
 def test_features_init_no_coding(exons: Bed) -> None:
-    t = Features(rna_features=[exons], protein_features=[])
+    t = Features(rna=[exons], protein=[])
     assert not t.coding_exons
 
 
 @pytest.mark.parametrize("selector, exons", intersect_selectors)
-def test_intersect_features(
-    selector: Bed, exons: Bed, features: Features
-) -> None:
+def test_intersect_features(selector: Bed, exons: Bed, features: Features) -> None:
     """Test if intersecting the Transcript updates the exons"""
     features.intersect(selector)
 
@@ -190,7 +188,7 @@ def test_compare_features(features: Features, coding_exons: Bed) -> None:
     coding_exons = Bed.from_blocks("chr1", coding_blocks)
     coding_exons.name = "Coding exons"
 
-    smaller = Features(rna_features=[exons], protein_features=[coding_exons])
+    smaller = Features(rna=[exons], protein=[coding_exons])
 
     cmp = smaller.compare(features)
 

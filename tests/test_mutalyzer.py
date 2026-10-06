@@ -227,7 +227,12 @@ def test_transcript_from_description_SDHD() -> None:
     # Manually verified block starts for the exons of SDHD
     assert features.exons and features.exons.blockStarts == [0, 984, 1994, 7932]
     # Manually verified block starts for the coding exons of SDHD
-    assert features.coding_exons and features.coding_exons.blockStarts == [0, 949, 1959, 7897]
+    assert features.coding_exons and features.coding_exons.blockStarts == [
+        0,
+        949,
+        1959,
+        7897,
+    ]
 
 
 def test_transcript_from_NC_NM_forward() -> None:
@@ -312,7 +317,10 @@ def test_transcript_from_NC_NM_reverse() -> None:
     features = transcript.features
 
     assert features.exons and features.exons.blocks() == [(2953, 3616), (4793, 4910)]
-    assert features.coding_exons and features.coding_exons.blocks() == [(3448, 3616), (4793, 4877)]
+    assert features.coding_exons and features.coding_exons.blocks() == [
+        (3448, 3616),
+        (4793, 4877),
+    ]
 
 
 def test_analyze_NC_NM_reverse() -> None:

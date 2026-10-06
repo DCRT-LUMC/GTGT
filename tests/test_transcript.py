@@ -43,8 +43,8 @@ def transcript(exons: Bed, coding_exons: Bed) -> Transcript:
 
 def test_transcript_init(transcript: Transcript) -> None:
     features = transcript.features
-    assert features.rna_features[0].name == "Exons"
-    assert features.protein_features[0].name == "Coding exons"
+    assert features.rna[0].name == "Exons"
+    assert features.protein[0].name == "Coding exons"
 
 
 def test_empty_transcript() -> None:
@@ -257,7 +257,10 @@ def test_mutate_forward(
     SDHD.mutate(d, v)
 
     assert SDHD.features.exons and SDHD.features.exons.blocks() == exon_blocks
-    assert SDHD.features.coding_exons and SDHD.features.coding_exons.blocks() == coding_exon_blocks
+    assert (
+        SDHD.features.coding_exons
+        and SDHD.features.coding_exons.blocks() == coding_exon_blocks
+    )
 
 
 MUTATE = [
@@ -419,7 +422,10 @@ def test_mutate_reverse(
     WT1.mutate(d, v)
 
     assert WT1.features.exons and WT1.features.exons.blocks() == exon_blocks
-    assert WT1.features.coding_exons and WT1.features.coding_exons.blocks() == coding_exon_blocks
+    assert (
+        WT1.features.coding_exons
+        and WT1.features.coding_exons.blocks() == coding_exon_blocks
+    )
 
 
 def test_Comparison_from_dict() -> None:
