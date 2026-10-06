@@ -95,6 +95,33 @@ class Features:
         for record in self.records():
             record.subtract(selector)
 
+    @property
+    def exons(self) -> Bed | None:
+        """Helper function to get the exons
+
+        Note that this relies on the Bed record for the exons to be
+        named 'Exons'
+        """
+        for record in self.rna_features:
+            if record.name == "Exons":
+                return record
+        else:
+            return None
+
+    @property
+    def coding_exons(self) -> Bed | None:
+        """Helper function to get the coding exons
+
+        Note that this relies on the Bed record for the coding exons to be
+        named 'Coding exons'
+        """
+        for record in self.protein_features:
+            if record.name == "Coding exons":
+                return record
+        else:
+            return None
+
+
     def compare(self, other: object) -> Sequence[Comparison]:
         """Compare the size of each record in the transcripts"""
         if not isinstance(other, Features):
@@ -243,32 +270,6 @@ class Transcript:
 
     def __str__(self) -> str:
         return "\n".join(str(record) for record in self.features.records())
-
-    @property
-    def exons(self) -> Bed | None:
-        """Helper function to get the exons for Transcript
-
-        Note that this relies on the Bed record for the exons to be
-        named 'Exons'
-        """
-        for record in self.features.rna_features:
-            if record.name == "Exons":
-                return record
-        else:
-            return None
-
-    @property
-    def coding_exons(self) -> Bed | None:
-        """Helper function to get the coding exons for Transcript
-
-        Note that this relies on the Bed record for the coding exons to be
-        named 'Coding exons'
-        """
-        for record in self.features.protein_features:
-            if record.name == "Coding exons":
-                return record
-        else:
-            return None
 
     def lookup_protein_domains(self, d: Description) -> None:
         """Lookup supported protein domains from USCS"""

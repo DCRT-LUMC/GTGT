@@ -42,8 +42,9 @@ def transcript(exons: Bed, coding_exons: Bed) -> Transcript:
 
 
 def test_transcript_init(transcript: Transcript) -> None:
-    assert transcript.features.rna_features[0].name == "Exons"
-    assert transcript.features.protein_features[0].name == "Coding exons"
+    features = transcript.features
+    assert features.rna_features[0].name == "Exons"
+    assert features.protein_features[0].name == "Coding exons"
 
 
 def test_empty_transcript() -> None:
@@ -53,154 +54,10 @@ def test_empty_transcript() -> None:
     # Test if we can get the records
     assert t.features.records() == []
 
-    # Test if intersect works
-    t.features.intersect(Bed("chr1", 10, 20))
-
-    # Test if subtraction works
-    t.features.subtract(Bed("chr1", 10, 20))
-
     # Test if mutating the transcript works
     d = init_description("ENST00000375549.8:c.10del")
     t.mutate(d, variants=[])
     assert t
-
-
-intersect_selectors = [
-    # Selector spans all exons
-    (
-        Bed("chr1", 0, 100),
-        Bed(
-            "chr1",
-            0,
-            100,
-            name="Exons",
-            blockSizes=[10, 20, 10, 30],
-            blockStarts=[0, 20, 50, 70],
-        ),
-    ),
-    # Selector on a different chromosome
-    (Bed("chr2", 0, 100), Bed("chr1", 0, 0)),
-    # Selector intersect the first exon
-    (Bed("chr1", 5, 15), Bed("chr1", 5, 10)),
-    # Selector intersects the last base of the first exon,
-    # and the first base of the second exon
-    (Bed("chr1", 9, 21), Bed("chr1", 9, 21, blockSizes=[1, 1], blockStarts=[0, 11])),
-]
-
-
-def test_transcript_init_no_coding(exons: Bed) -> None:
-    t = Transcript(rna_features=[exons], protein_features=[])
-    assert not t.coding_exons
-
-
-@pytest.mark.parametrize("selector, exons", intersect_selectors)
-def test_intersect_transcript(
-    selector: Bed, exons: Bed, transcript: Transcript
-) -> None:
-    """Test if intersecting the Transcript updates the exons"""
-    transcript.features.intersect(selector)
-
-    # Ensure the name matches, it's less typing to do that here
-    exons.name = "Exons"
-    assert transcript.exons == exons
-
-
-overlap_selectors = [
-    # Selector spans all exons
-    (
-        Bed("chr1", 0, 100),
-        Bed(
-            "chr1",
-            0,
-            100,
-            name="Exons",
-            blockSizes=[10, 20, 10, 30],
-            blockStarts=[0, 20, 50, 70],
-        ),
-    ),
-    # Selector on a different chromosome
-    (Bed("chr2", 0, 100), Bed("chr1", 0, 0)),
-    # Selector intersect the first exon
-    (Bed("chr1", 5, 15), Bed("chr1", 0, 10)),
-    # Selector intersects the last base of the first exon,
-    # and the first base of the second exon
-    (Bed("chr1", 9, 21), Bed("chr1", 0, 40, blockSizes=[10, 20], blockStarts=[0, 20])),
-]
-
-
-@pytest.mark.parametrize("selector, exons", overlap_selectors)
-def test_overlap_transcript(selector: Bed, exons: Bed, transcript: Transcript) -> None:
-    """Test if overlapping the Transcript updates the exons"""
-    transcript.features.overlap(selector)
-
-    # Ensure the name matches, it's less typing to do that here
-    exons.name = "Exons"
-    assert transcript.exons == exons
-
-
-subtract_selectors = [
-    # Selector spans all exons
-    (Bed("chr1", 0, 100), Bed("chr1", 0, 0)),
-    # Selector on a different chromosome
-    (
-        Bed("chr2", 0, 100),
-        Bed(
-            "chr1",
-            0,
-            100,
-            name="Exons",
-            blockSizes=[10, 20, 10, 30],
-            blockStarts=[0, 20, 50, 70],
-        ),
-    ),
-    # Selector intersect the first exon
-    (
-        Bed("chr1", 5, 15),
-        Bed("chr1", 0, 100, blockSizes=[5, 20, 10, 30], blockStarts=[0, 20, 50, 70]),
-    ),
-    # Selector intersects the last base of the first exon,
-    # and the first base of the second exon
-    (
-        Bed("chr1", 9, 21),
-        Bed("chr1", 0, 100, blockSizes=[9, 19, 10, 30], blockStarts=[0, 21, 50, 70]),
-    ),
-]
-
-
-@pytest.mark.parametrize("selector, exons", subtract_selectors)
-def test_subtract_transcript(selector: Bed, exons: Bed, transcript: Transcript) -> None:
-    """Test if subtracting the Transcript updates the exons"""
-    transcript.features.subtract(selector)
-
-    # Ensure the name matches, it's less typing to do that here
-    exons.name = "Exons"
-    assert transcript.exons == exons
-
-
-def test_compare_transcripts(transcript: Transcript, coding_exons: Bed) -> None:
-    exon_blocks = [
-        (0, 10),
-        # (20, 40),  # Missing the second exon
-        (50, 60),
-        (70, 100),
-    ]
-    exons = Bed.from_blocks("chr1", exon_blocks)
-    exons.name = "Exons"
-
-    coding_blocks = [
-        # (23, 40),  # Missing the second exon
-        (50, 60),
-        (70, 72),
-    ]
-    coding_exons = Bed.from_blocks("chr1", coding_blocks)
-    coding_exons.name = "Coding exons"
-
-    smaller = Transcript(rna_features=[exons], protein_features=[coding_exons])
-
-    cmp = smaller.features.compare(transcript.features)
-
-    assert cmp[0].percentage == pytest.approx(0.71, abs=0.01)
-    assert cmp[1].percentage == pytest.approx(0.41, abs=0.01)
 
 
 def test_Result_init() -> None:
@@ -399,8 +256,8 @@ def test_mutate_forward(
     SDHD = Transcript(rna_features=[exons], protein_features=[coding_exons])
     SDHD.mutate(d, v)
 
-    assert SDHD.exons and SDHD.exons.blocks() == exon_blocks
-    assert SDHD.coding_exons and SDHD.coding_exons.blocks() == coding_exon_blocks
+    assert SDHD.features.exons and SDHD.features.exons.blocks() == exon_blocks
+    assert SDHD.features.coding_exons and SDHD.features.coding_exons.blocks() == coding_exon_blocks
 
 
 MUTATE = [
@@ -561,8 +418,8 @@ def test_mutate_reverse(
     WT1 = Transcript(rna_features=[exons], protein_features=[coding_exons])
     WT1.mutate(d, v)
 
-    assert WT1.exons and WT1.exons.blocks() == exon_blocks
-    assert WT1.coding_exons and WT1.coding_exons.blocks() == coding_exon_blocks
+    assert WT1.features.exons and WT1.features.exons.blocks() == exon_blocks
+    assert WT1.features.coding_exons and WT1.features.coding_exons.blocks() == coding_exon_blocks
 
 
 def test_Comparison_from_dict() -> None:
