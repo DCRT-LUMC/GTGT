@@ -270,6 +270,10 @@ def variants_to_hgvs(d: Description, variants: list[Variant]) -> str:
 def variants_to_protein(d: Description, variants: list[Variant]) -> str:
     """Determine the protein sequence from a list of variants"""
 
+    # We only support RNA variants
+    if (coordinate := d.input_model["coordinate_system"]) != "r":
+        raise ValueError(f"Protein prediction is not supported for '{coordinate}.'")
+
     variant_models = [Variant.to_model(v) for v in variants]
     sequences = extract_sequences(d.references)
 
@@ -285,8 +289,6 @@ def variants_to_protein(d: Description, variants: list[Variant]) -> str:
     selector_model = get_protein_selector_model(
         d.references[ref_id]["annotations"], selector_id=selector_id
     )
-
-    print(f"{sequences.keys()=}")
 
     assert selector_model is not None
 
@@ -304,9 +306,6 @@ def variants_to_protein(d: Description, variants: list[Variant]) -> str:
     cds_variants, splice_site_hits = to_rna_protein_coordinates(
         variant_models, sequences, selector_model
     )
-
-    if splice_site_hits:
-        raise ValueError("Splice site hit")
 
     cds_obs_seq = mutate({"reference": cds_seq_ext}, cds_variants)
     predicted = str(Seq(add_trailing_ns(cds_obs_seq)).translate())  # type: ignore

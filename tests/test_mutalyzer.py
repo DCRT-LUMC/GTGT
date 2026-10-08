@@ -519,26 +519,21 @@ def test_variants_to_hgvs(hgvs: str, expected: str | None) -> None:
     "hgvs",
     [
         # No change
-        "NM_003002.4:c.=",
         "NM_003002.4:r.=",
         # Frameshift mutation
-        "NM_003002.4:c.10del",
         "NM_003002.4:r.10del",
         # Insertion
-        "NM_003002.4:c.10_11insA",
         "NM_003002.4:r.10_11insA",
         # Out of frame deletion (long tail)
-        "NM_003002.4:c.50_53del",
         "NM_003002.4:r.50_53del",
         # Go out and back into frame
-        "NM_003002.4:c.[50del;70_71insA]",
         "NM_003002.4:r.[50del;70_71insA]",
-        "NC_000011.10(NM_003002.4):c.274G>T",
-        "NC_000011.10(NM_003002.4):c.52del",
+        # SNP
+        "NC_000011.10(NM_003002.4):r.274G>T",
+        # Another frameshift
+        "NC_000011.10(NM_003002.4):r.52del",
         # Reverse strand
-        "ENST00000452863.10:c.=",
         "ENST00000452863.10:r.=",
-        "ENST00000452863.10:c.10del",
         "ENST00000452863.10:r.10del",
     ],
 )
@@ -558,61 +553,3 @@ def test_variants_to_protein(hgvs: str) -> None:
     from_variants = variants_to_protein(d, input_variants)
 
     assert from_hgvs == from_variants
-
-
-@pytest.mark.parametrize(
-    "hgvs",
-    [
-        "NC_000011.10(NM_003002.4):c.50_52+12del",
-        # "NC_000011.10(NM_003002.4):c.52del",
-        # "NC_000011.10(NM_003002.4):c.10del",
-    ],
-)
-def test_variants_to_protein_splice_site(hgvs: str) -> None:
-    """Test that we can generate the correct protein prediction from a list of variants"""
-    d = init_description(hgvs)
-
-    sequence = sequence_from_description(d)
-    input_variants = [
-        Variant.from_model(delins, sequence=sequence)
-        for delins in d.delins_model["variants"]
-    ]
-    with pytest.raises(ValueError):
-        variants_to_protein(d, input_variants)
-
-
-should_fail_splice = [
-    "NC_000011.10(NM_003002.4):c.52del",
-    "ENST00000452863.10:c.661del",
-    "ENST00000452863.10:c.661+1del",
-    "ENST00000452863.10:c.660_661+20del",
-    "ENST00000452863.10:c.650_661+120del",
-]
-
-
-# These should also fail, but somehow the description object was not properly initialized
-@pytest.mark.xfail
-@pytest.mark.parametrize("hgvs", should_fail_splice)
-def test_variants_to_protein_splice_site_should_fail(hgvs: str) -> None:
-    """Test that we can generate the correct protein prediction from a list of variants"""
-    d = init_description(hgvs)
-
-    sequence = sequence_from_description(d)
-    input_variants = [
-        Variant.from_model(delins, sequence=sequence)
-        for delins in d.delins_model["variants"]
-    ]
-    with pytest.raises(ValueError):
-        variants_to_protein(d, input_variants)
-
-
-@pytest.mark.parametrize("hgvs", should_fail_splice)
-def test_variants_to_protein_splice_site_should_not_fail(hgvs: str) -> None:
-    """
-    Test that these variants do fail protein prediction when using a fully
-    initialized Description object from Mutalyzer
-    """
-    d = Description(hgvs)
-    d.normalize()
-
-    assert "errors" in d.protein
