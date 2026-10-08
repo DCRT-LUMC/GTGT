@@ -5,7 +5,9 @@ from typing import Any, Mapping, Sequence, TypeVar
 
 import Levenshtein
 import mutalyzer_hgvs_parser
+from Bio.Seq import Seq
 from mutalyzer.converter.to_hgvs_coordinates import to_hgvs_locations
+from mutalyzer.converter.to_rna import to_rna_protein_coordinates
 from mutalyzer.converter.variants_de_to_hgvs import (
     delins_to_del,
     delins_to_delins,
@@ -24,10 +26,17 @@ from mutalyzer.description_model import (
     get_selector_id,
     variants_to_description,
 )
-from mutalyzer.protein import get_protein_description, in_frame_description
+from mutalyzer.protein import (
+    extract_sequences,
+    get_protein_description,
+    in_frame_description,
+    slice_seq,
+)
 from mutalyzer.reference import get_protein_selector_model
 from mutalyzer.util import get_inserted_sequence, get_location_length
 from mutalyzer_crossmapper import Coding
+from mutalyzer_mutator import mutate
+from mutalyzer_mutator.util import reverse_complement
 from pydantic import BaseModel, model_validator
 from typing_extensions import NewType
 
@@ -37,6 +46,13 @@ from .variant import Variant, combine_variants_deletion
 
 # Mutalyzer Variant dictionary
 Variant_Dict = NewType("Variant_Dict", Mapping[str, Any])
+
+
+def add_trailing_ns(sequence: str) -> str:
+    remainder = len(sequence) % 3
+    if remainder != 0:
+        sequence = sequence + "N" * (3 - len(sequence) % 3)
+    return sequence
 
 
 def chrom_to_nc(chrom: str) -> str:
@@ -249,6 +265,53 @@ def variants_to_hgvs(d: Description, variants: list[Variant]) -> str:
     # Create the new HGVS
     new_hgvs = f"{identifier}:{coordinate}.{new_variants}"
     return new_hgvs
+
+
+def variants_to_protein(d: Description, variants: list[Variant]) -> str:
+    """Determine the protein sequence from a list of variants"""
+
+    variant_models = [Variant.to_model(v) for v in variants]
+    sequences = extract_sequences(d.references)
+
+    # Get reference
+    ref_id = d.references["reference"]["annotations"]["id"]
+    dna_ref_seq = sequences[ref_id]
+
+    if ref_id.startswith("LRG_"):
+        raise ValueError("LRG's are not supported")
+
+    # Get the selector
+    selector_id = get_selector_id(d.corrected_model)
+    selector_model = get_protein_selector_model(
+        d.references[ref_id]["annotations"], selector_id=selector_id
+    )
+
+    print(f"{sequences.keys()=}")
+
+    assert selector_model is not None
+
+    exons = selector_model["exon"]
+    cds = [selector_model["cds"][0][0], selector_model["cds"][0][1]]
+
+    cds_seq = slice_seq(dna_ref_seq, exons, cds[0], cds[1])
+
+    if selector_model["inverted"]:
+        cds_seq = reverse_complement(cds_seq)
+        cds_seq_ext = reverse_complement(slice_seq(dna_ref_seq, exons, 0, cds[1]))
+    else:
+        cds_seq_ext = slice_seq(dna_ref_seq, exons, cds[0])
+
+    cds_variants, splice_site_hits = to_rna_protein_coordinates(
+        variant_models, sequences, selector_model
+    )
+
+    if splice_site_hits:
+        raise ValueError("Splice site hit")
+
+    cds_obs_seq = mutate({"reference": cds_seq_ext}, cds_variants)
+    predicted = str(Seq(add_trailing_ns(cds_obs_seq)).translate())  # type: ignore
+    first_stop = predicted.find("*")
+    return predicted[: first_stop + 1]
 
 
 def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
