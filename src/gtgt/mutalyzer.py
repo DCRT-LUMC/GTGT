@@ -199,6 +199,58 @@ def de_to_hgvs(variants: Any, sequences: Any) -> Sequence[Variant_Dict]:
     return new_variants
 
 
+def variants_to_hgvs(d: Description, variants: list[Variant]) -> str:
+    """Generate HGVS description for the specified variants"""
+    # Get the coordinate system
+    coordinate = d.corrected_model["coordinate_system"]
+    identifier = d.input_description.split(f":{coordinate}.")[0]
+
+    # Convert the variants to delins model for mutalyzer
+    delins_model = [v.to_model() for v in variants]
+
+    # Invert the deleted sequence if the transcript is on the reverse strand
+    if d.is_inverted():
+        for delins in delins_model:
+            if "deleted" in delins:
+                _del = delins["deleted"][0]
+                _del["sequence"] = Variant._reverse_complement(_del["sequence"])
+                _del["inverted"] = True
+
+    # I'm not sure this conversion does anything
+    variant_models = de_to_hgvs(delins_model, d.get_sequences())
+
+    ref_id = get_reference_id(d.corrected_model)
+    selector_id = get_selector_id(d.corrected_model)
+
+    selector_model = get_protein_selector_model(
+        reference=d.references[ref_id]["annotations"], selector_id=selector_id
+    )
+
+    description_model = {
+        "type": "description_dna",
+        "reference": {"id": ref_id, "selector": {"id": ref_id}},
+        "coordinate_system": "c",
+        "variants": variant_models,
+    }
+
+    cdot_locations = to_hgvs_locations(
+        description_model,
+        d.references,
+        selector_model=selector_model,
+    )["variants"]
+
+    # Get the coordinate system
+    coordinate = d.corrected_model["coordinate_system"]
+    identifier = d.input_description.split(f":{coordinate}.")[0]
+
+    # Get the variants
+    new_variants = variants_to_description(cdot_locations)
+
+    # Create the new HGVS
+    new_hgvs = f"{identifier}:{coordinate}.{new_variants}"
+    return new_hgvs
+
+
 def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
     delins_model = [v.to_model() for v in variants]

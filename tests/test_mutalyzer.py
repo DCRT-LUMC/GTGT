@@ -14,6 +14,7 @@ from gtgt.mutalyzer import (
     protein_to_genomic,
     range_in_coding,
     sequence_from_description,
+    variants_to_hgvs,
 )
 from gtgt.therapy import Therapy
 from gtgt.transcript import Comparison, Transcript
@@ -466,3 +467,48 @@ class TestCrossmapper:
         Coding tuples) is in the coding region
         """
         assert range_in_coding(start, end) == in_coding
+
+
+@pytest.mark.parametrize(
+    "hgvs, expected",
+    [
+        # Forward transcript
+        ("NM_003002.4:c.=", None),
+        ("NM_003002.4:r.=", None),
+        ("NM_003002.4:c.10del", None),
+        ("NM_003002.4:r.10del", None),
+        # Inversions and dups will become delins
+        ("NM_003002.4:c.10_12inv", "NM_003002.4:c.10_12delinsGAG"),
+        ("NM_003002.4:r.10_12inv", "NM_003002.4:r.10_12delinsgag"),
+        ("NM_003002.4:c.10_12dup", "NM_003002.4:c.10_12delinsCTCCTC"),
+        ("NM_003002.4:r.10_12dup", "NM_003002.4:r.10_12delinscuccuc"),
+        ("NM_003002.4:c.[10del;21_22insATCG]", None),
+        ("NM_003002.4:r.[10del;21_22insaucg]", None),
+        # Reverse transcript
+        ("ENST00000452863.10:c.=", None),
+        ("ENST00000452863.10:r.=", None),
+        ("ENST00000452863.10:c.10del", None),
+        ("ENST00000452863.10:r.10del", None),
+        ("ENST00000452863.10:c.100_105inv", "ENST00000452863.10:c.100_105delinsCTGCTC"),
+        ("ENST00000452863.10:r.100_105inv", "ENST00000452863.10:r.100_105delinscugcuc"),
+        ("ENST00000452863.10:c.101A[4]", "ENST00000452863.10:c.101delinsAAAA"),
+        # Test an NC(NM)
+        ("NC_000011.10(NM_003002.4):c.274G>T", None),
+    ],
+)
+def test_variants_to_hgvs(hgvs: str, expected: str | None) -> None:
+    """Test that we can generate a valid HGVS description from a list of variants"""
+    d = init_description(hgvs)
+
+    # Get the variants from the initialized Description
+    sequence = sequence_from_description(d)
+    input_variants = [
+        Variant.from_model(delins, sequence=sequence)
+        for delins in d.delins_model["variants"]
+    ]
+
+    # Inversions and duplications are not reversible
+    if expected:
+        assert variants_to_hgvs(d, input_variants) == expected
+    else:
+        assert variants_to_hgvs(d, input_variants) == hgvs
