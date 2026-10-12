@@ -313,6 +313,15 @@ def variants_to_protein(d: Description, variants: list[Variant]) -> str:
     return predicted[: first_stop + 1]
 
 
+def variants_to_protein_hgvs(d: Description, variants: list[Variant]) -> str:
+    """Determine the protein HGVS description from a list of variants"""
+    # We only support RNA variants
+    if (coordinate := d.input_model["coordinate_system"]) != "r":
+        raise ValueError(f"Protein prediction is not supported for '{coordinate}.'")
+
+    return protein_prediction(d, variants)[0]
+
+
 def to_cdot_hgvs(d: Description, variants: Sequence[Variant]) -> str:
     """Convert a list of _Variants to hgvs representation"""
     delins_model = [v.to_model() for v in variants]
