@@ -5,7 +5,7 @@ import pytest
 from gtgt import Bed
 from gtgt.mutalyzer import init_description
 from gtgt.therapy import Therapy
-from gtgt.transcript import Allele, Comparison, Result, is_of_interest
+from gtgt.transcript import Allele, Comparison, Features, Result, is_of_interest
 from gtgt.variant import Variant
 
 
@@ -38,7 +38,7 @@ def transcript(exons: Bed, coding_exons: Bed) -> Allele:
     exons         -   - -   -   - - -
     coding_exons      - -   -   -
     """
-    return Allele(rna_features=[exons], protein_features=[coding_exons])
+    return Allele(Features(rna=[exons], protein=[coding_exons]))
 
 
 def test_transcript_init(transcript: Allele) -> None:
@@ -49,14 +49,14 @@ def test_transcript_init(transcript: Allele) -> None:
 
 def test_empty_transcript() -> None:
     """Test creating and working with an empty transcript"""
-    t = Allele(rna_features=[], protein_features=[])
+    t = Allele(Features(rna=[], protein=[]))
 
     # Test if we can get the records
     assert t.features.records() == []
 
     # Test if mutating the transcript works
     d = init_description("ENST00000375549.8:c.10del")
-    t.mutate(d, variants=[])
+    t.features.mutate(d, variants=[])
     assert t
 
 
@@ -91,99 +91,79 @@ def test_Result_comparison() -> None:
         # Identical patient and therapy
         (
             # Patient
-            Allele(rna_features=[], protein_features=[]),
+            Features(rna=[], protein=[]),
             [],
             # Therapy
-            Allele(rna_features=[], protein_features=[]),
+            Features(rna=[], protein=[]),
             [],
             False,
         ),
         # The therapy got rid of one of the variants
         (
             # Patient
-            Allele(rna_features=[], protein_features=[]),
+            Features(rna=[], protein=[]),
             [Variant(10, 20)],
             # Therapy
-            Allele(rna_features=[], protein_features=[]),
+            Features(rna=[], protein=[]),
             [],
             True,
         ),
         # One of the therapy features is smaller
         (
             # Patient
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=20)], protein=[]),
             [],
             # Therapy
-            Allele(
-                rna_features=[Bed("", chromStart=11, chromEnd=20)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=11, chromEnd=20)], protein=[]),
             [],
             False,
         ),
         # One of the therapy features is larger
         (
             # Patient
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=20)], protein=[]),
             [],
             # Therapy
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=21)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=21)], protein=[]),
             [],
             True,
         ),
         # One of the therapy features is completely missing
         (
             # Patient
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=20)], protein=[]),
             [],
             # Therapy
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=10)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=10)], protein=[]),
             [],
             False,
         ),
         # One of the patient features is completely missing
         (
             # Patient
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=10)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=10)], protein=[]),
             [],
             # Therapy
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=20)], protein=[]),
             [],
             True,
         ),
         # The therapy is smaller, but has a region the patient lacks
         (
             # Patient
-            Allele(
-                rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=10, chromEnd=20)], protein=[]),
             [],
             # Therapy
-            Allele(
-                rna_features=[Bed("", chromStart=20, chromEnd=21)], protein_features=[]
-            ),
+            Features(rna=[Bed("", chromStart=20, chromEnd=21)], protein=[]),
             [],
             True,
         ),
     ],
 )
 def test_therapy_is_of_interest(
-    patient: Allele,
+    patient: Features,
     patient_vars: Sequence[Variant],
-    therapy: Allele,
+    therapy: Features,
     therapy_vars: Sequence[Variant],
     expected: bool,
 ) -> None:
@@ -253,14 +233,11 @@ def test_mutate_forward(
         for delins in d.de_hgvs_internal_indexing_model["variants"]
     ]
 
-    SDHD = Allele(rna_features=[exons], protein_features=[coding_exons])
+    SDHD = Features(rna=[exons], protein=[coding_exons])
     SDHD.mutate(d, v)
 
-    assert SDHD.features.exons and SDHD.features.exons.blocks() == exon_blocks
-    assert (
-        SDHD.features.coding_exons
-        and SDHD.features.coding_exons.blocks() == coding_exon_blocks
-    )
+    assert SDHD.exons and SDHD.exons.blocks() == exon_blocks
+    assert SDHD.coding_exons and SDHD.coding_exons.blocks() == coding_exon_blocks
 
 
 MUTATE = [
@@ -418,8 +395,8 @@ def test_mutate_reverse(
     d = init_description(f"{transcript}:c.{variant}")
     v = [Variant.from_model(delins) for delins in d.delins_model["variants"]]
 
-    WT1 = Allele(rna_features=[exons], protein_features=[coding_exons])
-    WT1.mutate(d, v)
+    WT1 = Allele(Features(rna=[exons], protein=[coding_exons]))
+    WT1.features.mutate(d, v)
 
     assert WT1.features.exons and WT1.features.exons.blocks() == exon_blocks
     assert (

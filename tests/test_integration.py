@@ -27,7 +27,7 @@ def compare_to_wildtype(hgvs: str) -> Sequence[Comparison]:
         Variant.from_model(delins, sequence=sequence)
         for delins in d.delins_model["variants"]
     ]
-    t.mutate(d, input_variants)
+    t.features.mutate(d, input_variants)
 
     return t.features.compare(wt.features)
 

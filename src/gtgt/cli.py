@@ -180,7 +180,7 @@ def export(args: argparse.Namespace) -> None:
         Variant.from_model(delins, sequence=sequence)
         for delins in d.delins_model["variants"]
     ]
-    transcript.mutate(d, input_variants)
+    transcript.features.mutate(d, input_variants)
 
     for record in transcript.features.records():
         print(record)

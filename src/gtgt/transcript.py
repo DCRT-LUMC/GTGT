@@ -67,6 +67,22 @@ class Result:
         )
 
 
+class Transcript:
+    """
+    Class to hold a Transcript
+
+
+    A Transcript can be defined on DNA (c.) or RNA (r.)
+
+    The mutalyzer Description object is for the wildtype, the variants are defined separately
+    """
+
+    def __init__(self, d: Description, mapper: Coding, variants: list[Variant]) -> None:
+        self.d = d
+        self.mapper = mapper
+        self.variants = variants
+
+
 class Features:
     """
     Class to hold the features of an Allele.
@@ -161,6 +177,24 @@ class Features:
         values = [x.percentage for x in cmp]
         return sum(values) / len(cmp)
 
+    def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
+        """Mutate the transcript based on the specified variants"""
+        # Determine the chromosome the transcript is on
+        if self.records():
+            chrom = self.records()[0].chrom
+        else:
+            chrom = ""
+
+        # Update protein features
+        protein_changes = Bed.from_blocks(chrom, mutation_to_cds_effect(d, variants))
+        for record in self.protein:
+            record.subtract(protein_changes)
+
+        # Update RNA features
+        rna_changes = Bed.from_blocks(chrom, [(v.start, v.end) for v in variants])
+        for record in self.rna_records():
+            self.subtract(rna_changes)
+
 
 class Allele:
     """
@@ -181,8 +215,8 @@ class Allele:
     Transcript.
     """
 
-    def __init__(self, rna_features: list[Bed], protein_features: list[Bed]):
-        self.features = Features(rna_features, protein_features)
+    def __init__(self, features: Features) -> None:
+        self.features = features
 
     @classmethod
     def from_description(cls, d: Description) -> "Allele":
@@ -214,25 +248,7 @@ class Allele:
         coding_exons = exon_bed.intersect(cds_bed)
         coding_exons.name = "Coding exons"
 
-        return cls(rna_features=[exon_bed], protein_features=[coding_exons])
-
-    def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
-        """Mutate the transcript based on the specified variants"""
-        # Determine the chromosome the transcript is on
-        if self.features.records():
-            chrom = self.features.records()[0].chrom
-        else:
-            chrom = ""
-
-        # Update protein features
-        protein_changes = Bed.from_blocks(chrom, mutation_to_cds_effect(d, variants))
-        for record in self.features.protein:
-            record.subtract(protein_changes)
-
-        # Update RNA features
-        rna_changes = Bed.from_blocks(chrom, [(v.start, v.end) for v in variants])
-        for record in self.features.rna_records():
-            self.features.subtract(rna_changes)
+        return cls(Features(rna=[exon_bed], protein=[coding_exons]))
 
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
@@ -272,7 +288,7 @@ class Allele:
             figure=draw(d),
         )
         patient = deepcopy(self)
-        patient.mutate(d, input.variants)
+        patient.features.mutate(d, input.variants)
         results.append(Result(input, patient.features.compare(self.features)))
 
         # Generate all possible therapies
@@ -280,12 +296,15 @@ class Allele:
 
             # Apply the combination to the wildtype transcript
             modified_transcript = deepcopy(self)
-            modified_transcript.mutate(d, therapy.variants)
+            modified_transcript.features.mutate(d, therapy.variants)
 
             # Filter variants which are not of interest
             if not extended:
                 if not is_of_interest(
-                    patient, input.variants, modified_transcript, therapy.variants
+                    patient.features,
+                    input.variants,
+                    modified_transcript.features,
+                    therapy.variants,
                 ):
                     continue
             results.append(
@@ -332,9 +351,9 @@ class Allele:
 
 
 def is_of_interest(
-    patient: Allele,
+    patient: Features,
     patient_vars: Sequence[Variant],
-    therapy: Allele,
+    therapy: Features,
     therapy_vars: Sequence[Variant],
 ) -> bool:
     """Determine if therapy is of interest for patient
@@ -350,7 +369,7 @@ def is_of_interest(
 
     # Determine if there are any regions that were restored in the therapy,
     # which are lacking in the patient
-    for t, p in zip(therapy.features.records(), patient.features.records()):
+    for t, p in zip(therapy.records(), patient.records()):
         restored = deepcopy(t)
         restored.subtract(p)
         if restored.size > 0:
