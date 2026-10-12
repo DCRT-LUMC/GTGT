@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, NewType, Sequence, TypeVar, cast
 
 from mutalyzer.description import Description
 from mutalyzer_crossmapper import Coding
@@ -76,6 +76,7 @@ class Transcript:
 
     Note that the mutalyzer Description object is the wildtype, the variants are defined separately
     """
+
     def __init__(self, hgvs: str) -> None:
         # Make the wildtype version of the transcript
         if ":c." in hgvs:
@@ -95,7 +96,7 @@ class Transcript:
         d = init_description(hgvs)
         sequence = sequence_from_description(d)
 
-        return  [
+        return [
             Variant.from_model(delins, sequence=sequence)
             for delins in d.delins_model["variants"]
         ]
@@ -117,6 +118,37 @@ class Features:
     def __init__(self, rna: list[Bed], protein: list[Bed]):
         self.rna = rna
         self.protein = protein
+
+    @classmethod
+    def from_hgvs(cls, hgvs: str) -> "Features":
+        """Create a Transcript object from a mutalyzer Description"""
+        d = init_description(hgvs)
+
+        # Get exons and add the offset
+        selector_model = d.get_selector_model()
+        exons = selector_model["exon"]
+
+        # Get CDS and add the offset
+        cds = selector_model["cds"][0]
+
+        # Get the strand and chromosome name
+        chrom = get_chrom_name(d)
+        strand = get_strand(d)
+
+        # Convert to Bed to intersect the exons with the CDS to get the coding
+        # exons
+        exon_bed = Bed.from_blocks(chrom, exons)
+        exon_bed.name = "Exons"
+        exon_bed.strand = strand
+
+        cds_bed = Bed.from_blocks(chrom, [cds])
+        cds_bed.strand = strand
+
+        # Make a copy to intersect
+        coding_exons = exon_bed.intersect(cds_bed)
+        coding_exons.name = "Coding exons"
+
+        return cls(rna=[exon_bed], protein=[coding_exons])
 
     def records(self) -> Sequence[Bed]:
         """Return all Bed records"""
@@ -233,40 +265,16 @@ class Allele:
     Transcript.
     """
 
-    def __init__(self, features: Features) -> None:
-        self.features = features
+    def __init__(self, features: Features | None, rna: str | None = None) -> None:
+        # If there are no features specified, we use the features from the RNA
+        if not features and rna:
+            features = Features.from_hgvs(rna)
+        if not features and not rna:
+            raise ValueError("Please specify either features or rna")
 
-    @classmethod
-    def from_description(cls, d: Description) -> "Allele":
-        """Create a Transcript object from a mutalyzer Description"""
-        # Check if we can use this Description to initialize a Transcript
-        offset = get_offset(d)
-
-        # Get exons and add the offset
-        selector_model = d.get_selector_model()
-        exons = selector_model["exon"]
-
-        # Get CDS and add the offset
-        cds = selector_model["cds"][0]
-
-        # Get the strand and chromosome name
-        chrom = get_chrom_name(d)
-        strand = get_strand(d)
-
-        # Convert to Bed to intersect the exons with the CDS to get the coding
-        # exons
-        exon_bed = Bed.from_blocks(chrom, exons)
-        exon_bed.name = "Exons"
-        exon_bed.strand = strand
-
-        cds_bed = Bed.from_blocks(chrom, [cds])
-        cds_bed.strand = strand
-
-        # Make a copy to intersect
-        coding_exons = exon_bed.intersect(cds_bed)
-        coding_exons.name = "Coding exons"
-
-        return cls(Features(rna=[exon_bed], protein=[coding_exons]))
+        # Note that we can safely cast to Features since we ensure that
+        # features is not None above
+        self.features = cast(Features, features)
 
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""

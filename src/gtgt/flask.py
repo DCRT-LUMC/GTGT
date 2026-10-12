@@ -128,7 +128,8 @@ def result(variant: str | None = None) -> str:
     # Analyze the transcript
     try:
         d = init_description(variant)
-        transcript = Allele.from_description(d)
+        # TODO ensure that variant is RNA
+        transcript = Allele(features=None, rna=variant)
 
         # Extract parameter from the request
         protein_domains = request.args.get("protein_domains") == "true"

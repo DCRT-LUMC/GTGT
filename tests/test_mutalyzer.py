@@ -19,7 +19,7 @@ from gtgt.mutalyzer import (
     variants_to_protein_hgvs,
 )
 from gtgt.therapy import Therapy
-from gtgt.transcript import Allele, Comparison
+from gtgt.transcript import Allele, Comparison, Features
 from gtgt.variant import Variant
 
 
@@ -33,9 +33,9 @@ def WT1_description() -> Description:
     return init_description("ENST00000452863.10:c.=")
 
 
-def WT_Transcript() -> Allele:
-    d = WT1_description()
-    return Allele.from_description(d)
+def WT_Allele() -> Allele:
+    features = Features.from_hgvs("ENST00000452863.10:c.=")
+    return Allele(features)
 
 
 @pytest.mark.slow
@@ -44,7 +44,7 @@ def WT_Transcript() -> Allele:
     "13T>A 970del 970_971insA 997_999delinsTAA 1000dup 10_11inv 994_996A[9]".split(),
 )
 def test_analyze_supported_variant_types(variant: str) -> None:
-    WT = WT_Transcript()
+    WT = WT_Allele()
     hgvs = f"ENST00000452863.10:c.{variant}"
     WT.analyze(hgvs)
 
@@ -55,7 +55,7 @@ def test_analyze_transcript() -> None:
     # Frameshift in small in-frame exon 5
     variant = "ENST00000452863.10:c.970del"
 
-    WT = WT_Transcript()
+    WT = WT_Allele()
 
     results = WT.analyze(variant)
 
@@ -191,9 +191,7 @@ def test_protein_prediction_unknown() -> None:
 
 def test_transcript_from_description_WT1() -> None:
     """Test creating a Transcript from a Mutalyzer Description"""
-    d = WT1_description()
-    transcript = Allele.from_description(d)
-    features = transcript.features
+    features = Features.from_hgvs("ENST00000452863.10:c.=")
     # Manually verified block starts for the exons of WT1
     assert features.exons and features.exons.blockStarts == [
         0,
@@ -224,9 +222,7 @@ def test_transcript_from_description_WT1() -> None:
 
 def test_transcript_from_description_SDHD() -> None:
     """Test creating a Transcript from a Mutalyzer Description"""
-    d = SDHD_description()
-    transcript = Allele.from_description(d)
-    features = transcript.features
+    features = Features.from_hgvs("ENST00000375549.8:c.=")
     # Manually verified block starts for the exons of SDHD
     assert features.exons and features.exons.blockStarts == [0, 984, 1994, 7932]
     # Manually verified block starts for the coding exons of SDHD
@@ -240,9 +236,7 @@ def test_transcript_from_description_SDHD() -> None:
 
 def test_transcript_from_NC_NM_forward() -> None:
     """Test creating a forward Transcript from a Mutalyzer NC(NM) description"""
-    d = init_description("NC_000011.10(NM_003002.4):c.=")
-    transcript = Allele.from_description(d)
-    features = transcript.features
+    features = Features.from_hgvs("NC_000011.10(NM_003002.4):c.=")
 
     assert features.exons and features.exons.blocks() == [
         (5026, 5113),
@@ -264,8 +258,7 @@ def test_analyze_NC_NM_forward() -> None:
     NM_003002 is SDHD
     """
     hgvs = "NC_000011.10(NM_003002.4):c.102del"
-    d = init_description(hgvs)
-    transcript = Allele.from_description(d)
+    transcript = Allele(features=Features.from_hgvs(hgvs))
 
     results = transcript.analyze(hgvs)
 
@@ -290,8 +283,7 @@ def test_analyze_NM_forward() -> None:
     NM_003002 is SDHD
     """
     hgvs = "NM_003002.4:c.102del"
-    d = init_description(hgvs)
-    t = Allele.from_description(d)
+    t = Allele(features=Features.from_hgvs(hgvs))
 
     results = t.analyze(hgvs)
 
@@ -315,8 +307,7 @@ def test_transcript_from_NC_NM_reverse() -> None:
 
     NM_012459.4 is TIMM8B
     """
-    d = init_description("NC_000011.10(NM_012459.4):c.=")
-    transcript = Allele.from_description(d)
+    transcript = Allele(features=Features.from_hgvs("NC_000011.10(NM_012459.4):c.="))
     features = transcript.features
 
     assert features.exons and features.exons.blocks() == [(2953, 3616), (4793, 4910)]
@@ -332,8 +323,7 @@ def test_analyze_NC_NM_reverse() -> None:
     NM_012459.4 is TIMM8B
     """
     hgvs = "NC_000011.10(NM_012459.4):c.100del"
-    d = init_description(hgvs)
-    t = Allele.from_description(d)
+    t = Allele(features=Features.from_hgvs(hgvs))
 
     results = t.analyze(hgvs)
 
@@ -354,8 +344,7 @@ def test_analyze_NM_reverse() -> None:
     NM_012459.4 is TIMM8B
     """
     hgvs = "NM_012459.4:c.100del"
-    d = init_description(hgvs)
-    t = Allele.from_description(d)
+    t = Allele(features=Features.from_hgvs(hgvs))
 
     results = t.analyze(hgvs)
 

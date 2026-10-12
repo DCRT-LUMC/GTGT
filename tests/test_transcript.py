@@ -5,7 +5,14 @@ import pytest
 from gtgt import Bed
 from gtgt.mutalyzer import init_description
 from gtgt.therapy import Therapy
-from gtgt.transcript import Allele, Comparison, Features, Result, Transcript, is_of_interest
+from gtgt.transcript import (
+    Allele,
+    Comparison,
+    Features,
+    Result,
+    Transcript,
+    is_of_interest,
+)
 from gtgt.variant import Variant
 
 
@@ -28,9 +35,9 @@ def coding_exons() -> Bed:
 
 
 @pytest.fixture
-def transcript(exons: Bed, coding_exons: Bed) -> Allele:
+def allele(exons: Bed, coding_exons: Bed) -> Allele:
     """
-    Bed records that make up a transcript
+    Bed records that make up an allele
     Each positions shown here is 10x
     (i) means inferred by the init method
 
@@ -38,11 +45,12 @@ def transcript(exons: Bed, coding_exons: Bed) -> Allele:
     exons         -   - -   -   - - -
     coding_exons      - -   -   -
     """
-    return Allele(Features(rna=[exons], protein=[coding_exons]))
+    features = Features(rna=[exons], protein=[coding_exons])
+    return Allele(features=features)
 
 
-def test_transcript_init(transcript: Allele) -> None:
-    features = transcript.features
+def test_transcript_init(allele: Allele) -> None:
+    features = allele.features
     assert features.rna[0].name == "Exons"
     assert features.protein[0].name == "Coding exons"
 
@@ -440,16 +448,17 @@ def test_Result_from_dict() -> None:
     assert Result.from_dict(d) == r
 
 
-@pytest.mark.parametrize("hgvs, wildtype",
-     [
+@pytest.mark.parametrize(
+    "hgvs, wildtype",
+    [
         # Test a c. variant
         ("NM_003002.4:c.102del", "NM_003002.4:c.="),
         # A hgvs with a selector
         ("NC_000011.10(NM_003002.4):c.102del", "NC_000011.10(NM_003002.4):c.="),
         # A variant on the RNA
         ("NM_003002.4:r.102del", "NM_003002.4:r.="),
-
-     ])
+    ],
+)
 def test_transcript_from_hgvs(hgvs: str, wildtype: str) -> None:
     """Test creating a transcript from HGVS"""
 

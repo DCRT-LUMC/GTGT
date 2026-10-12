@@ -40,7 +40,7 @@ def _set_transcript_parser(subparsers: Any) -> None:
     transcript_parser.add_argument(
         "transcript_id", type=str, help="Transcript of interest"
     )
-    transcript_parser.set_defaults(func=transcript)
+    transcript_parser.set_defaults(func=allele)
 
 
 def _set_link_parser(subparsers: Any) -> None:
@@ -123,9 +123,8 @@ def _set_render_parser(subparsers: Any) -> None:
     render_parser.set_defaults(func=render)
 
 
-def transcript(args: argparse.Namespace) -> None:
-    d = init_description(f"{args.transcript_id}:c.=")
-    t = Allele.from_description(d)
+def allele(args: argparse.Namespace) -> None:
+    t = Allele(features=None, rna=f"{args.transcript_id}:r.=")
     print(t)
 
 
@@ -143,13 +142,12 @@ def mutate(args: argparse.Namespace) -> None:
 
 def analyze(args: argparse.Namespace) -> None:
     d = init_description(args.hgvs)
-    transcript = Allele.from_description(d)
+    allele = Allele(features=None, rna=args.hgvs)
     if args.protein_domains:
-        transcript.lookup_protein_domains(d)
+        allele.lookup_protein_domains(d)
     # Convert Result objects to dict
     results = [
-        dataclasses.asdict(x)
-        for x in transcript.analyze(args.hgvs, extended=args.extended)
+        dataclasses.asdict(x) for x in allele.analyze(args.hgvs, extended=args.extended)
     ]
     print(json.dumps(results, indent=True, default=vars))
 
@@ -170,7 +168,7 @@ def webserver(args: argparse.Namespace) -> None:
 def export(args: argparse.Namespace) -> None:
     # Get the transcript
     d = init_description(args.hgvs)
-    transcript = Allele.from_description(d)
+    transcript = Allele(features=None, rna=args.hgvs)
     if args.protein_domains:
         transcript.lookup_protein_domains(d)
 

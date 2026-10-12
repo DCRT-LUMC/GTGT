@@ -4,7 +4,7 @@ import pytest
 
 from gtgt import Allele
 from gtgt.mutalyzer import init_description, sequence_from_description
-from gtgt.transcript import Comparison
+from gtgt.transcript import Comparison, Features
 from gtgt.variant import Variant
 
 
@@ -16,11 +16,12 @@ def compare_to_wildtype(hgvs: str) -> Sequence[Comparison]:
     *rest, variant = hgvs.split(".")
     wt_hgvs = ".".join(rest) + ".="
 
-    wt = Allele.from_description(init_description(wt_hgvs))
+    features = Features.from_hgvs(wt_hgvs)
+    wt = Allele(features)
 
     # Next, we create and mutate the transcript of interest
     d = init_description(hgvs)
-    t = Allele.from_description(d)
+    t = Allele(features=Features.from_hgvs(hgvs))
 
     sequence = sequence_from_description(d)
     input_variants = [
