@@ -1,4 +1,4 @@
 from .bed import Bed
-from .transcript import Transcript
+from .transcript import Allele
 
-__all__ = ["Bed", "Transcript"]
+__all__ = ["Bed", "Allele"]

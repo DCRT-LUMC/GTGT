@@ -68,12 +68,24 @@ class Result:
 
 
 class Features:
+    """
+    Class to hold the features of an Allele.
+
+    The individual features are split onto two categories, RNA and protein
+    features. The reason for this is that variants have a different effect on
+    features on the RNA (such as poly-adenylation sites) and the protein.
+
+    For example, an out of frame insertion will not lead to the loss of any of
+    the RNA features, but it will invalidate all protein features downstream of
+    the variant.
+    """
+
     def __init__(self, rna: list[Bed], protein: list[Bed]):
         self.rna = rna
         self.protein = protein
 
     def records(self) -> Sequence[Bed]:
-        """Return the Bed records that make up the Transcript"""
+        """Return all Bed records"""
         return self.rna + self.protein
 
     def rna_records(self) -> list[Bed]:
@@ -142,7 +154,7 @@ class Features:
 
         Returns the average value for all records
         """
-        if not isinstance(other, Transcript):
+        if not isinstance(other, Allele):
             raise NotImplementedError
         cmp = self.compare(other)
 
@@ -150,12 +162,30 @@ class Features:
         return sum(values) / len(cmp)
 
 
-class Transcript:
+class Allele:
+    """
+    The Allele class is the representation of one of the alleles of a putative
+    patient.
+
+    An Allele consists of:
+        - Features, see the Features class
+        - The RNA Transcript
+        - The DNA Transcript
+
+    For some variants, the RNA and DNA versions of the transcript will be
+    (practically) identical. However, in the case of splice altering varaints
+    there can be big differences between the RNA and the DNA version of the
+    Transcript.
+
+    The Features will use the internal coordinate system from the RNA
+    Transcript.
+    """
+
     def __init__(self, rna_features: list[Bed], protein_features: list[Bed]):
         self.features = Features(rna_features, protein_features)
 
     @classmethod
-    def from_description(cls, d: Description) -> "Transcript":
+    def from_description(cls, d: Description) -> "Allele":
         """Create a Transcript object from a mutalyzer Description"""
         # Check if we can use this Description to initialize a Transcript
         offset = get_offset(d)
@@ -302,9 +332,9 @@ class Transcript:
 
 
 def is_of_interest(
-    patient: Transcript,
+    patient: Allele,
     patient_vars: Sequence[Variant],
-    therapy: Transcript,
+    therapy: Allele,
     therapy_vars: Sequence[Variant],
 ) -> bool:
     """Determine if therapy is of interest for patient

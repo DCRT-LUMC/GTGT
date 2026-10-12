@@ -10,7 +10,7 @@ import logging
 import secrets
 from typing import Any
 
-from gtgt.transcript import Result, Transcript
+from gtgt.transcript import Allele, Result
 
 from .mutalyzer import (
     init_description,
@@ -125,7 +125,7 @@ def _set_render_parser(subparsers: Any) -> None:
 
 def transcript(args: argparse.Namespace) -> None:
     d = init_description(f"{args.transcript_id}:c.=")
-    t = Transcript.from_description(d)
+    t = Allele.from_description(d)
     print(t)
 
 
@@ -143,7 +143,7 @@ def mutate(args: argparse.Namespace) -> None:
 
 def analyze(args: argparse.Namespace) -> None:
     d = init_description(args.hgvs)
-    transcript = Transcript.from_description(d)
+    transcript = Allele.from_description(d)
     if args.protein_domains:
         transcript.lookup_protein_domains(d)
     # Convert Result objects to dict
@@ -170,7 +170,7 @@ def webserver(args: argparse.Namespace) -> None:
 def export(args: argparse.Namespace) -> None:
     # Get the transcript
     d = init_description(args.hgvs)
-    transcript = Transcript.from_description(d)
+    transcript = Allele.from_description(d)
     if args.protein_domains:
         transcript.lookup_protein_domains(d)
 

@@ -5,7 +5,7 @@ import pytest
 from gtgt import Bed
 from gtgt.mutalyzer import init_description
 from gtgt.therapy import Therapy
-from gtgt.transcript import Comparison, Result, Transcript, is_of_interest
+from gtgt.transcript import Allele, Comparison, Result, is_of_interest
 from gtgt.variant import Variant
 
 
@@ -28,7 +28,7 @@ def coding_exons() -> Bed:
 
 
 @pytest.fixture
-def transcript(exons: Bed, coding_exons: Bed) -> Transcript:
+def transcript(exons: Bed, coding_exons: Bed) -> Allele:
     """
     Bed records that make up a transcript
     Each positions shown here is 10x
@@ -38,10 +38,10 @@ def transcript(exons: Bed, coding_exons: Bed) -> Transcript:
     exons         -   - -   -   - - -
     coding_exons      - -   -   -
     """
-    return Transcript(rna_features=[exons], protein_features=[coding_exons])
+    return Allele(rna_features=[exons], protein_features=[coding_exons])
 
 
-def test_transcript_init(transcript: Transcript) -> None:
+def test_transcript_init(transcript: Allele) -> None:
     features = transcript.features
     assert features.rna[0].name == "Exons"
     assert features.protein[0].name == "Coding exons"
@@ -49,7 +49,7 @@ def test_transcript_init(transcript: Transcript) -> None:
 
 def test_empty_transcript() -> None:
     """Test creating and working with an empty transcript"""
-    t = Transcript(rna_features=[], protein_features=[])
+    t = Allele(rna_features=[], protein_features=[])
 
     # Test if we can get the records
     assert t.features.records() == []
@@ -91,32 +91,32 @@ def test_Result_comparison() -> None:
         # Identical patient and therapy
         (
             # Patient
-            Transcript(rna_features=[], protein_features=[]),
+            Allele(rna_features=[], protein_features=[]),
             [],
             # Therapy
-            Transcript(rna_features=[], protein_features=[]),
+            Allele(rna_features=[], protein_features=[]),
             [],
             False,
         ),
         # The therapy got rid of one of the variants
         (
             # Patient
-            Transcript(rna_features=[], protein_features=[]),
+            Allele(rna_features=[], protein_features=[]),
             [Variant(10, 20)],
             # Therapy
-            Transcript(rna_features=[], protein_features=[]),
+            Allele(rna_features=[], protein_features=[]),
             [],
             True,
         ),
         # One of the therapy features is smaller
         (
             # Patient
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
             ),
             [],
             # Therapy
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=11, chromEnd=20)], protein_features=[]
             ),
             [],
@@ -125,12 +125,12 @@ def test_Result_comparison() -> None:
         # One of the therapy features is larger
         (
             # Patient
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
             ),
             [],
             # Therapy
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=21)], protein_features=[]
             ),
             [],
@@ -139,12 +139,12 @@ def test_Result_comparison() -> None:
         # One of the therapy features is completely missing
         (
             # Patient
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
             ),
             [],
             # Therapy
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=10)], protein_features=[]
             ),
             [],
@@ -153,12 +153,12 @@ def test_Result_comparison() -> None:
         # One of the patient features is completely missing
         (
             # Patient
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=10)], protein_features=[]
             ),
             [],
             # Therapy
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
             ),
             [],
@@ -167,12 +167,12 @@ def test_Result_comparison() -> None:
         # The therapy is smaller, but has a region the patient lacks
         (
             # Patient
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=10, chromEnd=20)], protein_features=[]
             ),
             [],
             # Therapy
-            Transcript(
+            Allele(
                 rna_features=[Bed("", chromStart=20, chromEnd=21)], protein_features=[]
             ),
             [],
@@ -181,9 +181,9 @@ def test_Result_comparison() -> None:
     ],
 )
 def test_therapy_is_of_interest(
-    patient: Transcript,
+    patient: Allele,
     patient_vars: Sequence[Variant],
-    therapy: Transcript,
+    therapy: Allele,
     therapy_vars: Sequence[Variant],
     expected: bool,
 ) -> None:
@@ -253,7 +253,7 @@ def test_mutate_forward(
         for delins in d.de_hgvs_internal_indexing_model["variants"]
     ]
 
-    SDHD = Transcript(rna_features=[exons], protein_features=[coding_exons])
+    SDHD = Allele(rna_features=[exons], protein_features=[coding_exons])
     SDHD.mutate(d, v)
 
     assert SDHD.features.exons and SDHD.features.exons.blocks() == exon_blocks
@@ -418,7 +418,7 @@ def test_mutate_reverse(
     d = init_description(f"{transcript}:c.{variant}")
     v = [Variant.from_model(delins) for delins in d.delins_model["variants"]]
 
-    WT1 = Transcript(rna_features=[exons], protein_features=[coding_exons])
+    WT1 = Allele(rna_features=[exons], protein_features=[coding_exons])
     WT1.mutate(d, v)
 
     assert WT1.features.exons and WT1.features.exons.blocks() == exon_blocks

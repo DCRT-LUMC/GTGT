@@ -9,7 +9,7 @@ from jinja2 import Environment, FileSystemLoader
 from gtgt.mutalyzer import init_description
 from gtgt.transcript import Result
 
-from . import Transcript
+from . import Allele
 from .variant_validator import lookup_variant
 
 hgvs_error = (
@@ -128,7 +128,7 @@ def result(variant: str | None = None) -> str:
     # Analyze the transcript
     try:
         d = init_description(variant)
-        transcript = Transcript.from_description(d)
+        transcript = Allele.from_description(d)
 
         # Extract parameter from the request
         protein_domains = request.args.get("protein_domains") == "true"

@@ -5,6 +5,6 @@ API
    :toctree: generated
 
    gtgt.Bed
-   gtgt.Transcript
+   gtgt.Allele
    gtgt.transcript
    gtgt.range

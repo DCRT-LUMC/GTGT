@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from gtgt.bed import Bed
 from gtgt.models import TranscriptId
 from gtgt.mutalyzer import HGVS
-from gtgt.transcript import Transcript
+from gtgt.transcript import Allele
 
 payload = dict[str, str | int]
 

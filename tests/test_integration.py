@@ -2,7 +2,7 @@ from typing import Sequence
 
 import pytest
 
-from gtgt import Transcript
+from gtgt import Allele
 from gtgt.mutalyzer import init_description, sequence_from_description
 from gtgt.transcript import Comparison
 from gtgt.variant import Variant
@@ -16,11 +16,11 @@ def compare_to_wildtype(hgvs: str) -> Sequence[Comparison]:
     *rest, variant = hgvs.split(".")
     wt_hgvs = ".".join(rest) + ".="
 
-    wt = Transcript.from_description(init_description(wt_hgvs))
+    wt = Allele.from_description(init_description(wt_hgvs))
 
     # Next, we create and mutate the transcript of interest
     d = init_description(hgvs)
-    t = Transcript.from_description(d)
+    t = Allele.from_description(d)
 
     sequence = sequence_from_description(d)
     input_variants = [

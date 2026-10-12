@@ -19,7 +19,7 @@ from gtgt.mutalyzer import (
     variants_to_protein_hgvs,
 )
 from gtgt.therapy import Therapy
-from gtgt.transcript import Comparison, Transcript
+from gtgt.transcript import Allele, Comparison
 from gtgt.variant import Variant
 
 
@@ -33,9 +33,9 @@ def WT1_description() -> Description:
     return init_description("ENST00000452863.10:c.=")
 
 
-def WT_Transcript() -> Transcript:
+def WT_Transcript() -> Allele:
     d = WT1_description()
-    return Transcript.from_description(d)
+    return Allele.from_description(d)
 
 
 @pytest.mark.slow
@@ -75,7 +75,7 @@ def test_analyze_transcript() -> None:
 
 
 @pytest.mark.xfail(strict=True)
-def test_analyze_transcript_r_coordinate(WT: Transcript) -> None:
+def test_analyze_transcript_r_coordinate(WT: Allele) -> None:
     """Test analyzing a transcript using the r. coordinate system
 
     Note, this test should pass, but r. variant are currently not supported
@@ -192,7 +192,7 @@ def test_protein_prediction_unknown() -> None:
 def test_transcript_from_description_WT1() -> None:
     """Test creating a Transcript from a Mutalyzer Description"""
     d = WT1_description()
-    transcript = Transcript.from_description(d)
+    transcript = Allele.from_description(d)
     features = transcript.features
     # Manually verified block starts for the exons of WT1
     assert features.exons and features.exons.blockStarts == [
@@ -225,7 +225,7 @@ def test_transcript_from_description_WT1() -> None:
 def test_transcript_from_description_SDHD() -> None:
     """Test creating a Transcript from a Mutalyzer Description"""
     d = SDHD_description()
-    transcript = Transcript.from_description(d)
+    transcript = Allele.from_description(d)
     features = transcript.features
     # Manually verified block starts for the exons of SDHD
     assert features.exons and features.exons.blockStarts == [0, 984, 1994, 7932]
@@ -241,7 +241,7 @@ def test_transcript_from_description_SDHD() -> None:
 def test_transcript_from_NC_NM_forward() -> None:
     """Test creating a forward Transcript from a Mutalyzer NC(NM) description"""
     d = init_description("NC_000011.10(NM_003002.4):c.=")
-    transcript = Transcript.from_description(d)
+    transcript = Allele.from_description(d)
     features = transcript.features
 
     assert features.exons and features.exons.blocks() == [
@@ -265,7 +265,7 @@ def test_analyze_NC_NM_forward() -> None:
     """
     hgvs = "NC_000011.10(NM_003002.4):c.102del"
     d = init_description(hgvs)
-    transcript = Transcript.from_description(d)
+    transcript = Allele.from_description(d)
 
     results = transcript.analyze(hgvs)
 
@@ -291,7 +291,7 @@ def test_analyze_NM_forward() -> None:
     """
     hgvs = "NM_003002.4:c.102del"
     d = init_description(hgvs)
-    t = Transcript.from_description(d)
+    t = Allele.from_description(d)
 
     results = t.analyze(hgvs)
 
@@ -316,7 +316,7 @@ def test_transcript_from_NC_NM_reverse() -> None:
     NM_012459.4 is TIMM8B
     """
     d = init_description("NC_000011.10(NM_012459.4):c.=")
-    transcript = Transcript.from_description(d)
+    transcript = Allele.from_description(d)
     features = transcript.features
 
     assert features.exons and features.exons.blocks() == [(2953, 3616), (4793, 4910)]
@@ -333,7 +333,7 @@ def test_analyze_NC_NM_reverse() -> None:
     """
     hgvs = "NC_000011.10(NM_012459.4):c.100del"
     d = init_description(hgvs)
-    t = Transcript.from_description(d)
+    t = Allele.from_description(d)
 
     results = t.analyze(hgvs)
 
@@ -355,7 +355,7 @@ def test_analyze_NM_reverse() -> None:
     """
     hgvs = "NM_012459.4:c.100del"
     d = init_description(hgvs)
-    t = Transcript.from_description(d)
+    t = Allele.from_description(d)
 
     results = t.analyze(hgvs)
 
