@@ -74,13 +74,31 @@ class Transcript:
 
     A Transcript can be defined on DNA (c.) or RNA (r.)
 
-    The mutalyzer Description object is for the wildtype, the variants are defined separately
+    Note that the mutalyzer Description object is the wildtype, the variants are defined separately
     """
+    def __init__(self, hgvs: str) -> None:
+        # Make the wildtype version of the transcript
+        if ":c." in hgvs:
+            _id = hgvs.split(":c.")[0]
+            wildtype = f"{_id}:c.="
+        elif ":r." in hgvs:
+            _id = hgvs.split(":r.")[0]
+            wildtype = f"{_id}:r.="
+        else:
+            raise NotImplementedError(hgvs)
+        self.d = init_description(wildtype)
 
-    def __init__(self, d: Description, mapper: Coding, variants: list[Variant]) -> None:
-        self.d = d
-        self.mapper = mapper
-        self.variants = variants
+        # Get the variants
+        self.variants = self._variants(hgvs)
+
+    def _variants(self, hgvs: str) -> list[Variant]:
+        d = init_description(hgvs)
+        sequence = sequence_from_description(d)
+
+        return  [
+            Variant.from_model(delins, sequence=sequence)
+            for delins in d.delins_model["variants"]
+        ]
 
 
 class Features:

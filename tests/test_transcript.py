@@ -5,7 +5,7 @@ import pytest
 from gtgt import Bed
 from gtgt.mutalyzer import init_description
 from gtgt.therapy import Therapy
-from gtgt.transcript import Allele, Comparison, Features, Result, is_of_interest
+from gtgt.transcript import Allele, Comparison, Features, Result, Transcript, is_of_interest
 from gtgt.variant import Variant
 
 
@@ -438,3 +438,21 @@ def test_Result_from_dict() -> None:
     d = {"therapy": therapy, "comparison": comparison}
 
     assert Result.from_dict(d) == r
+
+
+@pytest.mark.parametrize("hgvs, wildtype",
+     [
+        # Test a c. variant
+        ("NM_003002.4:c.102del", "NM_003002.4:c.="),
+        # A hgvs with a selector
+        ("NC_000011.10(NM_003002.4):c.102del", "NC_000011.10(NM_003002.4):c.="),
+        # A variant on the RNA
+        ("NM_003002.4:r.102del", "NM_003002.4:r.="),
+
+     ])
+def test_transcript_from_hgvs(hgvs: str, wildtype: str) -> None:
+    """Test creating a transcript from HGVS"""
+
+    t = Transcript(hgvs)
+
+    assert t.d.input_description == wildtype
