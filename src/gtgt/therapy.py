@@ -21,6 +21,16 @@ V = VulExMap(path=os.environ.get("GTGT_VulExMap"))
 
 
 @dataclasses.dataclass
+class Therapy:
+    """Internal representation of a generated Therapy"""
+
+    name: str
+    description: str
+    rna_variants = list[Variant]
+    dna_variants = list[Variant]
+
+
+@dataclasses.dataclass
 class TherapyReport:
     """Class to store genetic therapy information to present to the user"""
 
