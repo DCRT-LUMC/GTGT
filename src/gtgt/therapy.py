@@ -21,8 +21,8 @@ V = VulExMap(path=os.environ.get("GTGT_VulExMap"))
 
 
 @dataclasses.dataclass
-class Therapy:
-    """Class to store genetic therapies"""
+class TherapyReport:
+    """Class to store genetic therapy information to present to the user"""
 
     name: str
     hgvsc: str
@@ -33,7 +33,7 @@ class Therapy:
     hgvsp: str | None = None
 
     @classmethod
-    def from_dict(cls, dict: Mapping[str, Any]) -> "Therapy":
+    def from_dict(cls, dict: Mapping[str, Any]) -> "TherapyReport":
         """Create a Therapy object from a dict representation of a Therapy"""
         v = [Variant.from_dict(x) for x in dict["variants"]]
         return cls(
@@ -68,9 +68,11 @@ def _exon_string(exon_numbers: Sequence[int]) -> str:
         return f"exons {t} and {exon_numbers[-1]}"
 
 
-def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[Therapy]:
+def skip_adjacent_exons(
+    d: Description, number_to_skip: int = 1
+) -> Sequence[TherapyReport]:
     """Skipp all possible adjacent exons the specified Description"""
-    exon_skips: list[Therapy] = list()
+    exon_skips: list[TherapyReport] = list()
 
     skippable_exons = get_exons(d, in_transcript_order=True)[1:-1]
     sequence = sequence_from_description(d)
@@ -126,7 +128,7 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
         hgvsc = f"{selector}:c.{cdot_variants}"
         hgvsr = f"{selector}:r.{cdot_variants}"
         description = description
-        t = Therapy(
+        t = TherapyReport(
             name=name,
             hgvsc=hgvsc,
             hgvsr=hgvsr,
@@ -139,9 +141,9 @@ def skip_adjacent_exons(d: Description, number_to_skip: int = 1) -> Sequence[The
     return exon_skips
 
 
-def generate_therapies(d: Description) -> Sequence[Therapy]:
+def generate_therapies(d: Description) -> Sequence[TherapyReport]:
     """Wrapper around the different therapies"""
-    therapies: list[Therapy] = list()
+    therapies: list[TherapyReport] = list()
     # Skip a single exon
     therapies += skip_adjacent_exons(d, number_to_skip=1)
     # Skip two adjacent exons

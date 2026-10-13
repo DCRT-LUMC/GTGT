@@ -4,7 +4,7 @@ import pytest
 
 from gtgt import Bed
 from gtgt.mutalyzer import init_description
-from gtgt.therapy import Therapy
+from gtgt.therapy import TherapyReport
 from gtgt.transcript import Features
 from gtgt.variant import Variant
 

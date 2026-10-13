@@ -18,7 +18,7 @@ from gtgt.mutalyzer import (
     variants_to_protein,
     variants_to_protein_hgvs,
 )
-from gtgt.therapy import Therapy
+from gtgt.therapy import TherapyReport
 from gtgt.transcript import Allele, Comparison, Features
 from gtgt.variant import Variant
 
@@ -159,7 +159,7 @@ def test_exons_forward() -> None:
 def test_Therapy_from_dict() -> None:
     """Test creating a Therapy from a dict"""
     variants = [Variant(10, 11, inserted="A", deleted="T")]
-    therapy = Therapy(
+    therapy = TherapyReport(
         "Wildtype", hgvsc="ENST:c.=", description="free text", variants=variants
     )
 
@@ -170,7 +170,7 @@ def test_Therapy_from_dict() -> None:
         "variants": [{"start": 10, "end": 11, "inserted": "A", "deleted": "T"}],
     }
 
-    assert Therapy.from_dict(d) == therapy
+    assert TherapyReport.from_dict(d) == therapy
 
 
 def test_protein_prediction_unknown() -> None:

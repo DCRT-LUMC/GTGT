@@ -1,7 +1,7 @@
 import pytest
 
 from gtgt.flask import organize_results, validate_user_input
-from gtgt.therapy import Therapy
+from gtgt.therapy import TherapyReport
 from gtgt.transcript import Comparison, Result
 from gtgt.variant import Variant
 
@@ -23,7 +23,7 @@ def test_organize_results() -> None:
     # Input Result
     input_variant = Variant(10, 11, deleted="A", inserted="T")
     input_ = Result(
-        therapy=Therapy(
+        therapy=TherapyReport(
             name="Input",
             hgvsc="",
             description="",
@@ -33,7 +33,7 @@ def test_organize_results() -> None:
     )
 
     wildtype = Result(
-        therapy=Therapy(
+        therapy=TherapyReport(
             name="Wildtype",
             hgvsc="",
             description="",
@@ -43,7 +43,7 @@ def test_organize_results() -> None:
     )
 
     skip_variant_exon = Result(
-        therapy=Therapy(
+        therapy=TherapyReport(
             name="Skip exon 3",
             hgvsc="",
             description="Skip exon with variant",
@@ -53,7 +53,7 @@ def test_organize_results() -> None:
     )
 
     skip_exon_before_variant = Result(
-        therapy=Therapy(
+        therapy=TherapyReport(
             name="Skip exon 2",
             hgvsc="",
             description="Skip exon before variant",
@@ -63,7 +63,7 @@ def test_organize_results() -> None:
     )
 
     skip_exon_after_variant = Result(
-        therapy=Therapy(
+        therapy=TherapyReport(
             name="Skip exon 4",
             hgvsc="",
             description="Skip exon after the variant",

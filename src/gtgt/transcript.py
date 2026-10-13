@@ -20,7 +20,7 @@ from .mutalyzer import (
     sequence_from_description,
     transcript_crossmapper,
 )
-from .therapy import Therapy, generate_therapies
+from .therapy import TherapyReport, generate_therapies
 from .ucsc import PROTEIN_TRACKS, lookup_track
 from .variant import Variant
 
@@ -46,7 +46,7 @@ class Comparison:
 class Result:
     """To hold results for separate mutations of a transcript"""
 
-    therapy: Therapy
+    therapy: TherapyReport
     comparison: Sequence[Comparison]
 
     def __gt__(self, other: "Result") -> bool:
@@ -62,7 +62,7 @@ class Result:
     @classmethod
     def from_dict(cls, dict: Mapping[str, Any]) -> "Result":
         return cls(
-            therapy=Therapy.from_dict(dict["therapy"]),
+            therapy=TherapyReport.from_dict(dict["therapy"]),
             comparison=[Comparison.from_dict(x) for x in dict["comparison"]],
         )
 
@@ -327,7 +327,7 @@ class Allele:
         results = list()
 
         # Store the wildtype
-        wt = Therapy(
+        wt = TherapyReport(
             name="Wildtype",
             hgvsc=hgvs.split("c.")[0] + "c.=",
             hgvsr=hgvs.split("c.")[0] + "r.=",
@@ -339,7 +339,7 @@ class Allele:
         results.append(wildtype)
 
         # Store the input variants as Therapy
-        input = Therapy(
+        input = TherapyReport(
             name="Input",
             hgvsc=hgvs,
             hgvsr=hgvs.replace(":c.", ":r."),
