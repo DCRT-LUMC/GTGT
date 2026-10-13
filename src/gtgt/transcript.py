@@ -276,6 +276,13 @@ class Allele:
         # features is not None above
         self.features = cast(Features, features)
 
+        # Initialize the RNA transcript, if specified
+        # self.rna: Transcript | None
+        # if rna:
+        #     self.rna = Transcript(rna)
+        # else:
+        #     self.rna = None
+
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
 
