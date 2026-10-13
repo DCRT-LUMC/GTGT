@@ -300,6 +300,11 @@ class Allele:
         else:
             self.dna = None
 
+        # Finally, mutate the features based on the RNA to ensure internal
+        # consistency
+        if self.rna:
+            self.mutate()
+
     def mutate(self) -> None:
         """Mutate the features based on the variants of the RNA Transcript"""
         if not self.rna:
