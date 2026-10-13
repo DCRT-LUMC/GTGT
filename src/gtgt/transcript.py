@@ -1,10 +1,9 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Any, Mapping, NewType, Sequence, TypeVar, cast
+from typing import Any, Mapping, Sequence, cast
 
 from mutalyzer.description import Description
-from mutalyzer_crossmapper import Coding
 
 from .bed import Bed
 from .exonviz import draw
@@ -12,7 +11,6 @@ from .mutalyzer import (
     genomic_crossmapper,
     genomic_to_transcript,
     get_chrom_name,
-    get_offset,
     get_strand,
     init_description,
     mutation_to_cds_effect,

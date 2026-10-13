@@ -26,8 +26,8 @@ class Therapy:
 
     name: str
     description: str
-    rna_variants = list[Variant]
-    dna_variants = list[Variant]
+    rna_variants: list[Variant]
+    dna_variants: list[Variant]
 
 
 @dataclasses.dataclass
@@ -54,6 +54,18 @@ class TherapyReport:
             figure=dict.get("figure"),
             hgvsr=dict.get("hgvsr"),
             hgvsp=dict.get("hgvsp"),
+        )
+
+    @classmethod
+    def from_therapy(cls, therapy: Therapy, allele: Any) -> "TherapyReport":
+        """Generate a TherapyReport from a Therapy and Allele"""
+        return cls(
+            name=therapy.name,
+            hgvsc=allele.dna.hgvs(),
+            description=therapy.description,
+            variants=[],
+            hgvsr=allele.rna.hgvs(),
+            hgvsp=allele.rna.protein_hgvs(),
         )
 
 

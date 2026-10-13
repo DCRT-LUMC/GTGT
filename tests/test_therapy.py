@@ -5,7 +5,15 @@ import pytest
 from mutalyzer.description import Description
 
 from gtgt.mutalyzer import init_description
-from gtgt.therapy import _exon_string, skip_adjacent_exons, sliding_window
+from gtgt.therapy import (
+    Therapy,
+    TherapyReport,
+    _exon_string,
+    skip_adjacent_exons,
+    sliding_window,
+)
+from gtgt.transcript import Allele
+from gtgt.variant import Variant
 
 EXON_DESCRIPTION = [
     ([2], "exon 2"),
@@ -107,3 +115,27 @@ def test_sliding_window_size_2() -> None:
         ["D", "E"],
         ["E", "F"],
     ]
+
+
+def test_TherapyReport_from_Therapy() -> None:
+    # Use HGVS to initialize the Allele
+    dna = "ENST00000452863.10:c.662_784del"
+    rna = "ENST00000452863.10:r.662_784del"
+    protein = "ENST00000452863.10(ENSP00000415516):p.(Tyr222_Gly262del)"
+
+    allele = Allele(rna=rna, dna=dna)
+    therapy = Therapy(
+        name="Test therapy",
+        description="This is a description of this very fancy therapy",
+        # These are the variants from the HGVS on their respective internal coordinate systems
+        rna_variants=[Variant(start=2068, end=2191, inserted="", deleted="")],
+        dna_variants=[Variant(start=40722, end=40845, inserted="", deleted="")],
+    )
+
+    report = TherapyReport.from_therapy(therapy, allele)
+
+    assert report.name == therapy.name
+    # Check the HGVS descriptions from Allele.dna/ Allele.rna
+    assert report.hgvsc == dna
+    assert report.hgvsr == rna
+    assert report.hgvsp == protein
