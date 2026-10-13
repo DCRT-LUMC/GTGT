@@ -20,6 +20,7 @@ from .mutalyzer import (
     sequence_from_description,
     transcript_crossmapper,
     variants_to_hgvs,
+    variants_to_protein_hgvs,
 )
 from .therapy import TherapyReport, generate_therapies
 from .ucsc import PROTEIN_TRACKS, lookup_track
@@ -105,6 +106,10 @@ class Transcript:
     def hgvs(self) -> str:
         """Generate HGVS for this Transcript"""
         return variants_to_hgvs(self.d, self.variants)
+
+    def protein_hgvs(self) -> str:
+        """Generate the protein HGVS for this transcript"""
+        return variants_to_protein_hgvs(self.d, self.variants)
 
 
 class Features:

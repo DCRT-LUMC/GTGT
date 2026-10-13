@@ -304,3 +304,53 @@ def test_hgvs_description_from_Transcript(hgvs: str) -> None:
 
     generated_hgvs = t.hgvs()
     assert generated_hgvs == hgvs
+
+
+rna_protein = [
+    # No change
+    ("NM_003002.4:r.=", "NM_003002.4(NP_002993.1):p.(=)"),
+    # Frameshift mutation
+    ("NM_003002.4:r.10del", "NM_003002.4(NP_002993.1):p.(Leu4SerfsTer4)"),
+    # Insertion
+    ("NM_003002.4:r.10_11insa", "NM_003002.4(NP_002993.1):p.(Leu4HisfsTer65)"),
+    # Out of frame deletion (long tail)
+    ("NM_003002.4:r.50_53del", "NM_003002.4(NP_002993.1):p.(Arg17LeufsTer68)"),
+    # Go out and back into frame
+    (
+        "NM_003002.4:r.[50del;70_71insa]",
+        "NM_003002.4(NP_002993.1):p.(Arg17_Pro24delinsGlnLeuCysCysPheGluLeuThr)",
+    ),
+    # SNP
+    ("NC_000011.10(NM_003002.4):r.274g>u", "NC_000011.10(NP_002993.1):p.(Asp92Tyr)"),
+    # Another frameshift
+    (
+        "NC_000011.10(NM_003002.4):r.52del",
+        "NC_000011.10(NP_002993.1):p.(Ala18LeufsTer68)",
+    ),
+    # Reverse strand
+    ("ENST00000452863.10:r.=", "ENST00000452863.10(ENSP00000415516):p.(=)"),
+    (
+        "ENST00000452863.10:r.10del",
+        "ENST00000452863.10(ENSP00000415516):p.(Leu4SerfsTer45)",
+    ),
+]
+
+
+@pytest.mark.parametrize("hgvs, protein", rna_protein)
+def test_hgvs_protein_description_from_RNA(hgvs: str, protein: str) -> None:
+    """
+    Test generating the corresponding HGVS description from a Transcript
+    """
+    t = Transcript(hgvs)
+
+    assert protein == t.protein_hgvs()
+
+
+def test_hgvs_protein_description_from_DNA() -> None:
+    """
+    Test if trying to generate a protein prediction from DNA gives an error
+    """
+
+    t = Transcript("NM_003002.4:c.10del")
+    with pytest.raises(ValueError):
+        t.protein_hgvs()
