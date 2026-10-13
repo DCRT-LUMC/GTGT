@@ -60,6 +60,38 @@ def test_empty_allele() -> None:
     assert a
 
 
+def test_init_allele_features_only() -> None:
+    """Test initializing the Allele class"""
+    f = Features(rna=[], protein=[])
+    a = Allele(features=f)
+    assert a.features.rna == []
+
+
+def test_init_allele_rna_only() -> None:
+    rna = "ENST00000375549.8:r.10del"
+    a = Allele(rna=rna)
+
+    assert a.features.rna
+    assert a.rna
+
+
+def test_init_allele_dna_only() -> None:
+    """Initializing with on DNA is not allowed"""
+    dna = "ENST00000375549.8:c.10del"
+    with pytest.raises(ValueError):
+        Allele(dna=dna)
+
+
+def test_init_allele_features_rna() -> None:
+    f = Features(rna=[], protein=[])
+    rna = "ENST00000375549.8:r.10del"
+    a = Allele(features=f, rna=rna)
+
+    assert a.features.rna == []
+    assert a.rna
+    assert a.dna is None
+
+
 MUTATE = [
     (
         # HGVS mutation (no change)

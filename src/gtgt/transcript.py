@@ -265,7 +265,12 @@ class Allele:
     Transcript.
     """
 
-    def __init__(self, features: Features | None, rna: str | None = None) -> None:
+    def __init__(
+        self,
+        features: Features | None = None,
+        rna: str | None = None,
+        dna: str | None = None,
+    ) -> None:
         # If there are no features specified, we use the features from the RNA
         if not features and rna:
             features = Features.from_hgvs(rna)
@@ -277,11 +282,18 @@ class Allele:
         self.features = cast(Features, features)
 
         # Initialize the RNA transcript, if specified
-        # self.rna: Transcript | None
-        # if rna:
-        #     self.rna = Transcript(rna)
-        # else:
-        #     self.rna = None
+        self.rna: Transcript | None
+        if rna:
+            self.rna = Transcript(rna)
+        else:
+            self.rna = None
+
+        # Initialize the DNA transcript, if specified
+        self.dna: Transcript | None
+        if dna:
+            self.dna = Transcript(dna)
+        else:
+            self.dna = None
 
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
