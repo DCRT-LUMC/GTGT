@@ -13,7 +13,7 @@ jobs:
 
   version:
     name: Verify that version is set  correctly
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v6
       - name: Get shortened version of release tag
@@ -30,7 +30,7 @@ jobs:
 
   release:
     name: Create a github release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     environment: production
     needs:
       - tests
@@ -54,7 +54,7 @@ jobs:
 
   publish:
     name: Publish package to pypi
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs:
       - release
     steps:
