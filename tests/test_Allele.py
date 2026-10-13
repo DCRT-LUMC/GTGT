@@ -82,6 +82,49 @@ def test_init_allele_dna_only() -> None:
         Allele(dna=dna)
 
 
+def test_mutate_allele() -> None:
+    """Test mutating an allele"""
+
+    # Note that we run the test here with a c. as 'RNA', which still works but
+    # means that the internal coordinate system will be that of the DNA, not
+    # the RNA transcript. In the real code, we always work on the rna
+    # coordinate system.
+
+    # SNP which introduces a STOP codon
+    rna = "ENST00000452863.10:c.100G>T"
+
+    a = Allele(rna=rna)
+    a.mutate()
+
+    # Expected exons, 1 nt was changed (position 47846)
+    expected_exons = [
+        (0, 1405),
+        (4197, 4290),
+        (4891, 4981),
+        (8482, 8633),
+        (12173, 12270),
+        (28715, 28766),
+        (29802, 29880),
+        (40181, 40284),
+        (40722, 40845),
+        (46925, 47486),
+        (47487, 47765),
+    ]
+    # Expected coding exons
+    # (47486,47487) is the first deleted protein sequence
+    # (1283, 1286) is the STOP codon
+    expected_coding = [(1283, 1286), (47487, 47586)]
+
+    assert a.features.exons is not None
+    assert a.features.coding_exons is not None
+
+    exons = a.features.exons.blocks()
+    coding_exons = a.features.coding_exons.blocks()
+
+    assert exons == expected_exons
+    assert coding_exons == expected_coding
+
+
 def test_init_allele_features_rna() -> None:
     f = Features(rna=[], protein=[])
     rna = "ENST00000375549.8:r.10del"

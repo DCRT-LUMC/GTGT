@@ -228,7 +228,12 @@ class Features:
         return sum(values) / len(cmp)
 
     def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
-        """Mutate the transcript based on the specified variants"""
+        """
+        Mutate the transcript based on the specified variants
+
+        Please make sure that that Variants use the same internal coordinate
+        system as the features
+        """
         # Determine the chromosome the transcript is on
         if self.records():
             chrom = self.records()[0].chrom
@@ -294,6 +299,12 @@ class Allele:
             self.dna = Transcript(dna)
         else:
             self.dna = None
+
+    def mutate(self) -> None:
+        """Mutate the features based on the variants of the RNA Transcript"""
+        if not self.rna:
+            raise ValueError("Cannot mutate an Allele without an RNA Transcript")
+        self.features.mutate(self.rna.d, self.rna.variants)
 
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
