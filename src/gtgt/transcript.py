@@ -19,6 +19,7 @@ from .mutalyzer import (
     protein_prediction,
     sequence_from_description,
     transcript_crossmapper,
+    variants_to_hgvs,
 )
 from .therapy import TherapyReport, generate_therapies
 from .ucsc import PROTEIN_TRACKS, lookup_track
@@ -100,6 +101,10 @@ class Transcript:
             Variant.from_model(delins, sequence=sequence)
             for delins in d.delins_model["variants"]
         ]
+
+    def hgvs(self) -> str:
+        """Generate HGVS for this Transcript"""
+        return variants_to_hgvs(self.d, self.variants)
 
 
 class Features:

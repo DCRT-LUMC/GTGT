@@ -298,3 +298,31 @@ def test_mutate_reverse(
         WT1.features.coding_exons
         and WT1.features.coding_exons.blocks() == coding_exon_blocks
     )
+
+
+protein_changing_variants = [
+    # No change
+    "NM_003002.4:r.=",
+    # Frameshift mutation
+    "NM_003002.4:r.10del",
+    # Insertion
+    "NM_003002.4:r.10_11insA",
+    # Out of frame deletion (long tail)
+    "NM_003002.4:r.50_53del",
+    # Go out and back into frame
+    "NM_003002.4:r.[50del;70_71insA]",
+    # SNP
+    "NC_000011.10(NM_003002.4):r.274G>T",
+    # Another frameshift
+    "NC_000011.10(NM_003002.4):r.52del",
+    # Reverse strand
+    "ENST00000452863.10:r.=",
+    "ENST00000452863.10:r.10del",
+]
+
+
+@pytest.mark.parametrize("hgvs", protein_changing_variants)
+def test_hgvs_description_from_Transcript_RNA(hgvs: str) -> None:
+    """
+    Test generating the corresponding HGVS description from a Transcript
+    """
