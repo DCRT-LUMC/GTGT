@@ -40,22 +40,26 @@ def test_exon_string(exons: Sequence[int], expected: str) -> None:
 def test_one_adjacent_exonskip_forward() -> None:
     d = SDHD_description()
     results = [
-        "ENST00000375549.8:c.53_169del",
-        "ENST00000375549.8:c.170_314del",
+        # Internal RNA coordinates for ENST00000375549.8:r.53_169del
+        Variant(87, 204),
+        # Internal RNA coordinates for ENST00000375549.8:c.170_314del
+        Variant(204, 349)
     ]
-    for output, expected in zip_longest(skip_adjacent_exons(d), results):
-        assert output.hgvsc == expected
+    allele = Allele(rna="ENST00000375549.8:r.=",dna="ENST00000375549.8:c.=")
+    for output, expected in zip_longest(skip_adjacent_exons(allele), results):
+        assert output.rna_variants == [expected]
 
 
 def test_two_adjacent_exonskip_SDHD() -> None:
-    d = SDHD_description()
+    allele = Allele(rna="ENST00000375549.8:r.=",dna="ENST00000375549.8:c.=")
     results = [
-        "ENST00000375549.8:c.53_314del",
+        # Internal RNA coordinates for ENST00000375549.8:c.53_314del",
+        Variant(87, 349)
     ]
     for output, expected in zip_longest(
-        skip_adjacent_exons(d, number_to_skip=2), results
+        skip_adjacent_exons(allele, number_to_skip=2), results
     ):
-        assert output.hgvsc == expected
+        assert output.rna_variants == [expected]
 
 
 def test_no_possible_exonskip_SDHD() -> None:
@@ -64,8 +68,10 @@ def test_no_possible_exonskip_SDHD() -> None:
     WHEN we try to skip 3 adjacent exons
     THEN we should get an empty list of therapies
     """
-    d = SDHD_description()
-    assert skip_adjacent_exons(d, number_to_skip=3) == list()
+    rna = "ENST00000375549.8:r.="
+    dna = "ENST00000375549.8:c.="
+    allele = Allele(rna=rna, dna=dna)
+    assert skip_adjacent_exons(allele, number_to_skip=3) == list()
 
 
 def test_one_adjacent_exonskip_WT1() -> None:
@@ -82,7 +88,7 @@ def test_one_adjacent_exonskip_WT1() -> None:
     ]
     # for output, expected in zip_longest(skip_adjacent_exons(d), results):
     for output, expected in zip_longest(skip_adjacent_exons(d), results):
-        assert output.hgvsc == expected
+        assert output.rna_variants == expected
 
 
 def test_two_adjacent_exonskip_WT1() -> None:
@@ -97,7 +103,7 @@ def test_two_adjacent_exonskip_WT1() -> None:
         "ENST00000452863.10:c.1265_1447del",
     ]
     for output, expected in zip_longest(skip_adjacent_exons(d, 2), results):
-        assert output.hgvsc == expected
+        assert output.rna_variants == expected
 
 
 def test_sliding_window_size_one() -> None:

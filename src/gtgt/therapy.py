@@ -90,24 +90,21 @@ def _exon_string(exon_numbers: Sequence[int]) -> str:
         return f"exons {t} and {exon_numbers[-1]}"
 
 
-def skip_adjacent_exons(
-    d: Description, number_to_skip: int = 1
-) -> Sequence[TherapyReport]:
+def skip_adjacent_exons(allele: Any, number_to_skip: int = 1
+) -> Sequence[Therapy]:
     """Skipp all possible adjacent exons the specified Description"""
-    exon_skips: list[TherapyReport] = list()
+    assert allele.rna is not None
 
-    skippable_exons = get_exons(d, in_transcript_order=True)[1:-1]
-    sequence = sequence_from_description(d)
-    variants = [
-        Variant.from_model(v, sequence=sequence) for v in d.delins_model["variants"]
-    ]
-    logger.debug(f"Input variants: {variants}")
+    exon_skips: list[Therapy] = list()
+
+    skippable_exons = get_exons(allele.rna.d, in_transcript_order=True)[1:-1]
+    variants = allele.rna.variants
 
     for i, exons in enumerate(sliding_window(skippable_exons, size=number_to_skip), 2):
         # Generate the string of exon numbers
         exons_description = _exon_string(range(i, i + number_to_skip))
 
-        if d.is_inverted():
+        if allele.rna.d.is_inverted():
             exons = exons[::-1]
 
         # Start of the first exon to skip
@@ -134,7 +131,7 @@ def skip_adjacent_exons(
         ]
         # Lookup VulExMap data fore every exon
         for j, exon in enumerate(exons):
-            vulexmap = lookup_vulexmap(d, exon, V)
+            vulexmap = lookup_vulexmap(allele.rna.d, exon, V)
             if vulexmap is not None:
                 description.append(vulexmap_description(vulexmap, name=f"Exon {i+j}"))
         # If we added VulExMap information
@@ -143,31 +140,24 @@ def skip_adjacent_exons(
                 "Please see https://vulexmap.compbio.sdu.dk/ for more details."
             )
 
-        # Convert to c. notation (user facing)
-        name = f"Skip {exons_description}"
-        selector = d.get_selector_id()
-        cdot_variants = to_cdot_hgvs(d, combined)
-        hgvsc = f"{selector}:c.{cdot_variants}"
-        hgvsr = f"{selector}:r.{cdot_variants}"
-        description = description
-        t = TherapyReport(
-            name=name,
-            hgvsc=hgvsc,
-            hgvsr=hgvsr,
-            hgvsp=protein_prediction(d, combined)[0],
+        t = Therapy(
+            name = f"Skip {exons_description}",
             description=" ".join(description),
-            variants=combined,
+            dna_variants = allele.dna.variants if allele.dna else [],
+            rna_variants = list(combined)
         )
+
         exon_skips.append(t)
 
     return exon_skips
 
 
-def generate_therapies(d: Description) -> Sequence[TherapyReport]:
+def generate_therapies(allele: Any) -> Sequence[Therapy]:
     """Wrapper around the different therapies"""
-    therapies: list[TherapyReport] = list()
+    therapies: list[Therapy] = list()
     # Skip a single exon
-    therapies += skip_adjacent_exons(d, number_to_skip=1)
+    therapies += skip_adjacent_exons(allele, number_to_skip=1)
     # Skip two adjacent exons
-    therapies += skip_adjacent_exons(d, number_to_skip=2)
+    therapies += skip_adjacent_exons(allele, number_to_skip=2)
+
     return therapies

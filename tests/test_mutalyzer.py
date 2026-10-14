@@ -44,20 +44,24 @@ def WT_Allele() -> Allele:
     "13T>A 970del 970_971insA 997_999delinsTAA 1000dup 10_11inv 994_996A[9]".split(),
 )
 def test_analyze_supported_variant_types(variant: str) -> None:
-    WT = WT_Allele()
-    hgvs = f"ENST00000452863.10:c.{variant}"
-    WT.analyze(hgvs)
+    dna = f"ENST00000452863.10:c.{variant}"
+    rna = f"ENST00000452863.10:r.{variant}"
+    WT = Allele(rna=rna, dna=dna)
+    WT.analyze("")
 
 
 def test_analyze_transcript() -> None:
     # In frame deletion that creates a STOP codon
     # variant = "ENST00000452863.10:c.87_89del"
     # Frameshift in small in-frame exon 5
-    variant = "ENST00000452863.10:c.970del"
+    dna = "ENST00000452863.10:c.970del"
+    rna = "ENST00000452863.10:r.970del"
 
-    WT = WT_Allele()
+    # Here we fake that the DNA is also the RNA to ensure the size of the
+    # features matches the test case after refactoring
+    WT = Allele(rna=rna, dna=dna)
 
-    results = WT.analyze(variant)
+    results = WT.analyze("")
 
     # Test the content of the 'wildtype' result
     wildtype = results[0]
@@ -68,7 +72,7 @@ def test_analyze_transcript() -> None:
 
     input = results[1]
     assert input.therapy.name == "Input"
-    assert input.therapy.hgvsc == variant
+    assert input.therapy.hgvsc == dna 
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
     assert coding_exons.basepairs == "990/1569"
@@ -257,15 +261,20 @@ def test_analyze_NC_NM_forward() -> None:
 
     NM_003002 is SDHD
     """
-    hgvs = "NC_000011.10(NM_003002.4):c.102del"
-    transcript = Allele(features=Features.from_hgvs(hgvs))
+    rna = "NC_000011.10(NM_003002.4):r.102del"
+    dna = "NC_000011.10(NM_003002.4):c.102del"
+    transcript = Allele(rna=rna, dna=dna)
 
-    results = transcript.analyze(hgvs)
+    results = transcript.analyze("", extended=True)
 
     # Look at the results for skipping exon 2
     skip2 = results[2]
     assert skip2.therapy.name == "Skip exon 2"
-    assert skip2.therapy.hgvsc == "NM_003002.4:c.53_169del"
+    # Exon skipping does not change the DNA
+    assert skip2.therapy.hgvsc == "NC_000011.10(NM_003002.4):c.102del"
+    # But it does change the RNA
+    assert skip2.therapy.hgvsr == "NC_000011.10(NM_003002.4):r.53_169del"
+    # And hence the predicted protein
     assert skip2.therapy.hgvsp == "NC_000011.10(NP_002993.1):p.(Leu19_Ser57del)"
 
     # Check the remaining basepairs for the exons
@@ -282,15 +291,17 @@ def test_analyze_NM_forward() -> None:
 
     NM_003002 is SDHD
     """
-    hgvs = "NM_003002.4:c.102del"
-    t = Allele(features=Features.from_hgvs(hgvs))
+    rna = "NM_003002.4:r.102del"
+    dna = "NM_003002.4:c.102del"
+    t = Allele(rna=rna, dna=dna)
 
-    results = t.analyze(hgvs)
+    results = t.analyze("")
 
     # Look at the results for skipping exon 2
     skip2 = results[2]
     assert skip2.therapy.name == "Skip exon 2"
-    assert skip2.therapy.hgvsc == "NM_003002.4:c.53_169del"
+    assert skip2.therapy.hgvsc == "NM_003002.4:c.102del"
+    assert skip2.therapy.hgvsr == "NM_003002.4:r.53_169del"
     assert skip2.therapy.hgvsp == "NM_003002.4(NP_002993.1):p.(Leu19_Ser57del)"
 
     # Check the remaining basepairs for the exons
@@ -322,10 +333,11 @@ def test_analyze_NC_NM_reverse() -> None:
 
     NM_012459.4 is TIMM8B
     """
-    hgvs = "NC_000011.10(NM_012459.4):c.100del"
-    t = Allele(features=Features.from_hgvs(hgvs))
+    rna = "NC_000011.10(NM_012459.4):r.100del"
+    dna = "NC_000011.10(NM_012459.4):c.100del"
+    t = Allele(rna=rna, dna=dna)
 
-    results = t.analyze(hgvs)
+    results = t.analyze("")
 
     # TIMM8B only has 2 exons, so there will be no exon skips proposed
     assert len(results) == 2
@@ -343,10 +355,11 @@ def test_analyze_NM_reverse() -> None:
 
     NM_012459.4 is TIMM8B
     """
-    hgvs = "NM_012459.4:c.100del"
-    t = Allele(features=Features.from_hgvs(hgvs))
+    rna = "NM_012459.4:r.100del"
+    dna = "NM_012459.4:c.100del"
+    t = Allele(rna=rna, dna=dna)
 
-    results = t.analyze(hgvs)
+    results = t.analyze("")
 
     # TIMM8B only has 2 exons, so there will be no exon skips proposed
     assert len(results) == 2

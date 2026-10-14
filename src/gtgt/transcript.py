@@ -322,62 +322,71 @@ class Allele:
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
 
-        # Initialize the input HGVS description
-        d = init_description(hgvs)
+        assert self.rna
+        assert self.dna
 
-        # Extract the input variants as internal delins
-        sequence = sequence_from_description(d)
-        input_variants = [
-            Variant.from_model(delins, sequence=sequence)
-            for delins in d.delins_model["variants"]
-        ]
+        # Create the wildtype allele as a starting point
+        hgvs_id = self.rna.d.input_description.split(":r.")[0]
+        wildtype = Allele(rna=f"{hgvs_id}:r.=", dna=f"{hgvs_id}:c.=")
+        assert wildtype.rna is not None
+        assert wildtype.dna is not None
+
+        # TODO restore protein features
 
         results = list()
 
         # Store the wildtype
         wt = TherapyReport(
             name="Wildtype",
-            hgvsc=hgvs.split("c.")[0] + "c.=",
-            hgvsr=hgvs.split("c.")[0] + "r.=",
-            hgvsp=protein_prediction(d, [])[0],
+            hgvsc=wildtype.dna.hgvs(),
+            hgvsr=wildtype.rna.hgvs(),
+            hgvsp=wildtype.rna.protein_hgvs(),
             description="These are the annotations as defined on the reference. They are always 100% by definition.",
             variants=list(),
         )
-        wildtype = Result(wt, self.features.compare(self.features))
-        results.append(wildtype)
+        results.append(Result(wt, wildtype.features.compare(wildtype.features)))
 
         # Store the input variants as Therapy
         input = TherapyReport(
             name="Input",
-            hgvsc=hgvs,
-            hgvsr=hgvs.replace(":c.", ":r."),
-            hgvsp=protein_prediction(d, input_variants)[0],
+            hgvsc=self.dna.hgvs(),
+            hgvsr=self.rna.hgvs(),
+            hgvsp=self.rna.protein_hgvs(),
             description="The annotations based on the supplied input variants.",
-            variants=input_variants,
-            figure=draw(d),
+            variants=self.rna.variants,
+            figure=draw(self.rna.d),
         )
-        patient = deepcopy(self)
-        patient.features.mutate(d, input.variants)
-        results.append(Result(input, patient.features.compare(self.features)))
+        # The input variant is actually the same as self
+        results.append(Result(input, self.features.compare(wildtype.features)))
 
         # Generate all possible therapies
-        for therapy in generate_therapies(d):
+        for therapy in generate_therapies(self):
 
-            # Apply the combination to the wildtype transcript
-            modified_transcript = deepcopy(self)
-            modified_transcript.features.mutate(d, therapy.variants)
+            # Make the allele modified by the therapies
+            modified_transcript = deepcopy(wildtype)
+            assert modified_transcript.rna
+            assert modified_transcript.dna
+
+            modified_transcript.rna.variants = therapy.rna_variants.copy()
+            modified_transcript.dna.variants = therapy.dna_variants.copy()
+            # Update the features of the modified transcript based on the therapy
+            modified_transcript.mutate()
+
 
             # Filter variants which are not of interest
             if not extended:
                 if not is_of_interest(
-                    patient.features,
-                    input.variants,
+                    self.features,
+                    self.rna.variants,
                     modified_transcript.features,
-                    therapy.variants,
+                    modified_transcript.rna.variants,
                 ):
                     continue
+
+            # Make the therapy report
+            therapy_report = TherapyReport.from_therapy(therapy, modified_transcript)
             results.append(
-                Result(therapy, modified_transcript.features.compare(self.features))
+                Result(therapy_report, modified_transcript.features.compare(wildtype.features))
             )
 
         # Order the results

@@ -137,7 +137,8 @@ def mutate(args: argparse.Namespace) -> None:
     desc = f"{args.transcript_id}:c.="
     d = init_description(desc)
     for therapy in generate_therapies(d):
-        print(f"{therapy.name}: {therapy.hgvsc}")
+        raise NotImplementedError
+        # print(f"{therapy.name}: {therapy.hgvsc}")
 
 
 def analyze(args: argparse.Namespace) -> None:
