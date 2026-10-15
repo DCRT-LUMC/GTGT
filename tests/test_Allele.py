@@ -8,80 +8,6 @@ from gtgt.variant import Variant
 Ranges = list[tuple[int, int]]
 
 
-@pytest.fixture
-def exons() -> Bed:
-    exons = [(0, 10), (20, 40), (50, 60), (70, 100)]
-    bed = Bed.from_blocks("chr1", exons)
-    bed.name = "Exons"
-
-    return bed
-
-
-@pytest.fixture
-def coding_exons() -> Bed:
-    coding_exons = [(23, 40), (50, 60), (70, 72)]
-    bed = Bed.from_blocks("chr1", coding_exons)
-    bed.name = "Coding exons"
-
-    return bed
-
-
-@pytest.fixture
-def allele(exons: Bed, coding_exons: Bed) -> Allele:
-    """
-    Bed records that make up an allele
-    Each positions shown here is 10x
-    (i) means inferred by the init method
-
-                  0 1 2 3 4 5 6 7 8 9
-    exons         -   - -   -   - - -
-    coding_exons      - -   -   -
-    """
-    features = Features(rna=[exons], protein=[coding_exons])
-    return Allele(features=features)
-
-
-def test_transcript_init(allele: Allele) -> None:
-    features = allele.features
-    assert features.rna[0].name == "Exons"
-    assert features.protein[0].name == "Coding exons"
-
-
-def test_empty_allele() -> None:
-    """Test creating and working with an empty transcript"""
-    a = Allele(Features(rna=[], protein=[]))
-
-    # Test if we can get the records
-    assert a.features.records() == []
-
-    # Test if mutating the transcript works
-    d = init_description("ENST00000375549.8:c.10del")
-    a.features.mutate(d, variants=[])
-    assert a
-
-
-def test_init_allele_features_only() -> None:
-    """Test initializing the Allele class"""
-    f = Features(rna=[], protein=[])
-    a = Allele(features=f)
-    assert a.features.rna == []
-
-
-def test_init_allele_rna_only() -> None:
-    rna = "ENST00000375549.8:r.10del"
-    a = Allele(rna=rna)
-
-    assert a.features.rna
-    assert a.rna
-
-
-def test_init_allele_dna_only() -> None:
-    """Initializing with on DNA is not allowed"""
-    dna = "ENST00000375549.8:c.10del"
-    with pytest.raises(ValueError):
-        Allele(dna=dna)
-
-
 def test_mutate_allele() -> None:
     """Test mutating an allele"""
 
@@ -92,8 +18,9 @@ def test_mutate_allele() -> None:
 
     # SNP which introduces a STOP codon
     rna = "ENST00000452863.10:c.100G>T"
+    dna = "ENST00000452863.10:c.100G>T"
 
-    a = Allele(rna=rna)
+    a = Allele(rna=rna, dna=dna)
     a.mutate()
 
     # Expected exons, 1 nt was changed (position 47846)
@@ -128,11 +55,12 @@ def test_mutate_allele() -> None:
 def test_init_allele_features_rna() -> None:
     f = Features(rna=[], protein=[])
     rna = "ENST00000375549.8:r.10del"
-    a = Allele(features=f, rna=rna)
+    dna = "ENST00000375549.8:c.10del"
+    a = Allele(dna=dna, rna=rna, features=f)
 
     assert a.features.rna == []
     assert a.rna
-    assert a.dna is None
+    assert a.dna
 
 
 MUTATE = [
@@ -287,10 +215,15 @@ def test_mutate_reverse(
     coding_exons.name = "Coding exons"
 
     # Variant to test
-    d = init_description(f"{transcript}:c.{variant}")
+    dna = f"{transcript}:c.{variant}"
+    # TODO here we fake that the RNA is actually DNA, to re-use the tests data
+    rna = f"{transcript}:c.{variant}"
+
+    # TODO are theses coordinates for RNA or DNA? Probably DNA
+    d = init_description(rna)
     v = [Variant.from_model(delins) for delins in d.delins_model["variants"]]
 
-    WT1 = Allele(Features(rna=[exons], protein=[coding_exons]))
+    WT1 = Allele(dna=dna, rna=rna)
     WT1.features.mutate(d, v)
 
     assert WT1.features.exons and WT1.features.exons.blocks() == exon_blocks

@@ -129,7 +129,7 @@ def result(variant: str | None = None) -> str:
     try:
         d = init_description(variant)
         # TODO ensure that variant is RNA
-        transcript = Allele(features=None, rna=variant)
+        transcript = Allele(dna="Not implemented", rna="Not implemented")
 
         # Extract parameter from the request
         protein_domains = request.args.get("protein_domains") == "true"

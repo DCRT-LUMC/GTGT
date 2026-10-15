@@ -2,7 +2,6 @@ from typing import Sequence
 
 import pytest
 
-from gtgt import Allele
 from gtgt.mutalyzer import init_description, sequence_from_description
 from gtgt.transcript import Comparison, Features
 from gtgt.variant import Variant
@@ -16,21 +15,20 @@ def compare_to_wildtype(hgvs: str) -> Sequence[Comparison]:
     *rest, variant = hgvs.split(".")
     wt_hgvs = ".".join(rest) + ".="
 
-    features = Features.from_hgvs(wt_hgvs)
-    wt = Allele(features)
+    wt = Features.from_hgvs(wt_hgvs)
 
     # Next, we create and mutate the transcript of interest
     d = init_description(hgvs)
-    t = Allele(features=Features.from_hgvs(hgvs))
+    t = Features.from_hgvs(hgvs)
 
     sequence = sequence_from_description(d)
     input_variants = [
         Variant.from_model(delins, sequence=sequence)
         for delins in d.delins_model["variants"]
     ]
-    t.features.mutate(d, input_variants)
+    t.mutate(d, input_variants)
 
-    return t.features.compare(wt.features)
+    return t.compare(wt)
 
 
 class TestDifferentTranscripts:

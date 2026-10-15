@@ -124,7 +124,7 @@ def _set_render_parser(subparsers: Any) -> None:
 
 
 def allele(args: argparse.Namespace) -> None:
-    t = Allele(features=None, rna=f"{args.transcript_id}:r.=")
+    t = Allele(dna=f"{args.transcript_id}:c.=", rna=f"{args.transcript_id}:r.=")
     print(t)
 
 
@@ -143,7 +143,7 @@ def mutate(args: argparse.Namespace) -> None:
 
 def analyze(args: argparse.Namespace) -> None:
     d = init_description(args.hgvs)
-    allele = Allele(features=None, rna=args.hgvs)
+    allele = Allele(dna="Not implemented", rna="Not implemented")
     if args.protein_domains:
         allele.lookup_protein_domains(d)
     # Convert Result objects to dict
@@ -169,7 +169,7 @@ def webserver(args: argparse.Namespace) -> None:
 def export(args: argparse.Namespace) -> None:
     # Get the transcript
     d = init_description(args.hgvs)
-    transcript = Allele(features=None, rna=args.hgvs)
+    transcript = Allele(dna="Not implemented", rna="Not implemented")
     if args.protein_domains:
         transcript.lookup_protein_domains(d)
 

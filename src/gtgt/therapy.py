@@ -1,15 +1,15 @@
 import dataclasses
 import logging
 import os
-from typing import Any, Mapping, Sequence, TypeVar
 
-from mutalyzer.description import Description
+# Only import Allele for type checking
+from typing import TYPE_CHECKING, Any, Mapping, Sequence, TypeVar
+
+if TYPE_CHECKING:
+    from gtgt.transcript import Allele
 
 from gtgt.mutalyzer import (
     get_exons,
-    protein_prediction,
-    sequence_from_description,
-    to_cdot_hgvs,
 )
 from gtgt.variant import Variant, combine_variants_deletion
 from gtgt.vulexmap import VulExMap, lookup_vulexmap, vulexmap_description
@@ -57,7 +57,7 @@ class TherapyReport:
         )
 
     @classmethod
-    def from_therapy(cls, therapy: Therapy, allele: Any) -> "TherapyReport":
+    def from_therapy(cls, therapy: Therapy, allele: "Allele") -> "TherapyReport":
         """Generate a TherapyReport from a Therapy and Allele"""
         return cls(
             name=therapy.name,
@@ -90,10 +90,8 @@ def _exon_string(exon_numbers: Sequence[int]) -> str:
         return f"exons {t} and {exon_numbers[-1]}"
 
 
-def skip_adjacent_exons(allele: Any, number_to_skip: int = 1) -> Sequence[Therapy]:
+def skip_adjacent_exons(allele: "Allele", number_to_skip: int = 1) -> Sequence[Therapy]:
     """Skipp all possible adjacent exons the specified Description"""
-    assert allele.rna is not None
-
     exon_skips: list[Therapy] = list()
 
     skippable_exons = get_exons(allele.rna.d, in_transcript_order=True)[1:-1]
@@ -142,7 +140,7 @@ def skip_adjacent_exons(allele: Any, number_to_skip: int = 1) -> Sequence[Therap
         t = Therapy(
             name=f"Skip {exons_description}",
             description=" ".join(description),
-            dna_variants=allele.dna.variants if allele.dna else [],
+            dna_variants=allele.dna.variants,
             rna_variants=list(combined),
         )
 
@@ -151,7 +149,7 @@ def skip_adjacent_exons(allele: Any, number_to_skip: int = 1) -> Sequence[Therap
     return exon_skips
 
 
-def generate_therapies(allele: Any) -> Sequence[Therapy]:
+def generate_therapies(allele: "Allele") -> Sequence[Therapy]:
     """Wrapper around the different therapies"""
     therapies: list[Therapy] = list()
     # Skip a single exon

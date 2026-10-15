@@ -11,7 +11,6 @@ from gtgt.mutalyzer import (
     get_transcript_name,
     init_description,
     protein_prediction,
-    protein_to_genomic,
     range_in_coding,
     sequence_from_description,
     variants_to_hgvs,
@@ -19,7 +18,7 @@ from gtgt.mutalyzer import (
     variants_to_protein_hgvs,
 )
 from gtgt.therapy import TherapyReport
-from gtgt.transcript import Allele, Comparison, Features
+from gtgt.transcript import Allele, Features
 from gtgt.variant import Variant
 
 
@@ -34,8 +33,7 @@ def WT1_description() -> Description:
 
 
 def WT_Allele() -> Allele:
-    features = Features.from_hgvs("ENST00000452863.10:c.=")
-    return Allele(features)
+    return Allele(dna="ENST00000452863.10:c.=", rna="ENST00000452863.10:r.=")
 
 
 @pytest.mark.slow
@@ -318,7 +316,9 @@ def test_transcript_from_NC_NM_reverse() -> None:
 
     NM_012459.4 is TIMM8B
     """
-    transcript = Allele(features=Features.from_hgvs("NC_000011.10(NM_012459.4):c.="))
+    transcript = Allele(
+        dna="NC_000011.10(NM_012459.4):c.=", rna="NC_000011.10(NM_012459.4):c.="
+    )
     features = transcript.features
 
     assert features.exons and features.exons.blocks() == [(2953, 3616), (4793, 4910)]

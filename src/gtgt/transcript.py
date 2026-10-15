@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from copy import deepcopy
-from typing import Any, Mapping, Sequence, cast
+from typing import Any, Mapping, Sequence
 
 from mutalyzer.description import Description
 
@@ -14,7 +14,6 @@ from .mutalyzer import (
     get_strand,
     init_description,
     mutation_to_cds_effect,
-    protein_prediction,
     sequence_from_description,
     transcript_crossmapper,
     variants_to_hgvs,
@@ -280,56 +279,34 @@ class Allele:
 
     def __init__(
         self,
+        dna: str,
+        rna: str,
         features: Features | None = None,
-        rna: str | None = None,
-        dna: str | None = None,
     ) -> None:
+
+        self.dna = Transcript(dna)
+
         # If there are no features specified, we use the features from the RNA
-        if not features and rna:
+        if features is None:
             features = Features.from_hgvs(rna)
-        if not features and not rna:
-            raise ValueError("Please specify either features or rna")
+        self.features = features
 
-        # Note that we can safely cast to Features since we ensure that
-        # features is not None above
-        self.features = cast(Features, features)
-
-        # Initialize the RNA transcript, if specified
-        self.rna: Transcript | None
-        if rna:
-            self.rna = Transcript(rna)
-        else:
-            self.rna = None
-
-        # Initialize the DNA transcript, if specified
-        self.dna: Transcript | None
-        if dna:
-            self.dna = Transcript(dna)
-        else:
-            self.dna = None
+        self.rna = Transcript(rna)
 
         # Finally, mutate the features based on the RNA to ensure internal
         # consistency
-        if self.rna:
-            self.mutate()
+        self.mutate()
 
     def mutate(self) -> None:
         """Mutate the features based on the variants of the RNA Transcript"""
-        if not self.rna:
-            raise ValueError("Cannot mutate an Allele without an RNA Transcript")
         self.features.mutate(self.rna.d, self.rna.variants)
 
     def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
 
-        assert self.rna
-        assert self.dna
-
         # Create the wildtype allele as a starting point
         hgvs_id = self.rna.d.input_description.split(":r.")[0]
         wildtype = Allele(rna=f"{hgvs_id}:r.=", dna=f"{hgvs_id}:c.=")
-        assert wildtype.rna is not None
-        assert wildtype.dna is not None
 
         # TODO restore protein features
 
@@ -364,8 +341,6 @@ class Allele:
 
             # Make the allele modified by the therapies
             modified_transcript = deepcopy(wildtype)
-            assert modified_transcript.rna
-            assert modified_transcript.dna
 
             modified_transcript.rna.variants = therapy.rna_variants.copy()
             modified_transcript.dna.variants = therapy.dna_variants.copy()
