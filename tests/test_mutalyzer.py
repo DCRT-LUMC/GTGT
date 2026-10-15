@@ -45,7 +45,7 @@ def test_analyze_supported_variant_types(variant: str) -> None:
     dna = f"ENST00000452863.10:c.{variant}"
     rna = f"ENST00000452863.10:r.{variant}"
     WT = Allele(rna=rna, dna=dna)
-    WT.analyze("")
+    WT.analyze()
 
 
 def test_analyze_transcript() -> None:
@@ -59,7 +59,7 @@ def test_analyze_transcript() -> None:
     # features matches the test case after refactoring
     WT = Allele(rna=rna, dna=dna)
 
-    results = WT.analyze("")
+    results = WT.analyze()
 
     # Test the content of the 'wildtype' result
     wildtype = results[0]
@@ -85,7 +85,7 @@ def test_analyze_transcript_r_coordinate(WT: Allele) -> None:
     # In frame deletion that creates a STOP codon
     variant = "ENST00000452863.10:r.970del"
 
-    results = WT.analyze(variant)
+    results = WT.analyze()
 
     # Test the content of the 'wildtype' result
     wildtype = results[0]
@@ -263,7 +263,7 @@ def test_analyze_NC_NM_forward() -> None:
     dna = "NC_000011.10(NM_003002.4):c.102del"
     transcript = Allele(rna=rna, dna=dna)
 
-    results = transcript.analyze("", extended=True)
+    results = transcript.analyze(extended=True)
 
     # Look at the results for skipping exon 2
     skip2 = results[2]
@@ -291,9 +291,9 @@ def test_analyze_NM_forward() -> None:
     """
     rna = "NM_003002.4:r.102del"
     dna = "NM_003002.4:c.102del"
-    t = Allele(rna=rna, dna=dna)
+    allele = Allele(rna=rna, dna=dna)
 
-    results = t.analyze("")
+    results = allele.analyze()
 
     # Look at the results for skipping exon 2
     skip2 = results[2]
@@ -335,9 +335,9 @@ def test_analyze_NC_NM_reverse() -> None:
     """
     rna = "NC_000011.10(NM_012459.4):r.100del"
     dna = "NC_000011.10(NM_012459.4):c.100del"
-    t = Allele(rna=rna, dna=dna)
+    allele = Allele(rna=rna, dna=dna)
 
-    results = t.analyze("")
+    results = allele.analyze()
 
     # TIMM8B only has 2 exons, so there will be no exon skips proposed
     assert len(results) == 2
@@ -357,9 +357,9 @@ def test_analyze_NM_reverse() -> None:
     """
     rna = "NM_012459.4:r.100del"
     dna = "NM_012459.4:c.100del"
-    t = Allele(rna=rna, dna=dna)
+    allele = Allele(rna=rna, dna=dna)
 
-    results = t.analyze("")
+    results = allele.analyze()
 
     # TIMM8B only has 2 exons, so there will be no exon skips proposed
     assert len(results) == 2

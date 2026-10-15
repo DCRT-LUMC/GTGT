@@ -129,16 +129,16 @@ def result(variant: str | None = None) -> str:
     try:
         d = init_description(variant)
         # TODO ensure that variant is RNA
-        transcript = Allele(dna="Not implemented", rna="Not implemented")
+        allele = Allele(dna="Not implemented", rna="Not implemented")
 
         # Extract parameter from the request
         protein_domains = request.args.get("protein_domains") == "true"
         extended = request.args.get("extended") == "true"
 
         if protein_domains:
-            transcript.lookup_protein_domains(d)
+            allele.lookup_protein_domains(d)
 
-        results = transcript.analyze(variant, extended=extended)
+        results = allele.analyze(extended=extended)
     except Exception as e:
         error = {"summary": "Analysis failed", "details": str(e)}
         results = []

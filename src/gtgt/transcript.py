@@ -301,7 +301,7 @@ class Allele:
         """Mutate the features based on the variants of the RNA Transcript"""
         self.features.mutate(self.rna.d, self.rna.variants)
 
-    def analyze(self, hgvs: str, extended: bool = False) -> Sequence[Result]:
+    def analyze(self, extended: bool = False) -> Sequence[Result]:
         """Analyze the transcript based on the specified HGVS description"""
 
         # Create the wildtype allele as a starting point

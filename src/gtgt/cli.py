@@ -147,9 +147,7 @@ def analyze(args: argparse.Namespace) -> None:
     if args.protein_domains:
         allele.lookup_protein_domains(d)
     # Convert Result objects to dict
-    results = [
-        dataclasses.asdict(x) for x in allele.analyze(args.hgvs, extended=args.extended)
-    ]
+    results = [dataclasses.asdict(x) for x in allele.analyze(extended=args.extended)]
     print(json.dumps(results, indent=True, default=vars))
 
 
