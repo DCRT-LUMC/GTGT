@@ -43,15 +43,15 @@ def test_one_adjacent_exonskip_forward() -> None:
         # Internal RNA coordinates for ENST00000375549.8:r.53_169del
         Variant(87, 204),
         # Internal RNA coordinates for ENST00000375549.8:c.170_314del
-        Variant(204, 349)
+        Variant(204, 349),
     ]
-    allele = Allele(rna="ENST00000375549.8:r.=",dna="ENST00000375549.8:c.=")
+    allele = Allele(rna="ENST00000375549.8:r.=", dna="ENST00000375549.8:c.=")
     for output, expected in zip_longest(skip_adjacent_exons(allele), results):
         assert output.rna_variants == [expected]
 
 
 def test_two_adjacent_exonskip_SDHD() -> None:
-    allele = Allele(rna="ENST00000375549.8:r.=",dna="ENST00000375549.8:c.=")
+    allele = Allele(rna="ENST00000375549.8:r.=", dna="ENST00000375549.8:c.=")
     results = [
         # Internal RNA coordinates for ENST00000375549.8:c.53_314del",
         Variant(87, 349)
@@ -75,34 +75,52 @@ def test_no_possible_exonskip_SDHD() -> None:
 
 
 def test_one_adjacent_exonskip_WT1() -> None:
-    d = WT1_description()
     results = [
-        "ENST00000452863.10:c.662_784del",
-        "ENST00000452863.10:c.785_887del",
-        "ENST00000452863.10:c.888_965del",
-        "ENST00000452863.10:c.966_1016del",
-        "ENST00000452863.10:c.1017_1113del",
-        "ENST00000452863.10:c.1114_1264del",
-        "ENST00000452863.10:c.1265_1354del",
-        "ENST00000452863.10:c.1355_1447del",
+        # ENST00000452863.10:r.662_784del
+        [Variant(start=2068, end=2191, inserted="", deleted="")],
+        # ENST00000452863.10:r.785_887del
+        [Variant(start=1965, end=2068, inserted="", deleted="")],
+        # ENST00000452863.10:r.888_965del
+        [Variant(start=1887, end=1965, inserted="", deleted="")],
+        # ENST00000452863.10:r.966_1016del
+        [Variant(start=1836, end=1887, inserted="", deleted="")],
+        # ENST00000452863.10:r.1017_1113del
+        [Variant(start=1739, end=1836, inserted="", deleted="")],
+        # ENST00000452863.10:r.1114_1264del
+        [Variant(start=1588, end=1739, inserted="", deleted="")],
+        # ENST00000452863.10:r.1265_1354del
+        [Variant(start=1498, end=1588, inserted="", deleted="")],
+        # ENST00000452863.10:r.1355_1447del
+        [Variant(start=1405, end=1498, inserted="", deleted="")],
     ]
-    # for output, expected in zip_longest(skip_adjacent_exons(d), results):
-    for output, expected in zip_longest(skip_adjacent_exons(d), results):
+    rna = "ENST00000452863.10:r.="
+    dna = "ENST00000452863.10:c.="
+    allele = Allele(rna=rna, dna=dna)
+    for output, expected in zip_longest(skip_adjacent_exons(allele), results):
         assert output.rna_variants == expected
 
 
 def test_two_adjacent_exonskip_WT1() -> None:
-    d = WT1_description()
     results = [
-        "ENST00000452863.10:c.662_887del",
-        "ENST00000452863.10:c.785_965del",
-        "ENST00000452863.10:c.888_1016del",
-        "ENST00000452863.10:c.966_1113del",
-        "ENST00000452863.10:c.1017_1264del",
-        "ENST00000452863.10:c.1114_1354del",
-        "ENST00000452863.10:c.1265_1447del",
+        # ENST00000452863.10:r.662_887del
+        [Variant(start=1965, end=2191, inserted="", deleted="")],
+        # ENST00000452863.10:r.785_965del
+        [Variant(start=1887, end=2068, inserted="", deleted="")],
+        # ENST00000452863.10:r.888_1016del
+        [Variant(start=1836, end=1965, inserted="", deleted="")],
+        # ENST00000452863.10:r.966_1113del
+        [Variant(start=1739, end=1887, inserted="", deleted="")],
+        # ENST00000452863.10:r.1017_1264del
+        [Variant(start=1588, end=1836, inserted="", deleted="")],
+        # ENST00000452863.10:r.1114_1354del
+        [Variant(start=1498, end=1739, inserted="", deleted="")],
+        # ENST00000452863.10:r.1265_1447del
+        [Variant(start=1405, end=1588, inserted="", deleted="")],
     ]
-    for output, expected in zip_longest(skip_adjacent_exons(d, 2), results):
+    rna = "ENST00000452863.10:r.="
+    dna = "ENST00000452863.10:c.="
+    allele = Allele(rna=rna, dna=dna)
+    for output, expected in zip_longest(skip_adjacent_exons(allele, 2), results):
         assert output.rna_variants == expected
 
 

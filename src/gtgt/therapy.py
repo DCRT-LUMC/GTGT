@@ -90,8 +90,7 @@ def _exon_string(exon_numbers: Sequence[int]) -> str:
         return f"exons {t} and {exon_numbers[-1]}"
 
 
-def skip_adjacent_exons(allele: Any, number_to_skip: int = 1
-) -> Sequence[Therapy]:
+def skip_adjacent_exons(allele: Any, number_to_skip: int = 1) -> Sequence[Therapy]:
     """Skipp all possible adjacent exons the specified Description"""
     assert allele.rna is not None
 
@@ -141,10 +140,10 @@ def skip_adjacent_exons(allele: Any, number_to_skip: int = 1
             )
 
         t = Therapy(
-            name = f"Skip {exons_description}",
+            name=f"Skip {exons_description}",
             description=" ".join(description),
-            dna_variants = allele.dna.variants if allele.dna else [],
-            rna_variants = list(combined)
+            dna_variants=allele.dna.variants if allele.dna else [],
+            rna_variants=list(combined),
         )
 
         exon_skips.append(t)

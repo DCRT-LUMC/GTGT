@@ -72,7 +72,7 @@ def test_analyze_transcript() -> None:
 
     input = results[1]
     assert input.therapy.name == "Input"
-    assert input.therapy.hgvsc == dna 
+    assert input.therapy.hgvsc == dna
     coding_exons = input.comparison[1]
     # basepairs are not a float, so easier to match than .percentage
     assert coding_exons.basepairs == "990/1569"

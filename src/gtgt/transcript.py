@@ -372,7 +372,6 @@ class Allele:
             # Update the features of the modified transcript based on the therapy
             modified_transcript.mutate()
 
-
             # Filter variants which are not of interest
             if not extended:
                 if not is_of_interest(
@@ -386,7 +385,10 @@ class Allele:
             # Make the therapy report
             therapy_report = TherapyReport.from_therapy(therapy, modified_transcript)
             results.append(
-                Result(therapy_report, modified_transcript.features.compare(wildtype.features))
+                Result(
+                    therapy_report,
+                    modified_transcript.features.compare(wildtype.features),
+                )
             )
 
         # Order the results
