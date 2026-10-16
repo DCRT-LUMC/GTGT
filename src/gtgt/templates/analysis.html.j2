@@ -3,9 +3,9 @@
 {% else %}
   <div id="home" class="page padding active">
 {% endif %}
-    <h5>Analyze variant(s)</h5>
+    <h5>Analyze variants</h5>
     <p>
-    Welcome to the Genetic Therapy Generator Toolkit, please specify one or more variants in a single <a href="https://hgvs-nomenclature.org" class="link" target="_blank">HGVS description</a> below:
+    Welcome to the Genetic Therapy Generator Toolkit, please specify the DNA and RNA <a href="https://hgvs-nomenclature.org" class="link" target="_blank">HGVS description</a> of your allele of interest below:
     </p>
 
     <fieldset>
@@ -28,7 +28,7 @@
       <nav>
         <label class="checkbox">
           <input type="checkbox" id="protein_domains">
-          <span>Include protein domains</span>
+          <span>Analyze protein domains</span>
         </label>
         <label class="checkbox">
           <input type="checkbox" id="extended">
@@ -59,7 +59,7 @@
     {% endif %}
 
     <h5>Examples</h5>
-    <p>The input must be an allele in HGVS format, describing variants on an Ensembl transcript.
+    <p>The input must be two HGVS descriptions, for DNA and RNA, describing the allele you want to analyze.
     <table>
       <thead>
         <tr>
