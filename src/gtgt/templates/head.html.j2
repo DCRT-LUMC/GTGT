@@ -81,10 +81,15 @@
       document.getElementById('submitBtn').style.visibility='hidden';
       document.getElementById('submitSpinner').style.visibility='visible';
 
-      // Redirect to the results page
+      // Get the  checkboxes
       var protein_domains = document.getElementById('protein_domains').checked
       var extended = document.getElementById('extended').checked
-      window.location = "/" + variant + "?" + "protein_domains=" + protein_domains + "&extended=" + extended;
+      //Get the DNA and RNA inputs
+      var dna = document.getElementById('dna_hgvs').value;
+      var rna = document.getElementById('rna_hgvs').value;
+      // Redirect to the results page
+      console.log("Redirecting");
+      window.location = "?dna=" + dna + "&rna=" + rna + "&protein_domains=" + protein_domains + "&extended=" + extended;
     }
 
     function fillSearchField(dna_hgvs, rna_hgvs)

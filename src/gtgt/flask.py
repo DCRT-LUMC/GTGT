@@ -113,30 +113,32 @@ def validate_user_input(input: str) -> Mapping[str, str]:
 
 
 @app.route("/")
-@app.route("/<variant>")
-def result(variant: str | None = None) -> str:
+def result() -> str:
     template_file = "templates/index.html.j2"
 
+    dna_hgvs = request.args.get("dna")
+    rna_hgvs = request.args.get("rna")
+
     # If no variant was specified
-    if not variant:
+    if not dna_hgvs or not rna_hgvs:
         return render(template_file)
 
     # Invalid user input
-    if error := validate_user_input(variant):
-        return render(template_file, variant=variant, error=error)
+    for hgvs in [dna_hgvs, rna_hgvs]:
+        if error := validate_user_input(hgvs):
+            # TODO make render work with
+            return render(template_file, variant=rna_hgvs, error=error)
 
     # Analyze the transcript
     try:
-        d = init_description(variant)
-        # TODO ensure that variant is RNA
-        allele = Allele(dna="Not implemented", rna="Not implemented")
+        allele = Allele(dna=dna_hgvs, rna=rna_hgvs)
 
         # Extract parameter from the request
         protein_domains = request.args.get("protein_domains") == "true"
         extended = request.args.get("extended") == "true"
 
         if protein_domains:
-            allele.lookup_protein_domains(d)
+            allele.lookup_protein_domains(allele.rna.d)
 
         results = allele.analyze(extended=extended)
     except Exception as e:
@@ -145,11 +147,11 @@ def result(variant: str | None = None) -> str:
 
     # Get external links
     try:
-        links = lookup_variant(variant).url_dict()
+        links = lookup_variant(dna_hgvs).url_dict()
     except Exception as e:
         links = dict()
 
     if error:
-        return render(template_file, variant=variant, error=error)
+        return render(template_file, variant=rna_hgvs, error=error)
     else:
-        return render(template_file, results=results, links=links, variant=variant)
+        return render(template_file, results=results, links=links, variant=rna_hgvs)
