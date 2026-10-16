@@ -39,16 +39,18 @@
       document.getElementById('submitSpinner').style.visibility='visible';
 
       // Redirect to the results page
-      var variant = document.getElementById('variant_input').value;
+      var dna_hgvs = document.getElementById('dna_hgvs').value;
+      var rna_hgvs = document.getElementById('rna_hgvs').value;
       var protein_domains = document.getElementById('protein_domains').checked
       var extended = document.getElementById('extended').checked
       window.location = "/" + variant + "?" + "protein_domains=" + protein_domains + "&extended=" + extended;
     }
 
-    function fillSearchField(value)
+    function fillSearchField(dna_hgvs, rna_hgvs)
     {
       // Set the value in the text search field
-      document.getElementById('variant_input').value=value;
+      document.getElementById('dna_hgvs').value=dna_hgvs;
+      document.getElementById('rna_hgvs').value=rna_hgvs;
       // Scroll to the top
       window.scrollTo({top: 0, behaviour: 'smooth'})
     }

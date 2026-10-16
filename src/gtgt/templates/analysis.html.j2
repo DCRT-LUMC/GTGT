@@ -7,17 +7,33 @@
     <p>
     Welcome to the Genetic Therapy Generator Toolkit, please specify one or more variants in a single <a href="https://hgvs-nomenclature.org" class="link" target="_blank">HGVS description</a> below:
     </p>
-    <div class="field border round small" style="margin-bottom:1em;">
-      <input id="variant_input" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
-    </div>
-    <label class="checkbox">
-      <input type="checkbox" id="protein_domains">
-      <span>Include protein domains</span>
-    </label>
-    <label class="checkbox">
-      <input type="checkbox" id="extended">
-      <span>Show all evaluated therapies</span>
-    </label>
+
+    <fieldset>
+      <legend>Specify the DNA and RNA variant descriptions</legend>
+      <div class="field border label">
+        <input id="dna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
+        <label>DNA description</label>
+      </div>
+      <div class="field border label">
+        <input id="rna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
+        <label>RNA description</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Therapy analysis options</legend>
+      <nav>
+        <label class="checkbox">
+          <input type="checkbox" id="protein_domains">
+          <span>Include protein domains</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="extended">
+          <span>Show all evaluated therapies</span>
+        </label>
+      </nav>
+    </fieldset>
+
     <div>
       <progress id="submitSpinner" style="visibility:hidden"></progress>
       <button id="submitBtn" class="center" type="button" onclick="redirect()" >Submit</button>
@@ -50,11 +66,11 @@
       </thead>
       <tbody>
         <tr>
-          <td><a class="link" onclick="fillSearchField('ENST00000375549.8:c.100del')">ENST00000375549.8:c.100del</a></td>
+          <td><a class="link" onclick="fillSearchField('ENST00000375549.8:c.100del','ENST00000375549.8:r.100del')">ENST00000375549.8:c.100del</a></td>
           <td>Frameshift deletion in exon 2 of SHDH</td>
         </tr>
         <tr>
-          <td><a class="link" onclick="fillSearchField('NC_000023.11(NM_004006.3):c.2500del')">NC_000023.11(NM_004006.3):c.2500del</a></td>
+          <td><a class="link" onclick="fillSearchField('NC_000023.11(NM_004006.3):c.2500del','NC_000023.11(NM_004006.3):r.2500del')">NC_000023.11(NM_004006.3):c.2500del</a></td>
           <td>Frameshift deletion in exon 20 of DMD</td>
         </tr>
       </tbody>
