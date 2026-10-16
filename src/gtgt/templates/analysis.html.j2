@@ -11,15 +11,12 @@
     <fieldset>
       <legend>Specify the DNA and RNA variant descriptions</legend>
       <div id="dna_hgvs_input" class="field border label">
-        <input id="dna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidDNA()" onfocusout="rna_input()">
+        <input id="dna_hgvs" type="text" {{'value=' + '"' + dna + '"' if dna else 'value="NO DNEA"'}} onfocusin="clearInvalidDNA()" onfocusout="rna_input()">
         <label>DNA description</label>
       </div>
       <div id="rna_hgvs_input" class="field border label">
-        <input id="rna_hgvs" list="rna_hgvs_suggestions" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidRNA();rna_input()">
+        <input id="rna_hgvs" type="text" {{'value=' + '"' + rna + '"' if rna else ''}} onfocusin="clearInvalidRNA();rna_input()">
         <label>RNA description</label>
-        <datalist id="rna_hgvs_suggestions">
-          <option value="NM:r.10del">NM:r.10del</option>
-        </datalist>
       </div>
     </fieldset>
 
@@ -27,11 +24,11 @@
       <legend>Select therapy analysis options</legend>
       <nav>
         <label class="checkbox">
-          <input type="checkbox" id="protein_domains">
+          <input type="checkbox" id="protein_domains" {{ 'checked' if protein_domains }}>
           <span>Analyze protein domains</span>
         </label>
         <label class="checkbox">
-          <input type="checkbox" id="extended">
+          <input type="checkbox" id="extended" {{ 'checked' if extended }}>
           <span>Show all evaluated therapies</span>
         </label>
       </nav>

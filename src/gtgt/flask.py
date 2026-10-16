@@ -25,10 +25,7 @@ payload = dict[str, Any] | None
 
 def render(
     template_file: str,
-    variant: str | None = None,
-    results: Sequence[Result] = [],
-    links: Mapping[str, Any] | None = None,
-    error: Mapping[str, str] | None = None,
+    **kwargs: Any,
 ) -> str:
     """Render the html template using jinja2 directly"""
     root = os.path.dirname(__file__)
@@ -38,17 +35,10 @@ def render(
     template = environment.get_template(os.path.basename(template_file))
 
     # Exclude any payloads that are not set
-    d: dict[str, Any] = dict()
-    if variant:
-        d["variant"] = variant
-    if results:
-        d["results"] = organize_results(results)
-    if links:
-        d["links"] = links
-    if error:
-        d["error"] = error
+    if "results" in kwargs:
+        kwargs["results"] = organize_results(kwargs["results"])
 
-    return template.render(**d)
+    return template.render(**kwargs)
 
 
 def organize_results(
@@ -116,6 +106,10 @@ def validate_user_input(input: str) -> Mapping[str, str]:
 def result() -> str:
     template_file = "templates/index.html.j2"
 
+    # Extract parameter from the request
+    protein_domains = request.args.get("protein_domains") == "true"
+    extended = request.args.get("extended") == "true"
+
     dna_hgvs = request.args.get("dna")
     rna_hgvs = request.args.get("rna")
 
@@ -127,15 +121,18 @@ def result() -> str:
     for hgvs in [dna_hgvs, rna_hgvs]:
         if error := validate_user_input(hgvs):
             # TODO make render work with
-            return render(template_file, variant=rna_hgvs, error=error)
+            return render(
+                template_file,
+                dna=dna_hgvs,
+                rna=rna_hgvs,
+                protein_domains=protein_domains,
+                extended=extended,
+                error=error,
+            )
 
     # Analyze the transcript
     try:
         allele = Allele(dna=dna_hgvs, rna=rna_hgvs)
-
-        # Extract parameter from the request
-        protein_domains = request.args.get("protein_domains") == "true"
-        extended = request.args.get("extended") == "true"
 
         if protein_domains:
             allele.lookup_protein_domains(allele.rna.d)
@@ -152,6 +149,22 @@ def result() -> str:
         links = dict()
 
     if error:
-        return render(template_file, variant=rna_hgvs, error=error)
+        return render(
+            template_file,
+            dna=dna_hgvs,
+            rna=rna_hgvs,
+            protein_domains=protein_domains,
+            extended=extended,
+            error=error,
+        )
     else:
-        return render(template_file, results=results, links=links, variant=rna_hgvs)
+        return render(
+            template_file,
+            dna=dna_hgvs,
+            rna=rna_hgvs,
+            protein_domains=protein_domains,
+            extended=extended,
+            results=results,
+            links=links,
+            variant=rna_hgvs,
+        )
