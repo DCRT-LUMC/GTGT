@@ -35,14 +35,12 @@
 
     function invalid(element, operation)
     {
-      console.log(element.classList);
       if (operation == "remove") {
         element.classList.remove("invalid");
       }
       if (operation == "add") {
         element.classList.add("invalid");
       }
-      console.log(element.classList);
     }
 
     function clearInvalidDNA()
@@ -53,6 +51,52 @@
     function clearInvalidRNA()
     {
       invalid(document.getElementById('rna_hgvs_input'), "remove");
+    }
+
+    async function dna_to_rna(query){
+      const url = `https://mutalyzer.nl/api/dna_to_rna/${query}`;
+      console.info(url);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`Response status for ${query}: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if ("description" in result) {
+        return result['description'];
+      }
+      else {
+        msg=result['custom']['errors'][0]['details'];
+        throw new Error('Mutalyzer error: ${msg}');
+      }
+    }
+
+    async function rna_input()
+    {
+      // Get the values from the DNA and RNA
+      var dna = document.getElementById('dna_hgvs');
+      var rna = document.getElementById('rna_hgvs');
+
+      // If there is already something in the RNA input field we do not change it
+      if (rna.value) {
+        return
+      }
+
+      // Query mutalyzer for the RNA description
+      var rna_description='';
+      try {
+        rna_description = await dna_to_rna(dna.value);
+      }
+      catch (error) {
+        return;
+      }
+
+      console.info(`rna_description = ${rna_description}`);
+
+      // Fill out the RNA description when succesfull
+      rna.value = rna_description;
     }
 
     function submit()

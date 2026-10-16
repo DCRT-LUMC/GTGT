@@ -11,12 +11,15 @@
     <fieldset>
       <legend>Specify the DNA and RNA variant descriptions</legend>
       <div id="dna_hgvs_input" class="field border label">
-        <input id="dna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidDNA()">
+        <input id="dna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidDNA()" onfocusout="rna_input()">
         <label>DNA description</label>
       </div>
       <div id="rna_hgvs_input" class="field border label">
-        <input id="rna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidRNA()">
+        <input id="rna_hgvs" list="rna_hgvs_suggestions" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidRNA();rna_input()">
         <label>RNA description</label>
+        <datalist id="rna_hgvs_suggestions">
+          <option value="NM:r.10del">NM:r.10del</option>
+        </datalist>
       </div>
     </fieldset>
 
