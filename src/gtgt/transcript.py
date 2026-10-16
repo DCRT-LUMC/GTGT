@@ -126,13 +126,9 @@ class Features:
         self.rna = rna
         self.protein = protein
 
-    def __repr__(self):
-        return (
-            f"{type(self).__name__}("
-            f"rna={self.rna},"
-            f"protein={self.protein}"
-            f")"
-        )
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(rna={self.rna}, protein={self.protein})"
+
     @classmethod
     def from_hgvs(cls, hgvs: str) -> "Features":
         """Create a Transcript object from a mutalyzer Description"""
@@ -315,6 +311,10 @@ class Allele:
         hgvs_id = self.rna.d.input_description.split(":r.")[0]
         wildtype = Allele(rna=f"{hgvs_id}:r.=", dna=f"{hgvs_id}:c.=")
 
+        # If there are protein domains on self, we also want them for the wildtype
+        if len(self.features.protein) > 1:
+            wildtype.lookup_protein_domains(wildtype.rna.d)
+
         # TODO restore protein features
 
         results = list()
@@ -410,7 +410,6 @@ class Allele:
 
                 record.update(t_blocks)
                 self.features.protein.append(record)
-
 
 
 def is_of_interest(
