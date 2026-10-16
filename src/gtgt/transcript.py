@@ -126,6 +126,13 @@ class Features:
         self.rna = rna
         self.protein = protein
 
+    def __repr__(self):
+        return (
+            f"{type(self).__name__}("
+            f"rna={self.rna},"
+            f"protein={self.protein}"
+            f")"
+        )
     @classmethod
     def from_hgvs(cls, hgvs: str) -> "Features":
         """Create a Transcript object from a mutalyzer Description"""
@@ -403,6 +410,7 @@ class Allele:
 
                 record.update(t_blocks)
                 self.features.protein.append(record)
+
 
 
 def is_of_interest(
