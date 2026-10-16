@@ -76,7 +76,10 @@ def _set_analyze_parser(subparsers: Any) -> None:
         "analyze", help="Analyze all possible exons skips for the spcified HGVS variant"
     )
     analyze_parser.add_argument(
-        "hgvs", help="HGVS description of the transcript of interest"
+        "--dna", help="HGVS description of the observed DNA changes"
+    )
+    analyze_parser.add_argument(
+        "--rna", help="HGVS description of the observed RNA changes"
     )
     analyze_parser.add_argument(
         "--protein-domains",
@@ -142,9 +145,9 @@ def mutate(args: argparse.Namespace) -> None:
 
 
 def analyze(args: argparse.Namespace) -> None:
-    d = init_description(args.hgvs)
-    allele = Allele(dna="Not implemented", rna="Not implemented")
+    allele = Allele(dna=args.dna, rna=args.rna)
     if args.protein_domains:
+        d = init_description(args.rna)
         allele.lookup_protein_domains(d)
     # Convert Result objects to dict
     results = [dataclasses.asdict(x) for x in allele.analyze(extended=args.extended)]
