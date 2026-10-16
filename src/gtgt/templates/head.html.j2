@@ -32,15 +32,56 @@
     }
   </script>
   <script>
-    function redirect()
+
+    function invalid(element, operation)
     {
+      console.log(element.classList);
+      if (operation == "remove") {
+        element.classList.remove("invalid");
+      }
+      if (operation == "add") {
+        element.classList.add("invalid");
+      }
+      console.log(element.classList);
+    }
+
+    function clearInvalidDNA()
+    {
+      invalid(document.getElementById('dna_hgvs_input'), "remove");
+    }
+
+    function clearInvalidRNA()
+    {
+      invalid(document.getElementById('rna_hgvs_input'), "remove");
+    }
+
+    function submit()
+    {
+      // First, we check if all inputs are there
+      let dna_hgvs = document.getElementById('dna_hgvs').value;
+      let rna_hgvs = document.getElementById('rna_hgvs').value;
+
+      console.log(dna_hgvs)
+      console.log(rna_hgvs)
+
+      if (!dna_hgvs) {
+        invalid(document.getElementById("dna_hgvs_input"), "add");
+      }
+      if (!rna_hgvs) {
+        invalid(document.getElementById("rna_hgvs_input"), "add");
+      }
+
+      // If any of the inputs are empty, scroll to top and exit
+      if (!rna_hgvs || !dna_hgvs ) {
+        // Scroll to the top
+        window.scrollTo({top: 0, behaviour: 'smooth'});
+        return;
+      }
       // Hide the submit button and show the spinner
       document.getElementById('submitBtn').style.visibility='hidden';
       document.getElementById('submitSpinner').style.visibility='visible';
 
       // Redirect to the results page
-      var dna_hgvs = document.getElementById('dna_hgvs').value;
-      var rna_hgvs = document.getElementById('rna_hgvs').value;
       var protein_domains = document.getElementById('protein_domains').checked
       var extended = document.getElementById('extended').checked
       window.location = "/" + variant + "?" + "protein_domains=" + protein_domains + "&extended=" + extended;
@@ -59,7 +100,7 @@
     document.addEventListener("keyup", function(event) {
       if (event.keyCode === 13) { //13 is enter}
         event.preventDefault();
-        redirect();
+        submit();
       }
     });
   </script>

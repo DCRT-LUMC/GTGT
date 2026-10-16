@@ -10,18 +10,18 @@
 
     <fieldset>
       <legend>Specify the DNA and RNA variant descriptions</legend>
-      <div class="field border label">
-        <input id="dna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
+      <div id="dna_hgvs_input" class="field border label">
+        <input id="dna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidDNA()">
         <label>DNA description</label>
       </div>
-      <div class="field border label">
-        <input id="rna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} autofocus>
+      <div id="rna_hgvs_input" class="field border label">
+        <input id="rna_hgvs" type="text" {{'value=' + '"' + variant + '"' if variant else ''}} onfocusin="clearInvalidRNA()">
         <label>RNA description</label>
       </div>
     </fieldset>
 
     <fieldset>
-      <legend>Therapy analysis options</legend>
+      <legend>Select therapy analysis options</legend>
       <nav>
         <label class="checkbox">
           <input type="checkbox" id="protein_domains">
@@ -36,7 +36,7 @@
 
     <div>
       <progress id="submitSpinner" style="visibility:hidden"></progress>
-      <button id="submitBtn" class="center" type="button" onclick="redirect()" >Submit</button>
+      <button id="submitBtn" class="center" type="button" onclick="submit()" >Submit</button>
     </div>
 
     {% if error is defined %}
