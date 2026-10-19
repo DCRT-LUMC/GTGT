@@ -42,6 +42,14 @@ class TestVariant:
         v = Variant(10, 11, "T", "A")
         assert str(v) == "Variant(start=10, end=11, inserted='T', deleted='A')"
 
+    def test_Variant_del_to_str(self) -> None:
+        """Test converting a deletion to string
+
+        For deletions, both inserted and deleted are empty
+        """
+        v = Variant(10, 20)
+        assert str(v) == "Variant(start=10, end=20, inserted='', deleted='')"
+
     def test_Variant_to_model_positions(self) -> None:
         """Test converting a variant to model"""
         v = Variant(10, 11, "ATG")
