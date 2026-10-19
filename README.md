@@ -11,23 +11,62 @@
 ------------------------------------------------------------------------
 ## GTGT website
 Try out GTGT via the website of the Dutch Center for RNA Therapeutics:
-[https://gtgt.rnatherapy.nl](https://gtgt.rnatherapy.nl).
+[https://gtgt.rnatherapy.nl](https://gtgt.rnatherapy.nl). For information on
+how to use GTGT, please see the online documentation on
+[http://gtgt.readthedocs.io/](http://gtgt.readthedocs.io/).
 
-## Documentation
-The documentation is available on [http://gtgt.readthedocs.io/](http://gtgt.readthedocs.io/).
+## Quick start guide
+The following is a quick guide on how to use GTGT locally. To speed up the
+analysis of multiple variants, please see the [documentation]() on how to set
+up caching for GTGT.
 
-## Caching
-To speed up the tool, you can enable caching by setting the `GTGT_CACHE` environment variable.
+### Command line version
+```bash
 
-## Human
-gtgt transcript ENST00000241453.12 | jq .
+# Install GTGT
+pip install gtgt
 
+# Print the transcript information (in bed format)
+gtgt transcript ENST00000375549.8
 
-## Variant Information
-gtgt links "NM_000094.4:c.5299G>C"
+# Example frameshift variant in exon 2 of SDHD to analyze
+dna=ENST00000375549.8:c.100del
+rna=ENST00000375549.8:r.100del
 
-## Analyze exon skips
-Use the `analyze` entry point to generate all exon skips, and compare them to the wildtype and patient transcripts
+# Analyze the variants, which will return a list of possible therapies and how
+# they compare with the wildtype transcript
+gtgt analyze --dna ${dna} --rna ${rna}
+[
+ ...
+ {
+  "therapy": {
+   "name": "Skip exon 2",
+   "hgvsc": "ENST00000375549.8:c.100del",
+   "description": "The annotations based on the supplied variants, in combination with skipping exon 2.\n",
+   "variants": [],
+   "figure": null,
+   "hgvsr": "ENST00000375549.8:r.53_169del",
+   "hgvsp": "ENST00000375549.8(ENSP00000364699):p.(Leu19_Ser57del)"
+  },
+  "comparison": [
+   {
+    "name": "Exons",
+    "percentage": 0.912621359223301,
+    "basepairs": "1222/1339"
+   },
+   {
+    "name": "Coding exons",
+    "percentage": 0.7520833333333333,
+    "basepairs": "361/480"
+   }
+  ]
+ },
+ ...
+]
+
+# To see the exact features of the transcript after skipping exon 2 (see above), use
+gtgt export --dna ${dna} --rna "ENST00000375549.8:r.53_169del" --protein
+```
 
 ```bash
 # A frameshift deletion in exon 2
