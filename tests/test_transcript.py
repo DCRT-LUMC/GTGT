@@ -16,7 +16,13 @@ from gtgt.variant import Variant
 
 
 def test_Result_init() -> None:
-    t = TherapyReport("skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5", list())
+    t = TherapyReport(
+        "skip exon 5",
+        "ENST123:c.49_73del",
+        "Try to skip exon 5",
+        dna_variants=[],
+        rna_variants=[],
+    )
     c = Comparison("Coding exons", 0.5, "100/200")
 
     Result(therapy=t, comparison=[c])
@@ -26,13 +32,21 @@ def test_Result_init() -> None:
 
 def test_Result_comparison() -> None:
     t1 = TherapyReport(
-        "skip exon 5", "ENST123:c.49_73del", "Try to skip exon 5", list()
+        "skip exon 5",
+        "ENST123:c.49_73del",
+        "Try to skip exon 5",
+        dna_variants=[],
+        rna_variants=[],
     )
     c1 = Comparison("Coding exons", 0.5, "100/200")
     r1 = Result(therapy=t1, comparison=[c1])
 
     t2 = TherapyReport(
-        "skip exon 6", "ENST123:c.49_73del", "Try to skip exon 5", list()
+        "skip exon 6",
+        "ENST123:c.49_73del",
+        "Try to skip exon 5",
+        dna_variants=[],
+        rna_variants=[],
     )
     c2 = Comparison("Coding exons", 0.2, "100/200")
     r2 = Result(therapy=t2, comparison=[c2])
@@ -216,7 +230,8 @@ def test_Result_from_dict() -> None:
             name="wildtype",
             hgvsc="ENST:c.=",
             description="Free text",
-            variants=[Variant(10, 12, inserted="ATG")],
+            rna_variants=[Variant(10, 12, inserted="ATG")],
+            dna_variants=[],
         ),
         comparison=[Comparison("Exons", percentage=100, basepairs="120/120")],
     )
@@ -225,7 +240,8 @@ def test_Result_from_dict() -> None:
         "name": "wildtype",
         "hgvsc": "ENST:c.=",
         "description": "Free text",
-        "variants": [{"start": 10, "end": 12, "inserted": "ATG", "deleted": ""}],
+        "rna_variants": [{"start": 10, "end": 12, "inserted": "ATG", "deleted": ""}],
+        "dna_variants": [],
     }
     comparison = [{"name": "Exons", "percentage": 100, "basepairs": "120/120"}]
 

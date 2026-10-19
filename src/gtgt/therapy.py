@@ -37,7 +37,8 @@ class TherapyReport:
     name: str
     hgvsc: str
     description: str
-    variants: Sequence[Variant]
+    dna_variants: Sequence[Variant]
+    rna_variants: Sequence[Variant]
     figure: str | None = None
     hgvsr: str | None = None
     hgvsp: str | None = None
@@ -45,12 +46,14 @@ class TherapyReport:
     @classmethod
     def from_dict(cls, dict: Mapping[str, Any]) -> "TherapyReport":
         """Create a Therapy object from a dict representation of a Therapy"""
-        v = [Variant.from_dict(x) for x in dict["variants"]]
+        dna_variants = [Variant.from_dict(x) for x in dict["dna_variants"]]
+        rna_variants = [Variant.from_dict(x) for x in dict["rna_variants"]]
         return cls(
             name=dict["name"],
             hgvsc=dict["hgvsc"],
             description=dict["description"],
-            variants=v,
+            dna_variants=dna_variants,
+            rna_variants=rna_variants,
             figure=dict.get("figure"),
             hgvsr=dict.get("hgvsr"),
             hgvsp=dict.get("hgvsp"),
@@ -63,7 +66,8 @@ class TherapyReport:
             name=therapy.name,
             hgvsc=allele.dna.hgvs(),
             description=therapy.description,
-            variants=[],
+            dna_variants=allele.dna.variants,
+            rna_variants=allele.rna.variants,
             hgvsr=allele.rna.hgvs(),
             hgvsp=allele.rna.protein_hgvs(),
         )

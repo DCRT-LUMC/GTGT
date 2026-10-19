@@ -163,3 +163,11 @@ def test_TherapyReport_from_Therapy() -> None:
     assert report.hgvsc == dna
     assert report.hgvsr == rna
     assert report.hgvsp == protein
+
+    # Test that the correct DNA and RNA variants are stored in the TherapyReport
+    assert report.dna_variants == [
+        Variant(start=40722, end=40845, inserted="", deleted="")
+    ]
+    assert report.rna_variants == [
+        Variant(start=2068, end=2191, inserted="", deleted="")
+    ]

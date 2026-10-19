@@ -326,7 +326,8 @@ class Allele:
             hgvsr=wildtype.rna.hgvs(),
             hgvsp=wildtype.rna.protein_hgvs(),
             description="These are the annotations as defined on the reference. They are always 100% by definition.",
-            variants=list(),
+            dna_variants=wildtype.dna.variants,
+            rna_variants=wildtype.rna.variants,
         )
         results.append(Result(wt, wildtype.features.compare(wildtype.features)))
 
@@ -337,7 +338,8 @@ class Allele:
             hgvsr=self.rna.hgvs(),
             hgvsp=self.rna.protein_hgvs(),
             description="The annotations based on the supplied input variants.",
-            variants=self.rna.variants,
+            dna_variants=self.dna.variants,
+            rna_variants=self.rna.variants,
             figure=draw(self.rna.d),
         )
         # The input variant is actually the same as self

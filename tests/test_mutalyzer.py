@@ -162,14 +162,19 @@ def test_Therapy_from_dict() -> None:
     """Test creating a Therapy from a dict"""
     variants = [Variant(10, 11, inserted="A", deleted="T")]
     therapy = TherapyReport(
-        "Wildtype", hgvsc="ENST:c.=", description="free text", variants=variants
+        "Wildtype",
+        hgvsc="ENST:c.=",
+        description="free text",
+        rna_variants=variants,
+        dna_variants=[],
     )
 
     d = {
         "name": "Wildtype",
         "hgvsc": "ENST:c.=",
         "description": "free text",
-        "variants": [{"start": 10, "end": 11, "inserted": "A", "deleted": "T"}],
+        "rna_variants": [{"start": 10, "end": 11, "inserted": "A", "deleted": "T"}],
+        "dna_variants": [],
     }
 
     assert TherapyReport.from_dict(d) == therapy

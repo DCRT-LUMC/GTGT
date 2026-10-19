@@ -48,7 +48,7 @@ def organize_results(
     The Results are grouped in a dict with the following keys
     - input, which contains the Result for the input
     - modified, which contains the Results where one or more of the input
-      varianst have been changed
+      variants have been changed (DNA or RNA)
     - all, which contains all other Results, including the wildtype etc, in
       the original order
     """
@@ -63,15 +63,24 @@ def organize_results(
     todo.remove(wildtype)
 
     # Extract the variants from the input
-    input_variants = input_.therapy.variants
+    dna_input_variants = input_.therapy.dna_variants
+    rna_input_variants = input_.therapy.rna_variants
 
     # Find all Results where one or more of the input variants are modified or removed
     modified = list()
     for result in todo:
-        for variant in input_variants:
-            if variant not in result.therapy.variants:
+        # Check the RNA variants
+        for rna_variant in rna_input_variants:
+            if rna_variant not in result.therapy.rna_variants:
                 modified.append(result)
                 break
+        # If we checked all RNA variants without finding something
+        else:
+            # Check the DNA variants
+            for dna_variant in dna_input_variants:
+                if dna_variant not in result.therapy.dna_variants:
+                    modified.append(result)
+                    break
 
     # Exclude the Results that modify the input variant
     todo = [x for x in todo if x not in modified]
