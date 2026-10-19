@@ -6,14 +6,14 @@ Using GTGT
 GTGT is accessible online via `https://gtgt.rnatherapy.nl
 <https://gtgt.rnatherapy.nl>`_. Users can specify their transcript and mutation
 of interest in `HGVS <https://hgvs-nomenclature.org/stable/>`_ format. For the
-best results, users should specify all variants that were observed on the
-affected allele, since the exact patient sequence is taken into account when
-assessing therapies. However, if only the pathogenic variant is known, this
-will also work.
+best results, users should specify all DNA and RNA variants that were observed
+on the affected allele, since the exact patient sequence is taken into account
+when assessing therapies. However, if only the pathogenic variant is known,
+this will also work.
 
   .. figure:: figures/gtgt-input.png
 
-     Input screen for the GTGT website. Users can describe their variant(s) of itnerest, and configure the parameters of the analysis.
+     Input screen for the GTGT website. Users can describe their variants of interest, and configure the parameters of the analysis.
 
 Please refer to the :ref:`transcripts <transcript>` section for more
 information on which transcripts can be used with GTGT.
@@ -60,7 +60,7 @@ reference) and any of the proposed therapies.
 
 Variant description
 ~~~~~~~~~~~~~~~~~~~
-This lists the description of the variant(s) in HGVS format for the coding, RNA
+This lists the description of the variant(s) in HGVS format for the DNA, RNA
 and protein level. Clicking these descriptions will take you to Mutalyzer where
 you can find more information regarding the HGVS descriptions.
 
@@ -70,14 +70,17 @@ This is a human readable description of the therapy. In the case of the input
 variant, this will just hold a short description that this is the input
 variant.
 
-In the case of exon skip therapies, this description will explain which exons
-have been skipped, and optionally also if any of the exons are especially
-vulnerable to exon skipping.
+In the case of genetic therapies, this description will explain which changes
+have been made to the patient transcript by the therapy. Some therapies will
+also contain references to other resources which were utilized in creating this
+specific therapy. For example, in the case of exon skipping the description
+will contain information on how likely it is that the given exon can be skipped
+in vivo.
 
 Transcript visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Only in case of the input variant, GTGT also shows a figure indicating the
-location of the specified variants on the transcript.
+location of the specified variants on the RNA version of the transcript.
 
 Changed annotations
 ~~~~~~~~~~~~~~~~~~~
@@ -85,11 +88,11 @@ This lists all annotations that have changed as a result of the variant(s) that
 were specfied. The ``Exons`` and ``Coding exons`` annotations are always
 available. Additional protein level annotations are only available for
 transcripts encoded on the HG38 reference genome. For each annotation, both the
-remaining percentage as well as the total number of (remaining) bases is
+remaining percentage as well as the total number of remaining bases is
 listed.
 
-The protein annotations are retrieved from the UCSC, including the names which
-can be cryptic at times.
+The protein annotations are retrieved from the UCSC, including the names of the
+features. Unfortunately, the feature names can be cryptic at times.
 
 Unchanged annotations
 ~~~~~~~~~~~~~~~~~~~~~

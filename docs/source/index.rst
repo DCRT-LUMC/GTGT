@@ -42,11 +42,10 @@ which skips this exon will lack much more than a single amino acid, so it will
 also receive a lower score. Here, we rely on the user to interpret the proposed
 therapies and determine which is the most suitable.
 
-Splice altering mutations and/or intronic mutations cannot be interpreted by
-GTGT, since there is no way to predict the effect of these kind of mutations on
-the transcript. If you know the effect of your mutation, e.g. alternative
-splicing, intron inclusion etc, you should provide these mutations to GTGT as
-the input, instead of (only) the variant which causes the splicing defect.
+Splice altering mutations and intronic mutations can now also be interpreted by
+GTGT, since the user can explicitly specify the changes observed on the DNA and
+the RNA. If you know that your mutation affects splicing, you should provide
+these changes to GTGT as variants on the RNA transcript.
 
 Check out the :ref:`usage <usage>` section on how to use the website, or
 :ref:`install <installation>` the project locally.

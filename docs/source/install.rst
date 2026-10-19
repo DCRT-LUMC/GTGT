@@ -21,7 +21,7 @@ You can fetch transcript information using the command below.
 
 .. code-block:: console
 
-   gtgt transcript ENST00000241453.12 | jq .
+   gtgt transcript ENST00000241453.12
 
 Links
 -----
