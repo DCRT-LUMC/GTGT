@@ -8,8 +8,11 @@ Changelog
 .. that users understand how the changes affect the new version.
 
 -----------
-v0.2.15-dev
+v0.3.0-dev
 -----------
++ **Breaking changes:** Most of the internal classes and how they are used have
+  changed. In particular the `Transcript` has been simplified.
++ Require both RNA and DNA descriptions as input.
 + Add support for describing variants on the RNA (r.). This will allow users to
   describe events like (partial) intron retentions on the mature mRNA
 + Fix a bug where VariantValidator does not recognize HGVS using r.
