@@ -76,10 +76,10 @@ def _set_analyze_parser(subparsers: Any) -> None:
         "analyze", help="Analyze all possible exons skips for the spcified HGVS variant"
     )
     analyze_parser.add_argument(
-        "--dna", help="HGVS description of the observed DNA changes"
+        "--dna", help="HGVS description of the observed DNA changes", required=True
     )
     analyze_parser.add_argument(
-        "--rna", help="HGVS description of the observed RNA changes"
+        "--rna", help="HGVS description of the observed RNA changes", required=True
     )
     analyze_parser.add_argument(
         "--protein-domains",
@@ -101,7 +101,10 @@ def _set_export_parser(subparsers: Any) -> None:
         "export", help="Export the specified Transcript to BED format"
     )
     export_parser.add_argument(
-        "hgvs", help="HGVS description of the transcript of interest"
+        "--dna", help="HGVS description of the observed DNA changes", required=True
+    )
+    export_parser.add_argument(
+        "--rna", help="HGVS description of the observed RNA changes", required=True
     )
     export_parser.add_argument(
         "--protein-domains",
@@ -169,20 +172,15 @@ def webserver(args: argparse.Namespace) -> None:
 
 def export(args: argparse.Namespace) -> None:
     # Get the transcript
-    d = init_description(args.hgvs)
-    transcript = Allele(dna="Not implemented", rna="Not implemented")
+    d = init_description(args.rna)
+    allele = Allele(dna=args.dna, rna=args.rna)
     if args.protein_domains:
-        transcript.lookup_protein_domains(d)
+        allele.lookup_protein_domains(d)
 
-    # Mutate the transcript
-    sequence = sequence_from_description(d)
-    input_variants = [
-        Variant.from_model(delins, sequence=sequence)
-        for delins in d.delins_model["variants"]
-    ]
-    transcript.features.mutate(d, input_variants)
+    # mutate the features using the RNA description
+    allele.mutate()
 
-    for record in transcript.features.records():
+    for record in allele.features.records():
         print(record)
 
 
