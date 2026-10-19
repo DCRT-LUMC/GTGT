@@ -34,7 +34,7 @@ class TestVariant:
     def test_Variant_to_str(self) -> None:
         """Test converting a Variant to string"""
         v = Variant(10, 11, "ATG")
-        assert str(v) == "Variant(start=10, end=11, inserted='ATG', deleted='')"
+        assert str(v) == "Variant(start=10, end=11, inserted='ATG')"
 
     def test_Variant_snp_to_str(self) -> None:
         """SNPS are special, since they contain the inserted sequence"""
@@ -48,7 +48,15 @@ class TestVariant:
         For deletions, both inserted and deleted are empty
         """
         v = Variant(10, 20)
-        assert str(v) == "Variant(start=10, end=20, inserted='', deleted='')"
+        assert str(v) == "Variant(start=10, end=20)"
+
+    def test_Variant_ins_to_str(self) -> None:
+        """Test converting a deletion to string
+
+        For deletions, both inserted and deleted are empty
+        """
+        v = Variant(10, 20, inserted="ATG")
+        assert str(v) == "Variant(start=10, end=20, inserted='ATG')"
 
     def test_Variant_to_model_positions(self) -> None:
         """Test converting a variant to model"""

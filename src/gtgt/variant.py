@@ -90,9 +90,12 @@ class Variant:
     def __repr__(self) -> str:
         start = self.start
         end = self.end
-        inserted = self.inserted
-        deleted = self.deleted
-        return f"{self.__class__.__name__}({start=}, {end=}, inserted='{inserted}', deleted='{deleted}')"
+
+        # We only print the inserted/deleted if it is not empty
+        ins = f", inserted='{self.inserted}'" if self.inserted else ""
+        _del = f", deleted='{self.deleted}'" if self.deleted else ""
+
+        return f"{self.__class__.__name__}({start=}, {end=}{ins}{_del})"
 
     def __hash__(self) -> int:
         return hash(self.__repr__())
