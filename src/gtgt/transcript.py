@@ -351,7 +351,7 @@ class Allele:
             description="The annotations based on the supplied input variants.",
             dna_variants=self.dna.variants,
             rna_variants=self.rna.variants,
-            figure=draw(self.rna.d),
+            figure=draw(self.rna),
         )
         # The input variant is actually the same as self
         results.append(Result(input, self.features.compare(wildtype.features)))

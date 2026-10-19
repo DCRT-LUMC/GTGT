@@ -1,9 +1,13 @@
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gtgt.transcript import Transcript
 
 import svg
 from exonviz.draw import draw_exons
 from exonviz.mutalyzer import build_exons
-from mutalyzer.description import Description
+
+from gtgt.mutalyzer import init_description
 
 config = {
     "width": 768,
@@ -20,9 +24,11 @@ config = {
 }
 
 
-def draw(d: Description) -> str:
+def draw(t: Transcript) -> str:
+    hgvs = t.hgvs()
+    d = init_description(hgvs)
     exons, dropped_variants = build_exons(
-        hgvs=d.input_description,
+        hgvs=hgvs,
         mutalyzer=d.output()["selector_short"],
         config=config,
     )
