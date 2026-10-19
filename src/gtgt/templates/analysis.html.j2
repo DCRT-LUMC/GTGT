@@ -11,11 +11,11 @@
     <fieldset>
       <legend>Specify the DNA and RNA variant descriptions</legend>
       <div id="dna_hgvs_input" class="field border label">
-        <input id="dna_hgvs" type="text" {{'value=' + '"' + dna + '"' if dna else 'value="NO DNEA"'}} onfocusin="clearInvalidDNA()" onfocusout="rna_input()">
+        <input id="dna_hgvs" type="text" {{ 'value=' + '"' + dna + '"' if dna }} onfocusin="clearInvalidDNA()" onfocusout="rna_input()">
         <label>DNA description</label>
       </div>
       <div id="rna_hgvs_input" class="field border label">
-        <input id="rna_hgvs" type="text" {{'value=' + '"' + rna + '"' if rna else ''}} onfocusin="clearInvalidRNA();rna_input()">
+        <input id="rna_hgvs" type="text" {{ 'value=' + '"' + rna + '"' if rna }} onfocusin="clearInvalidRNA();rna_input()">
         <label>RNA description</label>
       </div>
     </fieldset>
