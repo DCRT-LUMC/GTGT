@@ -3,7 +3,7 @@ import logging
 import os
 
 # Only import Allele for type checking
-from typing import TYPE_CHECKING, Any, Mapping, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, Iterator, Mapping, Sequence, TypeVar
 
 if TYPE_CHECKING:
     from gtgt.transcript import Allele
@@ -90,9 +90,8 @@ def _exon_string(exon_numbers: Sequence[int]) -> str:
         return f"exons {t} and {exon_numbers[-1]}"
 
 
-def skip_adjacent_exons(allele: "Allele", number_to_skip: int = 1) -> Sequence[Therapy]:
+def skip_adjacent_exons(allele: "Allele", number_to_skip: int = 1) -> Iterator[Therapy]:
     """Skipp all possible adjacent exons the specified Description"""
-    exon_skips: list[Therapy] = list()
 
     skippable_exons = get_exons(allele.rna.d, in_transcript_order=True)[1:-1]
     variants = allele.rna.variants
@@ -137,24 +136,17 @@ def skip_adjacent_exons(allele: "Allele", number_to_skip: int = 1) -> Sequence[T
                 "Please see https://vulexmap.compbio.sdu.dk/ for more details."
             )
 
-        t = Therapy(
+        yield Therapy(
             name=f"Skip {exons_description}",
             description=" ".join(description),
             dna_variants=allele.dna.variants,
             rna_variants=list(combined),
         )
 
-        exon_skips.append(t)
 
-    return exon_skips
-
-
-def generate_therapies(allele: "Allele") -> Sequence[Therapy]:
+def generate_therapies(allele: "Allele") -> Iterator[Therapy]:
     """Wrapper around the different therapies"""
-    therapies: list[Therapy] = list()
     # Skip a single exon
-    therapies += skip_adjacent_exons(allele, number_to_skip=1)
+    yield from skip_adjacent_exons(allele, number_to_skip=1)
     # Skip two adjacent exons
-    therapies += skip_adjacent_exons(allele, number_to_skip=2)
-
-    return therapies
+    yield from skip_adjacent_exons(allele, number_to_skip=2)

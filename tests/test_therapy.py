@@ -71,7 +71,7 @@ def test_no_possible_exonskip_SDHD() -> None:
     rna = "ENST00000375549.8:r.="
     dna = "ENST00000375549.8:c.="
     allele = Allele(rna=rna, dna=dna)
-    assert skip_adjacent_exons(allele, number_to_skip=3) == list()
+    assert list(skip_adjacent_exons(allele, number_to_skip=3)) == list()
 
 
 def test_one_adjacent_exonskip_WT1() -> None:
