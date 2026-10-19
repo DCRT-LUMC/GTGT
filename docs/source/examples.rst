@@ -63,7 +63,7 @@ to analyze this mutation using GTGT.
 
 As can be seen from Transcript visualization, deletion of exon 8 and 9 causes a
 frameshift mutation in the transcript. The frameshift leads to the loss of the
-Lysosomal targetting motif, which is essential for the localisation of CLN3 to
+Lysosomal targeting motif, which is essential for the localisation of CLN3 to
 the lysosome.
 
 As can be seen from the figure, the reading frame can be restored by skipping
@@ -72,14 +72,14 @@ either the exon before the deletion (exon 7) or the exon after the deletion
 
 However, GTGT has found another therapy which restores the reading frame of the
 transcript, namely skipping exon 6. This solution is not intuitive at all, and
-also difficult to see from the transript visualization of CLN3. The best way to
+also difficult to see from the transcript visualization of CLN3. The best way to
 explain it is that skipping exon 6 causes a frameshift when translating from
-exon 5 to exon 7, which is then cancled by the frameshift caused by the exon
+exon 5 to exon 7, which is then canceled out by the frameshift caused by the exon
 8+9 deletion.
 
 Interestingly, exon 6 is a vulnerable exon that is already partially skipped in
 healthy individuals. Skipping exon 6 has been shown to restore CLN3 function
 and localisation to the lysosome in patient cell lines (`Centa2020
 <https://www.nature.com/articles/s41591-020-0986-1>`__). Note that they use a
-different transcript of CLN3 which lacks the first noncoding exon, so the
+different transcript of CLN3 which lacks the first non-coding exon, so the
 deletion is exon 7+8, and the exon they skip is exon 5.

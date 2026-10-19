@@ -85,7 +85,7 @@ location of the specified variants on the RNA version of the transcript.
 Changed annotations
 ~~~~~~~~~~~~~~~~~~~
 This lists all annotations that have changed as a result of the variant(s) that
-were specfied. The ``Exons`` and ``Coding exons`` annotations are always
+were specified. The ``Exons`` and ``Coding exons`` annotations are always
 available. Additional protein level annotations are only available for
 transcripts encoded on the HG38 reference genome. For each annotation, both the
 remaining percentage as well as the total number of remaining bases is
