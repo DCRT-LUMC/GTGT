@@ -272,7 +272,7 @@ class Allele:
         - The DNA Transcript
 
     For some variants, the RNA and DNA versions of the transcript will be
-    (practically) identical. However, in the case of splice altering varaints
+    (practically) identical. However, in the case of splice altering variants
     there can be big differences between the RNA and the DNA version of the
     Transcript.
 
@@ -285,7 +285,18 @@ class Allele:
         dna: str,
         rna: str,
         features: Features | None = None,
+        _ignore_coordinate: bool = False,
     ) -> None:
+
+        # Check if the coordinate systems are correct, unless _ignore_coordinate
+        # has been set (this is used when testing)
+        if ":c." not in dna and not _ignore_coordinate:
+            msg = f"Only variants on the 'c' coordinate system are supported ({dna})"
+            raise ValueError(msg)
+
+        if ":r." not in rna and not _ignore_coordinate:
+            msg = f"Only variants on the 'r' coordinate system are supported ({dna})"
+            raise ValueError(msg)
 
         self.dna = Transcript(dna)
 

@@ -321,10 +321,12 @@ def test_transcript_from_NC_NM_reverse() -> None:
 
     NM_012459.4 is TIMM8B
     """
-    transcript = Allele(
-        dna="NC_000011.10(NM_012459.4):c.=", rna="NC_000011.10(NM_012459.4):c.="
+    allele = Allele(
+        dna="NC_000011.10(NM_012459.4):c.=",
+        rna="NC_000011.10(NM_012459.4):c.=",
+        _ignore_coordinate=True,
     )
-    features = transcript.features
+    features = allele.features
 
     assert features.exons and features.exons.blocks() == [(2953, 3616), (4793, 4910)]
     assert features.coding_exons and features.coding_exons.blocks() == [

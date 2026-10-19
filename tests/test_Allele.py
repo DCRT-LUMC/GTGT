@@ -20,7 +20,7 @@ def test_mutate_allele() -> None:
     rna = "ENST00000452863.10:c.100G>T"
     dna = "ENST00000452863.10:c.100G>T"
 
-    a = Allele(rna=rna, dna=dna)
+    a = Allele(rna=rna, dna=dna, _ignore_coordinate=True)
     a.mutate()
 
     # Expected exons, 1 nt was changed (position 47846)
@@ -223,7 +223,7 @@ def test_mutate_reverse(
     d = init_description(rna)
     v = [Variant.from_model(delins) for delins in d.delins_model["variants"]]
 
-    WT1 = Allele(dna=dna, rna=rna)
+    WT1 = Allele(dna=dna, rna=rna, _ignore_coordinate=True)
     WT1.features.mutate(d, v)
 
     assert WT1.features.exons and WT1.features.exons.blocks() == exon_blocks
