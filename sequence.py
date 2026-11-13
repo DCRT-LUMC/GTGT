@@ -64,7 +64,11 @@ def mutate_features(features: list[Range], variants: list[Variant]) -> list[Rang
     return new_features
 
 def mutate_sequence(sequence: str, variants:list[Variant]) -> str:
-    """Mutate the sequence with the variants"""
+    """
+    Mutate sequence based on the variants
+
+    Note: the variants must be sorted
+    """
     if not variants:
         return sequence
 
@@ -74,6 +78,10 @@ def mutate_sequence(sequence: str, variants:list[Variant]) -> str:
         if variant.start < prev:
             raise ValueError("Variants must be sorted")
         prev = variant.end
+
+    # The end of the last variant cannot be beyond the end of the sequence
+    if variants[-1].end > len(sequence):
+        raise ValueError(f"{variants[-1]} lies beyond the end of the sequence")
 
     # Store the segments of the mutated sequence
     segments = list()

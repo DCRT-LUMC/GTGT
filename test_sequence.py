@@ -112,10 +112,29 @@ def test_mutate_features(variants: list[Variant], expected:list[Range]) -> None:
             [Variant(0, 3), Variant(5, 9, inserted='AAAT')],
             "34AAAT9"
         ),
-
+        (
+            # An insertion at the exact end of the sequence
+            [Variant(10, 10, "ATG")],
+            "0123456789ATG"
+        ),
     ],
 )
 def test_mutate_sequence(variants: list[Variant], expected: str) -> None:
     """Test mutating a sequence"""
     sequence = "0123456789"
     assert mutate_sequence(sequence, variants) == expected
+
+
+def test_mutate_sequence_variant_outside() -> None:
+    """Test a mutation outside of the sequence"""
+    sequence = "0123456789"
+    variant= Variant(11, 11, "ATG")
+    with pytest.raises(ValueError):
+        mutate_sequence(sequence, [variant])
+
+def test_mutate_sequence_variants_not_sorted() -> None:
+    """Test that we fail if the variants are not sorted"""
+    sequence = "0123456789"
+    variants= [Variant(5, 5, "ATG"), Variant(1,2, inserted="ATG")]
+    with pytest.raises(ValueError):
+        mutate_sequence(sequence, variants)
