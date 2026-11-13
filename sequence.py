@@ -6,7 +6,9 @@ from gtgt.mutalyzer import init_description, sequence_from_description
 
 import sys
 
+from gtgt.range import intersect
 from gtgt.variant import Variant
+from Bio.Seq import Seq
 
 sdhd = [
     "NM_003002.4",
@@ -26,6 +28,65 @@ data = {
 
 Range = tuple[int, int]
 
+class MiniTranscript:
+    """Minimalistic transcript class"""
+    def __init__(self, inverted: bool, sequence:str, exons: list[Range], cds: list[Range] | None = None, variants: list[Variant] | None = None) -> None:
+        self.inverted = inverted
+        self.sequence = sequence
+        self.exons = exons
+        self.cds = cds
+        self.variants = variants if variants else []
+        self.inverted = inverted
+
+    def get_sequence(self) -> str:
+        """Return the sequence of the transcript"""
+        return self.sequence
+
+    def _get_features_sequence(self, sequence:str, features: list[Range]) -> str:
+        """Return the sequence of the features, in forward orientation"""
+        segments = list()
+        for start, end in features:
+            segments.append(sequence[start:end])
+
+        if self.inverted:
+            return reverse_complement(''.join(segments))
+        else:
+            return ''.join(segments)
+
+    def get_exon_sequence(self) -> str:
+        """Return the exon sequence in forward orientation"""
+        exons = mutate_features(self.exons, self.variants)
+        sequence = mutate_sequence(self.sequence, self.variants)
+
+        return self._get_features_sequence(sequence, exons)
+
+    def get_coding_sequence(self) -> str:
+        """Return the coding sequence in forward orientation"""
+        if not self.cds:
+            raise ValueError("Transcript does not have a cds")
+        exons = mutate_features(self.exons, self.variants)
+        cds = mutate_features(self.cds, self.variants)[0]
+        sequence = mutate_sequence(self.sequence, self.variants)
+
+        coding = list()
+        for exon in exons:
+            coding += intersect(exon, cds)
+
+        return self._get_features_sequence(sequence, coding)
+
+    def get_protein_sequence(self) -> str:
+        """Return the protein sequence for the transcript"""
+        coding_sequence = self.get_coding_sequence()
+        # Add padding if the coding sequence is not divisible by three
+        if (padding:=3 - len(coding_sequence)%3):
+            coding_sequence += "N"*padding
+
+        predicted = str(Seq(coding_sequence).translate()) # type: ignore
+        first_stop = predicted.find("*")
+        return predicted[: first_stop + 1]
+
+
+
 def _variant_size(variant: Variant) -> int:
     """
     Determine the net size of a variant
@@ -35,6 +96,8 @@ def _variant_size(variant: Variant) -> int:
 def mutate_features(features: list[Range], variants: list[Variant]) -> list[Range]:
     """
     Mutate features based on the variants
+
+    The variants do not have to be sorted
     """
     # Flatten the features, since we can act on them individually
     boundaries = list(itertools.chain.from_iterable(features))
@@ -125,7 +188,7 @@ if __name__ == "__main__":
     for transcript in data[gene]:
         # Make DNA
         hgvs = f"{transcript}:c.[10del; 16_17delinsT]"
-        hgvs = f"{transcript}:c.10_11insA"
+        # hgvs = f"{transcript}:c.10_11insA"
         # hgvs = f"{transcript}:r.[10del; 20A>T]"
         d = init_description(hgvs)
         # print(f"{hgvs}")
@@ -139,12 +202,15 @@ if __name__ == "__main__":
         ]
         print(variants)
 
+        t = MiniTranscript(d.is_inverted(), sequence, d.get_selector_model()["exon"], cds=d.get_selector_model()['cds'], variants=variants)
+
         # print(d.get_selector_model()["exon"])
         # print(d.get_selector_model()["cds"])
 
         seq = get_sequence(sequence, d.get_selector_model()["exon"], d.is_inverted())
         print(f">{hgvs} {d.is_inverted()}")
-        print(seq)
+        print('mutalyzer ', d.protein['predicted'])
+        print('minitrans ', t.get_protein_sequence())
 
         print()
         
