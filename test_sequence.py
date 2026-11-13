@@ -54,9 +54,31 @@ def test_variant_size(variant: Variant, size: int) -> None:
             [(14, 24), (29, 39), (51, 54)],
         ),
         (
+         # Insertion of 4 bp just before the start of the second feature
+            [Variant(24, 24, inserted="ATCG")],
+            [(10, 20), (29, 39), (51, 54)],
+        ),
+        (
          # Insertion of 4 bp at the start of the second feature
             [Variant(25, 25, inserted="ATCG")],
+            [(10, 20), (29, 39), (51, 54)],
+        ),
+        (
+         # Insertion of 4 bp after the start of the second feature
+            [Variant(26, 26, inserted="ATCG")],
             [(10, 20), (25, 39), (51, 54)],
+        ),
+        (
+         # Insertion of 4 bp at the start of the second feature
+         # Deletion at start of the third feature
+            [Variant(25, 25, inserted="ATCG"), Variant(40, 45)],
+            [(10, 20), (29, 39), (46, 49)],
+        ),
+        (
+         # Insertion of 4 bp at the start of the second feature
+         # Deletion inside the third feature
+            [Variant(25, 25, inserted="ATCG"), Variant(48, 50)],
+            [(10, 20), (29, 39), (51, 52)],
         ),
     ],
 )
@@ -77,13 +99,18 @@ def test_mutate_features(variants: list[Variant], expected:list[Range]) -> None:
             [Variant(0, 0, inserted="A")],
             "A0123456789"
         ),
-        (  # A SNPS 
+        (  # A SNPS
             [Variant(4, 5, inserted="A")],
             "0123A56789"
         ),
-        (  # A deletion 
+        (  # A deletion
             [Variant(6, 8)],
             "01234589"
+        ),
+        (  # Multiple variants
+             # Deletion     Delins
+            [Variant(0, 3), Variant(5, 9, inserted='AAAT')],
+            "34AAAT9"
         ),
 
     ],

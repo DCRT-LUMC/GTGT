@@ -48,9 +48,9 @@ def mutate_features(features: list[Range], variants: list[Variant]) -> list[Rang
         for index in range(len(boundaries)):
             position = boundaries[index]
 
-            # If the variant is before the position, we increase the offset
+            # If the variant is before or at the position, we increase the offset
             # for this position by the size of the variant
-            if position > variant.end:
+            if position >= variant.end:
                 offsets[index] += size
 
     # Apply the offsets
