@@ -86,6 +86,8 @@ def test_mutate_features(variants: list[Variant], expected:list[Range]) -> None:
     """Test mutating features (such as exons, CDS)"""
     features = [(10, 20), (25, 35), (47, 50)]
     assert mutate_features(features, variants) == expected
+    # Test the variants in the reverse order
+    assert mutate_features(features, variants[::-1]) == expected
 
 
 @pytest.mark.parametrize(
