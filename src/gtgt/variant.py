@@ -164,7 +164,7 @@ class Variant:
         )
 
     def to_hgvs(self, mapper: Coding) -> str:
-        """Convert a Variant to a HGVS-like notation"""
+        """Convert a Variant to a HGVS-like notation (not normalized)"""
         if not mapper._inverted:
             # On the forward strand, the end of the range is not included and
             # the coordinate start is the HGVS end
@@ -190,7 +190,6 @@ class Variant:
 
         # An insertion
         if self.start == self.end:
-            # TODO the sign here depends on the strand of the transcript(mapper)
             return f"{hgvs_start}_{hgvs_end}ins{self.inserted}"
 
         # A delins

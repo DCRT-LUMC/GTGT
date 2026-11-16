@@ -1007,7 +1007,7 @@ class TestVariantToHGVS:
 
     """
     Tests for getting the HGVS description from MiniTranscript use this fake
-    example transcript on the reverse strand.
+    example transcript.
     The CDS starts in exon 2, and ends in exon 3
 
     exons = [(110, 125), (160, 172), (208, 241), (300, 348)]
@@ -1024,7 +1024,8 @@ class TestVariantToHGVS:
     ********==========------------=====||||||||----------||||||||=====-------------========******
               exon4    intron3        exon3     intron2    exon2        intron1      exon1
             ^        ^    ^       ^    ^      ^    ^     ^      ^    ^    ^        ^      ^
-            *18      *4   *4-16   *3   36     28   27+8  27     1    -6   -7+20    -7     -54
+    reverse *18      *4   *4-16   *3   36     28   27+8  27     1    -6   -7+20    -7     -54
+    forward -18      -4   -4+16   -3   1      9    10-8  10    36    *6   *7-20    *7     *54
 
     """
     Range = tuple[int, int]
@@ -1064,7 +1065,12 @@ class TestVariantToHGVS:
                 # A delins, delete 11, insert ATG
                 Variant(start=224, end=235, inserted='ATG'),
                 "1_11delinsATG"
-            )
+            ),
+            (
+                # A deletion in a non-coding exon
+                Variant(start=330, end=331),
+                "-37del"
+            ),
         ],
     )
     def test_Variant_to_hgvs_like(
