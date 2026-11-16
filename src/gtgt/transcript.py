@@ -90,6 +90,30 @@ class Result:
 Range = tuple[int, int]
 
 
+@dataclasses.dataclass
+class CodingPoint:
+    position: int
+    offset: int  # Intronic offset
+    coding_region: int  # can be -1, 0, 1
+    outside: int  # - for upstream, + for downstream
+
+    def __post_init__(self) -> None:
+        if self.outside:
+            raise ValueError("Positions outside of the transcript are not supported")
+
+    def __str__(self) -> str:
+        location = ""
+        if self.coding_region == 1:
+            location += "*"
+
+        location += str(self.position)
+        if self.offset and self.offset > 0:
+            location += f"+{self.offset}"
+        if self.offset and self.offset < 0:
+            location += f"{self.offset}"
+        return location
+
+
 class MiniTranscript:
     """
     Minimalistic transcript
