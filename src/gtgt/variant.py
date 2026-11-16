@@ -169,12 +169,11 @@ class Variant:
             # On the forward strand, the end of the range is not included and
             # the coordinate start is the HGVS end
             hgvs_start = CodingPoint(*mapper.coordinate_to_coding(self.start))
-            hgvs_end = CodingPoint(*mapper.coordinate_to_coding(self.end-1))
+            hgvs_end = CodingPoint(*mapper.coordinate_to_coding(self.end - 1))
         else:
             # On the reverse strand, the start of the range is not included
             hgvs_start = CodingPoint(*mapper.coordinate_to_coding(self.start))
-            hgvs_end = CodingPoint(*mapper.coordinate_to_coding(self.end-1))
-
+            hgvs_end = CodingPoint(*mapper.coordinate_to_coding(self.end - 1))
 
         # Only defined for SNPs
         if self.deleted:
@@ -195,7 +194,6 @@ class Variant:
         # A delins
         if self.inserted and hgvs_start > hgvs_end:
             return f"{hgvs_end}_{hgvs_start}delins{self.inserted}"
-
 
         raise NotImplementedError(f"Unable to generate hgvs for {self}")
 

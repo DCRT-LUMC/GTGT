@@ -1063,13 +1063,13 @@ class TestVariantToHGVS:
             ),
             (
                 # A delins, delete 11, insert ATG
-                Variant(start=224, end=235, inserted='ATG'),
-                "1_11delinsATG"
+                Variant(start=224, end=235, inserted="ATG"),
+                "1_11delinsATG",
             ),
             (
                 # A deletion in a non-coding exon
                 Variant(start=330, end=331),
-                "-37del"
+                "-37del",
             ),
         ],
     )
