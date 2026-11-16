@@ -1060,6 +1060,11 @@ class TestVariantToHGVS:
                 Variant(start=234, end=234, inserted="ATG"),
                 "1_2insATG",
             ),
+            (
+                # A delins, delete 11, insert ATG
+                Variant(start=224, end=235, inserted='ATG'),
+                "1_11delinsATG"
+            )
         ],
     )
     def test_Variant_to_hgvs_like(
