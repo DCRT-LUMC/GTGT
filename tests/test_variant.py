@@ -217,6 +217,33 @@ class TestVariant:
 
         assert Variant.from_dict(d) == v
 
+    @pytest.mark.parametrize(
+        "variant, size",
+        [
+            # SNP
+            (Variant(start=10, end=11, inserted="A", deleted="T"), 0),
+            # Insertion
+            (Variant(start=10, end=10, inserted="A", deleted=""), 1),
+            # Large insertion
+            (Variant(start=10, end=10, inserted="ATC", deleted=""), 3),
+            # Insertion of size 0
+            (Variant(start=10, end=10, inserted="", deleted=""), 0),
+            # Deletion
+            (Variant(start=10, end=11), -1),
+            # Large deletion
+            (Variant(start=10, end=15), -5),
+            # indel of size 0
+            (Variant(start=10, end=15, inserted="ATCGA"), 0),
+            # indel of positive size
+            (Variant(start=10, end=15, inserted="ATCGA+++"), 3),
+            # indel of negative size
+            (Variant(start=10, end=15, inserted="AT"), -3),
+        ],
+    )
+    def test_variant_size(self, variant: Variant, size: int) -> None:
+        """Test the size of the variant"""
+        assert variant.size == size
+
 
 class TestCombineVariantsDeletion:
     """Test combining multiple variants with a deletion

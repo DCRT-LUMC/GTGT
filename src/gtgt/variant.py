@@ -109,6 +109,11 @@ class Variant:
     def inside(self, other: Self) -> bool:
         return self.start >= other.start and self.end <= other.end
 
+    @property
+    def size(self) -> int:
+        """The size of the variant is the change in sequence length"""
+        return int(self.start - self.end + len(self.inserted))
+
     def overlap(self, other: Self) -> bool:
         self_ends_in_other = self.end > other.start and self.end <= other.end
         self_starts_in_other = self.start >= other.start and self.start < other.end
