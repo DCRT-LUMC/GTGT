@@ -1,9 +1,12 @@
 import dataclasses
+import itertools
 import logging
 from copy import deepcopy
 from typing import Any, Mapping, Sequence
 
 from mutalyzer.description import Description
+
+from gtgt.range import intersect
 
 from .bed import Bed
 from .exonviz import draw
@@ -24,6 +27,24 @@ from .ucsc import PROTEIN_TRACKS, lookup_track
 from .variant import Variant
 
 logger = logging.getLogger(__name__)
+
+
+mapping = str.maketrans(
+    {
+        "A": "T",
+        "C": "G",
+        "G": "C",
+        "T": "A",
+        "a": "u",
+        "c": "g",
+        "g": "c",
+        "u": "a",
+    }
+)
+
+
+def reverse_complement(seq: str) -> str:
+    return seq.translate(mapping)[::-1]
 
 
 @dataclasses.dataclass
@@ -64,6 +85,153 @@ class Result:
             therapy=TherapyReport.from_dict(dict["therapy"]),
             comparison=[Comparison.from_dict(x) for x in dict["comparison"]],
         )
+
+
+Range = tuple[int, int]
+
+
+class MiniTranscript:
+    """
+    Minimalistic transcript
+
+    If you make a copy of MiniTranscript objects, make sure to replace features
+    and not modify them, since members are shared between copies by default.
+    """
+
+    def __init__(
+        self,
+        inverted: bool,
+        sequence: str,
+        exons: list[Range],
+        cds: list[Range] | None = None,
+        variants: list[Variant] | None = None,
+    ) -> None:
+        self.inverted = inverted
+        self.sequence = sequence
+        self.exons = exons
+        self.cds = cds
+        self.variants = tuple(variants) if variants else tuple()
+
+    def get_sequence(self) -> str:
+        """Return the sequence of the transcript"""
+        return self.sequence
+
+    def _get_features_sequence(self, sequence: str, features: list[Range]) -> str:
+        """Return the sequence of the features, in forward orientation"""
+        segments = list()
+        for start, end in features:
+            segments.append(sequence[start:end])
+
+        if self.inverted:
+            return reverse_complement("".join(segments))
+        else:
+            return "".join(segments)
+
+    def get_exon_sequence(self) -> str:
+        """Return the exon sequence in forward orientation"""
+        exons = self.mutate_features(self.exons, self.variants)
+        sequence = self.mutate_sequence(self.sequence, self.variants)
+
+        return self._get_features_sequence(sequence, exons)
+
+    def get_coding_sequence(self) -> str:
+        """Return the coding sequence in forward orientation"""
+        if not self.cds:
+            raise ValueError("Transcript does not have a cds")
+        exons = self.mutate_features(self.exons, self.variants)
+        cds = self.mutate_features(self.cds, self.variants)[0]
+        sequence = self.mutate_sequence(self.sequence, self.variants)
+
+        coding: list[Range] = list()
+        for exon in exons:
+            coding += intersect(exon, cds)
+
+        return self._get_features_sequence(sequence, coding)
+
+    def get_protein_sequence(self) -> str:
+        """Return the protein sequence for the transcript"""
+        coding_sequence = self.get_coding_sequence()
+        # Add padding if the coding sequence is not divisible by three
+        if padding := 3 - len(coding_sequence) % 3:
+            coding_sequence += "N" * padding
+
+        predicted = str(Seq(coding_sequence).translate())  # type: ignore
+        first_stop = predicted.find("*")
+        return predicted[: first_stop + 1]
+
+    @staticmethod
+    def mutate_features(
+        features: Sequence[Range], variants: Sequence[Variant]
+    ) -> list[Range]:
+        """
+        Mutate features based on the variants
+
+        The variants do not have to be sorted
+        """
+        # Flatten the features, since we can act on them individually
+        boundaries = list(itertools.chain.from_iterable(features))
+
+        # Keep a running tally of the offsets for each boundary, because we cannot
+        # update the boundaries until we have seen all the variants
+        offsets = [0 for _ in boundaries]
+
+        for variant in variants:
+            for index in range(len(boundaries)):
+                position = boundaries[index]
+
+                # If the variant is before or at the position, we increase the offset
+                # for this position by the size of the variant
+                if position >= variant.end:
+                    offsets[index] += variant.size
+
+        # Apply the offsets
+        boundaries = [
+            position + offset for position, offset in zip(boundaries, offsets)
+        ]
+
+        # Group into Ranges
+        new_features = list()
+        for i in range(0, len(boundaries), 2):
+            new_features.append((boundaries[i], boundaries[i + 1]))
+
+        return new_features
+
+    @staticmethod
+    def mutate_sequence(sequence: str, variants: Sequence[Variant]) -> str:
+        """
+        Mutate sequence based on the variants
+
+        Note: the variants must be sorted
+        """
+        if not variants:
+            return sequence
+
+        # Check that the variants are sorted
+        prev = variants[0].end
+        for variant in variants[1:]:
+            if variant.start < prev:
+                raise ValueError("Variants must be sorted")
+            prev = variant.end
+
+        # The end of the last variant cannot be beyond the end of the sequence
+        if variants[-1].end > len(sequence):
+            raise ValueError(f"{variants[-1]} lies beyond the end of the sequence")
+
+        # Store the segments of the mutated sequence
+        segments = list()
+
+        # Keep track of the last position in the sequence we have included
+        position = 0
+
+        for variant in variants:
+            # Store the segment before the current variant
+            segments.append(sequence[position : variant.start])
+            segments.append(variant.inserted)
+            position = variant.end
+        else:
+            segments.append(sequence[position:])
+
+        return "".join(segments)
 
 
 class Transcript:
