@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence, TypeVar
+from typing import Any, Iterator, Mapping, Sequence, TypeVar
 
 from mutalyzer_crossmapper import Coding
 
@@ -47,6 +47,15 @@ class CodingPoint:
         if self.offset and self.offset < 0:
             location += f"{self.offset}"
         return location
+
+    def __iter__(self) -> Iterator[int]:
+        yield self.position
+        yield self.offset
+        yield self.coding_region
+        yield self.outside
+
+    def __lt__(self, other: CodingPoint) -> bool:
+        return tuple(self) < tuple(other)
 
 
 class Variant:
@@ -156,28 +165,40 @@ class Variant:
 
     def to_hgvs(self, mapper: Coding) -> str:
         """Convert a Variant to a HGVS-like notation"""
-        start = CodingPoint(*mapper.coordinate_to_coding(self.start))
+        if not mapper._inverted:
+            # On the forward strand, the end of the range is not included and
+            # the coordinate start is the HGVS end
+            hgvs_start = CodingPoint(*mapper.coordinate_to_coding(self.start))
+            hgvs_end = CodingPoint(*mapper.coordinate_to_coding(self.end-1))
+        else:
+            # On the reverse strand, the start of the range is not included
+            hgvs_start = CodingPoint(*mapper.coordinate_to_coding(self.start))
+            hgvs_end = CodingPoint(*mapper.coordinate_to_coding(self.end-1))
+
 
         # Only defined for SNPs
         if self.deleted:
-            return f"{start}{self.deleted}>{self.inserted}"
+            return f"{hgvs_start}{self.deleted}>{self.inserted}"
 
         # Deletion
         if not self.inserted:
             # Single bp deletion
-            end = CodingPoint(*mapper.coordinate_to_coding(self.end - 1))
-            if start == end:
-                return f"{start}del"
+            if hgvs_start == hgvs_end:
+                return f"{hgvs_start}del"
             else:
-                return f"{start}_{end}del"
+                return f"{hgvs_start}_{hgvs_end}del"
 
         # An insertion
         if self.start == self.end:
             # TODO the sign here depends on the strand of the transcript(mapper)
-            end = CodingPoint(*mapper.coordinate_to_coding(self.end - 1))
-            return f"{start}_{end}ins{self.inserted}"
+            return f"{hgvs_start}_{hgvs_end}ins{self.inserted}"
 
-        return ""
+        # A delins
+        if self.inserted and hgvs_start > hgvs_end:
+            return f"{hgvs_end}_{hgvs_start}delins{self.inserted}"
+
+
+        raise NotImplementedError(f"Unable to generate hgvs for {self}")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Variant):
