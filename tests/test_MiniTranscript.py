@@ -1,19 +1,28 @@
 import pytest
 
-from gtgt.transcript import CodingPoint, MiniTranscript
+from gtgt.transcript import MiniTranscript
 from gtgt.variant import Variant
 
 """
-Tests for getting the HGVS description from MiniTranscript use this fake example transcript
-
+Tests for getting the HGVS description from MiniTranscript use this fake
+example transcript on the reverse strand.
 The CDS starts in exon 2, and ends in exon 3
 
-100    110      125       160    172        208    241        300    348
-v       v        v         v      v          v      v          v      v
---------||||||||||---------||||||||----------||||||||----------||||||||
-          exon4    intron3  exon3   intron2   exon2   intron1    exon1
-        ^        ^         ^      ^          ^      ^          ^      ^
-        r.112    r.97      r.96   r.84      r.83    r.50       r.49   r.1
+exons = [(110, 125), (160, 172), (208, 241), (300, 348)]
+cds = [(163, 235)]
+
+---- : Intron
+==== : Exon
+|||| : Coding exon
+**** : Outside of transcript
+
+
+100    110      124  140     160  163    171  200   208     234 240  280      300    347
+v       v        v    v       v    v      v    v     v      v    v    v        v      v
+********==========------------=====||||||||----------||||||||=====-------------========******
+          exon4    intron3        exon3     intron2    exon2        intron1      exon1
+        ^        ^    ^       ^    ^      ^    ^     ^      ^    ^    ^        ^      ^
+        *18      *4   *4-16   *3   36     28   27+8  27     1    -6   -7+20    -7     -54
 
 """
 
@@ -138,33 +147,3 @@ def test_mutate_sequence_variants_not_sorted() -> None:
     variants = [Variant(5, 5, "ATG"), Variant(1, 2, inserted="ATG")]
     with pytest.raises(ValueError):
         MiniTranscript.mutate_sequence(sequence, variants)
-
-
-class TestCodingPoint:
-    @pytest.mark.parametrize(
-        "point, hgvs_position",
-        [
-            # Positions in the coding region
-            (CodingPoint(27, 0, 0, 0), "27"),
-            # Position before the coding region
-            (CodingPoint(-1, 0, -1, 0), "-1"),
-            # Position after the coding region
-            (CodingPoint(1, 0, 1, 0), "*1"),
-            # Intronic position in the coding region
-            (CodingPoint(15, 1, 0, 0), "15+1"),
-            (CodingPoint(15, 4, 0, 0), "15+4"),
-            (CodingPoint(16, -8, 0, 0), "16-8"),
-            # Intronic position before the coding region
-            (CodingPoint(-15, +1, -1, 0), "-15+1"),
-            (CodingPoint(-16, -8, -1, 0), "-16-8"),
-            # Intronic position after the coding region
-            (CodingPoint(15, +1, 1, 0), "*15+1"),
-            (CodingPoint(16, -8, 1, 0), "*16-8"),
-        ],
-    )
-    def test_coding_point_to_hgvs(self, point: CodingPoint, hgvs_position: str) -> None:
-        assert str(point) == hgvs_position
-
-    def test_error_position_outside_transcript(self) -> None:
-        with pytest.raises(ValueError):
-            CodingPoint(1, 0, 0, 1)

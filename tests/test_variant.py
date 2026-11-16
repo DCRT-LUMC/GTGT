@@ -5,6 +5,7 @@ from mutalyzer.description import Description
 from mutalyzer.description_model import get_reference_id
 from mutalyzer.protein import get_protein_description
 from mutalyzer.reference import get_protein_selector_model
+from mutalyzer_crossmapper import Coding
 
 from gtgt.mutalyzer import (
     init_description,
@@ -12,7 +13,8 @@ from gtgt.mutalyzer import (
     sequence_from_description,
     to_cdot_hgvs,
 )
-from gtgt.variant import Variant, combine_variants_deletion
+from gtgt.transcript import MiniTranscript
+from gtgt.variant import CodingPoint, Variant, combine_variants_deletion
 
 
 def SDHD_description() -> Description:
@@ -996,3 +998,106 @@ class TestVariantMutalyzerReverse(TestVariantMutalyzerForward):
     #     """Test converting Variant coordinates to genomic coordinates"""
     #     d = init_description(f"{self.transcript}:c.=")
     #     assert variant.genomic_coordinates(d) == genomic_coordinates
+
+
+class TestVariantToHGVS:
+    """
+    Class to group the tests that involve generating a HGVS notation for a Variant
+    """
+
+    """
+    Tests for getting the HGVS description from MiniTranscript use this fake
+    example transcript on the reverse strand.
+    The CDS starts in exon 2, and ends in exon 3
+
+    exons = [(110, 125), (160, 172), (208, 241), (300, 348)]
+    cds = [(163, 235)]
+
+    ---- : Intron
+    ==== : Exon
+    |||| : Coding exon
+    **** : Outside of transcript
+
+
+    100    110      124  140     160  163    171  200   208     234 240  280      300    347
+    v       v        v    v       v    v      v    v     v      v    v    v        v      v
+    ********==========------------=====||||||||----------||||||||=====-------------========******
+              exon4    intron3        exon3     intron2    exon2        intron1      exon1
+            ^        ^    ^       ^    ^      ^    ^     ^      ^    ^    ^        ^      ^
+            *18      *4   *4-16   *3   36     28   27+8  27     1    -6   -7+20    -7     -54
+
+    """
+    Range = tuple[int, int]
+
+    @pytest.fixture
+    def mini_transcript(self) -> MiniTranscript:
+        exons = [(110, 125), (160, 172), (208, 241), (300, 348)]
+        cds = [(163, 235)]
+        return MiniTranscript(
+            inverted=True, sequence="", exons=exons, cds=cds, variants=list()
+        )
+
+    @pytest.fixture
+    def mapper(self) -> Coding:
+        exons = [(110, 125), (160, 172), (208, 241), (300, 348)]
+        cds = (163, 235)
+        return Coding(exons, cds, inverted=True)
+
+    @pytest.mark.parametrize(
+        "variant, expected",
+        [
+            (  # A SNP, which is a special case since 'deleted' is set
+                Variant(start=234, end=235, deleted="A", inserted="T"),
+                "1A>T",
+            ),
+            (
+                # A deletion
+                Variant(start=234, end=235),
+                "1del",
+            ),
+            (
+                # An insertion
+                Variant(start=234, end=234, inserted="ATG"),
+                "1_2insATG",
+            ),
+        ],
+    )
+    def test_Variant_to_hgvs_like(
+        self, mapper: Coding, variant: Variant, expected: str
+    ) -> None:
+        """
+        Test converting a Variant to a HGVS-like notation (not normalized)
+
+        This requires a crossmapper in the same coordinate system as the Variant
+        """
+        assert variant.to_hgvs(mapper) == expected
+
+
+class TestCodingPoint:
+    @pytest.mark.parametrize(
+        "point, hgvs_position",
+        [
+            # Positions in the coding region
+            (CodingPoint(27, 0, 0, 0), "27"),
+            # Position before the coding region
+            (CodingPoint(-1, 0, -1, 0), "-1"),
+            # Position after the coding region
+            (CodingPoint(1, 0, 1, 0), "*1"),
+            # Intronic position in the coding region
+            (CodingPoint(15, 1, 0, 0), "15+1"),
+            (CodingPoint(15, 4, 0, 0), "15+4"),
+            (CodingPoint(16, -8, 0, 0), "16-8"),
+            # Intronic position before the coding region
+            (CodingPoint(-15, +1, -1, 0), "-15+1"),
+            (CodingPoint(-16, -8, -1, 0), "-16-8"),
+            # Intronic position after the coding region
+            (CodingPoint(15, +1, 1, 0), "*15+1"),
+            (CodingPoint(16, -8, 1, 0), "*16-8"),
+        ],
+    )
+    def test_coding_point_to_hgvs(self, point: CodingPoint, hgvs_position: str) -> None:
+        assert str(point) == hgvs_position
+
+    def test_error_position_outside_transcript(self) -> None:
+        with pytest.raises(ValueError):
+            CodingPoint(1, 0, 0, 1)

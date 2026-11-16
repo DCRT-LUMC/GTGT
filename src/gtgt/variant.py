@@ -1,5 +1,8 @@
 import sys
+from dataclasses import dataclass
 from typing import Any, Mapping, Sequence, TypeVar
+
+from mutalyzer_crossmapper import Coding
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -20,6 +23,30 @@ def get_offset(d: Description) -> int:
         .get("location_offset", 0)
     )
     return offset
+
+
+@dataclass
+class CodingPoint:
+    position: int
+    offset: int  # Intronic offset
+    coding_region: int  # can be -1, 0, 1
+    outside: int  # - for upstream, + for downstream
+
+    def __post_init__(self) -> None:
+        if self.outside:
+            raise ValueError("Positions outside of the transcript are not supported")
+
+    def __str__(self) -> str:
+        location = ""
+        if self.coding_region == 1:
+            location += "*"
+
+        location += str(self.position)
+        if self.offset and self.offset > 0:
+            location += f"+{self.offset}"
+        if self.offset and self.offset < 0:
+            location += f"{self.offset}"
+        return location
 
 
 class Variant:
@@ -126,6 +153,31 @@ class Variant:
                 other.inside(self),
             ]
         )
+
+    def to_hgvs(self, mapper: Coding) -> str:
+        """Convert a Variant to a HGVS-like notation"""
+        start = CodingPoint(*mapper.coordinate_to_coding(self.start))
+
+        # Only defined for SNPs
+        if self.deleted:
+            return f"{start}{self.deleted}>{self.inserted}"
+
+        # Deletion
+        if not self.inserted:
+            # Single bp deletion
+            end = CodingPoint(*mapper.coordinate_to_coding(self.end - 1))
+            if start == end:
+                return f"{start}del"
+            else:
+                return f"{start}_{end}del"
+
+        # An insertion
+        if self.start == self.end:
+            # TODO the sign here depends on the strand of the transcript(mapper)
+            end = CodingPoint(*mapper.coordinate_to_coding(self.end - 1))
+            return f"{start}_{end}ins{self.inserted}"
+
+        return ""
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Variant):
