@@ -21,6 +21,8 @@ v0.3.0-dev
   instead
 + Fix a possible security vulnerability when using the `GTGT_CACHE`
 + Add categories and descriptions to the external resources page
++ Drop support for python 3.10
++ Adds upport for python 3.15
 
 -------
 v0.2.14
