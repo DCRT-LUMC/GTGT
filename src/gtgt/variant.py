@@ -54,7 +54,7 @@ class CodingPoint:
         yield self.coding_region
         yield self.outside
 
-    def __lt__(self, other: CodingPoint) -> bool:
+    def __lt__(self, other: Self) -> bool:
         return tuple(self) < tuple(other)
 
 
