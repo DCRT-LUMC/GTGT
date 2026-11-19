@@ -4,8 +4,8 @@ import logging
 from copy import deepcopy
 from typing import Any, Mapping, Sequence
 
-from mutalyzer.description import Description
 from algebra.extractor import extract_sequence, to_hgvs
+from mutalyzer.description import Description
 
 from gtgt.range import intersect
 
@@ -114,43 +114,31 @@ class MiniTranscript:
         self.variants = tuple(variants) if variants else tuple()
 
     def get_sequence(self) -> str:
-        """Return the sequence of the transcript"""
+        """Return the unchanged sequence of the transcript"""
         return self.sequence
 
-    def _get_features_sequence(self, sequence: str, features: list[Range]) -> str:
-        """Return the sequence of the features, in forward orientation"""
-        segments = list()
-        for start, end in features:
-            segments.append(sequence[start:end])
-
-        if self.inverted:
-            return reverse_complement("".join(segments))
-        else:
-            return "".join(segments)
-
     def get_exon_sequence(self) -> str:
-        """Return the exon sequence in forward orientation"""
-        exons = self.mutate_features(self.exons, self.variants)
-        sequence = self.mutate_sequence(self.sequence, self.variants)
+        """Return the mutated exon sequence, in forward orientation"""
+        exons = self._mutate_features(self.exons, self.variants)
+        sequence = self._mutate_sequence(self.sequence, self.variants)
 
         return self._get_features_sequence(sequence, exons)
 
     def get_coding_sequence(self) -> str:
-        """Return the coding sequence in forward orientation"""
+        """Return the mutated coding sequence, in forward orientation"""
         if not self.cds:
             raise ValueError("Transcript does not have a cds")
-        exons = self.mutate_features(self.exons, self.variants)
-        cds = self.mutate_features(self.cds, self.variants)[0]
-        sequence = self.mutate_sequence(self.sequence, self.variants)
 
-        coding: list[Range] = list()
-        for exon in exons:
-            coding += intersect(exon, cds)
+        sequence = self._mutate_sequence(self.sequence, self.variants)
+        exons = self._mutate_features(self.exons, self.variants)
+        cds = self._mutate_features(self.cds, self.variants)[0]
+
+        coding = self._get_coding_regions(exons, cds)
 
         return self._get_features_sequence(sequence, coding)
 
     def get_protein_sequence(self) -> str:
-        """Return the protein sequence for the transcript"""
+        """Return the mutated protein sequence"""
         coding_sequence = self.get_coding_sequence()
         # Add padding if the coding sequence is not divisible by three
         if padding := 3 - len(coding_sequence) % 3:
@@ -166,8 +154,29 @@ class MiniTranscript:
         canonical, _ = extract_sequence(reference, observed)
         return str(to_hgvs(canonical, reference))
 
+    def _get_features_sequence(self, sequence: str, features: list[Range]) -> str:
+        """Return the sequence of the features, in forward orientation"""
+        segments = list()
+        for start, end in features:
+            segments.append(sequence[start:end])
+
+        if self.inverted:
+            return reverse_complement("".join(segments))
+        else:
+            return "".join(segments)
+
     @staticmethod
-    def mutate_features(
+    def _get_coding_regions(exons: list[Range], cds: Range) -> list[Range]:
+        """Return the ranges that make up the coding sequence"""
+
+        coding: list[Range] = list()
+        for exon in exons:
+            coding += intersect(exon, cds)
+
+        return coding
+
+    @staticmethod
+    def _mutate_features(
         features: Sequence[Range], variants: Sequence[Variant]
     ) -> list[Range]:
         """
@@ -204,7 +213,7 @@ class MiniTranscript:
         return new_features
 
     @staticmethod
-    def mutate_sequence(sequence: str, variants: Sequence[Variant]) -> str:
+    def _mutate_sequence(sequence: str, variants: Sequence[Variant]) -> str:
         """
         Mutate sequence based on the variants
 

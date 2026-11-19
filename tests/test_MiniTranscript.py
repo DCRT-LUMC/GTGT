@@ -89,9 +89,9 @@ def mini_transcript() -> MiniTranscript:
 def test_mutate_features(variants: list[Variant], expected: list[Range]) -> None:
     """Test mutating features (such as exons, CDS)"""
     features = [(10, 20), (25, 35), (47, 50)]
-    assert MiniTranscript.mutate_features(features, variants) == expected
+    assert MiniTranscript._mutate_features(features, variants) == expected
     # Test the variants in the reverse order
-    assert MiniTranscript.mutate_features(features, variants[::-1]) == expected
+    assert MiniTranscript._mutate_features(features, variants[::-1]) == expected
 
 
 @pytest.mark.parametrize(
@@ -130,7 +130,7 @@ def test_mutate_features(variants: list[Variant], expected: list[Range]) -> None
 def test_mutate_sequence(variants: list[Variant], expected: str) -> None:
     """Test mutating a sequence"""
     sequence = "0123456789"
-    assert MiniTranscript.mutate_sequence(sequence, variants) == expected
+    assert MiniTranscript._mutate_sequence(sequence, variants) == expected
 
 
 def test_mutate_sequence_variant_outside() -> None:
@@ -138,7 +138,7 @@ def test_mutate_sequence_variant_outside() -> None:
     sequence = "0123456789"
     variant = Variant(11, 11, "ATG")
     with pytest.raises(ValueError):
-        MiniTranscript.mutate_sequence(sequence, [variant])
+        MiniTranscript._mutate_sequence(sequence, [variant])
 
 
 def test_mutate_sequence_variants_not_sorted() -> None:
@@ -146,7 +146,7 @@ def test_mutate_sequence_variants_not_sorted() -> None:
     sequence = "0123456789"
     variants = [Variant(5, 5, "ATG"), Variant(1, 2, inserted="ATG")]
     with pytest.raises(ValueError):
-        MiniTranscript.mutate_sequence(sequence, variants)
+        MiniTranscript._mutate_sequence(sequence, variants)
 
 
 @pytest.mark.parametrize(
