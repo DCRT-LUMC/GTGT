@@ -147,3 +147,31 @@ def test_mutate_sequence_variants_not_sorted() -> None:
     variants = [Variant(5, 5, "ATG"), Variant(1, 2, inserted="ATG")]
     with pytest.raises(ValueError):
         MiniTranscript.mutate_sequence(sequence, variants)
+
+
+@pytest.mark.parametrize(
+    "observed, hgvs",
+    [
+        # Repeat expansion
+        #   vvv
+        ("ATGGGCCA", "3_4G[3]"),
+        # Repeat contraction
+        #   v
+        ("ATGCCA", "3_4G[1]"),
+        # Repeat deletion
+        ("ATCCA", "3_4del"),
+        # Regular deletion
+        ("AGGCCA", "2del"),
+        # Amino acid change
+        ("ACGGCCA", "2T>C"),
+        # Delins
+        ("ATCTGCA", "3_5delinsCTG"),
+        # Insertion
+        ("ATGGCCGTCGA", "6_7insGTCG"),
+        # Multiple variants, insertion + change
+        ("AGTGGCCT", "[1_2insG;7A>T]"),
+    ],
+)
+def test_protein_hgvs(observed: str, hgvs: str) -> None:
+    reference = "ATGGCCA"
+    assert MiniTranscript._protein_hgvs(reference, observed) == hgvs

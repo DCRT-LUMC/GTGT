@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import Any, Mapping, Sequence
 
 from mutalyzer.description import Description
+from algebra.extractor import extract_sequence, to_hgvs
 
 from gtgt.range import intersect
 
@@ -158,6 +159,12 @@ class MiniTranscript:
         predicted = str(Seq(coding_sequence).translate())  # type: ignore
         first_stop = predicted.find("*")
         return predicted[: first_stop + 1]
+
+    @staticmethod
+    def _protein_hgvs(reference: str, observed: str) -> str:
+        """Generate HGVS description of protein changes (not normalized)"""
+        canonical, _ = extract_sequence(reference, observed)
+        return str(to_hgvs(canonical, reference))
 
     @staticmethod
     def mutate_features(
