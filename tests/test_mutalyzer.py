@@ -57,7 +57,7 @@ def test_analyze_transcript() -> None:
 
     # Here we fake that the DNA is also the RNA to ensure the size of the
     # features matches the test case after refactoring
-    WT = Allele(rna=rna, dna=dna)
+    WT = Allele(rna=rna, dna=dna, identifier="ENST00000452863.10")
 
     results = analyze(WT)
 
@@ -69,6 +69,7 @@ def test_analyze_transcript() -> None:
     assert coding_exons.percentage == 1.0
 
     input = results[1]
+
     assert input.therapy.name == "Input"
     assert input.therapy.hgvsc == dna
     coding_exons = input.comparison[1]
@@ -240,10 +241,15 @@ def test_analyze_NC_NM_forward() -> None:
     """
     rna = "NC_000011.10(NM_003002.4):r.102del"
     dna = "NC_000011.10(NM_003002.4):c.102del"
-    transcript = Allele(rna=rna, dna=dna)
+    transcript = Allele(rna=rna, dna=dna, identifier="NC_000011.10(NM_003002.4)")
 
     results = analyze(transcript, extended=True)
 
+    print()
+    print("Wildtype:")
+    print(results[0])
+    print("Input:")
+    print(input)
     # Look at the results for skipping exon 2
     skip2 = results[2]
     assert skip2.therapy.name == "Skip exon 2"
@@ -252,7 +258,7 @@ def test_analyze_NC_NM_forward() -> None:
     # But it does change the RNA
     assert skip2.therapy.hgvsr == "NC_000011.10(NM_003002.4):r.53_169del"
     # And hence the predicted protein
-    assert skip2.therapy.hgvsp == "NC_000011.10(NP_002993.1):p.(Leu19_Ser57del)"
+    assert skip2.therapy.hgvsp == "NC_000011.10(NM_003002.4):p.19_57del"
 
     # Check the remaining basepairs for the exons
     exons = skip2.comparison[0]
@@ -270,7 +276,7 @@ def test_analyze_NM_forward() -> None:
     """
     rna = "NM_003002.4:r.102del"
     dna = "NM_003002.4:c.102del"
-    allele = Allele(rna=rna, dna=dna)
+    allele = Allele(rna=rna, dna=dna, identifier="NM_003002.4")
 
     results = analyze(allele)
 
@@ -279,7 +285,7 @@ def test_analyze_NM_forward() -> None:
     assert skip2.therapy.name == "Skip exon 2"
     assert skip2.therapy.hgvsc == "NM_003002.4:c.102del"
     assert skip2.therapy.hgvsr == "NM_003002.4:r.53_169del"
-    assert skip2.therapy.hgvsp == "NM_003002.4(NP_002993.1):p.(Leu19_Ser57del)"
+    assert skip2.therapy.hgvsp == "NM_003002.4:p.19_57del"
 
     # Check the remaining basepairs for the exons
     exons = skip2.comparison[0]
@@ -299,6 +305,7 @@ def test_transcript_from_NC_NM_reverse() -> None:
         dna="NC_000011.10(NM_012459.4):c.=",
         rna="NC_000011.10(NM_012459.4):c.=",
         _ignore_coordinate=True,
+        identifier="NC_000011.10(NM_012459.4)",
     )
     features = allele.features
 
@@ -326,9 +333,10 @@ def test_analyze_NC_NM_reverse() -> None:
     # Look at the results for the input variant
     input_results = results[1]
     assert input_results.therapy.name == "Input"
-    assert (
-        input_results.therapy.hgvsp == "NC_000011.10(NP_036591.3):p.(Glu34SerfsTer15)"
-    )
+
+    # This is the extracted version of "NC_000011.10(NP_036591.3):p.(Glu34SerfsTer15)"
+    expected_protein_hgvs = "NC_000011.10(NM_012459.4):p.[34_40delinsSY;42_44del;46_59delinsIN;61D>W;63_71del;73_83delinsQGIA]"
+    assert input_results.therapy.hgvsp == expected_protein_hgvs
 
 
 def test_analyze_NM_reverse() -> None:
@@ -348,7 +356,10 @@ def test_analyze_NM_reverse() -> None:
     # Look at the results for the input variant
     input_results = results[1]
     assert input_results.therapy.name == "Input"
-    assert input_results.therapy.hgvsp == "NM_012459.4(NP_036591.3):p.(Glu34SerfsTer15)"
+
+    # This is the extracted version of  "NM_012459.4(NP_036591.3):p.(Glu34SerfsTer15)"
+    expected_protein_hgvs = "NM_012459.4:p.[34_40delinsSY;42_44del;46_59delinsIN;61D>W;63_71del;73_83delinsQGIA]"
+    assert input_results.therapy.hgvsp == expected_protein_hgvs
 
 
 @pytest.mark.parametrize(

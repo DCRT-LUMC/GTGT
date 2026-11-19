@@ -8,6 +8,7 @@ from gtgt.therapy import TherapyReport
 from gtgt.transcript import (
     Comparison,
     Features,
+    MiniTranscript,
     Result,
     Transcript,
     is_of_interest,
@@ -200,14 +201,11 @@ def test_mutate_forward(
     coding_exons.name = "Coding exons"
 
     # Variant to test
-    d = init_description(f"{transcript}:c.{variant}")
-    v = [
-        Variant.from_model(delins)
-        for delins in d.de_hgvs_internal_indexing_model["variants"]
-    ]
+    dna = f"{transcript}:c.{variant}"
+    rna = f"{transcript}:r.{variant}"
 
     SDHD = Features(rna=[exons], protein=[coding_exons])
-    SDHD.mutate(d, v)
+    SDHD.mutate(dna=MiniTranscript.from_hgvs(dna), rna=MiniTranscript.from_hgvs(rna))
 
     assert SDHD.exons and SDHD.exons.blocks() == exon_blocks
     assert SDHD.coding_exons and SDHD.coding_exons.blocks() == coding_exon_blocks

@@ -37,8 +37,8 @@ class TherapyReport:
     name: str
     hgvsc: str
     description: str
-    dna_variants: Sequence[Variant]
-    rna_variants: Sequence[Variant]
+    dna_variants: list[Variant]
+    rna_variants: list[Variant]
     figure: str | None = None
     hgvsr: str | None = None
     hgvsp: str | None = None
@@ -64,12 +64,12 @@ class TherapyReport:
         """Generate a TherapyReport from a Therapy and Allele"""
         return cls(
             name=therapy.name,
-            hgvsc=allele.dna.hgvs(),
+            hgvsc=allele.dna_hgvs(),
             description=therapy.description,
-            dna_variants=allele.dna.variants,
-            rna_variants=allele.rna.variants,
-            hgvsr=allele.rna.hgvs(),
-            hgvsp=allele.rna.protein_hgvs(),
+            dna_variants=list(allele.dna.variants),
+            rna_variants=list(allele.rna.variants),
+            hgvsr=allele.rna_hgvs(),
+            hgvsp=allele.protein_hgvs(),
         )
 
 
@@ -97,14 +97,18 @@ def _exon_string(exon_numbers: Sequence[int]) -> str:
 def skip_adjacent_exons(allele: "Allele", number_to_skip: int = 1) -> Iterator[Therapy]:
     """Skipp all possible adjacent exons the specified Description"""
 
-    skippable_exons = get_exons(allele.rna.d, in_transcript_order=True)[1:-1]
+    if allele.rna.inverted:
+        skippable_exons = allele.rna.exons[::-1][1:-1]
+    else:
+        skippable_exons = allele.rna.exons[1:-1]
+
     variants = allele.rna.variants
 
     for i, exons in enumerate(sliding_window(skippable_exons, size=number_to_skip), 2):
         # Generate the string of exon numbers
         exons_description = _exon_string(range(i, i + number_to_skip))
 
-        if allele.rna.d.is_inverted():
+        if allele.rna.inverted:
             exons = exons[::-1]
 
         # Start of the first exon to skip
@@ -130,10 +134,11 @@ def skip_adjacent_exons(allele: "Allele", number_to_skip: int = 1) -> Iterator[T
             f"The annotations based on the supplied variants, in combination with skipping {exons_description}.\n"
         ]
         # Lookup VulExMap data fore every exon
-        for j, exon in enumerate(exons):
-            vulexmap = lookup_vulexmap(allele.rna.d, exon, V)
-            if vulexmap is not None:
-                description.append(vulexmap_description(vulexmap, name=f"Exon {i+j}"))
+        # TODO restore VulExMap functionality
+        # for j, exon in enumerate(exons):
+        #     vulexmap = lookup_vulexmap(allele.rna.d, exon, V)
+        #     if vulexmap is not None:
+        #         description.append(vulexmap_description(vulexmap, name=f"Exon {i+j}"))
         # If we added VulExMap information
         if len(description) > 1:
             description.append(
@@ -143,7 +148,7 @@ def skip_adjacent_exons(allele: "Allele", number_to_skip: int = 1) -> Iterator[T
         yield Therapy(
             name=f"Skip {exons_description}",
             description=" ".join(description),
-            dna_variants=allele.dna.variants,
+            dna_variants=list(allele.dna.variants),
             rna_variants=list(combined),
         )
 

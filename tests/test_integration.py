@@ -3,7 +3,7 @@ from typing import Sequence
 import pytest
 
 from gtgt.mutalyzer import init_description, sequence_from_description
-from gtgt.transcript import Comparison, Features
+from gtgt.transcript import Comparison, Features, MiniTranscript
 from gtgt.variant import Variant
 
 
@@ -11,22 +11,28 @@ def compare_to_wildtype(hgvs: str) -> Sequence[Comparison]:
     """
     Helper function to build a transcript from the supplied HGVS, and compare it to the wildtype transcript
     """
+    if ":c." in hgvs:
+        dna_hgvs = hgvs
+        rna_hgvs = dna_hgvs.replace(":c.", ":r.")
+    elif ":r." in hgvs:
+        rna_hgvs = hgvs
+        dna_hgvs = rna_hgvs.replace(":r.", ":c.")
+    else:
+        raise NotImplementedError
+
     # First, create the wildtype transcript
     *rest, variant = hgvs.split(".")
     wt_hgvs = ".".join(rest) + ".="
-
     wt = Features.from_hgvs(wt_hgvs)
 
-    # Next, we create and mutate the transcript of interest
-    d = init_description(hgvs)
-    t = Features.from_hgvs(hgvs)
+    # Now, we make the DNA and RNA MiniTranscripts we need to mutate the features
+    dna = MiniTranscript.from_hgvs(dna_hgvs)
+    rna = MiniTranscript.from_hgvs(rna_hgvs)
 
-    sequence = sequence_from_description(d)
-    input_variants = [
-        Variant.from_model(delins, sequence=sequence)
-        for delins in d.delins_model["variants"]
-    ]
-    t.mutate(d, input_variants)
+    # Next, we create and mutate the transcript of interest
+    # The features are always on the DNA
+    t = Features.from_hgvs(dna_hgvs)
+    t.mutate(dna, rna)
 
     return t.compare(wt)
 

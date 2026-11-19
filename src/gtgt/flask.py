@@ -143,8 +143,9 @@ def result() -> str:
     try:
         allele = Allele(dna=dna_hgvs, rna=rna_hgvs)
 
-        if protein_domains:
-            allele.lookup_protein_domains(allele.rna.d)
+        # TODO fix protein domains
+        # if protein_domains:
+        #     allele.lookup_protein_domains(allele.rna.d)
 
         results = analyze(allele, extended=extended)
     except Exception as e:

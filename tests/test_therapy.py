@@ -145,9 +145,9 @@ def test_TherapyReport_from_Therapy() -> None:
     # Use HGVS to initialize the Allele
     dna = "ENST00000452863.10:c.662_784del"
     rna = "ENST00000452863.10:r.662_784del"
-    protein = "ENST00000452863.10(ENSP00000415516):p.(Tyr222_Gly262del)"
+    protein = "ENST00000452863.10:p.222_262del"
 
-    allele = Allele(rna=rna, dna=dna)
+    allele = Allele(rna=rna, dna=dna, identifier="ENST00000452863.10")
     therapy = Therapy(
         name="Test therapy",
         description="This is a description of this very fancy therapy",

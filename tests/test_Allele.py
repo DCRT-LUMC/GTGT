@@ -224,7 +224,7 @@ def test_mutate_reverse(
     v = [Variant.from_model(delins) for delins in d.delins_model["variants"]]
 
     WT1 = Allele(dna=dna, rna=rna, _ignore_coordinate=True)
-    WT1.features.mutate(d, v)
+    WT1.features.mutate(dna=WT1.dna, rna=WT1.rna)
 
     assert WT1.features.exons and WT1.features.exons.blocks() == exon_blocks
     assert (

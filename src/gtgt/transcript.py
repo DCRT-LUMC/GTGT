@@ -1,10 +1,11 @@
+import copy
 import dataclasses
 import itertools
 import logging
-from copy import deepcopy
 from typing import Any, Mapping, Self, Sequence
 
 from algebra.extractor import extract_sequence, to_hgvs
+from Bio.Seq import Seq
 from mutalyzer.description import Description
 from mutalyzer_crossmapper import Coding
 
@@ -13,12 +14,12 @@ from gtgt.range import intersect
 from .bed import Bed
 from .exonviz import draw
 from .mutalyzer import (
+    changed_protein_positions,
     genomic_crossmapper,
     genomic_to_transcript,
     get_chrom_name,
     get_strand,
     init_description,
-    mutation_to_cds_effect,
     sequence_from_description,
     transcript_crossmapper,
     variants_to_hgvs,
@@ -29,7 +30,6 @@ from .ucsc import PROTEIN_TRACKS, lookup_track
 from .variant import Variant
 
 logger = logging.getLogger(__name__)
-
 
 mapping = str.maketrans(
     {
@@ -107,6 +107,7 @@ class MiniTranscript:
         exons: list[Range],
         cds: list[Range],
         variants: list[Variant] | None = None,
+        identifier: str = "",
     ) -> None:
         self.inverted = inverted
         self.sequence = sequence
@@ -157,15 +158,21 @@ class MiniTranscript:
         coding_sequence = self.get_coding_sequence()
         return self._get_protein_sequence(coding_sequence)
 
+    def get_reference_protein_sequence(self) -> str:
+        """Return the reference protein sequence"""
+        wt_coding = self._get_coding_regions(self.exons, self.cds[0])
+        wt_sequence = self._get_features_sequence(self.sequence, wt_coding)
+        return self._get_protein_sequence(wt_sequence)
+
     def protein_hgvs(self) -> str:
         """Generate the HGVS description for the mutated protein"""
         # First, we get the wildtype protein
-        wt_coding = self._get_coding_regions(self.exons, self.cds[0])
-        wt_sequence = self._get_features_sequence(self.sequence, wt_coding)
-        reference = self._get_protein_sequence(wt_sequence)
+        reference = self.get_reference_protein_sequence()
 
         # Next, we get the mutated protein sequence
         observed = self.get_protein_sequence()
+        print()
+        print(f"{observed=}")
 
         return self._protein_hgvs(reference, observed)
 
@@ -175,7 +182,7 @@ class MiniTranscript:
         if not self.variants:
             return "="
 
-        mapper = Coding(self.exons, self.cds, inverted=self.inverted)
+        mapper = Coding(self.exons, self.cds[0], inverted=self.inverted)
 
         descriptions = [variant.to_hgvs(mapper) for variant in self.variants]
 
@@ -468,7 +475,7 @@ class Features:
         values = [x.percentage for x in cmp]
         return sum(values) / len(cmp)
 
-    def mutate(self, d: Description, variants: Sequence[Variant]) -> None:
+    def mutate(self, dna: MiniTranscript, rna: MiniTranscript) -> None:
         """
         Mutate the transcript based on the specified variants
 
@@ -481,13 +488,44 @@ class Features:
         else:
             chrom = ""
 
+        # Get the protein sequence from the RNA
+        reference = rna.get_reference_protein_sequence()
+        observed = rna.get_protein_sequence()
+
+        # Get the changed protein positions on the DNA, which is where the features live
+        # Get a genomic crossmapper
+        genomic = Coding(dna.exons, dna.cds[0], inverted=dna.inverted)
+
+        # Changes on the genomic coordinates
+        changed_genomic = list()
+
+        # Translate the changed protein positions to the genomic internal coordinates
+        for start, end in changed_protein_positions(reference, observed):
+            start = genomic.protein_to_coordinate((start + 1, 1, 0, 0, 0))
+            end = genomic.protein_to_coordinate((end, 3, 0, 0, 0)) + 1
+
+            if end < start:
+                start, end = end - 1, start + 1
+
+            changed_genomic.append((start, end))
+
         # Update protein features
-        protein_changes = Bed.from_blocks(chrom, mutation_to_cds_effect(d, variants))
+        protein_changes = Bed.from_blocks(chrom, changed_genomic)
         for record in self.protein:
             record.subtract(protein_changes)
 
+        # Translate the RNA changes to the genomic coordinates
+        mapper = Coding(rna.exons, rna.cds[0], rna.inverted)
+        changed_rna = list()
+        for variant in rna.variants:
+            start = genomic.coding_to_coordinate(
+                mapper.coordinate_to_coding(variant.start)
+            )
+            end = genomic.coding_to_coordinate(mapper.coordinate_to_coding(variant.end))
+            changed_rna.append((start, end))
+
         # Update RNA features
-        rna_changes = Bed.from_blocks(chrom, [(v.start, v.end) for v in variants])
+        rna_changes = Bed.from_blocks(chrom, changed_rna)
         for record in self.rna_records():
             self.subtract(rna_changes)
 
@@ -517,6 +555,7 @@ class Allele:
         rna: str,
         features: Features | None = None,
         _ignore_coordinate: bool = False,
+        identifier: str = "",
     ) -> None:
 
         # Check if the coordinate systems are correct, unless _ignore_coordinate
@@ -529,14 +568,23 @@ class Allele:
             msg = f"Only variants on the 'r' coordinate system are supported ({dna})"
             raise ValueError(msg)
 
-        self.dna = Transcript(dna)
+        if not identifier:
+            identifier = dna.split(":c.")[0]
 
-        # If there are no features specified, we use the features from the RNA
+        self.dna = MiniTranscript.from_hgvs(dna)
+
+        # If there are no features specified, we use the features from the DNA
+        # We use the DNA for the coordinates since our (protein) annotations
+        # are on the genome
         if features is None:
-            features = Features.from_hgvs(rna)
+            features = Features.from_hgvs(dna)
+
         self.features = features
 
-        self.rna = Transcript(rna)
+        self.rna = MiniTranscript.from_hgvs(rna)
+
+        # Used when generating HGVS descriptions from the allele
+        self.identifier = identifier
 
         # Finally, mutate the features based on the RNA to ensure internal
         # consistency
@@ -544,7 +592,7 @@ class Allele:
 
     def mutate(self) -> None:
         """Mutate the features based on the variants of the RNA Transcript"""
-        self.features.mutate(self.rna.d, self.rna.variants)
+        self.features.mutate(self.dna, self.rna)
 
     def __str__(self) -> str:
         return "\n".join(str(record) for record in self.features.records())
@@ -579,44 +627,59 @@ class Allele:
                 record.update(t_blocks)
                 self.features.protein.append(record)
 
+    def dna_hgvs(self) -> str:
+        dna_variants = self.dna.hgvs()
+        return f"{self.identifier}:c.{dna_variants}"
+
+    def rna_hgvs(self) -> str:
+        rna_variants = self.rna.hgvs()
+        return f"{self.identifier}:r.{rna_variants}"
+
+    def protein_hgvs(self) -> str:
+        protein_variants = self.rna.protein_hgvs()
+        return f"{self.identifier}:p.{protein_variants}"
+
 
 def analyze(allele: Allele, extended: bool = False) -> Sequence[Result]:
     """Analyze the transcript based on the specified HGVS description"""
 
     # Create the wildtype allele as a starting point
-    hgvs_id = allele.rna.d.input_description.split(":r.")[0]
-    wildtype = Allele(rna=f"{hgvs_id}:r.=", dna=f"{hgvs_id}:c.=")
+    wildtype_dna = f"{allele.identifier}:c.="
+    wildtype_rna = f"{allele.identifier}:r.="
+    wildtype = Allele(dna=wildtype_dna, rna=wildtype_rna, identifier=allele.identifier)
 
     # If there are protein domains on the allele, we also want them for the wildtype
     if len(allele.features.protein) > 1:
-        wildtype.lookup_protein_domains(wildtype.rna.d)
-
-    # TODO restore protein features
+        pass
+        # TODO fix looking up protein domains
+        # wildtype.lookup_protein_domains(wildtype.rna.d)
 
     results = list()
 
     # Store the wildtype
     wt = TherapyReport(
         name="Wildtype",
-        hgvsc=wildtype.dna.hgvs(),
-        hgvsr=wildtype.rna.hgvs(),
-        hgvsp=wildtype.rna.protein_hgvs(),
+        hgvsc=wildtype.dna_hgvs(),
+        hgvsr=wildtype.rna_hgvs(),
+        hgvsp=wildtype.protein_hgvs(),
         description="These are the annotations as defined on the reference. They are always 100% by definition.",
-        dna_variants=wildtype.dna.variants,
-        rna_variants=wildtype.rna.variants,
+        dna_variants=list(wildtype.dna.variants),
+        rna_variants=list(wildtype.rna.variants),
     )
     results.append(Result(wt, wildtype.features.compare(wildtype.features)))
 
     # Store the input variants as Therapy
     input = TherapyReport(
         name="Input",
-        hgvsc=allele.dna.hgvs(),
-        hgvsr=allele.rna.hgvs(),
-        hgvsp=allele.rna.protein_hgvs(),
+        hgvsc=allele.dna_hgvs(),
+        hgvsr=allele.rna_hgvs(),
+        hgvsp=allele.protein_hgvs(),
         description="The annotations based on the supplied input variants.",
-        dna_variants=allele.dna.variants,
-        rna_variants=allele.rna.variants,
-        figure=draw(allele.rna),
+        dna_variants=list(allele.dna.variants),
+        rna_variants=list(allele.rna.variants),
+        # TODO fix ExonViz figure
+        figure=None,
+        # figure=draw(allele.rna),
     )
     # The input variant is actually the same as allele
     results.append(Result(input, allele.features.compare(wildtype.features)))
@@ -625,10 +688,10 @@ def analyze(allele: Allele, extended: bool = False) -> Sequence[Result]:
     for therapy in generate_therapies(allele):
 
         # Make the allele modified by the therapies
-        modified_transcript = deepcopy(wildtype)
+        modified_transcript = copy.deepcopy(wildtype)
 
-        modified_transcript.rna.variants = therapy.rna_variants.copy()
-        modified_transcript.dna.variants = therapy.dna_variants.copy()
+        modified_transcript.rna.variants = tuple(therapy.rna_variants)
+        modified_transcript.dna.variants = tuple(therapy.dna_variants)
         # Update the features of the modified transcript based on the therapy
         modified_transcript.mutate()
 
@@ -677,7 +740,7 @@ def is_of_interest(
     # Determine if there are any regions that were restored in the therapy,
     # which are lacking in the patient
     for t, p in zip(therapy.records(), patient.records()):
-        restored = deepcopy(t)
+        restored = copy.deepcopy(t)
         restored.subtract(p)
         if restored.size > 0:
             return True
