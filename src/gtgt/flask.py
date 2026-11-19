@@ -7,7 +7,7 @@ from flask import Flask, request
 from jinja2 import Environment, FileSystemLoader
 
 from gtgt.mutalyzer import init_description
-from gtgt.transcript import Result
+from gtgt.transcript import Result, analyze
 
 from . import Allele
 from .variant_validator import lookup_variant
@@ -146,7 +146,7 @@ def result() -> str:
         if protein_domains:
             allele.lookup_protein_domains(allele.rna.d)
 
-        results = allele.analyze(extended=extended)
+        results = analyze(allele, extended=extended)
     except Exception as e:
         error = {"summary": "Analysis failed", "details": str(e)}
         results = []

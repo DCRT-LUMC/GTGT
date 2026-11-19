@@ -18,7 +18,7 @@ from gtgt.mutalyzer import (
     variants_to_protein_hgvs,
 )
 from gtgt.therapy import TherapyReport
-from gtgt.transcript import Allele, Features
+from gtgt.transcript import Allele, Features, analyze
 from gtgt.variant import Variant
 
 
@@ -45,7 +45,7 @@ def test_analyze_supported_variant_types(variant: str) -> None:
     dna = f"ENST00000452863.10:c.{variant}"
     rna = f"ENST00000452863.10:r.{variant}"
     WT = Allele(rna=rna, dna=dna)
-    WT.analyze()
+    analyze(WT)
 
 
 def test_analyze_transcript() -> None:
@@ -59,7 +59,7 @@ def test_analyze_transcript() -> None:
     # features matches the test case after refactoring
     WT = Allele(rna=rna, dna=dna)
 
-    results = WT.analyze()
+    results = analyze(WT)
 
     # Test the content of the 'wildtype' result
     wildtype = results[0]
@@ -242,7 +242,7 @@ def test_analyze_NC_NM_forward() -> None:
     dna = "NC_000011.10(NM_003002.4):c.102del"
     transcript = Allele(rna=rna, dna=dna)
 
-    results = transcript.analyze(extended=True)
+    results = analyze(transcript, extended=True)
 
     # Look at the results for skipping exon 2
     skip2 = results[2]
@@ -272,7 +272,7 @@ def test_analyze_NM_forward() -> None:
     dna = "NM_003002.4:c.102del"
     allele = Allele(rna=rna, dna=dna)
 
-    results = allele.analyze()
+    results = analyze(allele)
 
     # Look at the results for skipping exon 2
     skip2 = results[2]
@@ -318,7 +318,7 @@ def test_analyze_NC_NM_reverse() -> None:
     dna = "NC_000011.10(NM_012459.4):c.100del"
     allele = Allele(rna=rna, dna=dna)
 
-    results = allele.analyze()
+    results = analyze(allele)
 
     # TIMM8B only has 2 exons, so there will be no exon skips proposed
     assert len(results) == 2
@@ -340,7 +340,7 @@ def test_analyze_NM_reverse() -> None:
     dna = "NM_012459.4:c.100del"
     allele = Allele(rna=rna, dna=dna)
 
-    results = allele.analyze()
+    results = analyze(allele)
 
     # TIMM8B only has 2 exons, so there will be no exon skips proposed
     assert len(results) == 2

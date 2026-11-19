@@ -530,82 +530,6 @@ class Allele:
         """Mutate the features based on the variants of the RNA Transcript"""
         self.features.mutate(self.rna.d, self.rna.variants)
 
-    def analyze(self, extended: bool = False) -> Sequence[Result]:
-        """Analyze the transcript based on the specified HGVS description"""
-
-        # Create the wildtype allele as a starting point
-        hgvs_id = self.rna.d.input_description.split(":r.")[0]
-        wildtype = Allele(rna=f"{hgvs_id}:r.=", dna=f"{hgvs_id}:c.=")
-
-        # If there are protein domains on self, we also want them for the wildtype
-        if len(self.features.protein) > 1:
-            wildtype.lookup_protein_domains(wildtype.rna.d)
-
-        # TODO restore protein features
-
-        results = list()
-
-        # Store the wildtype
-        wt = TherapyReport(
-            name="Wildtype",
-            hgvsc=wildtype.dna.hgvs(),
-            hgvsr=wildtype.rna.hgvs(),
-            hgvsp=wildtype.rna.protein_hgvs(),
-            description="These are the annotations as defined on the reference. They are always 100% by definition.",
-            dna_variants=wildtype.dna.variants,
-            rna_variants=wildtype.rna.variants,
-        )
-        results.append(Result(wt, wildtype.features.compare(wildtype.features)))
-
-        # Store the input variants as Therapy
-        input = TherapyReport(
-            name="Input",
-            hgvsc=self.dna.hgvs(),
-            hgvsr=self.rna.hgvs(),
-            hgvsp=self.rna.protein_hgvs(),
-            description="The annotations based on the supplied input variants.",
-            dna_variants=self.dna.variants,
-            rna_variants=self.rna.variants,
-            figure=draw(self.rna),
-        )
-        # The input variant is actually the same as self
-        results.append(Result(input, self.features.compare(wildtype.features)))
-
-        # Generate all possible therapies
-        for therapy in generate_therapies(self):
-
-            # Make the allele modified by the therapies
-            modified_transcript = deepcopy(wildtype)
-
-            modified_transcript.rna.variants = therapy.rna_variants.copy()
-            modified_transcript.dna.variants = therapy.dna_variants.copy()
-            # Update the features of the modified transcript based on the therapy
-            modified_transcript.mutate()
-
-            # Filter variants which are not of interest
-            if not extended:
-                if not is_of_interest(
-                    self.features,
-                    self.rna.variants,
-                    modified_transcript.features,
-                    modified_transcript.rna.variants,
-                ):
-                    continue
-
-            # Make the therapy report
-            therapy_report = TherapyReport.from_therapy(therapy, modified_transcript)
-            results.append(
-                Result(
-                    therapy_report,
-                    modified_transcript.features.compare(wildtype.features),
-                )
-            )
-
-        # Order the results
-        wt_patient = results[:2]
-        rest = sorted(results[2:], reverse=True)
-        return wt_patient + rest
-
     def __str__(self) -> str:
         return "\n".join(str(record) for record in self.features.records())
 
@@ -638,6 +562,83 @@ class Allele:
 
                 record.update(t_blocks)
                 self.features.protein.append(record)
+
+
+def analyze(allele: Allele, extended: bool = False) -> Sequence[Result]:
+    """Analyze the transcript based on the specified HGVS description"""
+
+    # Create the wildtype allele as a starting point
+    hgvs_id = allele.rna.d.input_description.split(":r.")[0]
+    wildtype = Allele(rna=f"{hgvs_id}:r.=", dna=f"{hgvs_id}:c.=")
+
+    # If there are protein domains on the allele, we also want them for the wildtype
+    if len(allele.features.protein) > 1:
+        wildtype.lookup_protein_domains(wildtype.rna.d)
+
+    # TODO restore protein features
+
+    results = list()
+
+    # Store the wildtype
+    wt = TherapyReport(
+        name="Wildtype",
+        hgvsc=wildtype.dna.hgvs(),
+        hgvsr=wildtype.rna.hgvs(),
+        hgvsp=wildtype.rna.protein_hgvs(),
+        description="These are the annotations as defined on the reference. They are always 100% by definition.",
+        dna_variants=wildtype.dna.variants,
+        rna_variants=wildtype.rna.variants,
+    )
+    results.append(Result(wt, wildtype.features.compare(wildtype.features)))
+
+    # Store the input variants as Therapy
+    input = TherapyReport(
+        name="Input",
+        hgvsc=allele.dna.hgvs(),
+        hgvsr=allele.rna.hgvs(),
+        hgvsp=allele.rna.protein_hgvs(),
+        description="The annotations based on the supplied input variants.",
+        dna_variants=allele.dna.variants,
+        rna_variants=allele.rna.variants,
+        figure=draw(allele.rna),
+    )
+    # The input variant is actually the same as allele
+    results.append(Result(input, allele.features.compare(wildtype.features)))
+
+    # Generate all possible therapies
+    for therapy in generate_therapies(allele):
+
+        # Make the allele modified by the therapies
+        modified_transcript = deepcopy(wildtype)
+
+        modified_transcript.rna.variants = therapy.rna_variants.copy()
+        modified_transcript.dna.variants = therapy.dna_variants.copy()
+        # Update the features of the modified transcript based on the therapy
+        modified_transcript.mutate()
+
+        # Filter variants which are not of interest
+        if not extended:
+            if not is_of_interest(
+                allele.features,
+                allele.rna.variants,
+                modified_transcript.features,
+                modified_transcript.rna.variants,
+            ):
+                continue
+
+        # Make the therapy report
+        therapy_report = TherapyReport.from_therapy(therapy, modified_transcript)
+        results.append(
+            Result(
+                therapy_report,
+                modified_transcript.features.compare(wildtype.features),
+            )
+        )
+
+    # Order the results
+    wt_patient = results[:2]
+    rest = sorted(results[2:], reverse=True)
+    return wt_patient + rest
 
 
 def is_of_interest(

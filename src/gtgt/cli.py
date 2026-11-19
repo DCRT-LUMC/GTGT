@@ -10,7 +10,7 @@ import logging
 import secrets
 from typing import Any
 
-from gtgt.transcript import Allele, Result
+from gtgt.transcript import Allele, Result, analyze
 
 from .mutalyzer import (
     init_description,
@@ -93,7 +93,7 @@ def _set_analyze_parser(subparsers: Any) -> None:
         default=False,
         action="store_true",
     )
-    analyze_parser.set_defaults(func=analyze)
+    analyze_parser.set_defaults(func=cli_analyze)
 
 
 def _set_export_parser(subparsers: Any) -> None:
@@ -147,13 +147,13 @@ def mutate(args: argparse.Namespace) -> None:
         # print(f"{therapy.name}: {therapy.hgvsc}")
 
 
-def analyze(args: argparse.Namespace) -> None:
+def cli_analyze(args: argparse.Namespace) -> None:
     allele = Allele(dna=args.dna, rna=args.rna)
     if args.protein_domains:
         d = init_description(args.rna)
         allele.lookup_protein_domains(d)
     # Convert Result objects to dict
-    results = [dataclasses.asdict(x) for x in allele.analyze(extended=args.extended)]
+    results = [dataclasses.asdict(x) for x in analyze(allele, extended=args.extended)]
     print(json.dumps(results, indent=True, default=vars))
 
 
