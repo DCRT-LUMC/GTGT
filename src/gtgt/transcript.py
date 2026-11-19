@@ -2,7 +2,7 @@ import dataclasses
 import itertools
 import logging
 from copy import deepcopy
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Self, Sequence
 
 from algebra.extractor import extract_sequence, to_hgvs
 from mutalyzer.description import Description
@@ -113,6 +113,22 @@ class MiniTranscript:
         self.exons = exons
         self.cds = cds
         self.variants = tuple(variants) if variants else tuple()
+
+    @classmethod
+    def from_hgvs(cls, hgvs: str) -> Self:
+        d = init_description(hgvs)
+
+        # Get the data we need
+        inverted = d.is_inverted()
+        sequence = sequence_from_description(d)
+        exons = d.get_selector_model()["exon"]
+        cds = d.get_selector_model()["cds"]
+
+        variants = [
+            Variant.from_model(delins, sequence=sequence)
+            for delins in d.delins_model["variants"]
+        ]
+        return cls(inverted, sequence, exons, cds, variants)
 
     def get_sequence(self) -> str:
         """Return the unchanged sequence of the transcript"""
