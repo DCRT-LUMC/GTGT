@@ -104,7 +104,7 @@ class MiniTranscript:
         inverted: bool,
         sequence: str,
         exons: list[Range],
-        cds: list[Range] | None = None,
+        cds: list[Range],
         variants: list[Variant] | None = None,
     ) -> None:
         self.inverted = inverted
@@ -126,8 +126,6 @@ class MiniTranscript:
 
     def get_coding_sequence(self) -> str:
         """Return the mutated coding sequence, in forward orientation"""
-        if not self.cds:
-            raise ValueError("Transcript does not have a cds")
 
         sequence = self._mutate_sequence(self.sequence, self.variants)
         exons = self._mutate_features(self.exons, self.variants)
