@@ -6,6 +6,7 @@ from typing import Any, Mapping, Sequence
 
 from algebra.extractor import extract_sequence, to_hgvs
 from mutalyzer.description import Description
+from mutalyzer_crossmapper import Coding
 
 from gtgt.range import intersect
 
@@ -138,6 +139,38 @@ class MiniTranscript:
     def get_protein_sequence(self) -> str:
         """Return the mutated protein sequence"""
         coding_sequence = self.get_coding_sequence()
+        return self._get_protein_sequence(coding_sequence)
+
+    def protein_hgvs(self) -> str:
+        """Generate the HGVS description for the mutated protein"""
+        # First, we get the wildtype protein
+        wt_coding = self._get_coding_regions(self.exons, self.cds[0])
+        wt_sequence = self._get_features_sequence(self.sequence, wt_coding)
+        reference = self._get_protein_sequence(wt_sequence)
+
+        # Next, we get the mutated protein sequence
+        observed = self.get_protein_sequence()
+
+        return self._protein_hgvs(reference, observed)
+
+    def hgvs(self) -> str:
+        """Generate the HGVS description for the variants"""
+        # HGVS for no variants
+        if not self.variants:
+            return "="
+
+        mapper = Coding(self.exons, self.cds, inverted=self.inverted)
+
+        descriptions = [variant.to_hgvs(mapper) for variant in self.variants]
+
+        if len(descriptions) == 1:
+            return descriptions[0]
+        else:
+            return "[" + ";".join(descriptions) + "]"
+
+    @staticmethod
+    def _get_protein_sequence(coding_sequence: str) -> str:
+        """Return the mutated protein sequence"""
         # Add padding if the coding sequence is not divisible by three
         if padding := 3 - len(coding_sequence) % 3:
             coding_sequence += "N" * padding
